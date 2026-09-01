@@ -17,7 +17,7 @@ codex plugin marketplace add AoiOTA/Kiss-My-Agent
 codex plugin add kiss-my-agent@kiss-my-agent
 ```
 
-启动新会话，运行 `$kiss-my-agent-setup set up this project`，再启动一个新会话并运行 `$kiss-my-agent-setup check this project`。Git-backed marketplace 远程安装之前必须存在 `v0.1.0` Git tag；当前 source/static 证据不是发布证据。
+启动新会话，运行 `$kiss-my-agent-setup set up this project`，再启动一个新会话并运行 `$kiss-my-agent-setup check this project`。Marketplace 将本次 release 固定到 `v0.1.0`；成功的远程安装证明该次运行可用，source/static 证据不能证明这一点。
 
 <a id="global"></a>
 ## 项目 setup 会全局安装吗？
@@ -81,7 +81,7 @@ codex --config features.multi_agent=false --config agents.enabled=false
 <a id="pages"></a>
 ## Pages 站点在哪里？
 
-Stage 1 本地构建支持已经准备好，但 README 有意保持相对语言链接。只有首次部署响应返回 HTTP 200 后才能发布 Pages URL；不要传播部署前返回 404 的 URL。
+站点提供[英文版](https://aoiota.github.io/Kiss-My-Agent/)与[简体中文版](https://aoiota.github.io/Kiss-My-Agent/zh-CN/)。修改站点 pipeline 或 URL 时，发布链接前应验证两个部署响应都返回 HTTP 200。
 
 <a id="windows-wsl"></a>
 ## WSL 是 Windows 测试路径吗？

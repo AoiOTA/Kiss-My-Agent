@@ -69,7 +69,7 @@ Windows native PowerShell:
 
 Inspect rendered Markdown when navigation, tables, badges, Mermaid, or assets change. Use a trusted new Codex session for discovery changes; old sessions are not guaranteed to hot-load.
 
-For Pages stage 1, build and test locally before proposing the stage-2 URL switch:
+For Pages changes, build and test locally before deployment, then verify the deployed English root and Chinese `zh-CN/` URLs:
 
 ```bash
 python3 -m pip install -r requirements-site.txt
@@ -77,7 +77,7 @@ python3 -m unittest tests.test_build_site
 python3 scripts/build_site.py --output _site
 ```
 
-Keep README language links relative until the first deployed Pages response returns HTTP 200.
+Keep README language links pointed at verified Pages URLs; do not replace them with unverified deployment targets.
 
 <a id="stop-boundary"></a>
 ## Stop Boundary

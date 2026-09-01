@@ -4,7 +4,7 @@
 
 **Keep It Simple, Scientist. Less ceremony. More science.**
 
-[English](README.md) | [简体中文](README.zh-CN.md)
+[English](https://aoiota.github.io/Kiss-My-Agent/) | [简体中文](https://aoiota.github.io/Kiss-My-Agent/zh-CN/)
 
 [![许可证：MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 ![状态：早期阶段](https://img.shields.io/badge/status-early_stage-orange.svg)
@@ -43,7 +43,7 @@ $kiss-my-agent-setup check this project
 
 全局安装绝不隐式发生。必须明确请求 `$kiss-my-agent-setup set up globally`；选择该 scope 前请阅读[安装](docs/INSTALLATION.zh-CN.md)。
 
-Git-backed marketplace 已为 `v0.1.0` 做好准备，但远程安装要求该 tag 已存在。当前 checkout 只支持源码检查与静态验证；这不证明 plugin 已发布或完成真实安装。
+Git-backed marketplace 将本次 release 固定到 `v0.1.0`。成功的远程安装是该 tag 的发布证据；源码检查与静态验证本身不是远程安装或真实发现证据。
 
 <a id="components"></a>
 ## 组件
@@ -127,7 +127,7 @@ codex --config features.multi_agent=false --config agents.enabled=false
 <a id="pages-status"></a>
 ## 文档站点状态
 
-Pages stage 1 已准备好本地构建与验证：
+文档站点已发布[英文版](https://aoiota.github.io/Kiss-My-Agent/)与[简体中文版](https://aoiota.github.io/Kiss-My-Agent/zh-CN/)。使用以下命令在本地构建并验证：
 
 ```bash
 python3 -m pip install -r requirements-site.txt
@@ -135,7 +135,7 @@ python3 -m unittest tests.test_build_site
 python3 scripts/build_site.py --output _site
 ```
 
-`_site/` 是已忽略的本地产物。Stage 1 中 README 语言切换保持相对链接。只有首次部署的 Pages 响应返回 HTTP 200 后，stage 2 才能把它替换为已验证的 Pages URL；本文有意不发布可能返回 404 的链接。
+`_site/` 是已忽略的本地产物。Pages workflow 通过 GitHub Actions 从 `main` 发布。绿色 workflow 与真实 HTTP 响应是不同证据；部署后应验证两个语言 URL。
 
 <a id="validation-boundaries"></a>
 ## 验证边界
@@ -159,7 +159,6 @@ Setup `check` 只证明它检查的文件与 managed content。真实 `/skills` 
 ## 局限
 
 - 早期源码分发；不声明兼容性与 release 保证。
-- Git-backed marketplace 远程安装该版本之前仍需创建 `v0.1.0` tag。
 - Codex 优先；其他 Host 尚未验证。
 - Instructions 不授予文件系统、网络、账户或认证权限。
 - 人工 scenarios 与 Smoke 检查不是行为资格认定或研究证据。

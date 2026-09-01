@@ -17,7 +17,7 @@ codex plugin marketplace add AoiOTA/Kiss-My-Agent
 codex plugin add kiss-my-agent@kiss-my-agent
 ```
 
-Start a new session, run `$kiss-my-agent-setup set up this project`, then start another new session and run `$kiss-my-agent-setup check this project`. The `v0.1.0` Git tag must exist before the Git-backed marketplace can install it remotely; current source/static evidence is not publication evidence.
+Start a new session, run `$kiss-my-agent-setup set up this project`, then start another new session and run `$kiss-my-agent-setup check this project`. The marketplace pins this release to `v0.1.0`; successful remote installation proves availability for that run, while source/static evidence does not.
 
 <a id="global"></a>
 ## Does project setup install anything globally?
@@ -81,7 +81,7 @@ Separate the evidence: source/static validation, setup `check`, `/skills` in a t
 <a id="pages"></a>
 ## Where is the Pages site?
 
-Stage 1 local build support is prepared, but this README intentionally keeps relative language links. Publish a Pages URL only after the first deployed response returns HTTP 200; do not circulate a pre-deployment 404 URL.
+The site is available in [English](https://aoiota.github.io/Kiss-My-Agent/) and [Simplified Chinese](https://aoiota.github.io/Kiss-My-Agent/zh-CN/). When changing the site pipeline or URLs, verify that both deployed responses return HTTP 200 before publishing the links.
 
 <a id="windows-wsl"></a>
 ## Is WSL the Windows test path?

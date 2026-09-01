@@ -4,7 +4,7 @@
 
 **Keep It Simple, Scientist. Less ceremony. More science.**
 
-[English](README.md) | [简体中文](README.zh-CN.md)
+[English](https://aoiota.github.io/Kiss-My-Agent/) | [简体中文](https://aoiota.github.io/Kiss-My-Agent/zh-CN/)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 ![Status: early stage](https://img.shields.io/badge/status-early_stage-orange.svg)
@@ -43,7 +43,7 @@ Also use `/skills` and a harmless role Smoke from [Testing](docs/TESTING.md) whe
 
 Global installation is never implicit. Request it explicitly with `$kiss-my-agent-setup set up globally`; see [Installation](docs/INSTALLATION.md) before choosing that scope.
 
-The Git-backed marketplace is prepared for `v0.1.0`, but remote installation requires that tag to exist. This checkout currently supports source inspection and static validation only; it is not evidence that the plugin has been published or installed live.
+The Git-backed marketplace pins this release to `v0.1.0`. A successful remote install is publication evidence for that tag; source inspection and static validation alone are not remote-install or live-discovery evidence.
 
 <a id="components"></a>
 ## Components
@@ -127,7 +127,7 @@ Codex-facing instructions, Skill content, Rules, Cases, role TOML, `LICENSE`, an
 <a id="pages-status"></a>
 ## Documentation Site Status
 
-Pages stage 1 is prepared for local build and verification:
+The documentation site is published in [English](https://aoiota.github.io/Kiss-My-Agent/) and [Simplified Chinese](https://aoiota.github.io/Kiss-My-Agent/zh-CN/). Build and verify it locally with:
 
 ```bash
 python3 -m pip install -r requirements-site.txt
@@ -135,7 +135,7 @@ python3 -m unittest tests.test_build_site
 python3 scripts/build_site.py --output _site
 ```
 
-`_site/` is a local ignored artifact. The README language switch remains relative during stage 1. Only after the first deployed Pages response returns HTTP 200 should stage 2 replace it with the verified Pages URL; this README intentionally does not publish a potentially returning-404 link.
+`_site/` is a local ignored artifact. The Pages workflow publishes from `main` through GitHub Actions. A green workflow and live HTTP responses are separate evidence; verify both language URLs after deployment.
 
 <a id="validation-boundaries"></a>
 ## Validation Boundaries
@@ -159,7 +159,6 @@ A setup `check` proves only the files and managed content it inspects. A live `/
 ## Limitations
 
 - Early-stage source distribution; compatibility and release guarantees are not claimed.
-- The `v0.1.0` Git tag is still required before the Git-backed marketplace can install that version remotely.
 - Codex-first; other hosts have not been verified.
 - Instructions do not grant filesystem, network, account, or authentication authority.
 - Manual scenarios and Smoke checks are not behavioral qualification or research evidence.

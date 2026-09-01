@@ -7,12 +7,12 @@
 <a id="release-status"></a>
 ## Release Status
 
-The Git-backed marketplace is prepared for version `v0.1.0`, but Codex cannot install that version remotely until the Git tag exists. The current evidence is source inspection and static validation, not publication, remote installation, or live discovery. Do not interpret the commands below as a claim that the tag is already available.
+The Git-backed marketplace pins this release to `v0.1.0`. A successful remote install is publication evidence for that tag; source inspection and static validation alone are not remote-install or live-discovery evidence.
 
 <a id="install-plugin"></a>
 ## Install the Plugin
 
-When the tagged marketplace version is available, use the public installation interface:
+Use the public installation interface:
 
 ```bash
 codex plugin marketplace add AoiOTA/Kiss-My-Agent

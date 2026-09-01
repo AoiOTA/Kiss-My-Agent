@@ -69,7 +69,7 @@ Windows 原生 PowerShell：
 
 导航、tables、badges、Mermaid 或 assets 改变时检查渲染 Markdown。发现行为改变时使用可信新 Codex 会话；旧会话不保证热加载。
 
-Pages stage 1 应先在本地构建并测试，再提出 stage-2 URL 切换：
+Pages 变更应在部署前完成本地构建与测试，随后验证已部署的英文根 URL 与中文 `zh-CN/` URL：
 
 ```bash
 python3 -m pip install -r requirements-site.txt
@@ -77,7 +77,7 @@ python3 -m unittest tests.test_build_site
 python3 scripts/build_site.py --output _site
 ```
 
-首次部署的 Pages 响应返回 HTTP 200 前，README 语言链接保持相对路径。
+README 语言链接应指向已验证的 Pages URL；不要替换为未经验证的部署目标。
 
 <a id="stop-boundary"></a>
 ## 停止边界

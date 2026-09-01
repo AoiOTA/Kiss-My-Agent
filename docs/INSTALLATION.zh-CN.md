@@ -7,12 +7,12 @@
 <a id="release-status"></a>
 ## 发布状态
 
-Git-backed marketplace 已为 `v0.1.0` 做好准备，但 Git tag 存在之前 Codex 无法远程安装该版本。当前证据是源码检查与静态验证，不是发布、远程安装或真实发现。不要把下列命令理解为该 tag 已经可用的声明。
+Git-backed marketplace 将本次 release 固定到 `v0.1.0`。成功的远程安装是该 tag 的发布证据；源码检查与静态验证本身不是远程安装或真实发现证据。
 
 <a id="install-plugin"></a>
 ## 安装 Plugin
 
-带 tag 的 marketplace 版本可用后，使用公开安装接口：
+使用公开安装接口：
 
 ```bash
 codex plugin marketplace add AoiOTA/Kiss-My-Agent

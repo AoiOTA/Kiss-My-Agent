@@ -20,6 +20,8 @@ import tomllib
 DEFAULT_ROLE_NAMES = ("kiss_explorer", "kiss_coder", "kiss_reviewer")
 PROJECT_HOMEPAGE = "https://github.com/AoiOTA/Kiss-My-Agent"
 PROJECT_REPOSITORY = f"{PROJECT_HOMEPAGE}.git"
+PROJECT_PAGES = "https://aoiota.github.io/Kiss-My-Agent/"
+PROJECT_PAGES_ZH = f"{PROJECT_PAGES}zh-CN/"
 DEFAULT_ROLE_CONTRACTS = {
     "kiss_explorer": {
         "sandbox_mode": "read-only",
@@ -532,18 +534,28 @@ def validate_bilingual_documents(root: Path) -> None:
         english = english_path.read_text(encoding="utf-8")
         chinese = chinese_path.read_text(encoding="utf-8")
 
-        english_links = {
-            target
-            for raw_target in markdown_targets(english)
-            if (target := local_target(english_path, raw_target)) is not None
-        }
-        chinese_links = {
-            target
-            for raw_target in markdown_targets(chinese)
-            if (target := local_target(chinese_path, raw_target)) is not None
-        }
-        if chinese_path.resolve() not in english_links or english_path.resolve() not in chinese_links:
-            fail(f"bilingual cross-links missing for {english_relative} and {chinese_relative}")
+        if english_relative == "README.md":
+            expected_pages_links = {PROJECT_PAGES, PROJECT_PAGES_ZH}
+            english_links = set(markdown_targets(english))
+            chinese_links = set(markdown_targets(chinese))
+            if not expected_pages_links <= english_links or not expected_pages_links <= chinese_links:
+                fail("README language links must use the verified Pages URLs")
+        else:
+            english_links = {
+                target
+                for raw_target in markdown_targets(english)
+                if (target := local_target(english_path, raw_target)) is not None
+            }
+            chinese_links = {
+                target
+                for raw_target in markdown_targets(chinese)
+                if (target := local_target(chinese_path, raw_target)) is not None
+            }
+            if (
+                chinese_path.resolve() not in english_links
+                or english_path.resolve() not in chinese_links
+            ):
+                fail(f"bilingual cross-links missing for {english_relative} and {chinese_relative}")
 
         english_anchors = stable_anchors(english_path.relative_to(root), english)
         chinese_anchors = stable_anchors(chinese_path.relative_to(root), chinese)
