@@ -29,6 +29,9 @@ jobs:
       - name: Validate with Python
         run: python scripts/validate.py
 
+      - name: Test setup CLI
+        run: python -m unittest tests.test_setup -v
+
       - name: Validate POSIX wrapper
         if: runner.os != 'Windows'
         run: ./scripts/validate.sh

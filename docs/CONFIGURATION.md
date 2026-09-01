@@ -7,105 +7,114 @@
 <a id="repository-default"></a>
 ## Repository Default
 
-The tracked `.codex/config.toml` is intentionally small. It sets `agents.enabled = true` and registers `kiss_explorer`, `kiss_coder`, and `kiss_reviewer` through their files under `.codex/agents/`. It does not set a model, reasoning effort, permission mode, context limit, concurrency limit, trust policy, provider, authentication, or telemetry.
+The tracked `.codex/config.toml` has exactly two public switches:
 
-Project config is considered only when the Host trusts the project. Start a new session after changing project config, instructions, Skills, or roles. Current old sessions are not guaranteed to hot-load them.
+```toml
+[features]
+multi_agent = true
 
-Disable custom agents for one launch without modifying the repository:
-
-```bash
-codex --config agents.enabled=false
+[agents]
+enabled = true
 ```
 
-```powershell
-codex --config agents.enabled=false
-```
+They enable the Host multi-agent capability and custom agents for this trusted project. They do not enumerate roles or set a model, reasoning effort, permission mode, context limit, concurrency limit, trust policy, provider, authentication, or telemetry.
+
+An explicit `false` in an effective user or administrative layer, or a one-launch override, remains authoritative. Setup must not silently turn an intentional disablement back on.
+
+<a id="three-layers"></a>
+## Three Responsibilities
+
+| Owner | Surface | Responsibility |
+| --- | --- | --- |
+| Enablement | `.codex/config.toml` | Two public switches only. |
+| Discovery | `.codex/agents/*.toml` | Standalone role definitions auto-discovered by the Host. |
+| Dispatch | `AGENTS.md` | Dynamic guidance for whether and how the primary thread delegates. |
+
+These layers are not substitutes for one another. A role file does not turn on multi-agent support; the switches do not create a role catalog; AGENTS guidance does not grant runtime authority.
 
 <a id="configuration-layers"></a>
 ## Configuration Layers
 
 | Scope | Typical location | Purpose |
 | --- | --- | --- |
-| User | `~/.codex/config.toml` | Personal defaults across projects. |
-| Trusted project | `<repo>/.codex/config.toml` | Project registrations and reviewed project overrides. |
+| User/global | `$CODEX_HOME/config.toml` | Personal defaults across projects. |
+| Trusted project | `<repo>/.codex/config.toml` | Reviewed project-local switches and settings. |
 | Profile | Host-supported Profile config | Switchable personal modes. |
 | One launch | CLI `--config key=value` | Temporary override without editing files. |
-| Personal role | `~/.codex/agents/<role>.toml` | Cross-project role definition. |
-| Project role | `<repo>/.codex/agents/<role>.toml` | Project role definition. |
+| Global role | `$CODEX_HOME/agents/<file>.toml` | Cross-project standalone role definition. |
+| Project role | `<repo>/.codex/agents/<file>.toml` | Project standalone role definition. |
 
-Later effective layers may override earlier values. Provider, authentication, telemetry, and administrative policy can have additional restrictions. Consult the current official Codex reference before moving settings between scopes.
+Project and global scope are always selected explicitly. Provider, authentication, telemetry, and administrative policy may add restrictions. Start a new session after changing config, instructions, Skills, plugins, or role files; an old session is not guaranteed to hot-load them.
 
-<a id="primary-thread-and-roles"></a>
-## Primary Thread and Roles
+<a id="standalone-roles"></a>
+## Standalone Roles
 
-There is no `master.toml`. The primary thread uses effective Host, CLI, user, Profile, and trusted-project settings.
+Every standalone role TOML owns its identity through the required `name` field. The filename is a readability convention, not the source of truth. A mismatch is valid only if the Host accepts it and operators understand it; duplicate `name` values are a conflict that must be resolved rather than hidden.
 
-The three role TOML files contain editable role-specific examples:
+KISS My Agent supplies three seed files:
 
-| Role | Responsibility | Supplied sandbox |
+| Seed name | Responsibility | Default authority intent |
 | --- | --- | --- |
-| `kiss_explorer` | Read-only investigation | `read-only` |
-| `kiss_coder` | Implementation and state-changing execution | `workspace-write` |
-| `kiss_reviewer` | Independent read-only review | `read-only` |
+| `kiss_explorer` | Read-only investigation | Read-only |
+| `kiss_coder` | Implementation and state-changing execution | Writable only within its assignment |
+| `kiss_reviewer` | Independent read-only review | Read-only |
 
-Model and effort values must be supported by the installed Host. Role instructions are not a security boundary; live parent permissions and administrator policy can constrain a subagent. `review_model` selects the `/review` model and is separate from the `kiss_reviewer` custom role.
+The seeds are not a closed catalog. Add, rename, edit, or remove standalone files deliberately. After initial setup, later setup operations preserve the current catalog; normal sessions, setup, and `check` do not restore a removed role.
 
-<a id="registration"></a>
-## Registration
+Model and reasoning effort inherit effective Host settings when omitted. Optional role fields such as `model`, `model_reasoning_effort`, and `sandbox_mode` may be edited to Host-supported, intentionally authorized values. KISS My Agent intentionally does not fix role model, effort, context, concurrency, or a default subagent model.
 
-Each `[agents.<name>]` table maps a stable role name to a relative role file. Relative `config_file` paths resolve from the config layer. Copying a role file without a registration does not prove that the Host exposes it. Existing same-name registrations must be diffed and merged manually, never overwritten.
+<a id="disable"></a>
+## Disable Without Editing
 
-The KISS prefix avoids collision with generic `explorer`, `coder`, and `review` roles. Those generic roles remain untouched.
+Disable both public surfaces for one launch:
 
-<a id="runtime-settings"></a>
-## Runtime Settings
+```bash
+codex --config features.multi_agent=false --config agents.enabled=false
+```
 
-| Area | Representative settings | Guidance |
-| --- | --- | --- |
-| Model | `model`, `model_reasoning_effort`, `model_verbosity`, `review_model` | Use Host-supported values; do not add silent fallback. |
-| Multi-agent | `agents.enabled`, `agents.max_concurrent_threads_per_session` | Capacity is not a fan-out target. |
-| Context | `model_context_window`, `model_auto_compact_token_limit` | Prefer model defaults unless actual limits and need are known. |
-| Permissions | `sandbox_mode`, `default_permissions`, `approval_policy` | Review real authority; do not mix incompatible permission styles. |
-| Instructions | `project_doc_max_bytes`, `project_doc_fallback_filenames`, `project_root_markers` | These affect discovery, not product behavior. |
+To keep the capability available but disable custom agents, set only `agents.enabled=false`. A user or administrator can also persist an explicit `false`; project setup must report that effective disablement instead of treating file presence as live enablement.
 
-`model_context_window` cannot increase a model's real capacity. A wrong value can cause failures. A custom `model_auto_compact_token_limit` must fit the actual model and leave space for output, tool results, and later turns.
+<a id="setup-scopes"></a>
+## Setup Scopes
 
-`agents.max_concurrent_threads_per_session` is a capacity cap, not an instruction to fill every slot. Use multiple agents only when independence, information gain, risk isolation, or latency outweighs coordination cost.
+After the plugin is installed and a new session discovers the setup Skill, use exactly one intended scope:
 
-<a id="permissions-and-sandbox"></a>
-## Permissions and Sandbox
+```text
+$kiss-my-agent-setup set up this project
+$kiss-my-agent-setup check this project
+$kiss-my-agent-setup remove from this project
 
-- `read-only` fits investigation and independent review.
-- `workspace-write` fits implementation inside intended writable roots.
-- `danger-full-access` materially broadens authority and is not required to validate this repository.
+$kiss-my-agent-setup set up globally
+$kiss-my-agent-setup check global setup
+$kiss-my-agent-setup remove global setup
+```
 
-Static validation runs as an ordinary native script and requires no Codex sandbox package. This does not bypass OS or Host permissions. Filesystem access, network access, approvals, external-app permissions, authentication, and behavioral instructions are distinct.
+Project scope manages `<target>/.codex/config.toml`, `<target>/.codex/agents/`, and a KISS managed block in `<target>/AGENTS.md`. Global scope manages the corresponding files under `$CODEX_HOME`. The Skill itself remains plugin-owned and is not copied into either target.
+
+The underlying source tool is `skills/kiss-my-agent-setup/scripts/setup.py {setup,check,remove} --scope project|global`. Project scope can use `--target`; tests and explicit isolated use can supply `--codex-home`. Most users should use the Skill interface so scope is stated in plain language.
+
+<a id="conflicts-and-precedence"></a>
+## Conflicts and Precedence
+
+- Setup preserves unrelated config, role files, and AGENTS content; it does not replace a whole file for convenience.
+- If the selected scope contains `AGENTS.override.md`, setup stops. It does not write into the override, write a hidden lower-precedence base, or report success.
+- An existing seed file with the expected `name` is preserved, including user edits. A filename collision with another identity, duplicate identity, or project/global seed-name collision stops the operation.
+- An existing `false` is preserved and reported as `disabled`; it is not silently replaced with `true`.
+- Setup does not establish project trust, start Codex, or prove live discovery.
+- Project setup never silently becomes global setup. Global setup requires the explicit global command.
+- Remove acts only on the selected scope and KISS-managed content. Preserve user-edited or ambiguously owned material and report the conflict.
 
 <a id="safe-customization"></a>
 ## Safe Customization
 
-1. Identify the one setting affecting the current workload.
+1. Identify the one effective setting or role affecting the current workload.
 2. Confirm support in the installed Host and selected model.
-3. Change one reviewed layer without replacing unrelated content.
-4. Start a trusted new session for startup/discovery changes.
-5. Confirm actual model, permissions, `/skills`, and registered roles.
-6. Keep the change only when it improves the real task.
+3. Change only the owning layer without replacing unrelated content.
+4. Keep `name` unique when editing or adding a standalone role.
+5. Start a trusted new session after startup or discovery changes.
+6. Run setup `check`, then use `/skills` and a narrow role Smoke only when live evidence is required.
 
-For syntax-only launch comparisons:
-
-```bash
-codex --model gpt-5.6-sol
-codex --config model_reasoning_effort='"medium"'
-codex --config agents.max_concurrent_threads_per_session=4
-```
-
-```powershell
-codex --model gpt-5.6-sol
-codex --config 'model_reasoning_effort="medium"'
-codex --config agents.max_concurrent_threads_per_session=4
-```
-
-These values are examples, not recommendations. No automatic model or permission fallback is provided.
+No automatic model, permission, or compatibility fallback is provided.
 
 <a id="official-references"></a>
 ## Official References

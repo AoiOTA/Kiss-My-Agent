@@ -2,3 +2,6 @@
 *.log
 session-*.jsonl
 codex-tui.log
+/_site/
+__pycache__/
+*.py[cod]

@@ -7,13 +7,14 @@
 <a id="test-surfaces"></a>
 ## Test Surfaces
 
-KISS My Agent has three distinct test surfaces:
+KISS My Agent has four distinct test surfaces:
 
 1. Native static validation of repository files.
-2. Live discovery of the Skill and registered roles in a trusted new Codex session.
-3. Harmless role Smoke checks that exercise one narrow responsibility per role.
+2. Setup `check` of one explicit filesystem scope.
+3. Live discovery of plugin Skills and standalone roles in a trusted new Codex session.
+4. Harmless role Smoke checks that exercise one narrow responsibility per role.
 
-Do not combine these into one stronger claim. Static PASS is not live discovery; discovery is not behavioral qualification; Smoke is not research or product evidence.
+Do not combine these into one stronger claim. Static PASS is not setup or publication evidence; setup `check` is not live discovery; discovery is not behavioral qualification; Smoke is not research or product evidence.
 
 <a id="static-validation"></a>
 ## Static Validation
@@ -41,18 +42,26 @@ The validator needs no Codex sandbox package, copied `CODEX_HOME`, container, VM
 <a id="project-defaults"></a>
 ## Project Defaults
 
-The tracked `.codex/config.toml` sets `agents.enabled = true` and registers:
+The tracked `.codex/config.toml` explicitly sets `features.multi_agent = true` and `agents.enabled = true` without enumerating roles. The Host auto-discovers standalone role TOML files; each file's `name` field is the identity and its filename is only a convention.
 
-- `kiss_explorer` → `.codex/agents/kiss_explorer.toml`
-- `kiss_coder` → `.codex/agents/kiss_coder.toml`
-- `kiss_reviewer` → `.codex/agents/kiss_reviewer.toml`
+The three supplied roles are editable seeds, not a closed catalog. The configuration does not choose trust, model, permissions, context, concurrency, provider, or credentials. Role model and effort inherit Host settings when omitted. The Host must trust the project before project config can load, and an effective explicit `false` remains a disablement.
 
-It does not choose trust, model, permissions, context, concurrency, provider, or credentials. The Host must trust the project before project config can load.
+<a id="setup-check"></a>
+## Setup Check
+
+After setup, start a new session and inspect the same explicit scope:
+
+```text
+$kiss-my-agent-setup check this project
+$kiss-my-agent-setup check global setup
+```
+
+Use only the command matching the scope you changed. A setup `check` supports claims about the managed config, standalone seed files, and AGENTS block it inspected. It does not establish project trust, prove active-session discovery, restore deleted roles, or strengthen source/static evidence into remote-install evidence.
 
 <a id="fresh-session"></a>
 ## Trusted New Session
 
-After changing config, instructions, Skills, or role TOML, close or leave the old session and start a new authenticated session from the repository root.
+After installing the plugin, changing config, instructions, Skills, or role TOML, close or leave the old session and start a new authenticated session from the repository root.
 
 Linux or macOS:
 
@@ -73,14 +82,14 @@ Establish project trust through the Host when prompted. Current already-running 
 <a id="skill-smoke"></a>
 ## Skill Discovery Smoke
 
-In the trusted new session, run `/skills` and confirm exactly one `kiss-my-agent` entry from the intended scope. Then invoke `$kiss-my-agent` only for a matching non-obvious mechanism or evidence decision and confirm it follows a linked local Rule.
+In the trusted new session, run `/skills` and confirm the plugin-owned `kiss-my-agent` and `kiss-my-agent-setup` entries. Then invoke `$kiss-my-agent` only for a matching non-obvious mechanism or evidence decision. The setup Skill is reserved for explicit project/global setup, check, and remove operations.
 
 This proves discovery and routing for that session and prompt. It does not prove compliance on future prompts.
 
 <a id="role-smoke"></a>
 ## Three-Role Smoke
 
-Use the Host's custom-agent interface or explicitly ask the primary thread to delegate to the named registered role. Run one at a time and keep the tasks harmless:
+Use the Host's custom-agent interface or explicitly ask the primary thread to delegate to the named discovered role. Run one at a time and keep the tasks harmless:
 
 1. `kiss_explorer`: ask it to read `README.md`, list the explicit HTML anchor IDs, and make no changes.
 2. `kiss_coder`: ask it to create `tests/.kiss-coder-smoke.txt` only if absent, write one line, report it, and remove only that owned file before returning. If the path already exists, it must stop without overwriting.
@@ -88,7 +97,7 @@ Use the Host's custom-agent interface or explicitly ask the primary thread to de
 
 Before and after the Smoke, inspect the working tree. Preserve unrelated changes. A coder Smoke interrupted after creation may leave the named owned file; inspect it and remove it only after confirming it is the Smoke artifact.
 
-The expected ownership is read-only explorer, state-changing coder within assignment, and independent read-only reviewer. Successful invocation supports only role registration and the observed narrow behavior.
+The expected ownership is read-only explorer, state-changing coder within assignment, and independent read-only reviewer. Successful invocation supports only role discovery and the observed narrow behavior.
 
 <a id="manual-scenarios"></a>
 ## Manual Scenarios
@@ -101,10 +110,11 @@ The expected ownership is read-only explorer, state-changing coder within assign
 | Evidence | Supports | Does not support |
 | --- | --- | --- |
 | Source inspection | What tracked files say | Loaded runtime identity or behavior |
-| Static validator PASS | Checked repository invariants | Agent compliance, Host support, research validity |
+| Static validator PASS | Checked repository invariants | Plugin publication, agent compliance, Host support, research validity |
+| Setup `check` PASS | Managed files in that explicit scope | Trust, active loading, remote install, role behavior |
 | CI green job | Native wrapper PASS on that job, platform, and commit | Every OS version or future compatibility |
-| `/skills` discovery | Skill visible in that new session | Future compliance or permission |
-| One role Smoke | That registered role completed that narrow task | General role reliability or product acceptance |
+| `/skills` discovery | Plugin Skills visible in that new session | Future compliance or permission |
+| One role Smoke | That discovered role completed that narrow task | General role reliability or product acceptance |
 | Manual scenario discussion | Human interpretation of a case | Automated evaluation or qualification |
 
 Always record platform, native shell, exact commit when attribution matters, Host version for live checks, whether the project was trusted, and whether the session was new. Report failures and untested surfaces directly.

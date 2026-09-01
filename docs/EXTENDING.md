@@ -15,7 +15,8 @@ Extend the repository only when a current recurring ambiguity is not covered. Th
 - Change [`AGENTS.md`](../AGENTS.md) only for a short, permanent, broadly applicable boundary.
 - Change a Rule when several current situations need the same reusable decision method.
 - Add or revise a Case when one concrete contrast makes an existing Rule easier to apply.
-- Change role TOML only when role ownership or real runtime needs change.
+- Change a standalone role TOML only when role ownership or real runtime needs change. Its `name` field is identity; the filename is only a convention.
+- Change setup logic only when the explicit project/global managed scope or conflict policy changes.
 - Change developer docs when installation, configuration, testing, security, or contribution facts change.
 
 Do not duplicate one fact across owners. Rules extend `AGENTS.md`; Cases illustrate Rules without redefining them.
@@ -23,7 +24,7 @@ Do not duplicate one fact across owners. Rules extend `AGENTS.md`; Cases illustr
 <a id="preserve-routing"></a>
 ## Preserve Precise Routing
 
-[`SKILL.md`](../.agents/skills/kiss-my-agent/SKILL.md) must remain non-catch-all. Routine implementation, mechanical edits, tests, builds, Git operations, lookups, and formatting stay outside the Skill. One ambiguity routes to one Rule and, only when useful, one Case.
+The plugin-owned `$kiss-my-agent` Skill must remain non-catch-all. Routine implementation, mechanical edits, tests, builds, Git operations, lookups, and formatting stay outside the Skill. One ambiguity routes to one Rule and, only when useful, one Case. Keep `$kiss-my-agent-setup` separate and limited to explicit setup/check/remove operations.
 
 <a id="add-rule"></a>
 ## Add a Rule
@@ -47,7 +48,7 @@ It illustrates an existing Rule and creates no new requirement. Revise an existi
 <a id="update-runtime-docs"></a>
 ## Update Runtime and Docs
 
-When changing registrations or role settings, keep `.codex/config.toml`, `.codex/agents/`, Configuration, Testing, both READMEs, and the annotated example consistent. Do not add model fallback, permission fallback, preset matrices, or compatibility wrappers without a current consumer.
+When changing public switches, standalone role discovery, or setup scope, keep `.codex/config.toml`, `.codex/agents/`, plugin metadata, setup implementation, Configuration, Installation, Testing, both READMEs, and the annotated example consistent. `.codex/config.toml` owns only the two public enablement switches and never enumerates role files. The three seeds are not a closed catalog, and model/effort remain Host-inherited when omitted. Do not add model fallback, permission fallback, preset matrices, or compatibility wrappers without a current consumer.
 
 When changing an English developer document, update its Simplified Chinese companion with the same explicit anchor IDs, section order, and fenced command blocks. Codex-facing AGENTS, Skill, Rules, Cases, role TOML, `LICENSE`, and `CODE_OF_CONDUCT.md` remain English.
 
@@ -68,7 +69,17 @@ Windows native PowerShell:
 
 Inspect rendered Markdown when navigation, tables, badges, Mermaid, or assets change. Use a trusted new Codex session for discovery changes; old sessions are not guaranteed to hot-load.
 
+For Pages stage 1, build and test locally before proposing the stage-2 URL switch:
+
+```bash
+python3 -m pip install -r requirements-site.txt
+python3 -m unittest tests.test_build_site
+python3 scripts/build_site.py --output _site
+```
+
+Keep README language links relative until the first deployed Pages response returns HTTP 200.
+
 <a id="stop-boundary"></a>
 ## Stop Boundary
 
-Stop after the ambiguity is resolved with the smallest clear addition. Do not add adjacent governance, installation automation, telemetry, scoring, release machinery, or speculative compatibility.
+Stop after the ambiguity is resolved with the smallest clear addition. Do not add adjacent governance, telemetry, scoring, release machinery, or speculative compatibility. New setup behavior needs a current installation consumer and must preserve explicit scope, collision safety, and reversible ownership.

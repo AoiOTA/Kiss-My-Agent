@@ -4,236 +4,124 @@
 
 [README](../README.zh-CN.md) · [配置](CONFIGURATION.zh-CN.md) · [测试](TESTING.zh-CN.md) · [常见问题](FAQ.zh-CN.md)
 
-<a id="scope"></a>
-## 范围
+<a id="release-status"></a>
+## 发布状态
 
-KISS My Agent 是一组源码组件，不是 installer。仓库 checkout 已包含项目 Skill、角色文件和 `.codex/config.toml`。使用该 checkout 时，只需验证、信任项目并启动新的 Codex 会话。只有将组件采用到其他项目或个人 scope 时才需要复制。
+Git-backed marketplace 已为 `v0.1.0` 做好准备，但 Git tag 存在之前 Codex 无法远程安装该版本。当前证据是源码检查与静态验证，不是发布、远程安装或真实发现。不要把下列命令理解为该 tag 已经可用的声明。
 
-下方每条命令都会在输入缺失或目标冲突时停止，绝不覆盖已有 Skill、角色、instruction 文件或 config。目标已存在时应人工检查和合并。
+<a id="install-plugin"></a>
+## 安装 Plugin
 
-<a id="prerequisites"></a>
-## 前提条件
-
-- Linux 或 macOS 使用 POSIX shell；Windows 使用原生 PowerShell。
-- Python 3.11 或更高版本：Linux 或 macOS 使用 `python3`；Windows 使用 `py -3` launcher 或 `python`。
-- 仓库 checkout，下文记为 `KISS_REPO_ROOT` / `$KissRepoRoot`。
-- 目标项目，下文记为 `TARGET_PROJECT` / `$TargetProject`。
-- 真实发现检查需要当前 Codex 安装。WSL 按 Linux 路径处理，不构成 Windows 支持证据。
-
-Linux 或 macOS：
+带 tag 的 marketplace 版本可用后，使用公开安装接口：
 
 ```bash
-set -eu
-KISS_REPO_ROOT=/absolute/path/to/kiss-my-agent
-TARGET_PROJECT=/absolute/path/to/your-project
-export KISS_REPO_ROOT TARGET_PROJECT
-test -d "$KISS_REPO_ROOT"
-test -d "$TARGET_PROJECT"
+codex plugin marketplace add AoiOTA/Kiss-My-Agent
+codex plugin add kiss-my-agent@kiss-my-agent
 ```
 
-Windows PowerShell：
+安装后启动新的已认证 Codex 会话。已在运行的会话不保证发现新安装的 plugin 或 Skill。
 
-```powershell
-$ErrorActionPreference = 'Stop'
-$KissRepoRoot = 'C:\absolute\path\to\kiss-my-agent'
-$TargetProject = 'C:\absolute\path\to\your-project'
-if (!(Test-Path -LiteralPath $KissRepoRoot -PathType Container)) { throw 'KissRepoRoot is missing.' }
-if (!(Test-Path -LiteralPath $TargetProject -PathType Container)) { throw 'TargetProject is missing.' }
+<a id="project-setup"></a>
+## 设置一个项目
+
+在目标项目中新开的会话里运行：
+
+```text
+$kiss-my-agent-setup set up this project
 ```
 
-<a id="validate-checkout"></a>
-## 验证 checkout
+项目 setup 只管理所选项目：
 
-Linux 或 macOS：
+- `.codex/config.toml`：合并两个公开开关，不替换无关设置。
+- `.codex/agents/`：三个 standalone seed role 文件。
+- `AGENTS.md`：有界 KISS managed block，保留无关 instructions。
 
-```bash
-set -eu
-cd "$KISS_REPO_ROOT"
-./scripts/validate.sh
+Skill 仍归 plugin 所有；setup 不会把 Skill tree 复制进项目。它也不会建立 Host trust 或重启 Codex。
+
+通过 Host 信任项目，另开一个新会话，然后运行：
+
+```text
+$kiss-my-agent-setup check this project
 ```
 
-Windows PowerShell：
+只有需要真实发现证据时，才继续使用 `/skills` 和[测试](TESTING.zh-CN.md)中的无害检查。
 
-```powershell
-Set-Location -LiteralPath $KissRepoRoot
-.\scripts\validate.ps1
+<a id="global-setup"></a>
+## 全局设置
+
+全局 setup 是可选操作，绝不会从项目请求推断。必须明确请求：
+
+```text
+$kiss-my-agent-setup set up globally
 ```
 
-Validator 位于仓库内，不需要安装、复制 `CODEX_HOME`、sandbox package、容器或额外测试项目；它不写用户配置。后续真实 Host 会话可能写入正常的 trust、历史、缓存或 marketplace 状态。
+它管理 `$CODEX_HOME` 下对应的 `config.toml`、`agents/` 与 AGENTS managed block。启动新会话，然后显式检查该 scope：
+
+```text
+$kiss-my-agent-setup check global setup
+```
+
+行为只属于特定项目时优先使用项目 scope。全局 scope 会影响加载用户配置的每个项目，但仍受实际 Host、管理员、用户与项目设置约束。
 
 <a id="collision-policy"></a>
-## 冲突策略
+## 冲突与 Override 策略
 
-| 已有目标 | 必须采取的动作 |
+| 已有状态 | 必须采取的行为 |
 | --- | --- |
-| `config.toml` | 保留；只人工合并审核过的 tables 或 keys。 |
-| `AGENTS.override.md` | 视为该目录的有效来源；不要用新 base 文件掩盖它。 |
-| `AGENTS.md` | 保留；只人工合并适用的 KISS 边界。 |
-| 通用 `explorer`、`coder` 或 `review` 角色 | 保留；KISS 使用独立的 `kiss_*` 名称。 |
-| 已有 `kiss_explorer`、`kiss_coder` 或 `kiss_reviewer` | 停止并 diff；绝不覆盖。 |
-| 任一活跃 scope 已有 `kiss-my-agent` Skill | 停止并选择一个权威副本。 |
-| owner 或优先级未知 | 在明确 owner 前跳过该组件。 |
+| 无关 config keys 或 AGENTS 内容 | 保留。 |
+| 任一公开开关被有意设为 `false` | 保留并报告 `disabled`；不静默重新启用。 |
+| 具有预期 `name` 的已有 seed 文件，包括用户编辑 | 保留。 |
+| 文件名/identity 不匹配、重复 identity 或 project/global seed-name 冲突 | 停止并审核；不要覆盖。 |
+| 已有有效 KISS managed content | 精确 setup 按幂等处理。 |
+| 损坏或重复的 managed block | 停止且不得声称成功。 |
+| 所选 scope 存在 `AGENTS.override.md` | 停止。不得写入 override，也不得把内容藏在低优先级 base 文件。 |
 
-<a id="adopt-skill"></a>
-## 采用 Skill
+Setup 操作只做最小 scope-owned 改动。它不替换已有 config、不发明 compatibility alias，也不会把项目 setup 转换为全局 setup。
 
-只选择一个 scope。下列命令安装到目标项目。用户 scope 使用同样的冲突规则，POSIX 目标为 `$HOME/.agents/skills/kiss-my-agent`，Windows 目标为相应 user-home 下的 `.agents\skills\kiss-my-agent`。
+<a id="role-lifecycle"></a>
+## 角色生命周期
 
-Linux 或 macOS：
+提供的 `kiss_explorer`、`kiss_coder` 与 `kiss_reviewer` definitions 是 seeds，不是封闭 catalog。Standalone role TOML 会被自动发现；`name` 字段是身份，文件名只是约定。Model 与 effort 在省略时继承 Host 取值，并且可编辑。
+
+用户可以新增、编辑、重命名或删除角色。首次 setup 后，普通会话、setup 与 `check` 会保留当前 catalog，绝不会重新创建已删除文件。
+
+<a id="check-and-remove"></a>
+## 检查或移除
+
+使用匹配的显式 scope：
+
+```text
+$kiss-my-agent-setup check this project
+$kiss-my-agent-setup remove from this project
+
+$kiss-my-agent-setup check global setup
+$kiss-my-agent-setup remove global setup
+```
+
+`check` 检查 managed filesystem state；它不证明 trust、活动会话加载、plugin 发布或角色行为。`remove` 只针对所选 scope 与 KISS-managed content。它必须保留无关设置、instructions 与角色；owner 不清或有冲突编辑时应停止，而不是删除。
+
+移除后启动新会话再判断 discovery。移除 setup 输出不会卸载 plugin 本身；plugin 生命周期仍由 Codex plugin 操作管理。
+
+<a id="source-tools"></a>
+## Source Checkout 工具
+
+贡献者无需安装 plugin 即可验证 checkout：
 
 ```bash
-set -eu
-skill_source=$KISS_REPO_ROOT/.agents/skills/kiss-my-agent
-skill_parent=$TARGET_PROJECT/.agents/skills
-skill_target=$skill_parent/kiss-my-agent
-test -d "$skill_source"
-test -d "$TARGET_PROJECT"
-if [ -e "$skill_target" ]; then
-  printf '%s\n' 'kiss-my-agent already exists; nothing was copied.' >&2
-  exit 1
-fi
-mkdir -p "$skill_parent"
-mkdir "$skill_target"
-cp -R "$skill_source/." "$skill_target/"
+python3 scripts/validate.py
 ```
 
-Windows PowerShell：
-
-```powershell
-$skillSource = Join-Path $KissRepoRoot '.agents\skills\kiss-my-agent'
-$skillParent = Join-Path $TargetProject '.agents\skills'
-$skillTarget = Join-Path $skillParent 'kiss-my-agent'
-if (!(Test-Path -LiteralPath $skillSource -PathType Container)) { throw 'Skill source is missing.' }
-if (Test-Path -LiteralPath $skillTarget) { throw 'kiss-my-agent already exists; nothing was copied.' }
-[System.IO.Directory]::CreateDirectory($skillParent) | Out-Null
-Copy-Item -LiteralPath $skillSource -Destination $skillTarget -Recurse
-```
-
-同一项目不要同时激活项目级与用户级副本；同名 Skills 不会合并。
-
-<a id="adopt-roles"></a>
-## 采用角色
-
-三个前缀角色是 `kiss_explorer`、`kiss_coder` 和 `kiss_reviewer`。下列命令完整预检后才将三者复制到项目 scope。
-
-Linux 或 macOS：
+底层 setup utility 可用于隔离测试与开发：
 
 ```bash
-set -eu
-role_target_dir=$TARGET_PROJECT/.codex/agents
-for role in kiss_explorer kiss_coder kiss_reviewer; do
-  test -f "$KISS_REPO_ROOT/.codex/agents/$role.toml"
-  if [ -e "$role_target_dir/$role.toml" ]; then
-    printf '%s\n' "$role already exists; nothing was copied." >&2
-    exit 1
-  fi
-done
-mkdir -p "$role_target_dir"
-for role in kiss_explorer kiss_coder kiss_reviewer; do
-  cp "$KISS_REPO_ROOT/.codex/agents/$role.toml" "$role_target_dir/$role.toml"
-done
+python3 skills/kiss-my-agent-setup/scripts/setup.py setup --scope project --target /absolute/path/to/project
+python3 skills/kiss-my-agent-setup/scripts/setup.py check --scope project --target /absolute/path/to/project
+python3 skills/kiss-my-agent-setup/scripts/setup.py remove --scope project --target /absolute/path/to/project
 ```
 
-Windows PowerShell：
+全局操作使用 `--scope global`；显式隔离目标可使用 `--codex-home`。直接 source-tool 成功属于静态文件系统证据，不是 marketplace 安装成功或真实 Codex 会话。
 
-```powershell
-$roleNames = @('kiss_explorer', 'kiss_coder', 'kiss_reviewer')
-$roleTargetDir = Join-Path $TargetProject '.codex\agents'
-foreach ($role in $roleNames) {
-  $source = Join-Path $KissRepoRoot ".codex\agents\$role.toml"
-  $target = Join-Path $roleTargetDir "$role.toml"
-  if (!(Test-Path -LiteralPath $source -PathType Leaf)) { throw "Role source is missing: $role" }
-  if (Test-Path -LiteralPath $target) { throw "Role already exists: $role" }
-}
-[System.IO.Directory]::CreateDirectory($roleTargetDir) | Out-Null
-foreach ($role in $roleNames) {
-  $source = Join-Path $KissRepoRoot ".codex\agents\$role.toml"
-  $target = Join-Path $roleTargetDir "$role.toml"
-  [System.IO.File]::Copy($source, $target, $false)
-}
-```
+<a id="fresh-session"></a>
+## 新会话边界
 
-只复制角色 TOML 不会完成注册；继续配置项目 config。
-
-<a id="adopt-project-config"></a>
-## 采用项目配置
-
-跟踪的 `.codex/config.toml` 只包含 `[agents] enabled = true` 与三个 `agents.kiss_*` 注册。如果目标没有项目 config，可在完成下方预检后复制；如果已经存在，不要运行这些命令，只人工合并审核过的 agent tables，并保留所有无关设置。
-
-Linux 或 macOS：
-
-```bash
-set -eu
-config_source=$KISS_REPO_ROOT/.codex/config.toml
-config_target=$TARGET_PROJECT/.codex/config.toml
-test -f "$config_source"
-mkdir -p "$TARGET_PROJECT/.codex"
-if [ -e "$config_target" ]; then
-  printf '%s\n' 'Project config already exists; merge manually.' >&2
-  exit 1
-fi
-cp "$config_source" "$config_target"
-```
-
-Windows PowerShell：
-
-```powershell
-$configSource = Join-Path $KissRepoRoot '.codex\config.toml'
-$configTargetDir = Join-Path $TargetProject '.codex'
-$configTarget = Join-Path $configTargetDir 'config.toml'
-if (!(Test-Path -LiteralPath $configSource -PathType Leaf)) { throw 'Project config source is missing.' }
-if (Test-Path -LiteralPath $configTarget) { throw 'Project config already exists; merge manually.' }
-[System.IO.Directory]::CreateDirectory($configTargetDir) | Out-Null
-[System.IO.File]::Copy($configSource, $configTarget, $false)
-```
-
-相对 `config_file` 路径从该 config layer 解析。项目 config 只有在项目可信时加载，并应在新会话中测试。
-
-<a id="adopt-agents-guidance"></a>
-## 采用 AGENTS 指导
-
-只有目标根目录同时不存在 `AGENTS.override.md` 和 `AGENTS.md` 时才直接复制。否则人工审核并合并适用边界。
-
-Linux 或 macOS：
-
-```bash
-set -eu
-agents_source=$KISS_REPO_ROOT/AGENTS.md
-agents_target=$TARGET_PROJECT/AGENTS.md
-test -f "$agents_source"
-if [ -e "$TARGET_PROJECT/AGENTS.override.md" ] || [ -e "$agents_target" ]; then
-  printf '%s\n' 'An instruction source exists; merge manually.' >&2
-  exit 1
-fi
-cp "$agents_source" "$agents_target"
-```
-
-Windows PowerShell：
-
-```powershell
-$agentsSource = Join-Path $KissRepoRoot 'AGENTS.md'
-$agentsTarget = Join-Path $TargetProject 'AGENTS.md'
-$agentsOverride = Join-Path $TargetProject 'AGENTS.override.md'
-if (!(Test-Path -LiteralPath $agentsSource -PathType Leaf)) { throw 'AGENTS source is missing.' }
-if ((Test-Path -LiteralPath $agentsOverride) -or (Test-Path -LiteralPath $agentsTarget)) { throw 'An instruction source exists; merge manually.' }
-[System.IO.File]::Copy($agentsSource, $agentsTarget, $false)
-```
-
-保留目标项目的产品 owner、安全规则、验收标准和停止边界。
-
-<a id="confirm-discovery"></a>
-## 确认发现
-
-修改 config、Skills、角色或 instructions 后，信任目标项目并启动新会话。运行 `/skills`，确认恰好一个 `kiss-my-agent`，并只 Smoke 已注册角色。当前旧会话不保证热加载。详见[测试](TESTING.zh-CN.md)。
-
-Discovery 只证明 Host 在该会话中找到了组件；它不证明未来行为，也不授予新权限。
-
-<a id="update-remove"></a>
-## 更新或移除
-
-- 更新已安装组件前先 diff；安装命令会有意在冲突时停止。
-- 只移除已经确认由你安装的精确文件或目录。
-- 通过审核过的 diff 逆转人工合并的 config 或 AGENTS 行。
-- 启动可信新会话并重新确认实际配置。
-
-项目没有 install receipt、migration database、compatibility alias 或自动 uninstall。
+Plugin 安装与 setup 都属于 startup/discovery 改变。安装 plugin 后使用一个新会话；setup、remove 或角色/config 改变后再使用一个新会话。当前会话不保证热加载。汇报真实结果时记录 Host 版本、scope、trust state 与 session freshness。

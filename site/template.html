@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="{{lang}}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{title}} · KISS My Agent</title>
+  <link rel="stylesheet" href="{{stylesheet_href}}">
+  <link rel="alternate" hreflang="{{counterpart_lang}}" href="{{counterpart_href}}">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">{{skip_label}}</a>
+  <header class="site-header">
+    <nav class="primary-nav" aria-label="{{nav_label}}">
+      {{nav}}
+    </nav>
+    <a class="language-switch" hreflang="{{counterpart_lang}}" href="{{counterpart_href}}">{{language_label}}</a>
+  </header>
+  <main id="main-content" tabindex="-1">
+    <article class="content">
+      {{body}}
+    </article>
+  </main>
+</body>
+</html>

@@ -17,9 +17,9 @@ KISS My Agent 仍处于早期阶段，没有正式 releases 或长期支持 bran
 <a id="assessment-boundary"></a>
 ## 评估边界
 
-报告按真实 instruction discovery、安装、配置、runtime 权限或验证行为评估。Instructions 不是安全边界。静态验证不能建立 Host 隔离、模型服从、账户授权、网络策略或外部服务安全性。
+报告按真实 plugin/marketplace metadata、setup/check/remove scope、instruction 与 standalone-role discovery、配置、runtime 权限或验证行为评估。Instructions 不是安全边界。静态验证不能建立发布、真实安装、Host 隔离、模型服从、账户授权、网络策略或外部服务安全性。
 
 <a id="safe-reproduction"></a>
 ## 安全复现
 
-只提供最小复现，并删除 secrets 与私有路径。不得测试无权影响的系统、账户、数据或用户。在破坏性、不可逆或会干扰外部的动作前停止，并与 maintainers 私下协调。
+只提供最小复现，并删除 secrets 与私有路径。复现 setup 行为时使用隔离项目或 `--codex-home`；绝不把破坏性 remove 测试指向 owner 不清的 scope。不得测试无权影响的系统、账户、数据或用户。在破坏性、不可逆或会干扰外部的动作前停止，并与 maintainers 私下协调。

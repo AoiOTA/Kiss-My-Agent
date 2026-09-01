@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import struct
 import sys
@@ -16,7 +17,34 @@ if sys.version_info < (3, 11):
 import tomllib
 
 
-ROLE_NAMES = ("kiss_explorer", "kiss_coder", "kiss_reviewer")
+DEFAULT_ROLE_NAMES = ("kiss_explorer", "kiss_coder", "kiss_reviewer")
+PROJECT_HOMEPAGE = "https://github.com/AoiOTA/Kiss-My-Agent"
+PROJECT_REPOSITORY = f"{PROJECT_HOMEPAGE}.git"
+DEFAULT_ROLE_CONTRACTS = {
+    "kiss_explorer": {
+        "sandbox_mode": "read-only",
+        "instruction_fragments": (
+            "Investigate only the assigned",
+            "Do not modify files, Git, outputs, data, processes, or external state.",
+        ),
+    },
+    "kiss_coder": {
+        "sandbox_mode": "workspace-write",
+        "instruction_fragments": (
+            "Implement only the assigned",
+            "Preserve unrelated user and agent changes.",
+            "Stop and report if ownership",
+        ),
+    },
+    "kiss_reviewer": {
+        "sandbox_mode": "read-only",
+        "instruction_fragments": (
+            "Independently review only the assigned",
+            "Report material findings",
+            "Do not modify files, Git, outputs, data, processes, or external state.",
+        ),
+    },
+}
 ALLOWED_SANDBOX_MODES = {"read-only", "workspace-write", "danger-full-access"}
 COMMAND_FENCE_LANGUAGES = {
     "bash",
@@ -47,6 +75,10 @@ def fail(message: str) -> None:
     raise ValidationError(message)
 
 
+def warn(message: str) -> None:
+    print(f"validation warning: {message}", file=sys.stderr)
+
+
 def load_toml(path: Path) -> dict[str, object]:
     with path.open("rb") as stream:
         return tomllib.load(stream)
@@ -69,23 +101,34 @@ def require_files(root: Path) -> None:
         ".github/ISSUE_TEMPLATE/rule-or-case-proposal.md",
         ".github/PULL_REQUEST_TEMPLATE.md",
         ".github/workflows/validate.yml",
+        ".github/workflows/pages.yml",
+        ".codex-plugin/plugin.json",
         ".codex/config.toml",
         ".codex/agents/kiss_explorer.toml",
         ".codex/agents/kiss_coder.toml",
         ".codex/agents/kiss_reviewer.toml",
-        ".agents/skills/kiss-my-agent/SKILL.md",
-        ".agents/skills/kiss-my-agent/references/rules/engineering-decisions.md",
-        ".agents/skills/kiss-my-agent/references/rules/experiments-and-evidence.md",
-        ".agents/skills/kiss-my-agent/references/cases/minimal-fix-vs-new-system.md",
-        ".agents/skills/kiss-my-agent/references/cases/degraded-safety-vs-hidden-failure.md",
-        ".agents/skills/kiss-my-agent/references/cases/product-contract-provenance-vs-agent-proof.md",
-        ".agents/skills/kiss-my-agent/references/cases/verification-coordination-vs-workflow-platform.md",
+        ".agents/plugins/marketplace.json",
+        "skills/kiss-my-agent/SKILL.md",
+        "skills/kiss-my-agent/references/rules/engineering-decisions.md",
+        "skills/kiss-my-agent/references/rules/experiments-and-evidence.md",
+        "skills/kiss-my-agent/references/cases/minimal-fix-vs-new-system.md",
+        "skills/kiss-my-agent/references/cases/degraded-safety-vs-hidden-failure.md",
+        "skills/kiss-my-agent/references/cases/product-contract-provenance-vs-agent-proof.md",
+        "skills/kiss-my-agent/references/cases/verification-coordination-vs-workflow-platform.md",
+        "skills/kiss-my-agent-setup/SKILL.md",
+        "skills/kiss-my-agent-setup/scripts/setup.py",
         "assets/kiss-my-agent-hero.png",
         "examples/config.example.toml",
+        "requirements-site.txt",
+        "site/template.html",
+        "site/style.css",
         "tests/fixtures/layered-project/AGENTS.md",
         "tests/fixtures/layered-project/component-a/AGENTS.md",
         "tests/fixtures/layered-project/component-b/subsystem/AGENTS.override.md",
         "tests/scenarios.md",
+        "tests/test_build_site.py",
+        "tests/test_setup.py",
+        "scripts/build_site.py",
         "scripts/validate.py",
         "scripts/validate.sh",
         "scripts/validate.ps1",
@@ -102,53 +145,244 @@ def validate_retired_paths(root: Path) -> None:
     retired_stage_script = "stage-" + "sandbox.sh"
     if (root / "scripts" / retired_stage_script).exists():
         fail(f"retired {retired_stage_script} is present")
-    retired_roles = ("explorer.toml", "coder.toml", "review.toml")
-    if any((root / ".codex/agents" / name).exists() for name in retired_roles):
-        fail("retired generic KISS role file is present")
 
 
 def validate_repository_config(root: Path) -> None:
     config_path = root / ".codex/config.toml"
     config = load_toml(config_path)
-    if set(config) != {"agents"}:
-        fail(".codex/config.toml must contain only the agents table")
+    if set(config) != {"features", "agents"}:
+        fail(".codex/config.toml must contain only the features and agents tables")
+    features = config["features"]
+    if not isinstance(features, dict) or set(features) != {"multi_agent"}:
+        fail(".codex/config.toml features table must contain only multi_agent")
+    if features["multi_agent"] is not True:
+        fail(".codex/config.toml must set features.multi_agent = true")
     agents = config["agents"]
-    if not isinstance(agents, dict) or set(agents) != {"enabled", *ROLE_NAMES}:
-        fail(".codex/config.toml agents table must contain enabled and the three KISS roles")
+    if not isinstance(agents, dict) or set(agents) != {"enabled"}:
+        fail(".codex/config.toml agents table must contain only enabled; role files are discovered")
     if agents["enabled"] is not True:
         fail(".codex/config.toml must set agents.enabled = true")
-    for role_name in ROLE_NAMES:
-        registration = agents[role_name]
-        if not isinstance(registration, dict) or set(registration) != {"description", "config_file"}:
-            fail(f"invalid minimal registration for {role_name} in .codex/config.toml")
-        description = registration["description"]
-        if not isinstance(description, str) or not description.strip():
-            fail(f"invalid registration description for {role_name} in .codex/config.toml")
-        expected_path = f"agents/{role_name}.toml"
-        if registration["config_file"] != expected_path:
-            fail(f"invalid config_file registration for {role_name} in .codex/config.toml")
-        if not (config_path.parent / expected_path).is_file():
-            fail(f"registered role file does not exist: {expected_path}")
 
 
 def validate_roles(root: Path) -> None:
     required_keys = {"name", "description", "developer_instructions"}
-    for role_name in ROLE_NAMES:
-        path = root / f".codex/agents/{role_name}.toml"
+    optional_string_keys = {"model", "model_reasoning_effort", "sandbox_mode"}
+    role_paths = sorted((root / ".codex/agents").glob("*.toml"))
+    if not role_paths:
+        fail("no role definitions found in .codex/agents")
+
+    names: dict[str, Path] = {}
+    roles: dict[str, tuple[Path, dict[str, object]]] = {}
+    for path in role_paths:
         data = load_toml(path)
         missing_keys = required_keys - set(data)
         if missing_keys:
             fail(f"missing role keys in {path.relative_to(root)}: {sorted(missing_keys)}")
-        if data["name"] != role_name:
-            fail(f"role name does not match filename in {path.relative_to(root)}")
-        for key in ("description", "developer_instructions"):
+        for key in required_keys:
             if not isinstance(data[key], str) or not data[key].strip():
                 fail(f"empty or non-string role field {key} in {path.relative_to(root)}")
-        for key in ("model", "model_reasoning_effort"):
+        for key in optional_string_keys:
             if key in data and (not isinstance(data[key], str) or not data[key].strip()):
                 fail(f"empty or non-string role field {key} in {path.relative_to(root)}")
         if "sandbox_mode" in data and data["sandbox_mode"] not in ALLOWED_SANDBOX_MODES:
             fail(f"unsupported sandbox_mode in {path.relative_to(root)}: {data['sandbox_mode']}")
+
+        role_name = data["name"]
+        if role_name in names:
+            fail(
+                f"duplicate role name {role_name!r} in "
+                f"{names[role_name].relative_to(root)} and {path.relative_to(root)}"
+            )
+        names[role_name] = path
+        roles[role_name] = (path, data)
+        if path.stem != role_name:
+            if role_name in DEFAULT_ROLE_NAMES:
+                fail(f"default role name does not match filename in {path.relative_to(root)}")
+            warn(
+                f"role filename {path.name!r} differs from identity name {role_name!r}; "
+                "the TOML name is authoritative"
+            )
+
+    for role_name in DEFAULT_ROLE_NAMES:
+        expected_path = root / f".codex/agents/{role_name}.toml"
+        role = roles.get(role_name)
+        if role is None or role[0] != expected_path:
+            fail(f"default role must be defined by .codex/agents/{role_name}.toml")
+        path, data = role
+        contract = DEFAULT_ROLE_CONTRACTS[role_name]
+        if data.get("sandbox_mode") != contract["sandbox_mode"]:
+            fail(
+                f"default role {role_name} must set sandbox_mode = "
+                f"{contract['sandbox_mode']!r}"
+            )
+        forbidden_model_keys = {"model", "model_reasoning_effort"} & set(data)
+        if forbidden_model_keys:
+            fail(
+                f"default role {role_name} must inherit Host model and reasoning effort; "
+                f"remove {sorted(forbidden_model_keys)}"
+            )
+        instructions = data["developer_instructions"]
+        missing_fragments = [
+            fragment
+            for fragment in contract["instruction_fragments"]
+            if fragment not in instructions
+        ]
+        if missing_fragments:
+            fail(
+                f"default role responsibility boundary missing in {path.relative_to(root)}: "
+                + ", ".join(missing_fragments)
+            )
+
+
+def require_nonempty_string(value: object, field: str) -> str:
+    if not isinstance(value, str) or not value.strip():
+        fail(f"empty or non-string field: {field}")
+    return value
+
+
+def validate_distribution_interfaces(root: Path) -> None:
+    manifest_path = root / ".codex-plugin/plugin.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    if not isinstance(manifest, dict):
+        fail("plugin manifest must be a JSON object")
+    if manifest.get("name") != "kiss-my-agent":
+        fail("unexpected plugin manifest name")
+    version = require_nonempty_string(manifest.get("version"), "plugin.version")
+    if not re.fullmatch(r"(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)", version):
+        fail("plugin.version must be a stable semantic version")
+    for key in ("description", "homepage", "repository", "license"):
+        require_nonempty_string(manifest.get(key), f"plugin.{key}")
+    if manifest["homepage"] != PROJECT_HOMEPAGE or manifest["repository"] != PROJECT_REPOSITORY:
+        fail("plugin homepage and repository must identify the canonical GitHub project")
+    if manifest["license"] != "MIT":
+        fail("plugin.license must match the repository MIT license")
+    if manifest.get("skills") != "./skills/":
+        fail("plugin.skills must expose ./skills/")
+    author = manifest.get("author")
+    if not isinstance(author, dict):
+        fail("plugin.author must be an object")
+    author_name = require_nonempty_string(author.get("name"), "plugin.author.name")
+    if author_name != "AoiOTA":
+        fail("unexpected plugin author")
+    keywords = manifest.get("keywords")
+    if not isinstance(keywords, list) or not keywords:
+        fail("plugin.keywords must be a non-empty list")
+    for keyword in keywords:
+        require_nonempty_string(keyword, "plugin.keywords[]")
+    interface = manifest.get("interface")
+    if not isinstance(interface, dict):
+        fail("plugin.interface must be an object")
+    require_nonempty_string(interface.get("displayName"), "plugin.interface.displayName")
+    for key in (
+        "shortDescription",
+        "longDescription",
+        "developerName",
+        "category",
+        "websiteURL",
+    ):
+        require_nonempty_string(interface.get(key), f"plugin.interface.{key}")
+    if interface["developerName"] != author_name:
+        fail("plugin.interface.developerName must match plugin.author.name")
+    if interface["websiteURL"] != manifest["homepage"]:
+        fail("plugin.interface.websiteURL must match plugin.homepage")
+    if interface["category"] != "Developer Tools":
+        fail("plugin.interface.category must be Developer Tools")
+    if interface.get("capabilities") != ["Read", "Write"]:
+        fail("plugin.interface.capabilities must declare only Read and Write")
+    default_prompts = interface.get("defaultPrompt")
+    if not isinstance(default_prompts, list) or not 1 <= len(default_prompts) <= 3:
+        fail("plugin.interface.defaultPrompt must contain one to three prompts")
+    for prompt in default_prompts:
+        require_nonempty_string(prompt, "plugin.interface.defaultPrompt[]")
+    unsupported_capabilities = {"apps", "mcpServers", "hooks", "assets"} & set(manifest)
+    if unsupported_capabilities:
+        fail(
+            "skills-only plugin must not declare unsupported capabilities: "
+            + ", ".join(sorted(unsupported_capabilities))
+        )
+
+    marketplace_path = root / ".agents/plugins/marketplace.json"
+    marketplace = json.loads(marketplace_path.read_text(encoding="utf-8"))
+    if not isinstance(marketplace, dict) or marketplace.get("name") != "kiss-my-agent":
+        fail("unexpected marketplace identity")
+    marketplace_interface = marketplace.get("interface")
+    if not isinstance(marketplace_interface, dict):
+        fail("marketplace.interface must be an object")
+    require_nonempty_string(
+        marketplace_interface.get("displayName"), "marketplace.interface.displayName"
+    )
+    if marketplace_interface["displayName"] != interface["displayName"]:
+        fail("marketplace display name must match the plugin manifest")
+    plugins = marketplace.get("plugins")
+    if not isinstance(plugins, list) or len(plugins) != 1:
+        fail("marketplace must expose exactly one plugin")
+    plugin = plugins[0]
+    if not isinstance(plugin, dict) or plugin.get("name") != manifest["name"]:
+        fail("marketplace plugin identity must match the plugin manifest")
+    source = plugin.get("source")
+    if not isinstance(source, dict):
+        fail("marketplace plugin source must be an object")
+    if source.get("source") != "url":
+        fail("marketplace plugin source must use the Git URL interface")
+    if source.get("url") != manifest["repository"]:
+        fail("marketplace plugin URL must match plugin.repository")
+    if source.get("ref") != f"v{version}":
+        fail("marketplace plugin ref must match plugin.version")
+    policy = plugin.get("policy")
+    if not isinstance(policy, dict):
+        fail("marketplace plugin policy must be an object")
+    if policy.get("installation") != "AVAILABLE" or policy.get("authentication") != "ON_INSTALL":
+        fail("marketplace plugin policy must be AVAILABLE with ON_INSTALL authentication")
+    if plugin.get("category") != "Developer Tools":
+        fail("marketplace plugin category must be Developer Tools")
+
+
+def validate_setup_interface(root: Path) -> None:
+    skill_path = root / "skills/kiss-my-agent-setup/SKILL.md"
+    skill = skill_path.read_text(encoding="utf-8")
+    frontmatter = re.match(r"\A---\n(.*?)\n---\n", skill, re.DOTALL)
+    if not frontmatter:
+        fail("invalid setup skill frontmatter")
+    fields: dict[str, str] = {}
+    for line in frontmatter.group(1).splitlines():
+        key, separator, value = line.partition(":")
+        if not separator:
+            fail("invalid setup skill frontmatter line")
+        fields[key.strip()] = value.strip()
+    if fields.get("name") != "kiss-my-agent-setup":
+        fail("unexpected setup skill name")
+    if not fields.get("description"):
+        fail("empty setup skill description")
+    for token in ("setup", "check", "remove", "--scope", "--target", "--codex-home"):
+        if token not in skill:
+            fail(f"setup skill interface missing: {token}")
+
+
+def validate_site_interfaces(root: Path) -> None:
+    requirements = [
+        line.strip()
+        for line in (root / "requirements-site.txt").read_text(encoding="utf-8").splitlines()
+        if line.strip() and not line.lstrip().startswith("#")
+    ]
+    if len(requirements) != 1 or not re.fullmatch(r"Markdown==\d+\.\d+\.\d+", requirements[0]):
+        fail("requirements-site.txt must pin exactly one Markdown release")
+
+    template = (root / "site/template.html").read_text(encoding="utf-8")
+    for token in ("<html", "<meta", "<main", "lang"):
+        if token not in template:
+            fail(f"site template interface missing: {token}")
+    if not (root / "site/style.css").read_text(encoding="utf-8").strip():
+        fail("site/style.css must not be empty")
+
+    workflow = (root / ".github/workflows/pages.yml").read_text(encoding="utf-8")
+    for token in (
+        "scripts/build_site.py",
+        "actions/configure-pages@",
+        "actions/upload-pages-artifact@",
+        "actions/deploy-pages@",
+    ):
+        if token not in workflow:
+            fail(f"Pages workflow interface missing: {token}")
 
 
 def validate_example_config(root: Path) -> None:
@@ -176,7 +410,7 @@ def validate_example_config(root: Path) -> None:
 
 
 def validate_skill(root: Path) -> None:
-    skill_path = root / ".agents/skills/kiss-my-agent/SKILL.md"
+    skill_path = root / "skills/kiss-my-agent/SKILL.md"
     skill = skill_path.read_text(encoding="utf-8")
     frontmatter = re.match(r"\A---\n(.*?)\n---\n", skill, re.DOTALL)
     if not frontmatter:
@@ -333,22 +567,24 @@ def validate_document_interfaces(root: Path) -> None:
     installation = (root / "docs/INSTALLATION.md").read_text(encoding="utf-8")
     for interface_name in (
         "kiss-my-agent",
+        "kiss-my-agent-setup",
         "kiss_explorer",
         "kiss_coder",
         "kiss_reviewer",
         "AGENTS.override.md",
-        "$HOME/.agents/skills",
+        "codex plugin marketplace add",
+        "scripts/setup.py",
         "/skills",
     ):
         if interface_name not in installation:
             fail(f"installation interface missing: {interface_name}")
     configuration = (root / "docs/CONFIGURATION.md").read_text(encoding="utf-8")
     for config_key in (
-        "model_context_window",
-        "model_auto_compact_token_limit",
-        "agents.max_concurrent_threads_per_session",
+        "features.multi_agent",
+        "agents.enabled",
+        "model",
+        "model_reasoning_effort",
         "sandbox_mode",
-        "approval_policy",
     ):
         if config_key not in configuration:
             fail(f"configuration key guidance missing: {config_key}")
@@ -471,6 +707,9 @@ def validate(root: Path) -> None:
     validate_retired_paths(root)
     validate_repository_config(root)
     validate_roles(root)
+    validate_distribution_interfaces(root)
+    validate_setup_interface(root)
+    validate_site_interfaces(root)
     validate_example_config(root)
     validate_skill(root)
     validate_bilingual_documents(root)
@@ -501,7 +740,7 @@ def main() -> int:
     root = parse_args().root.resolve()
     try:
         validate(root)
-    except (tomllib.TOMLDecodeError, ValidationError) as exc:
+    except (json.JSONDecodeError, tomllib.TOMLDecodeError, ValidationError) as exc:
         print(f"validation failed: {exc}", file=sys.stderr)
         return 1
     return 0

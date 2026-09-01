@@ -1,14 +1,5 @@
+[features]
+multi_agent = true
+
 [agents]
 enabled = true
-
-[agents.kiss_explorer]
-description = "KISS My Agent read-only explorer"
-config_file = "agents/kiss_explorer.toml"
-
-[agents.kiss_coder]
-description = "KISS My Agent implementation agent"
-config_file = "agents/kiss_coder.toml"
-
-[agents.kiss_reviewer]
-description = "KISS My Agent independent read-only reviewer"
-config_file = "agents/kiss_reviewer.toml"

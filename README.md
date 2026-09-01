@@ -13,87 +13,83 @@
 <a id="overview"></a>
 ## Overview
 
-KISS My Agent is a compact instruction layer for research-oriented coding agents. People retain the research goal, architecture, acceptance criteria, non-goals, and stop boundary. Agents make bounded implementation decisions, prefer the smallest sufficient change, keep failures visible, and report evidence at the level it actually supports.
+KISS My Agent is a compact Codex plugin for research-oriented coding agents. People retain the research goal, architecture, acceptance criteria, non-goals, and stop boundary. Agents make bounded implementation decisions, prefer the smallest sufficient change, keep failures visible, and report evidence at the level it actually supports.
 
-This Codex-first repository ships project instructions, one narrowly routed Skill, three prefixed custom roles, a project configuration that enables and registers those roles, static validation, and developer documentation. It is not an installer, workflow platform, permission system, or behavioral guarantee.
+The plugin supplies two narrowly routed Skills, three seed custom roles, setup/check/remove support, project guidance, static validation, and bilingual developer documentation. It is not a fixed workflow, permission system, behavioral guarantee, or closed role catalog.
 
 <a id="quick-start"></a>
 ## Quick Start
 
-Run the native validator for your operating system. Python 3.11 or newer is required: use `python3` on Linux or macOS; on Windows the wrapper accepts the `py -3` launcher or `python`.
-
-Linux or macOS (POSIX shell):
+The public installation interface is:
 
 ```bash
-cd /absolute/path/to/kiss-my-agent
-./scripts/validate.sh
+codex plugin marketplace add AoiOTA/Kiss-My-Agent
+codex plugin add kiss-my-agent@kiss-my-agent
 ```
 
-Windows (native PowerShell; WSL is not the Windows path):
+Start a new authenticated Codex session so the newly installed plugin can be discovered. In that session, run:
 
-```powershell
-Set-Location C:\absolute\path\to\kiss-my-agent
-.\scripts\validate.ps1
+```text
+$kiss-my-agent-setup set up this project
 ```
 
-For live discovery, trust this project and start a new authenticated session:
+The setup Skill changes the current project only. It does not trust the project or restart Codex. Trust the project through the Host, start another new session, then run:
 
-```bash
-cd /absolute/path/to/kiss-my-agent
-codex
+```text
+$kiss-my-agent-setup check this project
 ```
 
-```powershell
-Set-Location C:\absolute\path\to\kiss-my-agent
-codex
-```
+Also use `/skills` and a harmless role Smoke from [Testing](docs/TESTING.md) when live discovery evidence is required.
 
-In that new session, run `/skills`, confirm `kiss-my-agent`, and smoke the registered `kiss_explorer`, `kiss_coder`, and `kiss_reviewer` roles as described in [Testing](docs/TESTING.md).
+Global installation is never implicit. Request it explicitly with `$kiss-my-agent-setup set up globally`; see [Installation](docs/INSTALLATION.md) before choosing that scope.
 
-The tracked [`.codex/config.toml`](.codex/config.toml) enables multi-agent support and registers only those three roles. It does not select a model, permission mode, context limit, concurrency limit, trust policy, or credential. Project configuration requires project trust and a new session. An already-running session is not guaranteed to hot-load configuration, Skills, instructions, or roles.
+The Git-backed marketplace is prepared for `v0.1.0`, but remote installation requires that tag to exist. This checkout currently supports source inspection and static validation only; it is not evidence that the plugin has been published or installed live.
 
 <a id="components"></a>
 ## Components
 
-- [`AGENTS.md`](AGENTS.md): permanent human/agent boundaries.
-- [`.agents/skills/kiss-my-agent/`](.agents/skills/kiss-my-agent/): one precise Skill entrypoint with two Rules and four Cases.
-- [`.codex/config.toml`](.codex/config.toml): project-local enablement and registration for three prefixed roles.
-- [`.codex/agents/`](.codex/agents/): `kiss_explorer`, `kiss_coder`, and `kiss_reviewer` definitions.
+- [`AGENTS.md`](AGENTS.md): permanent human/agent boundaries and dynamic-dispatch guidance.
+- Plugin Skills: `$kiss-my-agent` for the narrow decision cases it names, and `$kiss-my-agent-setup` for explicit setup/check/remove operations.
+- [`.codex/config.toml`](.codex/config.toml): the two public multi-agent enablement switches, both explicitly `true` for this project.
+- [`.codex/agents/`](.codex/agents/): three standalone seed roles discovered from TOML files.
 - [`scripts/validate.sh`](scripts/validate.sh) and [`scripts/validate.ps1`](scripts/validate.ps1): native static-validation entrypoints.
 - [`tests/`](tests/): layered-instruction fixtures and manual scenarios.
 - English-first documentation with synchronized Simplified Chinese companions.
 
-Adoption into another project is explicit and collision-safe. Documented copy commands never overwrite existing configuration, instructions, Skills, or roles. See [Installation](docs/INSTALLATION.md).
+<a id="three-layers"></a>
+## Three Responsibilities
+
+The runtime surface has three separate owners:
+
+1. `.codex/config.toml` enables the Host multi-agent capability with `features.multi_agent = true` and custom agents with `agents.enabled = true`.
+2. Each standalone role TOML is auto-discovered. Its `name` field is the role identity; the filename is only a convention.
+3. `AGENTS.md` tells the primary thread when delegation is worthwhile. It does not force a pipeline or fixed fan-out.
+
+The supplied `kiss_explorer`, `kiss_coder`, and `kiss_reviewer` files are editable seeds, not a closed catalog. Add or remove standalone roles deliberately. After initial setup, later setup and check operations preserve the catalog and do not recreate a deleted role.
+
+Role model and reasoning effort inherit Host settings when omitted and may be edited to supported values. KISS My Agent does not pin a model, effort, context window, or concurrency limit.
 
 <a id="platform-support"></a>
 ## Platform Support
 
 | Platform | Native command | Evidence status |
 | --- | --- | --- |
-| Linux | `./scripts/validate.sh` | Locally exercised on the current checkout; the exact result is reported by the command. |
-| macOS | `./scripts/validate.sh` | CI target. Do not describe it as verified until the exact commit has a green macOS job. |
-| Windows | `.\scripts\validate.ps1` in native PowerShell | CI target. Do not describe it as verified until the exact commit has a green Windows job. WSL counts as Linux evidence. |
+| Linux | `./scripts/validate.sh` | Locally exercised only when reported for the exact checkout. |
+| macOS | `./scripts/validate.sh` | CI target; the exact commit needs a green native job. |
+| Windows | `.\scripts\validate.ps1` in native PowerShell | CI target; the exact commit needs a green native job. WSL is Linux evidence. |
 
-The [`Validate` workflow](.github/workflows/validate.yml) runs native wrappers. A workflow definition is not proof of a passing platform; green jobs for the exact commit are the authority.
-
-Static validation needs no Codex sandbox package, copied `CODEX_HOME`, container, VM, or extra test project. “No sandbox required” means the validators run as ordinary local scripts. It does not mean `danger-full-access` is required or Host permission controls are bypassed. Live Codex checks may update normal Host-owned state such as trust, history, or caches.
+Static validation needs Python 3.11 or newer and no Codex sandbox package, copied `CODEX_HOME`, container, VM, or extra test project. A workflow definition is not proof of a passing platform; green jobs for the exact commit are the authority.
 
 <a id="runtime-configuration"></a>
 ## Runtime Configuration
 
-The primary thread uses the effective Host, CLI, user, Profile, and trusted-project settings. There is no `master.toml`. Role files contain editable role-specific model, reasoning, and sandbox examples; project config only enables and registers them.
-
-Disable all custom-agent support for one launch without editing the repository:
+The primary thread and role files use the effective Host settings. An explicit `false` in an effective user or administrative layer, or a one-launch CLI override, takes precedence over KISS defaults. To disable both public switches for one launch:
 
 ```bash
-codex --config agents.enabled=false
+codex --config features.multi_agent=false --config agents.enabled=false
 ```
 
-```powershell
-codex --config agents.enabled=false
-```
-
-See [Configuration](docs/CONFIGURATION.md) before changing models, permissions, context, concurrency, or registrations.
+Project and global setup are separate explicit operations. Existing settings and instructions are preserved; conflicts stop setup for review. See [Configuration](docs/CONFIGURATION.md).
 
 <a id="core-principles"></a>
 ## Core Principles
@@ -113,10 +109,12 @@ See [Configuration](docs/CONFIGURATION.md) before changing models, permissions, 
 ```text
 .
 ├── AGENTS.md
-├── .agents/skills/kiss-my-agent/
 ├── .codex/{config.toml,agents/}
+├── plugin and marketplace metadata
+├── skills/kiss-my-agent/
+├── skills/kiss-my-agent-setup/{SKILL.md,scripts/setup.py}
 ├── docs/{INSTALLATION,CONFIGURATION,TESTING,EXTENDING,FAQ}{,.zh-CN}.md
-├── scripts/{validate.py,validate.sh,validate.ps1}
+├── scripts/{validate.py,validate.sh,validate.ps1,build_site.py}
 ├── tests/
 ├── CONTRIBUTING{,.zh-CN}.md
 ├── SECURITY{,.zh-CN}.md
@@ -126,12 +124,25 @@ See [Configuration](docs/CONFIGURATION.md) before changing models, permissions, 
 
 Codex-facing instructions, Skill content, Rules, Cases, role TOML, `LICENSE`, and `CODE_OF_CONDUCT.md` remain English so the runtime surface has one authoritative language.
 
+<a id="pages-status"></a>
+## Documentation Site Status
+
+Pages stage 1 is prepared for local build and verification:
+
+```bash
+python3 -m pip install -r requirements-site.txt
+python3 -m unittest tests.test_build_site
+python3 scripts/build_site.py --output _site
+```
+
+`_site/` is a local ignored artifact. The README language switch remains relative during stage 1. Only after the first deployed Pages response returns HTTP 200 should stage 2 replace it with the verified Pages URL; this README intentionally does not publish a potentially returning-404 link.
+
 <a id="validation-boundaries"></a>
 ## Validation Boundaries
 
-Static validation can check repository structure, TOML syntax and registrations, Skill routing, bilingual-document parity, relative links, instruction fixtures, shell syntax, and assets. It does not prove model compliance, research validity, authentication, network access, filesystem authority, external integrations, or future Host compatibility.
+Static validation can check repository structure, TOML syntax, standalone role identity, Skill routing, bilingual-document parity, relative links, instruction fixtures, shell syntax, and assets. It does not prove plugin publication, marketplace installation, model compliance, research validity, authentication, network access, filesystem authority, or future Host compatibility.
 
-A live `/skills` check proves discovery in that session. A role Smoke proves only that the role can be invoked for the harmless task used. Neither proves future behavior or grants authority. See [Testing](docs/TESTING.md).
+A setup `check` proves only the files and managed content it inspects. A live `/skills` result proves discovery in that session. A role Smoke proves only the harmless task observed. See [Testing](docs/TESTING.md).
 
 <a id="documentation"></a>
 ## Documentation
@@ -148,9 +159,9 @@ A live `/skills` check proves discovery in that session. A role Smoke proves onl
 ## Limitations
 
 - Early-stage source distribution; compatibility and release guarantees are not claimed.
+- The `v0.1.0` Git tag is still required before the Git-backed marketplace can install that version remotely.
 - Codex-first; other hosts have not been verified.
 - Instructions do not grant filesystem, network, account, or authentication authority.
-- Model and reasoning availability varies by Host.
 - Manual scenarios and Smoke checks are not behavioral qualification or research evidence.
 - Project-specific safety, compliance, and domain rules remain the adopter's responsibility.
 

@@ -13,87 +13,83 @@
 <a id="overview"></a>
 ## 概览
 
-KISS My Agent 是面向科研型编码 Agent 的紧凑指令层。人掌握研究目标、架构、验收标准、非目标和停止边界；Agent 在边界内作实现决策，优先选择最小充分改动，让失败保持可见，并且只按证据实际支持的层级汇报结果。
+KISS My Agent 是面向科研型编码 Agent 的紧凑 Codex plugin。人掌握研究目标、架构、验收标准、非目标和停止边界；Agent 在边界内作实现决策，优先选择最小充分改动，让失败保持可见，并且只按证据实际支持的层级汇报结果。
 
-本仓库以 Codex 为首要宿主，提供项目指令、一个窄路由 Skill、三个带前缀的自定义角色、默认启用并注册这些角色的项目配置、静态验证和开发者文档。它不是 installer、工作流平台、权限系统或行为保证。
+Plugin 提供两个窄路由 Skills、三个 seed 自定义角色、setup/check/remove 支持、项目指导、静态验证和双语开发者文档。它不是固定工作流、权限系统、行为保证或封闭角色 catalog。
 
 <a id="quick-start"></a>
 ## 快速开始
 
-运行操作系统对应的原生 validator。前置条件为 Python 3.11 或更高版本：Linux 或 macOS 使用 `python3`；Windows wrapper 可使用 `py -3` launcher 或 `python`。
-
-Linux 或 macOS（POSIX shell）：
+公开安装接口为：
 
 ```bash
-cd /absolute/path/to/kiss-my-agent
-./scripts/validate.sh
+codex plugin marketplace add AoiOTA/Kiss-My-Agent
+codex plugin add kiss-my-agent@kiss-my-agent
 ```
 
-Windows（原生 PowerShell；WSL 不属于 Windows 路径）：
+启动新的已认证 Codex 会话，让新安装的 plugin 被发现。在该会话中运行：
 
-```powershell
-Set-Location C:\absolute\path\to\kiss-my-agent
-.\scripts\validate.ps1
+```text
+$kiss-my-agent-setup set up this project
 ```
 
-要检查真实发现行为，请信任该项目并启动新的已认证会话：
+Setup Skill 只修改当前项目；它不会信任项目或重启 Codex。通过 Host 信任项目，另开一个新会话，然后运行：
 
-```bash
-cd /absolute/path/to/kiss-my-agent
-codex
+```text
+$kiss-my-agent-setup check this project
 ```
 
-```powershell
-Set-Location C:\absolute\path\to\kiss-my-agent
-codex
-```
+需要真实发现证据时，还应按[测试](docs/TESTING.zh-CN.md)使用 `/skills` 和无害角色 Smoke。
 
-在新会话中运行 `/skills`、确认 `kiss-my-agent`，并按[测试](docs/TESTING.zh-CN.md)对已注册的 `kiss_explorer`、`kiss_coder` 和 `kiss_reviewer` 角色做 Smoke。
+全局安装绝不隐式发生。必须明确请求 `$kiss-my-agent-setup set up globally`；选择该 scope 前请阅读[安装](docs/INSTALLATION.zh-CN.md)。
 
-仓库跟踪的 [`.codex/config.toml`](.codex/config.toml) 只启用 multi-agent 并注册这三个角色。它不选择模型、权限模式、上下文上限、并发上限、信任策略或凭证。项目配置需要项目可信并启动新会话；已在运行的旧会话不保证热加载配置、Skills、instructions 或角色。
+Git-backed marketplace 已为 `v0.1.0` 做好准备，但远程安装要求该 tag 已存在。当前 checkout 只支持源码检查与静态验证；这不证明 plugin 已发布或完成真实安装。
 
 <a id="components"></a>
 ## 组件
 
-- [`AGENTS.md`](AGENTS.md)：永久的人与 Agent 边界。
-- [`.agents/skills/kiss-my-agent/`](.agents/skills/kiss-my-agent/)：含两个 Rules 和四个 Cases 的精确 Skill 入口。
-- [`.codex/config.toml`](.codex/config.toml)：项目级 multi-agent 启用与三个前缀角色注册。
-- [`.codex/agents/`](.codex/agents/)：`kiss_explorer`、`kiss_coder` 和 `kiss_reviewer` 定义。
+- [`AGENTS.md`](AGENTS.md)：永久的人与 Agent 边界，以及动态调度指导。
+- Plugin Skills：用于所列窄决策场景的 `$kiss-my-agent`，以及用于显式 setup/check/remove 的 `$kiss-my-agent-setup`。
+- [`.codex/config.toml`](.codex/config.toml)：两个公开 multi-agent 启用开关，本项目都显式设为 `true`。
+- [`.codex/agents/`](.codex/agents/)：从独立 TOML 文件自动发现的三个 seed 角色。
 - [`scripts/validate.sh`](scripts/validate.sh) 与 [`scripts/validate.ps1`](scripts/validate.ps1)：原生静态验证入口。
 - [`tests/`](tests/)：分层 instruction fixtures 和人工 scenarios。
 - 英文优先、结构同步的简体中文配套文档。
 
-采用到其他项目时始终显式操作并避免冲突。文档中的复制命令绝不覆盖已有配置、instructions、Skills 或角色。详见[安装](docs/INSTALLATION.zh-CN.md)。
+<a id="three-layers"></a>
+## 三层职责
+
+Runtime 表面有三个不同 owner：
+
+1. `.codex/config.toml` 通过 `features.multi_agent = true` 启用 Host multi-agent 能力，通过 `agents.enabled = true` 启用自定义 Agent。
+2. 每个 standalone role TOML 会被自动发现。其 `name` 字段是角色身份；文件名只是约定。
+3. `AGENTS.md` 告诉主线程何时委派值得，不强制流水线或固定 fan-out。
+
+提供的 `kiss_explorer`、`kiss_coder` 与 `kiss_reviewer` 文件是可编辑 seeds，不是封闭 catalog。应有意地增加或删除 standalone roles。首次 setup 后，后续 setup 与 check 会保留 catalog，不会重新创建已删除角色。
+
+角色 model 与 reasoning effort 在省略时继承 Host 设置，也可修改为 Host 支持的值。KISS My Agent 不固定模型、effort、context window 或并发上限。
 
 <a id="platform-support"></a>
 ## 平台支持
 
 | 平台 | 原生命令 | 证据状态 |
 | --- | --- | --- |
-| Linux | `./scripts/validate.sh` | 已在当前 checkout 本地执行；精确结果以命令输出为准。 |
-| macOS | `./scripts/validate.sh` | CI 目标。精确 commit 的 macOS job 变绿前，不描述为已验证。 |
-| Windows | 在原生 PowerShell 中运行 `.\scripts\validate.ps1` | CI 目标。精确 commit 的 Windows job 变绿前，不描述为已验证。WSL 只算 Linux 证据。 |
+| Linux | `./scripts/validate.sh` | 只有针对精确 checkout 报告时才算本地已执行。 |
+| macOS | `./scripts/validate.sh` | CI 目标；精确 commit 需要绿色原生 job。 |
+| Windows | 在原生 PowerShell 中运行 `.\scripts\validate.ps1` | CI 目标；精确 commit 需要绿色原生 job。WSL 属于 Linux 证据。 |
 
-[`Validate` workflow](.github/workflows/validate.yml) 运行原生 wrappers。存在 workflow 定义不等于平台已经通过；精确 commit 上的绿色 jobs 才是权威证据。
-
-静态验证不需要 Codex sandbox package、复制的 `CODEX_HOME`、容器、虚拟机或额外测试项目。“无需 sandbox”表示 validator 作为普通本地脚本运行；它不表示需要 `danger-full-access`，也不表示绕过 Host 权限控制。真实 Codex 检查可能更新 trust、历史或缓存等正常 Host 状态。
+静态验证需要 Python 3.11 或更高版本，不需要 Codex sandbox package、复制的 `CODEX_HOME`、容器、虚拟机或额外测试项目。存在 workflow 定义不等于平台已经通过；精确 commit 上的绿色 jobs 才是权威证据。
 
 <a id="runtime-configuration"></a>
 ## 运行配置
 
-主线程使用 Host、CLI、用户配置、Profile 与可信项目配置共同决定的实际设置。项目没有 `master.toml`。角色文件包含可编辑的角色专用模型、reasoning 与 sandbox 示例；项目配置只负责启用和注册。
-
-无需修改仓库，即可为单次启动禁用所有自定义 Agent：
+主线程与角色文件使用 Host 实际生效的设置。有效用户层或管理员层中的显式 `false`，或者单次启动 CLI override，优先于 KISS 默认值。为单次启动关闭两个公开开关：
 
 ```bash
-codex --config agents.enabled=false
+codex --config features.multi_agent=false --config agents.enabled=false
 ```
 
-```powershell
-codex --config agents.enabled=false
-```
-
-修改模型、权限、上下文、并发或注册前，请阅读[配置](docs/CONFIGURATION.zh-CN.md)。
+项目 setup 与全局 setup 是两个独立显式操作。已有设置和 instructions 会被保留；发生冲突时 setup 会停止以供审核。详见[配置](docs/CONFIGURATION.zh-CN.md)。
 
 <a id="core-principles"></a>
 ## 核心原则
@@ -113,10 +109,12 @@ codex --config agents.enabled=false
 ```text
 .
 ├── AGENTS.md
-├── .agents/skills/kiss-my-agent/
 ├── .codex/{config.toml,agents/}
+├── plugin and marketplace metadata
+├── skills/kiss-my-agent/
+├── skills/kiss-my-agent-setup/{SKILL.md,scripts/setup.py}
 ├── docs/{INSTALLATION,CONFIGURATION,TESTING,EXTENDING,FAQ}{,.zh-CN}.md
-├── scripts/{validate.py,validate.sh,validate.ps1}
+├── scripts/{validate.py,validate.sh,validate.ps1,build_site.py}
 ├── tests/
 ├── CONTRIBUTING{,.zh-CN}.md
 ├── SECURITY{,.zh-CN}.md
@@ -124,14 +122,27 @@ codex --config agents.enabled=false
 └── LICENSE
 ```
 
-面向 Codex 的 instructions、Skill 内容、Rules、Cases、角色 TOML、`LICENSE` 和 `CODE_OF_CONDUCT.md` 保持英文，使运行时表面只有一个权威语言版本。
+面向 Codex 的 instructions、Skill 内容、Rules、Cases、角色 TOML、`LICENSE` 和 `CODE_OF_CONDUCT.md` 保持英文，使 runtime 表面只有一个权威语言版本。
+
+<a id="pages-status"></a>
+## 文档站点状态
+
+Pages stage 1 已准备好本地构建与验证：
+
+```bash
+python3 -m pip install -r requirements-site.txt
+python3 -m unittest tests.test_build_site
+python3 scripts/build_site.py --output _site
+```
+
+`_site/` 是已忽略的本地产物。Stage 1 中 README 语言切换保持相对链接。只有首次部署的 Pages 响应返回 HTTP 200 后，stage 2 才能把它替换为已验证的 Pages URL；本文有意不发布可能返回 404 的链接。
 
 <a id="validation-boundaries"></a>
 ## 验证边界
 
-静态验证可以检查仓库结构、TOML 语法与注册、Skill 路由、双语文档一致性、相对链接、instruction fixtures、shell 语法和资产。它不能证明模型服从性、研究有效性、认证、网络访问、文件系统权限、外部集成或未来 Host 兼容性。
+静态验证可以检查仓库结构、TOML 语法、standalone role identity、Skill 路由、双语文档一致性、相对链接、instruction fixtures、shell 语法和资产。它不能证明 plugin 发布、marketplace 安装、模型服从性、研究有效性、认证、网络访问、文件系统权限或未来 Host 兼容性。
 
-真实 `/skills` 检查只证明该会话完成发现。角色 Smoke 只证明该角色能执行所用的无害任务；两者都不证明未来行为，也不授予权限。详见[测试](docs/TESTING.zh-CN.md)。
+Setup `check` 只证明它检查的文件与 managed content。真实 `/skills` 结果只证明该会话完成发现。角色 Smoke 只证明观察到的无害任务。详见[测试](docs/TESTING.zh-CN.md)。
 
 <a id="documentation"></a>
 ## 文档
@@ -148,9 +159,9 @@ codex --config agents.enabled=false
 ## 局限
 
 - 早期源码分发；不声明兼容性与 release 保证。
+- Git-backed marketplace 远程安装该版本之前仍需创建 `v0.1.0` tag。
 - Codex 优先；其他 Host 尚未验证。
 - Instructions 不授予文件系统、网络、账户或认证权限。
-- 模型与 reasoning 可用性取决于 Host。
 - 人工 scenarios 与 Smoke 检查不是行为资格认定或研究证据。
 - 项目专有的安全、合规和领域规则仍由采用者负责。
 

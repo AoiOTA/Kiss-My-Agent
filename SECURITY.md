@@ -17,9 +17,9 @@ If private reporting is unavailable, open a public issue titled `Private securit
 <a id="assessment-boundary"></a>
 ## Assessment Boundary
 
-Reports are assessed against actual instruction discovery, installation, configuration, runtime permission, or validation behavior. Instructions are not a security boundary. Static validation does not establish Host isolation, model compliance, account authorization, network policy, or external-service security.
+Reports are assessed against actual plugin/marketplace metadata, setup/check/remove scope, instruction and standalone-role discovery, configuration, runtime permission, or validation behavior. Instructions are not a security boundary. Static validation does not establish publication, live installation, Host isolation, model compliance, account authorization, network policy, or external-service security.
 
 <a id="safe-reproduction"></a>
 ## Safe Reproduction
 
-Provide the minimum reproduction and redact secrets and private paths. Do not test against systems, accounts, data, or users you are not authorized to affect. Stop before destructive, irreversible, or externally disruptive actions and coordinate privately with maintainers.
+Provide the minimum reproduction and redact secrets and private paths. Use an isolated project or `--codex-home` when reproducing setup behavior; never point a destructive remove test at an ambiguously owned scope. Do not test against systems, accounts, data, or users you are not authorized to affect. Stop before destructive, irreversible, or externally disruptive actions and coordinate privately with maintainers.

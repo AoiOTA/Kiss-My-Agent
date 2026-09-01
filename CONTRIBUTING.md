@@ -7,7 +7,7 @@
 
 Read [`AGENTS.md`](AGENTS.md). For Skill, Rule, or Case changes, also read [Extending](docs/EXTENDING.md). Runtime and test behavior belong in [Configuration](docs/CONFIGURATION.md) and [Testing](docs/TESTING.md).
 
-Open an issue when a proposal changes public installation layout, role schema, Skill trigger boundaries, or permanent rules. Small, scoped corrections can go directly to a pull request. Security reports follow [Security](SECURITY.md); conduct concerns follow the English-only [Code of Conduct](CODE_OF_CONDUCT.md).
+Open an issue when a proposal changes plugin/marketplace layout, setup scope, role schema, Skill trigger boundaries, Pages publication, or permanent rules. Small, scoped corrections can go directly to a pull request. Security reports follow [Security](SECURITY.md); conduct concerns follow the English-only [Code of Conduct](CODE_OF_CONDUCT.md).
 
 <a id="change-boundaries"></a>
 ## Change Boundaries
@@ -15,7 +15,9 @@ Open an issue when a proposal changes public installation layout, role schema, S
 - Preserve human ownership of the goal, architecture, acceptance, non-goals, and stop boundary.
 - Keep `$kiss-my-agent` precisely routed and non-catch-all.
 - Add a Rule only for a recurring method and a Case only for a useful concrete contrast.
-- Do not add workflow, installer, release, compatibility, telemetry, scoring, or evaluation machinery without a current approved consumer.
+- Do not expand setup, workflow, release, compatibility, telemetry, scoring, or evaluation machinery without a current approved consumer.
+- Preserve the three owners: two public switches in config, standalone role TOML discovery, and dynamic dispatch in AGENTS. Config must not enumerate role files.
+- Treat the three supplied roles as editable seeds rather than a closed catalog; role `name` is identity and filename is only a convention.
 - Preserve unrelated user and agent changes; keep refactors and formatting outside the scoped diff.
 - Keep every English developer document synchronized with its Simplified Chinese companion: language switch, explicit anchor IDs, section order, and fenced command blocks.
 - Keep Codex-facing AGENTS, Skill, Rules, Cases, role TOML, `LICENSE`, and `CODE_OF_CONDUCT.md` English-only.
@@ -36,7 +38,14 @@ Windows native PowerShell:
 .\scripts\validate.ps1
 ```
 
-WSL is Linux evidence. Do not claim macOS or Windows verification from configuration alone; require the exact commit's green native CI job. For discovery changes, use a trusted new Codex session. Current old sessions are not guaranteed to hot-load.
+For documentation-site changes:
+
+```bash
+python3 -m unittest tests.test_build_site
+python3 scripts/build_site.py --output _site
+```
+
+`_site/` is a local ignored artifact. Keep README language links relative until a first deployed Pages response returns HTTP 200. WSL is Linux evidence. Do not claim macOS or Windows verification from configuration alone; require the exact commit's green native CI job. For discovery changes, use a trusted new Codex session. Current old sessions are not guaranteed to hot-load.
 
 <a id="pull-requests"></a>
 ## Pull Requests

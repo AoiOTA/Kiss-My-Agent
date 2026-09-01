@@ -7,105 +7,114 @@
 <a id="repository-default"></a>
 ## 仓库默认配置
 
-仓库跟踪的 `.codex/config.toml` 刻意保持很小：设置 `agents.enabled = true`，并通过 `.codex/agents/` 下的文件注册 `kiss_explorer`、`kiss_coder` 和 `kiss_reviewer`。它不设置模型、reasoning effort、权限模式、上下文上限、并发上限、信任策略、provider、认证或 telemetry。
+仓库跟踪的 `.codex/config.toml` 只有两个公开开关：
 
-Host 只会在项目可信时考虑项目 config。修改项目 config、instructions、Skills 或角色后启动新会话；当前旧会话不保证热加载。
+```toml
+[features]
+multi_agent = true
 
-无需修改仓库即可为单次启动禁用自定义 Agent：
-
-```bash
-codex --config agents.enabled=false
+[agents]
+enabled = true
 ```
 
-```powershell
-codex --config agents.enabled=false
-```
+它们为该可信项目启用 Host multi-agent 能力和自定义 Agent。它们不枚举角色，也不设置模型、reasoning effort、权限模式、上下文上限、并发上限、信任策略、provider、认证或 telemetry。
+
+有效用户层或管理员层中的显式 `false`，或者单次启动 override，仍是权威取值。Setup 不得静默重新打开有意禁用的功能。
+
+<a id="three-layers"></a>
+## 三层职责
+
+| Owner | 表面 | 职责 |
+| --- | --- | --- |
+| 启用 | `.codex/config.toml` | 只有两个公开开关。 |
+| 发现 | `.codex/agents/*.toml` | Host 自动发现 standalone role definitions。 |
+| 调度 | `AGENTS.md` | 主线程是否以及如何委派的动态指导。 |
+
+这三层不能互相替代。Role 文件不会打开 multi-agent 支持；开关不会创建角色 catalog；AGENTS 指导不会授予 runtime 权限。
 
 <a id="configuration-layers"></a>
 ## 配置层
 
 | Scope | 典型位置 | 用途 |
 | --- | --- | --- |
-| 用户 | `~/.codex/config.toml` | 跨项目个人默认值。 |
-| 可信项目 | `<repo>/.codex/config.toml` | 项目注册与审核过的项目 override。 |
+| 用户/全局 | `$CODEX_HOME/config.toml` | 跨项目个人默认值。 |
+| 可信项目 | `<repo>/.codex/config.toml` | 审核过的项目级开关与设置。 |
 | Profile | Host 支持的 Profile config | 可切换的个人模式。 |
 | 单次启动 | CLI `--config key=value` | 不编辑文件的临时 override。 |
-| 个人角色 | `~/.codex/agents/<role>.toml` | 跨项目角色定义。 |
-| 项目角色 | `<repo>/.codex/agents/<role>.toml` | 项目角色定义。 |
+| 全局角色 | `$CODEX_HOME/agents/<file>.toml` | 跨项目 standalone role definition。 |
+| 项目角色 | `<repo>/.codex/agents/<file>.toml` | 项目 standalone role definition。 |
 
-后生效的层可能覆盖先前取值。Provider、认证、telemetry 与管理员策略可能另有限制。把设置移到不同 scope 前，应查阅当前官方 Codex reference。
+项目与全局 scope 始终显式选择。Provider、认证、telemetry 与管理员策略可能增加限制。修改 config、instructions、Skills、plugins 或角色文件后启动新会话；旧会话不保证热加载。
 
-<a id="primary-thread-and-roles"></a>
-## 主线程与角色
+<a id="standalone-roles"></a>
+## Standalone Roles
 
-项目没有 `master.toml`。主线程使用 Host、CLI、用户、Profile 与可信项目共同决定的实际配置。
+每个 standalone role TOML 通过必需的 `name` 字段拥有身份。文件名是可读性约定，不是真值来源。只有 Host 接受且 operator 理解时，文件名与 `name` 不同才是有效的；重复 `name` 属于必须解决而不能掩盖的冲突。
 
-三个角色 TOML 包含可编辑的角色专用示例：
+KISS My Agent 提供三个 seed 文件：
 
-| 角色 | 职责 | 提供的 sandbox |
+| Seed name | 职责 | 默认权限意图 |
 | --- | --- | --- |
-| `kiss_explorer` | 只读调查 | `read-only` |
-| `kiss_coder` | 实现与状态变更执行 | `workspace-write` |
-| `kiss_reviewer` | 独立只读审查 | `read-only` |
+| `kiss_explorer` | 只读调查 | 只读 |
+| `kiss_coder` | 实现与状态变更执行 | 只在分配范围内可写 |
+| `kiss_reviewer` | 独立只读审查 | 只读 |
 
-模型与 effort 必须受已安装 Host 支持。角色 instructions 不是安全边界；实际 parent 权限与管理员策略仍可约束 subagent。`review_model` 选择 `/review` 的模型，与 `kiss_reviewer` 自定义角色不同。
+Seeds 不是封闭 catalog。应有意地增加、重命名、编辑或删除 standalone 文件。首次 setup 后，后续 setup 会保留当前 catalog；普通会话、setup 与 `check` 都不会恢复已移除角色。
 
-<a id="registration"></a>
-## 注册
+Model 与 reasoning effort 在省略时继承实际 Host 设置。`model`、`model_reasoning_effort` 与 `sandbox_mode` 等可选角色字段可修改为 Host 支持且有意授权的值。KISS My Agent 有意不固定角色模型、effort、context、concurrency 或默认 subagent model。
 
-每个 `[agents.<name>]` table 将稳定角色名映射到相对角色文件。相对 `config_file` 从该 config layer 解析。只复制角色文件不能证明 Host 已暴露该角色。已有同名注册必须 diff 并人工合并，绝不覆盖。
+<a id="disable"></a>
+## 不编辑文件的禁用方式
 
-KISS 前缀避免与通用 `explorer`、`coder` 和 `review` 角色冲突；这些通用角色保持不变。
+为单次启动关闭两个公开表面：
 
-<a id="runtime-settings"></a>
-## 运行设置
+```bash
+codex --config features.multi_agent=false --config agents.enabled=false
+```
 
-| 区域 | 代表性设置 | 指导 |
-| --- | --- | --- |
-| 模型 | `model`, `model_reasoning_effort`, `model_verbosity`, `review_model` | 使用 Host 支持值；不要增加静默 fallback。 |
-| Multi-agent | `agents.enabled`, `agents.max_concurrent_threads_per_session` | 容量不等于 fan-out 目标。 |
-| 上下文 | `model_context_window`, `model_auto_compact_token_limit` | 除非知道真实限制与需求，否则优先模型默认值。 |
-| 权限 | `sandbox_mode`, `default_permissions`, `approval_policy` | 审核真实权限；不要混用不兼容的权限风格。 |
-| Instructions | `project_doc_max_bytes`, `project_doc_fallback_filenames`, `project_root_markers` | 这些影响发现，不是产品行为。 |
+若要保留能力但禁用自定义 Agent，只设置 `agents.enabled=false`。用户或管理员也可持久设置显式 `false`；项目 setup 必须报告该实际禁用状态，不能把文件存在误当成真实启用。
 
-`model_context_window` 不能增加模型真实容量；错误取值可能导致失败。自定义 `model_auto_compact_token_limit` 必须适配真实模型，并为输出、工具结果和后续 turns 留出空间。
+<a id="setup-scopes"></a>
+## Setup Scopes
 
-`agents.max_concurrent_threads_per_session` 是容量上限，不是要求填满所有 slots。只有独立性、信息增益、风险隔离或延迟收益大于协调成本时才使用多个 Agent。
+Plugin 安装后，先启动新会话让 setup Skill 被发现，再使用一个明确预期的 scope：
 
-<a id="permissions-and-sandbox"></a>
-## 权限与 Sandbox
+```text
+$kiss-my-agent-setup set up this project
+$kiss-my-agent-setup check this project
+$kiss-my-agent-setup remove from this project
 
-- `read-only` 适合调查和独立审查。
-- `workspace-write` 适合在预期 writable roots 内实现。
-- `danger-full-access` 会实质扩大权限，验证本仓库不需要它。
+$kiss-my-agent-setup set up globally
+$kiss-my-agent-setup check global setup
+$kiss-my-agent-setup remove global setup
+```
 
-静态验证作为普通原生脚本运行，不需要 Codex sandbox package；这不绕过 OS 或 Host 权限。文件系统访问、网络访问、approvals、外部 app 权限、认证与行为 instructions 彼此不同。
+项目 scope 管理 `<target>/.codex/config.toml`、`<target>/.codex/agents/` 和 `<target>/AGENTS.md` 中的 KISS managed block。全局 scope 管理 `$CODEX_HOME` 下的对应文件。Skill 本身归 plugin 所有，不复制到任何目标。
+
+底层源码工具为 `skills/kiss-my-agent-setup/scripts/setup.py {setup,check,remove} --scope project|global`。项目 scope 可使用 `--target`；测试与显式隔离使用可提供 `--codex-home`。多数用户应使用 Skill 接口，以自然语言明确 scope。
+
+<a id="conflicts-and-precedence"></a>
+## 冲突与优先级
+
+- Setup 保留无关 config、角色文件和 AGENTS 内容；不会为方便而替换整个文件。
+- 所选 scope 存在 `AGENTS.override.md` 时，setup 停止。它不会写入 override、写一个被隐藏的低优先级 base，也不会报告成功。
+- 具有预期 `name` 的已有 seed 文件会被保留，包括用户编辑。文件名与其他 identity 冲突、重复 identity 或 project/global seed-name 冲突会使操作停止。
+- 已有 `false` 会被保留并报告为 `disabled`，不会被静默替换为 `true`。
+- Setup 不建立项目 trust、不启动 Codex，也不证明真实发现。
+- 项目 setup 绝不会静默变成全局 setup。全局 setup 必须使用显式 global 命令。
+- Remove 只作用于所选 scope 和 KISS managed content。保留用户编辑或 owner 不清的内容，并报告冲突。
 
 <a id="safe-customization"></a>
 ## 安全自定义
 
-1. 找到影响当前工作负载的一个设置。
-2. 确认已安装 Host 和所选模型支持它。
-3. 只修改一个审核过的 layer，不替换无关内容。
-4. Startup/discovery 改变后启动可信新会话。
-5. 确认实际模型、权限、`/skills` 与已注册角色。
-6. 只有真实任务改善时才保留修改。
+1. 找到影响当前工作负载的一个实际设置或角色。
+2. 确认已安装 Host 与所选模型支持它。
+3. 只修改 owning layer，不替换无关内容。
+4. 编辑或新增 standalone role 时保持 `name` 唯一。
+5. Startup 或 discovery 改变后启动可信新会话。
+6. 运行 setup `check`；只有需要真实证据时才继续使用 `/skills` 与窄角色 Smoke。
 
-以下命令只演示 launch 语法：
-
-```bash
-codex --model gpt-5.6-sol
-codex --config model_reasoning_effort='"medium"'
-codex --config agents.max_concurrent_threads_per_session=4
-```
-
-```powershell
-codex --model gpt-5.6-sol
-codex --config 'model_reasoning_effort="medium"'
-codex --config agents.max_concurrent_threads_per_session=4
-```
-
-这些取值是示例，不是建议。项目不提供自动模型或权限 fallback。
+项目不提供自动模型、权限或兼容性 fallback。
 
 <a id="official-references"></a>
 ## 官方参考

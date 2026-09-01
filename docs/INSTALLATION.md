@@ -4,236 +4,124 @@
 
 [README](../README.md) · [Configuration](CONFIGURATION.md) · [Testing](TESTING.md) · [FAQ](FAQ.md)
 
-<a id="scope"></a>
-## Scope
+<a id="release-status"></a>
+## Release Status
 
-KISS My Agent is a set of source components, not an installer. The repository checkout already contains its project Skill, role files, and `.codex/config.toml`. To use that checkout, validate it, trust the project, and start a new Codex session. Copy components only when adopting them into another project or personal scope.
+The Git-backed marketplace is prepared for version `v0.1.0`, but Codex cannot install that version remotely until the Git tag exists. The current evidence is source inspection and static validation, not publication, remote installation, or live discovery. Do not interpret the commands below as a claim that the tag is already available.
 
-Every command below stops on missing input or destination collision. It never overwrites an existing Skill, role, instruction file, or config. If a destination exists, inspect and merge it manually.
+<a id="install-plugin"></a>
+## Install the Plugin
 
-<a id="prerequisites"></a>
-## Prerequisites
-
-- Linux or macOS with a POSIX shell, or Windows with native PowerShell.
-- Python 3.11 or newer: `python3` on Linux or macOS; either the `py -3` launcher or `python` on Windows.
-- A checkout referenced below as `KISS_REPO_ROOT` / `$KissRepoRoot`.
-- A destination project referenced as `TARGET_PROJECT` / `$TargetProject`.
-- A current Codex installation for live discovery. WSL follows the Linux path and is not Windows support evidence.
-
-Linux or macOS:
+When the tagged marketplace version is available, use the public installation interface:
 
 ```bash
-set -eu
-KISS_REPO_ROOT=/absolute/path/to/kiss-my-agent
-TARGET_PROJECT=/absolute/path/to/your-project
-export KISS_REPO_ROOT TARGET_PROJECT
-test -d "$KISS_REPO_ROOT"
-test -d "$TARGET_PROJECT"
+codex plugin marketplace add AoiOTA/Kiss-My-Agent
+codex plugin add kiss-my-agent@kiss-my-agent
 ```
 
-Windows PowerShell:
+Start a new authenticated Codex session after installation. An already-running session is not guaranteed to discover a newly installed plugin or Skill.
 
-```powershell
-$ErrorActionPreference = 'Stop'
-$KissRepoRoot = 'C:\absolute\path\to\kiss-my-agent'
-$TargetProject = 'C:\absolute\path\to\your-project'
-if (!(Test-Path -LiteralPath $KissRepoRoot -PathType Container)) { throw 'KissRepoRoot is missing.' }
-if (!(Test-Path -LiteralPath $TargetProject -PathType Container)) { throw 'TargetProject is missing.' }
+<a id="project-setup"></a>
+## Set Up One Project
+
+From a new session opened in the intended project, run:
+
+```text
+$kiss-my-agent-setup set up this project
 ```
 
-<a id="validate-checkout"></a>
-## Validate the Checkout
+Project setup manages only the selected project:
 
-Linux or macOS:
+- `.codex/config.toml`: the two public switches, merged without replacing unrelated settings.
+- `.codex/agents/`: the three standalone seed role files.
+- `AGENTS.md`: a bounded KISS managed block, preserving unrelated instructions.
 
-```bash
-set -eu
-cd "$KISS_REPO_ROOT"
-./scripts/validate.sh
+The Skill remains plugin-owned; setup does not copy a Skill tree into the project. It also does not establish Host trust or restart Codex.
+
+Trust the project through the Host, start another new session, and run:
+
+```text
+$kiss-my-agent-setup check this project
 ```
 
-Windows PowerShell:
+Use `/skills` and the harmless checks in [Testing](TESTING.md) only when live discovery evidence is needed.
 
-```powershell
-Set-Location -LiteralPath $KissRepoRoot
-.\scripts\validate.ps1
+<a id="global-setup"></a>
+## Set Up Globally
+
+Global setup is optional and never inferred from a project request. Ask for it explicitly:
+
+```text
+$kiss-my-agent-setup set up globally
 ```
 
-The validator is repository-local and needs no installation, copied `CODEX_HOME`, sandbox package, container, or extra test project. It does not write user configuration. A later live Host session may write normal trust, history, cache, or marketplace state.
+It manages the corresponding `config.toml`, `agents/`, and AGENTS managed block under `$CODEX_HOME`. Start a new session, then check that scope explicitly:
+
+```text
+$kiss-my-agent-setup check global setup
+```
+
+Prefer project scope when the behavior is project-specific. Global scope affects every project that loads the user configuration, subject to effective Host, administrator, user, and project settings.
 
 <a id="collision-policy"></a>
-## Collision Policy
+## Collision and Override Policy
 
-| Existing destination | Required action |
+| Existing state | Required behavior |
 | --- | --- |
-| `config.toml` | Keep it; manually merge reviewed tables or keys. |
-| `AGENTS.override.md` | Treat it as effective at that directory; do not hide it with a new base file. |
-| `AGENTS.md` | Keep it; manually merge only applicable KISS boundaries. |
-| Generic `explorer`, `coder`, or `review` role | Keep it; KISS uses separate `kiss_*` names. |
-| Existing `kiss_explorer`, `kiss_coder`, or `kiss_reviewer` | Stop and diff; never overwrite. |
-| Existing `kiss-my-agent` Skill in either active scope | Stop and choose one authoritative copy. |
-| Unknown owner or precedence | Skip that component until ownership is clear. |
+| Unrelated config keys or AGENTS content | Preserve them. |
+| Intentional `false` for either public switch | Preserve it and report `disabled`; do not silently re-enable. |
+| Existing seed file with its expected `name`, including edits | Preserve it. |
+| Filename/identity mismatch, duplicate identity, or project/global seed-name collision | Stop and review; do not overwrite. |
+| Valid KISS managed content already present | Treat exact setup as idempotent. |
+| Malformed or duplicated managed block | Stop without claiming success. |
+| `AGENTS.override.md` in the selected scope | Stop. Do not write to the override or hide content in a lower-precedence base file. |
 
-<a id="adopt-skill"></a>
-## Adopt the Skill
+The setup operation makes the smallest scope-owned change. It does not replace an existing config, invent a compatibility alias, or convert project setup into global setup.
 
-Choose exactly one scope. The commands below install to the target project. User scope uses the same collision rule with `$HOME/.agents/skills/kiss-my-agent` on POSIX or the appropriate user-home `.agents\skills\kiss-my-agent` path on Windows.
+<a id="role-lifecycle"></a>
+## Role Lifecycle
 
-Linux or macOS:
+The supplied `kiss_explorer`, `kiss_coder`, and `kiss_reviewer` definitions are seeds, not a closed catalog. Standalone role TOML files are auto-discovered; the `name` field is identity and the filename is only a convention. Model and effort inherit Host values when omitted and remain editable.
+
+Users may add, edit, rename, or delete roles. After initial setup, normal sessions, setup, and `check` preserve the current catalog and never recreate a deleted file.
+
+<a id="check-and-remove"></a>
+## Check or Remove
+
+Use the matching explicit scope:
+
+```text
+$kiss-my-agent-setup check this project
+$kiss-my-agent-setup remove from this project
+
+$kiss-my-agent-setup check global setup
+$kiss-my-agent-setup remove global setup
+```
+
+`check` inspects managed filesystem state; it does not prove trust, active-session loading, plugin publication, or role behavior. `remove` targets only the selected scope and KISS-managed content. It must preserve unrelated settings, instructions, and roles, and stop on ambiguous ownership or conflicting edits rather than deleting them.
+
+After removal, start a new session before judging discovery. Removing setup output does not uninstall the plugin itself; plugin lifecycle remains a Codex plugin operation.
+
+<a id="source-tools"></a>
+## Source Checkout Tools
+
+Contributors can validate a checkout without installing the plugin:
 
 ```bash
-set -eu
-skill_source=$KISS_REPO_ROOT/.agents/skills/kiss-my-agent
-skill_parent=$TARGET_PROJECT/.agents/skills
-skill_target=$skill_parent/kiss-my-agent
-test -d "$skill_source"
-test -d "$TARGET_PROJECT"
-if [ -e "$skill_target" ]; then
-  printf '%s\n' 'kiss-my-agent already exists; nothing was copied.' >&2
-  exit 1
-fi
-mkdir -p "$skill_parent"
-mkdir "$skill_target"
-cp -R "$skill_source/." "$skill_target/"
+python3 scripts/validate.py
 ```
 
-Windows PowerShell:
-
-```powershell
-$skillSource = Join-Path $KissRepoRoot '.agents\skills\kiss-my-agent'
-$skillParent = Join-Path $TargetProject '.agents\skills'
-$skillTarget = Join-Path $skillParent 'kiss-my-agent'
-if (!(Test-Path -LiteralPath $skillSource -PathType Container)) { throw 'Skill source is missing.' }
-if (Test-Path -LiteralPath $skillTarget) { throw 'kiss-my-agent already exists; nothing was copied.' }
-[System.IO.Directory]::CreateDirectory($skillParent) | Out-Null
-Copy-Item -LiteralPath $skillSource -Destination $skillTarget -Recurse
-```
-
-Do not keep project and user copies active for the same project. Same-name Skills are not merged.
-
-<a id="adopt-roles"></a>
-## Adopt the Roles
-
-The prefixed roles are `kiss_explorer`, `kiss_coder`, and `kiss_reviewer`. These commands copy all three to project scope only after a complete preflight.
-
-Linux or macOS:
+The underlying setup utility is available for isolated testing and development:
 
 ```bash
-set -eu
-role_target_dir=$TARGET_PROJECT/.codex/agents
-for role in kiss_explorer kiss_coder kiss_reviewer; do
-  test -f "$KISS_REPO_ROOT/.codex/agents/$role.toml"
-  if [ -e "$role_target_dir/$role.toml" ]; then
-    printf '%s\n' "$role already exists; nothing was copied." >&2
-    exit 1
-  fi
-done
-mkdir -p "$role_target_dir"
-for role in kiss_explorer kiss_coder kiss_reviewer; do
-  cp "$KISS_REPO_ROOT/.codex/agents/$role.toml" "$role_target_dir/$role.toml"
-done
+python3 skills/kiss-my-agent-setup/scripts/setup.py setup --scope project --target /absolute/path/to/project
+python3 skills/kiss-my-agent-setup/scripts/setup.py check --scope project --target /absolute/path/to/project
+python3 skills/kiss-my-agent-setup/scripts/setup.py remove --scope project --target /absolute/path/to/project
 ```
 
-Windows PowerShell:
+Global operations use `--scope global`; `--codex-home` is available for explicit isolated targets. Direct source-tool success is static filesystem evidence, not a successful marketplace installation or live Codex session.
 
-```powershell
-$roleNames = @('kiss_explorer', 'kiss_coder', 'kiss_reviewer')
-$roleTargetDir = Join-Path $TargetProject '.codex\agents'
-foreach ($role in $roleNames) {
-  $source = Join-Path $KissRepoRoot ".codex\agents\$role.toml"
-  $target = Join-Path $roleTargetDir "$role.toml"
-  if (!(Test-Path -LiteralPath $source -PathType Leaf)) { throw "Role source is missing: $role" }
-  if (Test-Path -LiteralPath $target) { throw "Role already exists: $role" }
-}
-[System.IO.Directory]::CreateDirectory($roleTargetDir) | Out-Null
-foreach ($role in $roleNames) {
-  $source = Join-Path $KissRepoRoot ".codex\agents\$role.toml"
-  $target = Join-Path $roleTargetDir "$role.toml"
-  [System.IO.File]::Copy($source, $target, $false)
-}
-```
+<a id="fresh-session"></a>
+## Fresh-Session Boundary
 
-Copying role TOML alone does not register a role. Continue with project config.
-
-<a id="adopt-project-config"></a>
-## Adopt Project Config
-
-The tracked `.codex/config.toml` contains only `[agents] enabled = true` and three `agents.kiss_*` registrations. If the destination has no project config, copy it after the preflight below. If it exists, do not run these commands; manually merge only the reviewed agent tables and preserve all unrelated settings.
-
-Linux or macOS:
-
-```bash
-set -eu
-config_source=$KISS_REPO_ROOT/.codex/config.toml
-config_target=$TARGET_PROJECT/.codex/config.toml
-test -f "$config_source"
-mkdir -p "$TARGET_PROJECT/.codex"
-if [ -e "$config_target" ]; then
-  printf '%s\n' 'Project config already exists; merge manually.' >&2
-  exit 1
-fi
-cp "$config_source" "$config_target"
-```
-
-Windows PowerShell:
-
-```powershell
-$configSource = Join-Path $KissRepoRoot '.codex\config.toml'
-$configTargetDir = Join-Path $TargetProject '.codex'
-$configTarget = Join-Path $configTargetDir 'config.toml'
-if (!(Test-Path -LiteralPath $configSource -PathType Leaf)) { throw 'Project config source is missing.' }
-if (Test-Path -LiteralPath $configTarget) { throw 'Project config already exists; merge manually.' }
-[System.IO.Directory]::CreateDirectory($configTargetDir) | Out-Null
-[System.IO.File]::Copy($configSource, $configTarget, $false)
-```
-
-Relative `config_file` paths resolve from the config layer. Project config loads only for a trusted project and should be tested in a new session.
-
-<a id="adopt-agents-guidance"></a>
-## Adopt AGENTS Guidance
-
-Only copy the root guidance when neither `AGENTS.override.md` nor `AGENTS.md` exists at the target root. Otherwise merge applicable boundaries by review.
-
-Linux or macOS:
-
-```bash
-set -eu
-agents_source=$KISS_REPO_ROOT/AGENTS.md
-agents_target=$TARGET_PROJECT/AGENTS.md
-test -f "$agents_source"
-if [ -e "$TARGET_PROJECT/AGENTS.override.md" ] || [ -e "$agents_target" ]; then
-  printf '%s\n' 'An instruction source exists; merge manually.' >&2
-  exit 1
-fi
-cp "$agents_source" "$agents_target"
-```
-
-Windows PowerShell:
-
-```powershell
-$agentsSource = Join-Path $KissRepoRoot 'AGENTS.md'
-$agentsTarget = Join-Path $TargetProject 'AGENTS.md'
-$agentsOverride = Join-Path $TargetProject 'AGENTS.override.md'
-if (!(Test-Path -LiteralPath $agentsSource -PathType Leaf)) { throw 'AGENTS source is missing.' }
-if ((Test-Path -LiteralPath $agentsOverride) -or (Test-Path -LiteralPath $agentsTarget)) { throw 'An instruction source exists; merge manually.' }
-[System.IO.File]::Copy($agentsSource, $agentsTarget, $false)
-```
-
-Preserve the destination project's product ownership, safety rules, acceptance criteria, and stop boundaries.
-
-<a id="confirm-discovery"></a>
-## Confirm Discovery
-
-Trust the destination project and start a new session after changing config, Skills, roles, or instructions. Run `/skills`, confirm exactly one `kiss-my-agent`, and smoke only the roles you registered. Current old sessions are not guaranteed to hot-load changes. See [Testing](TESTING.md).
-
-Discovery proves that the Host found the component in that session. It does not prove future behavior or grant new authority.
-
-<a id="update-remove"></a>
-## Update or Remove
-
-- Diff an installed component before updating it; the installation commands intentionally stop on collisions.
-- Remove only exact files or directories that you installed and have identified.
-- Reverse manually merged config or AGENTS lines through a reviewed diff.
-- Start a trusted new session and reconfirm the effective setup.
-
-There is no install receipt, migration database, compatibility alias, or automated uninstall.
+Plugin installation and setup are startup/discovery changes. Use a new session after installing the plugin and another new session after setup, removal, or role/config changes. Current sessions are not guaranteed to hot-load. Record the Host version, scope, trust state, and session freshness when reporting live results.
