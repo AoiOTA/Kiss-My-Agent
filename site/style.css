@@ -110,6 +110,22 @@ main {
   border-radius: 0.75rem;
 }
 
+.home-content > .readme-intro {
+  text-align: center;
+}
+
+.home-content > .readme-intro > p:last-child {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.home-content > .readme-intro > p:last-child img {
+  display: block;
+}
+
 h1,
 h2,
 h3 {

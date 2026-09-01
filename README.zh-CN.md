@@ -1,5 +1,7 @@
 ![KISS My Agent 主视觉：复杂的 Agent 路径汇聚为一个清晰结果](assets/kiss-my-agent-hero.png)
 
+<div class="readme-intro" align="center" markdown="1">
+
 # KISS My Agent
 
 **Keep It Simple, Scientist. Less ceremony. More science.**
@@ -9,6 +11,8 @@
 [![许可证：MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 ![状态：早期阶段](https://img.shields.io/badge/status-early_stage-orange.svg)
 ![宿主：Codex 优先](https://img.shields.io/badge/host-Codex--first-blue.svg)
+
+</div>
 
 <a id="overview"></a>
 ## 概览

@@ -49,7 +49,7 @@ BODY_ATTRIBUTES = {
     "code": {"class"},
     "dd": set(),
     "del": set(),
-    "div": {"class", "id"},
+    "div": {"align", "class", "id"},
     "dl": set(),
     "dt": set(),
     "em": set(),
@@ -421,6 +421,11 @@ def render_page(
     replacements = {
         "lang": language,
         "title": html.escape(page_title(body, source)),
+        "content_class": (
+            "content home-content"
+            if source in {"README.md", "README.zh-CN.md"}
+            else "content"
+        ),
         "stylesheet_href": html.escape(stylesheet_href, quote=True),
         "counterpart_lang": counterpart_language,
         "counterpart_href": html.escape(counterpart_href, quote=True),
