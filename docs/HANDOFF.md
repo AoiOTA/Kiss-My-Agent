@@ -2,62 +2,55 @@
 
 这是本仓库唯一的 canonical handoff。不要创建 dated、attempt、final 或其他平行副本；Git history 保存历史。
 
-## Repository 与 implementation baseline
+## Repository、release 与 implementation baseline
 
-- canonical repository：`AoiOTA/Kiss-My-Agent`
-- canonical SSH remote：`git@github.com:AoiOTA/Kiss-My-Agent.git`
-- branch：`main`
-- implementation baseline：`fbb9aca44387681d47b4d28bb45e65ac684c1a11`
-- 该 implementation baseline 已通过 SSH ordinary push 到 `origin/main`。写本 handoff 前，工作树 clean，`HEAD...origin/main` ahead/behind 为 `0/0`。
+- canonical repository：`AoiOTA/Kiss-My-Agent`，visibility 为 Public。
+- canonical SSH remote：`git@github.com:AoiOTA/Kiss-My-Agent.git`。
+- branch：`main`。
+- release implementation commit：`aa99956ff1348c477a41db692a3b0acf912f45b8`。
+- annotated tag：`v0.1.0`；tag object 为 `9a5ee1345f36b0827e9d9a1ca502fed3cd44f558`，解引用到 release implementation commit。
+- GitHub Release：`https://github.com/AoiOTA/Kiss-My-Agent/releases/tag/v0.1.0`，正式发布，非 draft、非 prerelease。
 - 本 handoff 后续形成的 commit 以实时 `origin/main` 为准，不在文档中维护会自引用的 handoff SHA。
 
-## 已完成实现
+## 已完成实现与公开表面
 
 - `.codex/config.toml` 只公开 `features.multi_agent = true` 与 `agents.enabled = true` 两个开关。
 - `.codex/agents/*.toml` 是开放的 standalone role catalog；`kiss_explorer`、`kiss_coder`、`kiss_reviewer` 只是三个可编辑 seeds，不是固定团队或封闭 catalog。
 - `.codex-plugin/plugin.json` 定义 skills-only plugin `0.1.0`，只通过 `./skills/` 暴露两个 Skills。
 - `.agents/plugins/marketplace.json` 定义 Git-backed marketplace，canonical source 指向本仓库，目标 ref 为 `v0.1.0`。
-- `skills/kiss-my-agent-setup/` 已实现 project/global setup、check、remove，并保护无关 config、instructions 与 role catalog。
+- `skills/kiss-my-agent-setup/` 实现 project/global setup、check、remove，并保护无关 config、instructions 与 role catalog。
 - `skills/kiss-my-agent/` 保留窄路由的两份 Rules 与四份 Cases。
-- Pages Stage 1 已完成本地 builder、模板、样式、测试与 GitHub Pages workflow。
-- README、CONTRIBUTING、SECURITY、INSTALLATION、CONFIGURATION、EXTENDING、FAQ、TESTING 共八对双语文档已完成。
+- Pages 英文根站点：`https://aoiota.github.io/Kiss-My-Agent/`。
+- Pages 简体中文站点：`https://aoiota.github.io/Kiss-My-Agent/zh-CN/`。
+- README、CONTRIBUTING、SECURITY、INSTALLATION、CONFIGURATION、EXTENDING、FAQ、TESTING 共八对双语文档已完成；README 语言入口指向已验证 Pages URL。
 
-## 已取得证据
+## v0.1.0 发布证据
 
-- `python3 scripts/validate.py`：PASS。
+- 公开前扫描覆盖全部 `6` 个历史提交；未发现密钥、令牌、私钥、敏感文件名、异常大对象或图片元数据。Commit 与 tag 的作者邮箱随公开 Git history 可见。
 - `./scripts/validate.sh`：PASS。
 - setup unit tests：`21/21` PASS。
 - site unit tests：`9/9` PASS。
 - site builder：生成 `16` 个 HTML、`19` 个文件、`0` 个 Markdown/JavaScript 文件。
-- system plugin validator：PASS。
-- 两个 system Skill validators：PASS。
-- 隔离的 project/global setup、check、remove lifecycle：PASS。
-- 隔离的 local marketplace add/list、available list、plugin add、installed list：均 exit `0`。
-- fresh independent review 提出的 `5` 项 findings 已全部关闭。
+- release commit Validate run `33540596481`：Ubuntu、macOS、Windows 全部 PASS。
+- release commit Pages run `33540596573`：build 与 deploy PASS；两个站点实际返回 HTTP `200`，并呈现 release commit 内容。
+- tag Validate run `33541006253`：Ubuntu、macOS、Windows 全部 PASS。
+- 匿名 GitHub repository/API/HTTPS Git、Release 页面、tag tar.gz 与 zip archive：均可访问。
+- `codex-cli 0.152.0` 通过公开 HTTPS Git marketplace 首次安装成功；marketplace clone 的 HEAD 为 release commit、tag 为 `v0.1.0`，plugin 状态为 `installed, enabled`、version 为 `0.1.0`。
+- fresh authenticated session 从安装 cache 发现 plugin-owned `kiss-my-agent` 与 `kiss-my-agent-setup`，随后通过 setup Skill 完成 project setup 与静态 `check`；结果为 `structurally-valid`，三个 seed roles 存在。
+- later fresh persisted session 依次真实调用三个 Host roles：explorer 只读返回 fixture anchors `alpha`、`beta`；coder 只创建并删除自己的 Smoke 文件；reviewer 独立只读审查并报告无重大问题。前后 fixture、managed setup hashes 与 Git 状态一致。
+- setup `remove` 返回 `removed`，后续 `check` 返回预期的 `absent` 与非零退出；本次临时项目和隔离构建目录已删除，正式 plugin 保留安装。
 
-这些结果是当前 implementation 的源码、静态验证、unit/build、隔离文件系统与 local CLI ingestion 证据。它们不证明 GitHub Actions、Pages 部署、远程 tag 安装、认证后 discovery、模型服从性或 release 已完成。
+## 证据解释与保留错误
 
-## 未完成与 blocker
-
-- 当前环境访问 GitHub HTTPS/API 时发生 TLS timeout；Git over SSH ordinary push 已成功。
-- GitHub Actions 的 exact-SHA 结果未知。
-- GitHub Pages repository setting、workflow deployment 与实际站点响应未知。
-- README 语言链接仍为 Stage 1 相对链接。
-- `v0.1.0` local/remote tag 尚不存在；marketplace 中的该 ref 当前不可远程安装。
-- 真实 Git-backed marketplace install 未执行。
-- GitHub Release 未创建。
-- 已认证、可信的新 Codex 会话中的 plugin Skills 与 standalone roles discovery 未验证。
+- 第一次 role Smoke 额外使用了 `--ephemeral`，Host 报告 session persistence disabled，随后创建 child thread 时返回 `no thread with id`。该运行在角色任务创建前失败，按 failed precondition 记为 invalid run，不作为角色行为负面证据。
+- 去掉计划未要求且与 child thread 不兼容的 `--ephemeral` 后，只做一次 persisted-session 判别重试；三个角色全部真实调用成功。不要删除或重写前述首错，也不要把无效运行冒充产品失败。
+- 本次真实结果只支持 `codex-cli 0.152.0`、该安装、该项目 setup、这些 fresh sessions 与观察到的窄任务；不保证未来模型服从性、其他 Host 兼容性、一般研究有效性或额外权限。
+- GitHub Actions 当前对 `actions/configure-pages@v5` 报 Node.js 20 deprecation warning，但 GitHub 强制使用 Node.js 24 后 build/deploy 成功；这不是本次 release blocker，也未为其扩大 workflow 范围。
 
 ## 当前停止线
 
-当前阶段已经完成实现、相称的本地验证、独立 review 修复与 SSH push。到此停止，不把本地或隔离证据升级为 CI、Pages、远程安装、认证 discovery 或 Release 证据，也不提前创建或移动 `v0.1.0` tag。
+`v0.1.0` 的公开 repository、Pages、双语发布文档、annotated tag、三平台 exact-SHA CI、真实 Git-backed install、fresh-session Skill/role discovery、GitHub Release 与归档验证已经闭环。到此停止。
 
-## 下一阶段待办
-
-1. 在 GitHub HTTPS/API 可用的环境中确认 exact-SHA Actions，并启用及观察 Pages 部署。
-2. 只有 Pages 的英文根 URL 与中文 `zh-CN/` URL 都实际返回 HTTP 200 后，才切换 README 语言链接；切换后重新验证 exact SHA 与两个 URL。
-3. Pages、README 与 exact-SHA evidence 闭合后，创建并推送指向该 SHA 的 annotated `v0.1.0` tag；禁止移动既有 tag 或 force-push。
-4. Tag 可见后执行真实 Git-backed plugin 安装，并在已认证、可信的新 Codex 会话中验证 discovery。
-5. 只有真实安装与 discovery 通过后，才从已存在的 annotated tag 创建 GitHub Release。
-
-任一阶段遇到 TLS、认证、权限、Pages、SHA、tag identity 或 discovery 分歧时，保留首个错误并停止；不要用 fallback、local ingestion 或旧会话结果掩盖。
+- 不移动、删除重建或 force-push `v0.1.0`。
+- 不安排真实项目 Pilot，不预先制造 `v0.1.1` 功能清单。
+- 后续只根据真实用户缺陷、Host 变化或明确的新目标重新立项，并继续区分 source、static、setup check、discovery、Smoke、Pilot 与 Final 证据。
