@@ -1,0 +1,5 @@
+.sandbox/
+*.local
+*.log
+session-*.jsonl
+codex-tui.log
