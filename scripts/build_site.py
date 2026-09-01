@@ -49,7 +49,7 @@ BODY_ATTRIBUTES = {
     "code": {"class"},
     "dd": set(),
     "del": set(),
-    "div": {"class", "id"},
+    "div": {"align", "class", "id"},
     "dl": set(),
     "dt": set(),
     "em": set(),

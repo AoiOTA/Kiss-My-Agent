@@ -110,13 +110,11 @@ main {
   border-radius: 0.75rem;
 }
 
-.home-content > h1,
-.home-content > h1 + p,
-.home-content > h1 + p + p {
+.home-content > .readme-intro {
   text-align: center;
 }
 
-.home-content > h1 + p + p + p {
+.home-content > .readme-intro > p:last-child {
   display: flex;
   flex-wrap: wrap;
   gap: 0.45rem;
@@ -124,7 +122,7 @@ main {
   justify-content: center;
 }
 
-.home-content > h1 + p + p + p img {
+.home-content > .readme-intro > p:last-child img {
   display: block;
 }
 

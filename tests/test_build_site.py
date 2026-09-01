@@ -19,6 +19,7 @@ class _PageInspector(HTMLParser):
         super().__init__()
         self.html_lang = ""
         self.article_class = ""
+        self.intro_align = ""
         self.links: list[dict[str, str]] = []
         self.images: list[dict[str, str]] = []
 
@@ -28,6 +29,8 @@ class _PageInspector(HTMLParser):
             self.html_lang = values.get("lang", "")
         if tag == "article":
             self.article_class = values.get("class", "")
+        if tag == "div" and values.get("class") == "readme-intro":
+            self.intro_align = values.get("align", "")
         if tag in {"a", "link"}:
             self.links.append(values)
         if tag == "img":
@@ -81,9 +84,11 @@ class BuildSiteTests(unittest.TestCase):
         self.assertEqual(self.inspect("index.html").article_class, "content home-content")
         self.assertEqual(self.inspect("zh-CN/index.html").article_class, "content home-content")
         self.assertEqual(self.inspect("installation.html").article_class, "content")
+        self.assertEqual(self.inspect("index.html").intro_align, "center")
+        self.assertEqual(self.inspect("zh-CN/index.html").intro_align, "center")
 
         stylesheet = (self.output / "assets/style.css").read_text(encoding="utf-8")
-        self.assertIn(".home-content > h1", stylesheet)
+        self.assertIn(".home-content > .readme-intro", stylesheet)
         self.assertIn("justify-content: center", stylesheet)
 
     def test_repository_files_and_directories_use_blob_and_tree(self) -> None:

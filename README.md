@@ -1,5 +1,7 @@
 ![KISS My Agent hero showing complex agent paths converging into one clear result](assets/kiss-my-agent-hero.png)
 
+<div class="readme-intro" align="center" markdown="1">
+
 # KISS My Agent
 
 **Keep It Simple, Scientist. Less ceremony. More science.**
@@ -9,6 +11,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 ![Status: early stage](https://img.shields.io/badge/status-early_stage-orange.svg)
 ![Host: Codex-first](https://img.shields.io/badge/host-Codex--first-blue.svg)
+
+</div>
 
 <a id="overview"></a>
 ## Overview
