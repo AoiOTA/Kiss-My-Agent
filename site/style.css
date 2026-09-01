@@ -110,6 +110,24 @@ main {
   border-radius: 0.75rem;
 }
 
+.home-content > h1,
+.home-content > h1 + p,
+.home-content > h1 + p + p {
+  text-align: center;
+}
+
+.home-content > h1 + p + p + p {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.home-content > h1 + p + p + p img {
+  display: block;
+}
+
 h1,
 h2,
 h3 {
