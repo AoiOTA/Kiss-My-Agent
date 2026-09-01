@@ -1,5 +1,7 @@
-name = "review"
-description = "Independent read-only review of behavior, interfaces, failures, complexity, and evidence."
+name = "kiss_reviewer"
+description = "KISS My Agent independent read-only review of behavior, interfaces, failures, complexity, and evidence."
+# These are recommended examples, not KISS My Agent requirements. Choose a
+# host-supported model and effort; changing the sandbox changes real authority.
 model = "gpt-5.6-sol"
 model_reasoning_effort = "xhigh"
 sandbox_mode = "read-only"

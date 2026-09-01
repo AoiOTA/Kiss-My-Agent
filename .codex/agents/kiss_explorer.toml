@@ -1,5 +1,7 @@
-name = "explorer"
-description = "Read-only investigation of active paths, dependencies, consumers, and evidence."
+name = "kiss_explorer"
+description = "KISS My Agent read-only investigation of active paths, dependencies, consumers, and evidence."
+# These are recommended examples, not KISS My Agent requirements. Choose a
+# host-supported model and effort; changing the sandbox changes real authority.
 model = "gpt-5.6-sol"
 model_reasoning_effort = "medium"
 sandbox_mode = "read-only"

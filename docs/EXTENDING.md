@@ -1,6 +1,6 @@
 # Extending KISS My Agent
 
-[README](../README.md) · [Installation](INSTALLATION.md) · [FAQ](FAQ.md) · [Contributing](../CONTRIBUTING.md)
+[README](../README.md) · [Installation](INSTALLATION.md) · [Configuration](CONFIGURATION.md) · [FAQ](FAQ.md) · [Contributing](../CONTRIBUTING.md)
 
 Extend the repository only when a current recurring ambiguity is not already covered. The objective is better decisions with less mechanism, not a larger handbook.
 
@@ -49,17 +49,19 @@ It must illustrate an existing Rule without creating new requirements. Prefer re
 
 ## Update roles or model settings
 
-Keep each role file limited to its role-specific increment. If a configured model or reasoning effort is unavailable, change the TOML and the matching `expected_roles` value in [`scripts/validate.sh`](../scripts/validate.sh). Do not add `config.toml`, automatic model fallback, or compatibility wrappers.
+Keep each role file limited to its role-specific increment. Models, reasoning efforts, and sandbox modes are editable examples; preserve a clear role purpose and use values supported by the target host. The validator checks schema and valid sandbox syntax instead of a fixed tuple.
+
+When changing user-facing runtime guidance, keep [Configuration](CONFIGURATION.md), the annotated [`config.example.toml`](../examples/config.example.toml), the prefixed `kiss_*` role names, and both README summaries consistent. Do not add an active project `config.toml`, automatic model fallback, preset matrix, or compatibility wrapper.
 
 ## Validate
 
 ```bash
 ./scripts/validate.sh
-./scripts/stage-sandbox.sh
-./scripts/validate.sh
 ```
 
 Also inspect the rendered READMEs when navigation, badges, Mermaid, or the hero changes. Static checks cannot establish agent behavior or research validity.
+
+For discovery changes, use a new authenticated session in the repository clone. Do not add a copied `CODEX_HOME`, sandbox fixture, compatibility workspace, or persistent test installation.
 
 ## Stop boundary
 

@@ -1,130 +1,240 @@
-# Installation
+# Installation and coexistence
 
-[README](../README.md) · [简体中文](../README.zh-CN.md) · [Extending](EXTENDING.md) · [FAQ](FAQ.md)
+[README](../README.md) · [简体中文](../README.zh-CN.md) · [Configuration](CONFIGURATION.md) · [Extending](EXTENDING.md) · [FAQ](FAQ.md)
 
-KISS My Agent is distributed as source files. There is no automatic installer. Choose one scope, inspect existing files, and keep one authoritative copy at that scope.
+KISS My Agent is a set of independent source components, not an installer. You may validate the repository directly or adopt only the AGENTS guidance, Skill, or prefixed custom roles that add value to an existing setup.
+
+The default rule is simple: **keep existing configuration and stop before every collision**. Never overwrite an unknown `config.toml`, instruction file, Skill, or Agent.
 
 ## Prerequisites
 
-- An existing checkout of this repository, referenced below as `$KISS_REPO_ROOT`.
-- A target project, referenced as `$TARGET_PROJECT`, for project-scoped adoption.
-- A Codex version that supports repository skills and custom agent TOML files.
-- Authority to read and write the chosen destination. Installation does not grant permissions or authentication.
-
-Set paths explicitly:
+- A current Codex or ChatGPT desktop installation that supports repository Skills and custom Agent TOML files.
+- An existing checkout of this repository, referenced as `$KISS_REPO_ROOT`.
+- A target project, referenced as `$TARGET_PROJECT`, only when project-scoped adoption is desired.
+- Authority to write the selected destination. Installation never grants filesystem, network, account, or authentication permission.
 
 ```bash
 export KISS_REPO_ROOT=/absolute/path/to/kiss-my-agent
+# Set this only for project-scoped adoption:
 export TARGET_PROJECT=/absolute/path/to/your-project
+: "${KISS_REPO_ROOT:?set KISS_REPO_ROOT first}"
 ```
 
-## Option 1: project skill
+## Test the checkout without installing anything
 
-The repository skill location is `.agents/skills/kiss-my-agent/`. Install it into the same location in the target project:
+The zero-install, repository-local check is the static validator:
 
 ```bash
-mkdir -p "$TARGET_PROJECT/.agents/skills"
-test ! -e "$TARGET_PROJECT/.agents/skills/kiss-my-agent"
-cp -R "$KISS_REPO_ROOT/.agents/skills/kiss-my-agent" "$TARGET_PROJECT/.agents/skills/"
+if [ ! -x "$KISS_REPO_ROOT/scripts/validate.sh" ]; then
+  printf 'KISS_REPO_ROOT does not contain an executable scripts/validate.sh.\n' >&2
+else
+  (cd "$KISS_REPO_ROOT" && ./scripts/validate.sh)
+fi
 ```
 
-If the destination exists, stop and compare it first:
+To verify live Host discovery, start a new authenticated session only if normal Host-state updates are acceptable:
 
 ```bash
-diff -ru "$TARGET_PROJECT/.agents/skills/kiss-my-agent" "$KISS_REPO_ROOT/.agents/skills/kiss-my-agent"
+codex
 ```
 
-Decide which changes to merge; do not keep parallel authoritative copies in one scope.
+Inside the new session, use `/skills` to confirm `kiss-my-agent` and invoke it only for a matching non-obvious decision. The KISS Agent files are optional templates and require registration in the intended config layer before their names are available.
 
-## Option 2: user skill
+The validator does not write user configuration. A live CLI or Desktop Host may still update its own project trust, history, caches, or marketplace timestamps under the configured home. That is Host behavior, not KISS installation. No sandbox package or extra test project is required; use a disposable OS account or Host profile only when absolutely no user-state write is acceptable.
 
-The supported user skill location is `$HOME/.agents/skills/kiss-my-agent/`:
+## Inventory an existing setup first
+
+Before copying anything, inspect the effective destinations:
 
 ```bash
-mkdir -p "$HOME/.agents/skills"
-test ! -e "$HOME/.agents/skills/kiss-my-agent"
-cp -R "$KISS_REPO_ROOT/.agents/skills/kiss-my-agent" "$HOME/.agents/skills/"
+printf 'CODEX_HOME=%s\n' "${CODEX_HOME:-$HOME/.codex}"
+find "${CODEX_HOME:-$HOME/.codex}/agents" -maxdepth 1 -type f -name '*.toml' -print 2>/dev/null
+find "$HOME/.agents/skills" -mindepth 1 -maxdepth 1 -type d -print 2>/dev/null
+if [ -n "${TARGET_PROJECT:-}" ]; then
+  find "$TARGET_PROJECT/.codex/agents" -maxdepth 1 -type f -name '*.toml' -print 2>/dev/null
+  find "$TARGET_PROJECT/.agents/skills" -mindepth 1 -maxdepth 1 -type d -print 2>/dev/null
+fi
 ```
 
-`$CODEX_HOME/skills/kiss-my-agent/` is a verified compatibility fallback for hosts that still discover skills there. Use it only after confirming that behavior for the installed host version. Do not install the same skill in both the supported user location and the fallback; two copies create ambiguous authority.
+Also check these files manually when they exist:
 
-## Option 3: project agents
+```text
+$CODEX_HOME/config.toml
+$CODEX_HOME/AGENTS.override.md
+$CODEX_HOME/AGENTS.md
+$TARGET_PROJECT/.codex/config.toml
+$TARGET_PROJECT/AGENTS.override.md
+$TARGET_PROJECT/AGENTS.md
+```
 
-Project-local custom agents live in `.codex/agents/`:
+Codex may load deeper project instructions and configured fallback filenames as well. Confirm the actual project root and effective instruction chain before merging AGENTS guidance.
+
+## Collision decisions
+
+| Existing destination | Default action |
+| --- | --- |
+| User or project `config.toml` | Keep it; copy only individually reviewed keys if needed |
+| `AGENTS.override.md` | Treat it as the effective source at that directory; do not edit a hidden base and claim success |
+| Existing `AGENTS.md` | Keep it; manually merge only applicable KISS principles |
+| Existing `explorer`, `coder`, or `review` Agent | Keep it; KISS roles use separate `kiss_*` names |
+| Existing `kiss_explorer`, `kiss_coder`, or `kiss_reviewer` | Stop and diff; do not overwrite |
+| Existing `kiss-my-agent` Skill at any chosen scope | Stop and diff; keep one authoritative copy |
+| User-level and project-level `kiss-my-agent` both present | Choose one intended scope; same-name Skills are not merged |
+| Unknown owner or precedence | Skip that component until ownership is clear |
+
+## Adopt the Skill
+
+Choose exactly one scope.
+
+### Project scope
 
 ```bash
-test ! -e "$TARGET_PROJECT/.codex/agents"
-mkdir -p "$TARGET_PROJECT/.codex"
-cp -R "$KISS_REPO_ROOT/.codex/agents" "$TARGET_PROJECT/.codex/"
+: "${TARGET_PROJECT:?set TARGET_PROJECT for project-scoped adoption}"
+if [ ! -d "$KISS_REPO_ROOT/.agents/skills/kiss-my-agent" ] || [ ! -d "$TARGET_PROJECT" ]; then
+  printf 'Skill source or target project directory is missing; nothing was copied.\n' >&2
+elif [ -e "$HOME/.agents/skills/kiss-my-agent" ] || [ -e "$TARGET_PROJECT/.agents/skills/kiss-my-agent" ]; then
+  printf 'kiss-my-agent already exists in user or target-project scope; inspect and choose one copy.\n' >&2
+else
+  mkdir -p "$TARGET_PROJECT/.agents/skills"
+  cp -R "$KISS_REPO_ROOT/.agents/skills/kiss-my-agent" "$TARGET_PROJECT/.agents/skills/"
+fi
 ```
 
-If the directory already exists, compare and manually merge each role instead of replacing it. The supplied role settings are:
-
-| Role | Model | Reasoning | Sandbox |
-| --- | --- | --- | --- |
-| explorer | `gpt-5.6-sol` | `medium` | `read-only` |
-| coder | `gpt-5.6-sol` | `high` | `workspace-write` |
-| review | `gpt-5.6-sol` | `xhigh` | `read-only` |
-
-If that model or effort is unavailable, edit the affected TOML deliberately and update the matching `expected_roles` entry in `scripts/validate.sh`. Keep the role boundary intact and validate the resulting schema.
-
-## Personal agents
-
-Personal custom agents live in `~/.codex/agents/`. Inspect any existing role with the same name and merge manually. For a new empty personal agent directory:
+### User scope
 
 ```bash
-test ! -e "$HOME/.codex/agents"
-mkdir -p "$HOME/.codex"
-cp -R "$KISS_REPO_ROOT/.codex/agents" "$HOME/.codex/"
+if [ ! -d "$KISS_REPO_ROOT/.agents/skills/kiss-my-agent" ]; then
+  printf 'Skill source directory is missing; nothing was copied.\n' >&2
+elif [ -e "$HOME/.agents/skills/kiss-my-agent" ]; then
+  printf 'kiss-my-agent already exists in user scope; inspect it before installing.\n' >&2
+else
+  mkdir -p "$HOME/.agents/skills"
+  cp -R "$KISS_REPO_ROOT/.agents/skills/kiss-my-agent" "$HOME/.agents/skills/"
+fi
 ```
 
-Project and personal agents with the same role name may have host-specific precedence. Prefer one intentional authority rather than duplicates.
+Do not install the same Skill in both scopes for a project where it will be used. A user-scoped install cannot inspect every repository on the machine, so check a target project's `.agents/skills/` before using it there. Current official Codex locations are repository `.agents/skills/` and user `$HOME/.agents/skills/`; this project no longer documents a legacy second user path.
 
-## Merge project instructions safely
+## Adopt the optional KISS Agents
 
-Never overwrite an existing `AGENTS.md`. Review the difference:
+The project roles are deliberately prefixed to coexist with built-in and personal generic roles:
+
+```text
+kiss_explorer
+kiss_coder
+kiss_reviewer
+```
+
+For project scope, perform a complete collision check before copying any file:
 
 ```bash
-diff -u "$TARGET_PROJECT/AGENTS.md" "$KISS_REPO_ROOT/AGENTS.md"
+: "${TARGET_PROJECT:?set TARGET_PROJECT for project-scoped adoption}"
+personal_agent_dir="${CODEX_HOME:-$HOME/.codex}/agents"
+role_conflict=0
+if [ ! -d "$TARGET_PROJECT" ]; then
+  printf 'Target project directory is missing; nothing was copied.\n' >&2
+  role_conflict=1
+fi
+for role in kiss_explorer kiss_coder kiss_reviewer; do
+  if [ ! -f "$KISS_REPO_ROOT/.codex/agents/$role.toml" ]; then
+    printf 'Source role %s is missing; nothing was copied.\n' "$role" >&2
+    role_conflict=1
+  elif [ -e "$TARGET_PROJECT/.codex/agents/$role.toml" ] || [ -e "$personal_agent_dir/$role.toml" ]; then
+    printf '%s already exists in personal or target-project scope; inspect before installing.\n' "$role" >&2
+    role_conflict=1
+  fi
+done
+if [ "$role_conflict" -eq 0 ]; then
+  mkdir -p "$TARGET_PROJECT/.codex/agents"
+  for role in kiss_explorer kiss_coder kiss_reviewer; do
+    cp "$KISS_REPO_ROOT/.codex/agents/$role.toml" "$TARGET_PROJECT/.codex/agents/$role.toml"
+  done
+fi
 ```
 
-If the target has no `AGENTS.md`, copying is safe after confirming that no deeper or fallback instruction source already owns the policy:
+For personal scope, check the personal destination before copying:
 
 ```bash
-test ! -e "$TARGET_PROJECT/AGENTS.md"
-cp "$KISS_REPO_ROOT/AGENTS.md" "$TARGET_PROJECT/AGENTS.md"
+personal_agent_dir="${CODEX_HOME:-$HOME/.codex}/agents"
+role_conflict=0
+for role in kiss_explorer kiss_coder kiss_reviewer; do
+  if [ ! -f "$KISS_REPO_ROOT/.codex/agents/$role.toml" ]; then
+    printf 'Source role %s is missing; nothing was copied.\n' "$role" >&2
+    role_conflict=1
+  elif [ -e "$personal_agent_dir/$role.toml" ]; then
+    printf '%s already exists in personal scope; inspect before installing.\n' "$role" >&2
+    role_conflict=1
+  fi
+done
+if [ "$role_conflict" -eq 0 ]; then
+  mkdir -p "$personal_agent_dir"
+  for role in kiss_explorer kiss_coder kiss_reviewer; do
+    cp "$KISS_REPO_ROOT/.codex/agents/$role.toml" "$personal_agent_dir/$role.toml"
+  done
+fi
 ```
 
-When instructions already exist, manually merge only the boundaries that fit the project. Preserve domain safety, ownership, acceptance, and stop rules. Do not copy a `config.toml`; this repository does not provide one.
+Existing generic roles remain untouched. If a `kiss_*` role already exists, compare the files and either keep the existing role or manually merge the desired instructions. Before using personal roles in a project, also inspect that project's registrations for the same prefixed names.
+
+After copying role files, register only the desired prefixed roles in the corresponding existing config layer. The non-active [`config.example.toml`](../examples/config.example.toml) contains these exact tables:
+
+```toml
+[agents.kiss_explorer]
+description = "KISS My Agent read-only explorer"
+config_file = "agents/kiss_explorer.toml"
+
+[agents.kiss_coder]
+description = "KISS My Agent implementation agent"
+config_file = "agents/kiss_coder.toml"
+
+[agents.kiss_reviewer]
+description = "KISS My Agent independent read-only reviewer"
+config_file = "agents/kiss_reviewer.toml"
+```
+
+Merge these tables into the selected user or trusted-project `config.toml` without replacing unrelated content. Relative `config_file` paths resolve from that config layer. If the project is untrusted, Codex ignores the project `.codex` layer; trust must be established through the Host before project registrations can load.
+
+The supplied model, reasoning effort, and sandbox settings are editable examples. See [Configuration](CONFIGURATION.md).
+
+## Merge AGENTS guidance
+
+Never overwrite an existing instruction source. If the target has no applicable root instruction or override, copying the repository file is possible after inspection:
+
+```bash
+: "${TARGET_PROJECT:?set TARGET_PROJECT for project-scoped adoption}"
+if [ ! -f "$KISS_REPO_ROOT/AGENTS.md" ] || [ ! -d "$TARGET_PROJECT" ]; then
+  printf 'AGENTS source or target project directory is missing; nothing was copied.\n' >&2
+elif [ -e "$TARGET_PROJECT/AGENTS.override.md" ] || [ -e "$TARGET_PROJECT/AGENTS.md" ]; then
+  printf 'An instruction source already exists; merge manually instead of copying.\n' >&2
+else
+  cp "$KISS_REPO_ROOT/AGENTS.md" "$TARGET_PROJECT/AGENTS.md"
+fi
+```
+
+When instructions already exist, manually merge only the KISS boundaries that fit the project. Preserve the user's ownership, domain safety, acceptance, and stop rules. If an override is active, update the intended effective source or skip AGENTS adoption; do not create a parallel hidden source.
+
+## Preserve existing runtime configuration
+
+The repository has no active `.codex/config.toml`. The annotated [`config.example.toml`](../examples/config.example.toml) is inert at its tracked path.
+
+Most adopters need no config changes. If one runtime setting is useful, copy that single key into a reviewed user, trusted-project, Profile, or CLI layer. Never replace an existing config wholesale, and do not silently change models, context limits, compaction, permissions, providers, authentication, or telemetry.
 
 ## Confirm discovery
 
-Start a **new** Codex session in the destination after changing skills or agents. Run:
+Start a new session after changing instructions, Skills, Agents, or startup configuration.
 
-```text
-/skills
-```
+- Use `/skills` and confirm exactly one `kiss-my-agent` entry from the intended scope.
+- Inspect available Agents and confirm `kiss_explorer`, `kiss_coder`, and `kiss_reviewer` only if they were installed.
+- Confirm the effective model, permissions, project root, and instruction sources.
 
-Confirm `kiss-my-agent` appears, then invoke it only for a matching task with:
-
-```text
-$kiss-my-agent
-```
-
-Discovery confirms that the host found the skill. It does not prove task behavior, permissions, authentication, or compatibility with another host.
+Discovery proves that the host found a component. It does not guarantee future Agent behavior or grant new authority.
 
 ## Update or remove
 
-For updates, diff the installed directory against the new source and merge or replace only after reviewing local changes. For removal, delete exactly the installed `kiss-my-agent` directory from the one chosen scope and start a new session. Also remove any manually merged project instructions only through a reviewed diff; there is no automated uninstall.
+- Update a component only after diffing its installed copy against the new source.
+- Remove only the exact `kiss-my-agent` directory or `kiss_*.toml` files that were installed.
+- Remove manually merged AGENTS lines through a reviewed diff; never restore an entire old file blindly.
+- Remove copied config keys individually.
+- Start a new session and confirm the resulting effective setup.
 
-## Sandbox before adoption
-
-Inside this repository:
-
-```bash
-./scripts/validate.sh
-./scripts/stage-sandbox.sh
-./scripts/validate.sh
-```
-
-The staging script rebuilds only `.sandbox/`, installs the skill and agents at project scope inside an isolated inner Git project, and prints a launch command without running it.
+There is no install receipt, migration database, compatibility alias, or automated uninstall.

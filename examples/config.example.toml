@@ -1,0 +1,63 @@
+# KISS My Agent runtime configuration example.
+#
+# This file is inert at examples/config.example.toml. It is not loaded by Codex.
+# Copy only the settings you need into ~/.codex/config.toml, a trusted
+# <repo>/.codex/config.toml, or a selected profile file. Review existing values
+# first; do not overwrite an existing configuration wholesale.
+# Recurring fast, balanced, or deep-review combinations can live in personal
+# $CODEX_HOME/<name>.config.toml Profile files selected with --profile; this
+# repository intentionally does not maintain a preset matrix.
+
+# Primary/master thread examples. Replace the model or effort with values
+# supported by your Codex host.
+model = "gpt-5.6-sol"
+model_reasoning_effort = "medium"
+model_verbosity = "medium"
+review_model = "gpt-5.6-sol"
+
+# Permissions are task- and environment-specific. This pair is illustrative.
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+
+# Alternative permission-profile style: remove sandbox_mode and the
+# [sandbox_workspace_write] table before enabling this.
+# default_permissions = ":workspace"
+
+# Context values depend on the real model and provider. Leaving them unset uses
+# model defaults. Do not uncomment placeholders without replacing them.
+# model_context_window = <model-supported-token-count>
+# model_auto_compact_token_limit = <threshold-below-the-real-context-limit>
+# model_auto_compact_token_limit_scope = "total"
+
+[agents]
+enabled = true
+default_subagent_model = "gpt-5.6-sol"
+default_subagent_reasoning_effort = "medium"
+interrupt_message = true
+
+# A concurrency limit is a capacity cap, not a fan-out target. Leave it unset
+# to use the host default, or choose a value justified by local resources.
+# max_concurrent_threads_per_session = 4
+
+# Optional KISS custom Agent registrations. Relative config_file paths resolve
+# from the config file that contains these tables. Copy the matching TOML files
+# into that layer's agents/ directory before enabling the registrations.
+[agents.kiss_explorer]
+description = "KISS My Agent read-only explorer"
+config_file = "agents/kiss_explorer.toml"
+
+[agents.kiss_coder]
+description = "KISS My Agent implementation agent"
+config_file = "agents/kiss_coder.toml"
+
+[agents.kiss_reviewer]
+description = "KISS My Agent independent read-only reviewer"
+config_file = "agents/kiss_reviewer.toml"
+
+[sandbox_workspace_write]
+network_access = false
+
+# Add writable roots only for a current task requirement.
+# writable_roots = ["/absolute/path/to/an/additional/root"]
+# exclude_slash_tmp = true
+# exclude_tmpdir_env_var = true

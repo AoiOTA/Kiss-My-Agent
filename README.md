@@ -9,7 +9,7 @@
 ![Status: early stage](https://img.shields.io/badge/status-early_stage-orange.svg)
 ![Host: Codex-first](https://img.shields.io/badge/host-Codex--first-blue.svg)
 
-[English](README.md) · [简体中文](README.zh-CN.md) · [Installation](docs/INSTALLATION.md) · [Extending](docs/EXTENDING.md) · [FAQ](docs/FAQ.md) · [Contributing](CONTRIBUTING.md)
+[English](README.md) · [简体中文](README.zh-CN.md) · [Installation](docs/INSTALLATION.md) · [Configuration](docs/CONFIGURATION.md) · [Extending](docs/EXTENDING.md) · [FAQ](docs/FAQ.md) · [Contributing](CONTRIBUTING.md)
 
 KISS My Agent is a compact, reusable instruction layer for research-oriented coding agents. It keeps the person in charge of the research question while helping agents choose direct implementation, proportionate evidence, and only the mechanisms that have a current consumer.
 
@@ -22,36 +22,55 @@ The goal is not fewer safeguards at any cost. It is the smallest sufficient desi
 ## What You Get
 
 - A general [`AGENTS.md`](AGENTS.md) with permanent human/agent boundaries.
-- Three focused Codex roles in [`.codex/agents/`](.codex/agents/): explorer, coder, and review.
+- Three optional, collision-resistant Codex roles in [`.codex/agents/`](.codex/agents/): `kiss_explorer`, `kiss_coder`, and `kiss_reviewer`.
 - The [`$kiss-my-agent`](.agents/skills/kiss-my-agent/SKILL.md) skill, with two decision rules and four narrow cases loaded only when relevant.
+- A [configuration guide](docs/CONFIGURATION.md) and an inert, annotated [`config.example.toml`](examples/config.example.toml) for host-specific runtime choices.
 - A layered-instruction fixture and twelve manual scenarios under [`tests/`](tests/).
-- A static validator and an isolated local sandbox staging script under [`scripts/`](scripts/).
+- A dependency-light static validator under [`scripts/`](scripts/).
 - Installation, extension, security, and community documentation without an installer or workflow platform.
 
 ## 5-minute Quick Start
 
-From an existing checkout of this repository, install the skill into one target project without touching user-wide configuration:
+From an existing checkout, run the static validator without installing anything into user or project configuration:
 
 ```bash
-export KISS_REPO_ROOT=/absolute/path/to/kiss-my-agent
-export TARGET_PROJECT=/absolute/path/to/your-project
-
-mkdir -p "$TARGET_PROJECT/.agents/skills"
-test ! -e "$TARGET_PROJECT/.agents/skills/kiss-my-agent"
-cp -R "$KISS_REPO_ROOT/.agents/skills/kiss-my-agent" "$TARGET_PROJECT/.agents/skills/"
+cd /absolute/path/to/kiss-my-agent
+./scripts/validate.sh
 ```
 
-Start a new Codex session in the target project, run `/skills`, and confirm `kiss-my-agent` is listed. Invoke it explicitly with `$kiss-my-agent` only for a matching non-obvious engineering or evidence decision.
+For live discovery, start a new authenticated session only if normal Host-managed state updates are acceptable:
 
-If the destination already exists, stop and diff it; do not overwrite it. See [Installation](docs/INSTALLATION.md) for project rules, custom agents, personal scope, and safe updates.
+```bash
+codex
+```
 
-## Three Ways to Adopt
+In the new authenticated session, run `/skills` and confirm `kiss-my-agent` is listed. Invoke the Skill explicitly with `$kiss-my-agent` only for a matching non-obvious engineering or evidence decision. The optional KISS Agent files are templates and become available only after deliberate registration in the intended config layer.
 
-1. **Rules only.** Manually merge the relevant boundaries from [`AGENTS.md`](AGENTS.md) into the target project's existing instructions. Never overwrite an existing instruction file.
-2. **Skill only.** Copy [`.agents/skills/kiss-my-agent/`](.agents/skills/kiss-my-agent/) into a project or user skill directory and confirm it in a new session with `/skills`.
-3. **Full Codex setup.** Combine a reviewed `AGENTS.md` merge, the repository skill, and the project-local roles from [`.codex/agents/`](.codex/agents/). This still does not copy `config.toml` or change authentication and permissions.
+The validator is repository-local and does not write user configuration. A real Codex or Desktop session may record normal Host state such as project trust, history, or marketplace timestamps under its configured home even when no KISS component is installed. Use a disposable OS account or Host profile if absolutely no user-state write is acceptable. See [Installation](docs/INSTALLATION.md) only when you decide to adopt one or more components into another project or personal scope.
 
-Exact commands and precedence are documented in [Installation](docs/INSTALLATION.md).
+## Adopt Only What You Need
+
+1. **Validate without installing.** Run the repository-local validator. Optionally start a new authenticated Host session and confirm `kiss-my-agent` with `/skills`, accepting that the Host may record normal local metadata.
+2. **Skill only.** Copy [`.agents/skills/kiss-my-agent/`](.agents/skills/kiss-my-agent/) into exactly one project or user scope.
+3. **AGENTS guidance.** Manually merge only the relevant boundaries into the actual effective instruction source; never overwrite an existing AGENTS or override.
+4. **Optional KISS roles.** Add and register the prefixed role files only when their names are absent. Existing generic roles remain untouched.
+
+Existing config, AGENTS, Agents, and Skills are preserved by default. The collision matrix and exact commands are documented in [Installation](docs/INSTALLATION.md).
+
+## Customize the Runtime
+
+The supplied values are editable examples, not KISS My Agent requirements. There is no `master.toml`: the primary or master thread uses the effective model, reasoning, context, permission, Profile, and CLI settings of the current session.
+
+| Execution role | Supplied model | Supplied reasoning | Supplied sandbox | Where to change it |
+| --- | --- | --- | --- | --- |
+| Master / primary | Host selection | Host selection | Host selection | User/project config, Profile, UI, or CLI |
+| KISS Explorer | `gpt-5.6-sol` | `medium` | `read-only` | `.codex/agents/kiss_explorer.toml` |
+| KISS Coder | `gpt-5.6-sol` | `high` | `workspace-write` | `.codex/agents/kiss_coder.toml` |
+| KISS Reviewer | `gpt-5.6-sol` | `xhigh` | `read-only` | `.codex/agents/kiss_reviewer.toml` |
+
+Choose models and efforts supported by your host. Permission changes alter real authority. `agents.max_concurrent_threads_per_session` is a capacity cap, not a request to use every slot. Context-window and auto-compaction overrides are model/provider-specific; leaving them unset uses model defaults.
+
+See [Configuration](docs/CONFIGURATION.md) for models, reasoning, concurrency, context, compaction, permissions, instruction discovery, Profiles, and one-off overrides. The [`config.example.toml`](examples/config.example.toml) is not loaded from its tracked location and is never installed automatically.
 
 ## How It Works
 
@@ -105,10 +124,11 @@ An evaluator interpretation changes while captured runtime signals remain comple
 ├── .agents/skills/kiss-my-agent/
 │   ├── SKILL.md
 │   └── references/{rules,cases}/
-├── .codex/agents/
+├── .codex/agents/{kiss_explorer,kiss_coder,kiss_reviewer}.toml
 ├── assets/kiss-my-agent-hero.png
-├── docs/{INSTALLATION,EXTENDING,FAQ}.md
-├── scripts/{validate,stage-sandbox}.sh
+├── docs/{INSTALLATION,CONFIGURATION,EXTENDING,FAQ}.md
+├── examples/config.example.toml
+├── scripts/validate.sh
 ├── tests/{fixtures,scenarios.md}
 ├── CONTRIBUTING.md
 ├── CODE_OF_CONDUCT.md
@@ -122,11 +142,19 @@ Run:
 
 ```bash
 ./scripts/validate.sh
-./scripts/stage-sandbox.sh
-./scripts/validate.sh
 ```
 
-`stage-sandbox.sh` **deletes and rebuilds only** this repository's `.sandbox/`, creates an isolated inner project, copies the project-scoped skill and agents, and prints a launch command. It does not launch Codex or write real user configuration.
+| Check | Current coverage |
+| --- | --- |
+| TOML, Skill, links, hero, and instruction fixture | Statically validated |
+| Codex CLI `0.152.0` | Skill metadata, explicit linked-Rule routing, and all three registered KISS Agent types validated |
+| ChatGPT Desktop `26.825.51511` | Bundled engine validated; a GUI new-project session was not independently created because this clone is not a saved Desktop project |
+| Desktop bundled Codex `0.151.0-alpha.7.2` | Skill metadata, explicit linked-Rule routing, and registered `kiss_explorer` spawn validated |
+| Existing configuration coexistence | First install, duplicate blocking, and pre-existing config/AGENTS/generic-role preservation validated in a temporary fixture |
+| Guaranteed Agent compliance | Not claimed |
+| Other agent hosts | Not verified |
+
+No sandbox package, copied `CODEX_HOME`, Docker image, or extra test project is required. Testers can validate the clone directly, then optionally use a new authenticated Host session for `/skills` and custom Agent discovery. The live Host check is not a zero-write test of Host-owned state.
 
 The static validator checks repository structure, role TOML, skill frontmatter and routing, bilingual README links and sections, relative links, project hygiene, shell syntax, the fixture instruction chain, and the hero asset. It does **not** prove model behavior, research validity, integration with every host, network installation, permissions, authentication, release readiness, or compatibility with future Codex versions.
 
@@ -141,13 +169,13 @@ Read [Extending](docs/EXTENDING.md) before adding a rule or case. New material m
 - Early-stage source distribution with no compatibility guarantee or release automation.
 - Codex-first; other hosts and discovery conventions are unverified.
 - Instructions guide behavior but cannot grant filesystem, network, account, or authentication authority.
-- Model availability varies. Role TOML may need a reviewed model change with matching validator expectations.
+- Model availability varies. Role TOML values are editable examples; the validator checks structure rather than enforcing one model, effort, or role permission.
 - The manual scenarios are discussion fixtures, not behavioral qualification or an evaluation gate.
 - Project-specific safety, compliance, and domain rules remain the adopter's responsibility.
 
 ## FAQ
 
-See [docs/FAQ.md](docs/FAQ.md) for when to invoke the skill, how to update safely, why there is no installer, and what the sandbox proves.
+See [docs/FAQ.md](docs/FAQ.md) for Skill routing, configuration, safe coexistence, tested Hosts, and validation boundaries.
 
 ## License
 

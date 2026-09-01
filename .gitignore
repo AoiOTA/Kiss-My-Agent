@@ -1,4 +1,3 @@
-.sandbox/
 *.local
 *.log
 session-*.jsonl

@@ -26,7 +26,7 @@ State the commit or source snapshot only when it matters to reproducing the defe
 
 ## Evidence
 
-Paste concise output or attach a minimal safe artifact. Distinguish source inspection, static validation, sandbox staging, and any manual host behavior.
+Paste concise output or attach a minimal safe artifact. Distinguish source inspection, static validation, registered-Agent checks, and manual Host behavior.
 
 ## Scope notes
 

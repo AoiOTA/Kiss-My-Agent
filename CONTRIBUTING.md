@@ -4,7 +4,7 @@ Thank you for helping KISS My Agent stay small, useful, and evidence-honest.
 
 ## Before proposing a change
 
-Read [`AGENTS.md`](AGENTS.md) and, for skill content, [`docs/EXTENDING.md`](docs/EXTENDING.md). Open an issue when the change would alter the public installation layout, role schema, skill trigger boundary, or permanent rules. Small corrections can go directly to a pull request.
+Read [`AGENTS.md`](AGENTS.md) and, for skill content, [`docs/EXTENDING.md`](docs/EXTENDING.md). Runtime examples and role settings are documented in [`docs/CONFIGURATION.md`](docs/CONFIGURATION.md). Open an issue when the change would alter the public installation layout, role schema, skill trigger boundary, or permanent rules. Small corrections can go directly to a pull request.
 
 Use the issue templates for reproducible bugs and rule-or-case proposals. Security issues follow [`SECURITY.md`](SECURITY.md); conduct concerns follow [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md).
 
@@ -14,11 +14,9 @@ The repository uses local, dependency-light checks rather than hosted CI:
 
 ```bash
 ./scripts/validate.sh
-./scripts/stage-sandbox.sh
-./scripts/validate.sh
 ```
 
-The staging command rebuilds only `.sandbox/` and does not launch Codex. Review its printed command before any optional manual session.
+When changing instruction discovery, roles, or Skill packaging, also start a new authenticated session in the clone and verify the affected component directly. Do not create a copied `CODEX_HOME` or persistent test installation.
 
 ## Change boundaries
 
@@ -28,7 +26,8 @@ The staging command rebuilds only `.sandbox/` and does not launch Codex. Review 
 - Keep the Rent Test, twelve mechanism semantics, evidence methods, and four case boundaries coherent.
 - Do not add an installer, hosted workflow, release system, compatibility alias, plugin manifest, telemetry, scoring harness, or evaluation platform without a present approved consumer.
 - Keep English and Chinese README structure and installation commands synchronized.
-- Never add private paths, project-specific terminology, credentials, logs, sessions, or generated sandbox content.
+- Keep runtime guidance, `examples/config.example.toml`, the `kiss_explorer` / `kiss_coder` / `kiss_reviewer` names, role comments, and validator schema checks consistent without forcing one model or permission tuple.
+- Never add private paths, project-specific terminology, credentials, logs, sessions, or generated test content.
 
 ## Pull requests
 
