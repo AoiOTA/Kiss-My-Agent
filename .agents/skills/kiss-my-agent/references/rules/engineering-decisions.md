@@ -1,4 +1,4 @@
-# Engineering decisions
+# KISS engineering decisions
 
 This rule expands the permanent boundaries for decisions that are genuinely ambiguous. It does not replace project ownership or user acceptance.
 

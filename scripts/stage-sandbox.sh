@@ -11,8 +11,9 @@ case "$sandbox_root" in
 esac
 
 rm -rf -- "$sandbox_root"
-mkdir -p "$sandbox_root/codex-home/agents"
-mkdir -p "$sandbox_root/codex-home/skills"
+mkdir -p "$sandbox_root/codex-home"
+mkdir -p "$sandbox_root/project/.codex/agents"
+mkdir -p "$sandbox_root/project/.agents/skills"
 mkdir -p "$sandbox_root/project/fixture"
 
 # Keep project-root discovery inside the sandbox instead of inheriting the
@@ -20,8 +21,8 @@ mkdir -p "$sandbox_root/project/fixture"
 git init -q -b main "$sandbox_root/project"
 
 cp -- "$repo_root/AGENTS.md" "$sandbox_root/project/AGENTS.md"
-cp -R -- "$repo_root/.codex/agents/." "$sandbox_root/codex-home/agents/"
-cp -R -- "$repo_root/.agents/skills/research-mvp-engineering" "$sandbox_root/codex-home/skills/"
+cp -R -- "$repo_root/.codex/agents/." "$sandbox_root/project/.codex/agents/"
+cp -R -- "$repo_root/.agents/skills/kiss-my-agent" "$sandbox_root/project/.agents/skills/"
 cp -R -- "$repo_root/tests/fixtures/layered-project/." "$sandbox_root/project/fixture/"
 
 printf 'Sandbox staged inside repository:\n'

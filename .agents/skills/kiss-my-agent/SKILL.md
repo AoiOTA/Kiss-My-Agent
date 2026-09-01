@@ -1,11 +1,11 @@
 ---
-name: research-mvp-engineering
+name: kiss-my-agent
 description: Use only when a research-engineering task has a non-obvious decision about a persistent or shared mechanism, a local fix versus a new system, experiment validity or evidence strength, runtime versus evaluator ambiguity, or expansion of scope or acceptance. Do not use for an already-decided implementation, ordinary small fix, mechanical edit, routine test or build, Git operation, lookup, or formatting.
 ---
 
-# Research MVP engineering
+# KISS My Agent
 
-Use this skill to resolve one consequential ambiguity, then return to the task. It is not a general workflow.
+Invoke this skill explicitly as `$kiss-my-agent` to resolve one consequential ambiguity, then return to the task. It is not a general workflow.
 
 1. Name the ambiguity and its current consumer or decision.
 2. Read exactly one relevant rule file:

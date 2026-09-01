@@ -1,4 +1,4 @@
-# Experiments and evidence
+# KISS experiments and evidence
 
 Use this rule when a claim depends on what was actually executed, measured, or evaluated. The permanent evidence boundaries and labels remain authoritative; this file supplies decision methods rather than restating them.
 

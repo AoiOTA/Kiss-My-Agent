@@ -20,6 +20,6 @@ Keep It Simple, Scientist. Less ceremony. More science.
 
 - Within each directory, `AGENTS.override.md` takes precedence over `AGENTS.md`, which takes precedence over the configured fallback. The detected project root follows the configured `project_root_markers`.
 - Resolve actual ownership incrementally from the launch directory toward the deepest target. If the target is unknown, start in the investigation directory. Read only newly applicable sources when entering a new instruction scope or when the chain changes; do not pre-scan or repeatedly reread the tree. An override is a normal instruction source, not an automatic blocker.
-- Route to a skill only when its description precisely matches the task. Read the skill entry fully, then only the referenced rule or case needed for the present ambiguity; do not use a broad skill as a catch-all.
+- Route to `$kiss-my-agent` only when its description precisely matches the task. Read the skill entry fully, then only the referenced rule or case needed for the present ambiguity; do not use it as a catch-all.
 
 Stop as soon as the goal is met with proportionate evidence, a supported no-change conclusion is reached, or a real boundary requires the user to decide.
