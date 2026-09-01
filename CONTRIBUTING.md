@@ -1,36 +1,46 @@
 # Contributing
 
-Thank you for helping KISS My Agent stay small, useful, and evidence-honest.
+[English](CONTRIBUTING.md) | [简体中文](CONTRIBUTING.zh-CN.md)
 
-## Before proposing a change
+<a id="before-you-start"></a>
+## Before You Start
 
-Read [`AGENTS.md`](AGENTS.md) and, for skill content, [`docs/EXTENDING.md`](docs/EXTENDING.md). Runtime examples and role settings are documented in [`docs/CONFIGURATION.md`](docs/CONFIGURATION.md). Open an issue when the change would alter the public installation layout, role schema, skill trigger boundary, or permanent rules. Small corrections can go directly to a pull request.
+Read [`AGENTS.md`](AGENTS.md). For Skill, Rule, or Case changes, also read [Extending](docs/EXTENDING.md). Runtime and test behavior belong in [Configuration](docs/CONFIGURATION.md) and [Testing](docs/TESTING.md).
 
-Use the issue templates for reproducible bugs and rule-or-case proposals. Security issues follow [`SECURITY.md`](SECURITY.md); conduct concerns follow [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md).
+Open an issue when a proposal changes public installation layout, role schema, Skill trigger boundaries, or permanent rules. Small, scoped corrections can go directly to a pull request. Security reports follow [Security](SECURITY.md); conduct concerns follow the English-only [Code of Conduct](CODE_OF_CONDUCT.md).
 
-## Local checks
+<a id="change-boundaries"></a>
+## Change Boundaries
 
-The repository uses local, dependency-light checks rather than hosted CI:
+- Preserve human ownership of the goal, architecture, acceptance, non-goals, and stop boundary.
+- Keep `$kiss-my-agent` precisely routed and non-catch-all.
+- Add a Rule only for a recurring method and a Case only for a useful concrete contrast.
+- Do not add workflow, installer, release, compatibility, telemetry, scoring, or evaluation machinery without a current approved consumer.
+- Preserve unrelated user and agent changes; keep refactors and formatting outside the scoped diff.
+- Keep every English developer document synchronized with its Simplified Chinese companion: language switch, explicit anchor IDs, section order, and fenced command blocks.
+- Keep Codex-facing AGENTS, Skill, Rules, Cases, role TOML, `LICENSE`, and `CODE_OF_CONDUCT.md` English-only.
+- Never add credentials, private paths, private data, logs, sessions, or generated test content.
+
+<a id="local-validation"></a>
+## Local Validation
+
+Linux or macOS:
 
 ```bash
 ./scripts/validate.sh
 ```
 
-When changing instruction discovery, roles, or Skill packaging, also start a new authenticated session in the clone and verify the affected component directly. Do not create a copied `CODEX_HOME` or persistent test installation.
+Windows native PowerShell:
 
-## Change boundaries
+```powershell
+.\scripts\validate.ps1
+```
 
-- Preserve the permanent human/agent boundary in `AGENTS.md`.
-- Keep `$kiss-my-agent` precisely routed; routine edits, tests, builds, Git work, lookups, and formatting do not belong in the skill.
-- Add a rule only for a recurring decision method. Add a case only when one concrete contrast materially clarifies an existing rule.
-- Keep the Rent Test, twelve mechanism semantics, evidence methods, and four case boundaries coherent.
-- Do not add an installer, hosted workflow, release system, compatibility alias, plugin manifest, telemetry, scoring harness, or evaluation platform without a present approved consumer.
-- Keep English and Chinese README structure and installation commands synchronized.
-- Keep runtime guidance, `examples/config.example.toml`, the `kiss_explorer` / `kiss_coder` / `kiss_reviewer` names, role comments, and validator schema checks consistent without forcing one model or permission tuple.
-- Never add private paths, project-specific terminology, credentials, logs, sessions, or generated test content.
+WSL is Linux evidence. Do not claim macOS or Windows verification from configuration alone; require the exact commit's green native CI job. For discovery changes, use a trusted new Codex session. Current old sessions are not guaranteed to hot-load.
 
-## Pull requests
+<a id="pull-requests"></a>
+## Pull Requests
 
-Describe the user-visible outcome, current consumer, smallest mechanism retained, validation performed, and limitations. A no-change investigation can be valuable, but a pull request should contain an actual scoped improvement. Keep unrelated formatting and refactors out of the diff.
+Describe the user-visible outcome, current consumer, smallest mechanism retained, validation performed, evidence level, and limitations. A passing static check does not prove model behavior or product acceptance. Keep the pull request focused and use the repository template.
 
 By participating, you agree to follow the [Code of Conduct](CODE_OF_CONDUCT.md).

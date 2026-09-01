@@ -1,13 +1,25 @@
 # Security Policy
 
-## Supported versions
+[English](SECURITY.md) | [简体中文](SECURITY.zh-CN.md)
 
-KISS My Agent is early-stage and has no releases or long-term support branches. Security fixes target the current default branch only.
+<a id="supported-versions"></a>
+## Supported Versions
 
-## Reporting a vulnerability
+KISS My Agent is early-stage and has no formal releases or long-term-support branches. Security fixes target the current default branch. This is not a response-time or compatibility guarantee.
 
-Use the repository host's private vulnerability-reporting feature when it is available. Include the affected file or behavior, impact, reproduction conditions, and the smallest safe proof. Do not include credentials, private data, or exploit details in a public issue.
+<a id="reporting"></a>
+## Reporting a Vulnerability
 
-If private vulnerability reporting is unavailable, open a public issue titled `Private security contact requested` with no vulnerability details. A maintainer can then arrange a private channel through the repository host. If no maintainer responds, use the host's abuse or security reporting mechanism rather than disclosing sensitive details publicly.
+Use the repository host's private vulnerability-reporting feature when available. Include the affected file or behavior, impact, reproduction conditions, and smallest safe proof. Do not place credentials, private data, exploit details, or sensitive logs in a public issue.
 
-The project cannot promise a response time at its current maturity. Reports will be assessed against the actual instruction, sandbox, or installation behavior; static validation does not establish host security or permission isolation.
+If private reporting is unavailable, open a public issue titled `Private security contact requested` with no vulnerability details. A maintainer can arrange a private channel through the repository host. If no maintainer responds, use the host's abuse or security channel rather than disclosing sensitive details publicly.
+
+<a id="assessment-boundary"></a>
+## Assessment Boundary
+
+Reports are assessed against actual instruction discovery, installation, configuration, runtime permission, or validation behavior. Instructions are not a security boundary. Static validation does not establish Host isolation, model compliance, account authorization, network policy, or external-service security.
+
+<a id="safe-reproduction"></a>
+## Safe Reproduction
+
+Provide the minimum reproduction and redact secrets and private paths. Do not test against systems, accounts, data, or users you are not authorized to affect. Stop before destructive, irreversible, or externally disruptive actions and coordinate privately with maintainers.

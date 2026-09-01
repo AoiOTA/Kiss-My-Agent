@@ -1,26 +1,26 @@
-# Installation and Coexistence
+# 安装与共存
 
 [English](INSTALLATION.md) | [简体中文](INSTALLATION.zh-CN.md)
 
-[README](../README.md) · [Configuration](CONFIGURATION.md) · [Testing](TESTING.md) · [FAQ](FAQ.md)
+[README](../README.zh-CN.md) · [配置](CONFIGURATION.zh-CN.md) · [测试](TESTING.zh-CN.md) · [常见问题](FAQ.zh-CN.md)
 
 <a id="scope"></a>
-## Scope
+## 范围
 
-KISS My Agent is a set of source components, not an installer. The repository checkout already contains its project Skill, role files, and `.codex/config.toml`. To use that checkout, validate it, trust the project, and start a new Codex session. Copy components only when adopting them into another project or personal scope.
+KISS My Agent 是一组源码组件，不是 installer。仓库 checkout 已包含项目 Skill、角色文件和 `.codex/config.toml`。使用该 checkout 时，只需验证、信任项目并启动新的 Codex 会话。只有将组件采用到其他项目或个人 scope 时才需要复制。
 
-Every command below stops on missing input or destination collision. It never overwrites an existing Skill, role, instruction file, or config. If a destination exists, inspect and merge it manually.
+下方每条命令都会在输入缺失或目标冲突时停止，绝不覆盖已有 Skill、角色、instruction 文件或 config。目标已存在时应人工检查和合并。
 
 <a id="prerequisites"></a>
-## Prerequisites
+## 前提条件
 
-- Linux or macOS with a POSIX shell, or Windows with native PowerShell.
-- Python 3.11 or newer: `python3` on Linux or macOS; either the `py -3` launcher or `python` on Windows.
-- A checkout referenced below as `KISS_REPO_ROOT` / `$KissRepoRoot`.
-- A destination project referenced as `TARGET_PROJECT` / `$TargetProject`.
-- A current Codex installation for live discovery. WSL follows the Linux path and is not Windows support evidence.
+- Linux 或 macOS 使用 POSIX shell；Windows 使用原生 PowerShell。
+- Python 3.11 或更高版本：Linux 或 macOS 使用 `python3`；Windows 使用 `py -3` launcher 或 `python`。
+- 仓库 checkout，下文记为 `KISS_REPO_ROOT` / `$KissRepoRoot`。
+- 目标项目，下文记为 `TARGET_PROJECT` / `$TargetProject`。
+- 真实发现检查需要当前 Codex 安装。WSL 按 Linux 路径处理，不构成 Windows 支持证据。
 
-Linux or macOS:
+Linux 或 macOS：
 
 ```bash
 set -eu
@@ -31,7 +31,7 @@ test -d "$KISS_REPO_ROOT"
 test -d "$TARGET_PROJECT"
 ```
 
-Windows PowerShell:
+Windows PowerShell：
 
 ```powershell
 $ErrorActionPreference = 'Stop'
@@ -42,9 +42,9 @@ if (!(Test-Path -LiteralPath $TargetProject -PathType Container)) { throw 'Targe
 ```
 
 <a id="validate-checkout"></a>
-## Validate the Checkout
+## 验证 checkout
 
-Linux or macOS:
+Linux 或 macOS：
 
 ```bash
 set -eu
@@ -52,34 +52,34 @@ cd "$KISS_REPO_ROOT"
 ./scripts/validate.sh
 ```
 
-Windows PowerShell:
+Windows PowerShell：
 
 ```powershell
 Set-Location -LiteralPath $KissRepoRoot
 .\scripts\validate.ps1
 ```
 
-The validator is repository-local and needs no installation, copied `CODEX_HOME`, sandbox package, container, or extra test project. It does not write user configuration. A later live Host session may write normal trust, history, cache, or marketplace state.
+Validator 位于仓库内，不需要安装、复制 `CODEX_HOME`、sandbox package、容器或额外测试项目；它不写用户配置。后续真实 Host 会话可能写入正常的 trust、历史、缓存或 marketplace 状态。
 
 <a id="collision-policy"></a>
-## Collision Policy
+## 冲突策略
 
-| Existing destination | Required action |
+| 已有目标 | 必须采取的动作 |
 | --- | --- |
-| `config.toml` | Keep it; manually merge reviewed tables or keys. |
-| `AGENTS.override.md` | Treat it as effective at that directory; do not hide it with a new base file. |
-| `AGENTS.md` | Keep it; manually merge only applicable KISS boundaries. |
-| Generic `explorer`, `coder`, or `review` role | Keep it; KISS uses separate `kiss_*` names. |
-| Existing `kiss_explorer`, `kiss_coder`, or `kiss_reviewer` | Stop and diff; never overwrite. |
-| Existing `kiss-my-agent` Skill in either active scope | Stop and choose one authoritative copy. |
-| Unknown owner or precedence | Skip that component until ownership is clear. |
+| `config.toml` | 保留；只人工合并审核过的 tables 或 keys。 |
+| `AGENTS.override.md` | 视为该目录的有效来源；不要用新 base 文件掩盖它。 |
+| `AGENTS.md` | 保留；只人工合并适用的 KISS 边界。 |
+| 通用 `explorer`、`coder` 或 `review` 角色 | 保留；KISS 使用独立的 `kiss_*` 名称。 |
+| 已有 `kiss_explorer`、`kiss_coder` 或 `kiss_reviewer` | 停止并 diff；绝不覆盖。 |
+| 任一活跃 scope 已有 `kiss-my-agent` Skill | 停止并选择一个权威副本。 |
+| owner 或优先级未知 | 在明确 owner 前跳过该组件。 |
 
 <a id="adopt-skill"></a>
-## Adopt the Skill
+## 采用 Skill
 
-Choose exactly one scope. The commands below install to the target project. User scope uses the same collision rule with `$HOME/.agents/skills/kiss-my-agent` on POSIX or the appropriate user-home `.agents\skills\kiss-my-agent` path on Windows.
+只选择一个 scope。下列命令安装到目标项目。用户 scope 使用同样的冲突规则，POSIX 目标为 `$HOME/.agents/skills/kiss-my-agent`，Windows 目标为相应 user-home 下的 `.agents\skills\kiss-my-agent`。
 
-Linux or macOS:
+Linux 或 macOS：
 
 ```bash
 set -eu
@@ -97,7 +97,7 @@ mkdir "$skill_target"
 cp -R "$skill_source/." "$skill_target/"
 ```
 
-Windows PowerShell:
+Windows PowerShell：
 
 ```powershell
 $skillSource = Join-Path $KissRepoRoot '.agents\skills\kiss-my-agent'
@@ -109,14 +109,14 @@ if (Test-Path -LiteralPath $skillTarget) { throw 'kiss-my-agent already exists; 
 Copy-Item -LiteralPath $skillSource -Destination $skillTarget -Recurse
 ```
 
-Do not keep project and user copies active for the same project. Same-name Skills are not merged.
+同一项目不要同时激活项目级与用户级副本；同名 Skills 不会合并。
 
 <a id="adopt-roles"></a>
-## Adopt the Roles
+## 采用角色
 
-The prefixed roles are `kiss_explorer`, `kiss_coder`, and `kiss_reviewer`. These commands copy all three to project scope only after a complete preflight.
+三个前缀角色是 `kiss_explorer`、`kiss_coder` 和 `kiss_reviewer`。下列命令完整预检后才将三者复制到项目 scope。
 
-Linux or macOS:
+Linux 或 macOS：
 
 ```bash
 set -eu
@@ -134,7 +134,7 @@ for role in kiss_explorer kiss_coder kiss_reviewer; do
 done
 ```
 
-Windows PowerShell:
+Windows PowerShell：
 
 ```powershell
 $roleNames = @('kiss_explorer', 'kiss_coder', 'kiss_reviewer')
@@ -153,14 +153,14 @@ foreach ($role in $roleNames) {
 }
 ```
 
-Copying role TOML alone does not register a role. Continue with project config.
+只复制角色 TOML 不会完成注册；继续配置项目 config。
 
 <a id="adopt-project-config"></a>
-## Adopt Project Config
+## 采用项目配置
 
-The tracked `.codex/config.toml` contains only `[agents] enabled = true` and three `agents.kiss_*` registrations. If the destination has no project config, copy it after the preflight below. If it exists, do not run these commands; manually merge only the reviewed agent tables and preserve all unrelated settings.
+跟踪的 `.codex/config.toml` 只包含 `[agents] enabled = true` 与三个 `agents.kiss_*` 注册。如果目标没有项目 config，可在完成下方预检后复制；如果已经存在，不要运行这些命令，只人工合并审核过的 agent tables，并保留所有无关设置。
 
-Linux or macOS:
+Linux 或 macOS：
 
 ```bash
 set -eu
@@ -175,7 +175,7 @@ fi
 cp "$config_source" "$config_target"
 ```
 
-Windows PowerShell:
+Windows PowerShell：
 
 ```powershell
 $configSource = Join-Path $KissRepoRoot '.codex\config.toml'
@@ -187,14 +187,14 @@ if (Test-Path -LiteralPath $configTarget) { throw 'Project config already exists
 [System.IO.File]::Copy($configSource, $configTarget, $false)
 ```
 
-Relative `config_file` paths resolve from the config layer. Project config loads only for a trusted project and should be tested in a new session.
+相对 `config_file` 路径从该 config layer 解析。项目 config 只有在项目可信时加载，并应在新会话中测试。
 
 <a id="adopt-agents-guidance"></a>
-## Adopt AGENTS Guidance
+## 采用 AGENTS 指导
 
-Only copy the root guidance when neither `AGENTS.override.md` nor `AGENTS.md` exists at the target root. Otherwise merge applicable boundaries by review.
+只有目标根目录同时不存在 `AGENTS.override.md` 和 `AGENTS.md` 时才直接复制。否则人工审核并合并适用边界。
 
-Linux or macOS:
+Linux 或 macOS：
 
 ```bash
 set -eu
@@ -208,7 +208,7 @@ fi
 cp "$agents_source" "$agents_target"
 ```
 
-Windows PowerShell:
+Windows PowerShell：
 
 ```powershell
 $agentsSource = Join-Path $KissRepoRoot 'AGENTS.md'
@@ -219,21 +219,21 @@ if ((Test-Path -LiteralPath $agentsOverride) -or (Test-Path -LiteralPath $agents
 [System.IO.File]::Copy($agentsSource, $agentsTarget, $false)
 ```
 
-Preserve the destination project's product ownership, safety rules, acceptance criteria, and stop boundaries.
+保留目标项目的产品 owner、安全规则、验收标准和停止边界。
 
 <a id="confirm-discovery"></a>
-## Confirm Discovery
+## 确认发现
 
-Trust the destination project and start a new session after changing config, Skills, roles, or instructions. Run `/skills`, confirm exactly one `kiss-my-agent`, and smoke only the roles you registered. Current old sessions are not guaranteed to hot-load changes. See [Testing](TESTING.md).
+修改 config、Skills、角色或 instructions 后，信任目标项目并启动新会话。运行 `/skills`，确认恰好一个 `kiss-my-agent`，并只 Smoke 已注册角色。当前旧会话不保证热加载。详见[测试](TESTING.zh-CN.md)。
 
-Discovery proves that the Host found the component in that session. It does not prove future behavior or grant new authority.
+Discovery 只证明 Host 在该会话中找到了组件；它不证明未来行为，也不授予新权限。
 
 <a id="update-remove"></a>
-## Update or Remove
+## 更新或移除
 
-- Diff an installed component before updating it; the installation commands intentionally stop on collisions.
-- Remove only exact files or directories that you installed and have identified.
-- Reverse manually merged config or AGENTS lines through a reviewed diff.
-- Start a trusted new session and reconfirm the effective setup.
+- 更新已安装组件前先 diff；安装命令会有意在冲突时停止。
+- 只移除已经确认由你安装的精确文件或目录。
+- 通过审核过的 diff 逆转人工合并的 config 或 AGENTS 行。
+- 启动可信新会话并重新确认实际配置。
 
-There is no install receipt, migration database, compatibility alias, or automated uninstall.
+项目没有 install receipt、migration database、compatibility alias 或自动 uninstall。

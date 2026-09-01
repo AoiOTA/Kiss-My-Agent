@@ -1,42 +1,39 @@
 # Extending KISS My Agent
 
-[README](../README.md) · [Installation](INSTALLATION.md) · [Configuration](CONFIGURATION.md) · [FAQ](FAQ.md) · [Contributing](../CONTRIBUTING.md)
+[English](EXTENDING.md) | [简体中文](EXTENDING.zh-CN.md)
 
-Extend the repository only when a current recurring ambiguity is not already covered. The objective is better decisions with less mechanism, not a larger handbook.
+[README](../README.md) · [Testing](TESTING.md) · [Contributing](../CONTRIBUTING.md)
 
-## Choose the owner
+<a id="scope"></a>
+## Scope
+
+Extend the repository only when a current recurring ambiguity is not covered. The goal is better decisions with less mechanism, not a larger handbook.
+
+<a id="choose-owner"></a>
+## Choose the Owner
 
 - Change [`AGENTS.md`](../AGENTS.md) only for a short, permanent, broadly applicable boundary.
-- Change a Rule when a recurring decision needs a reusable method across several concrete situations.
-- Add or change a Case when one contrast makes an existing Rule materially easier to apply.
-- Change role TOML only when role ownership, model availability, or sandbox behavior actually changes.
-- Change installation or FAQ documentation when user-facing adoption facts change.
+- Change a Rule when several current situations need the same reusable decision method.
+- Add or revise a Case when one concrete contrast makes an existing Rule easier to apply.
+- Change role TOML only when role ownership or real runtime needs change.
+- Change developer docs when installation, configuration, testing, security, or contribution facts change.
 
-Do not duplicate the same rule across these owners. Rules extend `AGENTS.md`; Cases illustrate Rules without redefining them.
+Do not duplicate one fact across owners. Rules extend `AGENTS.md`; Cases illustrate Rules without redefining them.
 
-## Preserve precise routing
+<a id="preserve-routing"></a>
+## Preserve Precise Routing
 
-[`SKILL.md`](../.agents/skills/kiss-my-agent/SKILL.md) must remain non-catch-all. Its description should trigger only for:
+[`SKILL.md`](../.agents/skills/kiss-my-agent/SKILL.md) must remain non-catch-all. Routine implementation, mechanical edits, tests, builds, Git operations, lookups, and formatting stay outside the Skill. One ambiguity routes to one Rule and, only when useful, one Case.
 
-- non-obvious persistent or shared mechanisms;
-- local repair versus a new system;
-- experiment validity or evidence strength;
-- runtime versus evaluator ambiguity; or
-- material scope or acceptance expansion.
-
-Routine implementation, small fixes, mechanical edits, tests, builds, Git operations, lookups, and formatting remain outside the skill.
-
-The entrypoint routes one ambiguity to exactly one Rule and, only if useful, one matching Case. Do not require reading every reference.
-
+<a id="add-rule"></a>
 ## Add a Rule
 
-Before adding a Rule, identify at least two current situations that need the same decision method and show why `AGENTS.md` is too compact an owner. Keep it incremental: do not restate permanent rules, role instructions, or another Rule. Link it from `SKILL.md` only when the trigger can select it precisely.
+Identify at least two current situations needing the same method and explain why a permanent AGENTS boundary is insufficient. Keep the addition incremental, link it from the Skill only when the trigger can select it precisely, and avoid repeating existing failure, evidence, or ownership guidance.
 
-The engineering Rule owns the silent Rent Test, twelve mechanism semantics, local-versus-system reasoning, failure ownership, review questions, goal boundaries, and stopping. The evidence Rule owns experiment design, valid versus invalid outcomes, stale-artifact discrimination, runtime/evaluator comparisons, replay versus recollection, evidence ownership, and artifact placement.
-
+<a id="add-case"></a>
 ## Add a Case
 
-A Case has exactly these sections:
+A Case keeps this exact section order:
 
 1. Goal
 2. Consumer
@@ -45,24 +42,33 @@ A Case has exactly these sections:
 5. Deletion counterfactual
 6. Legitimate exception
 
-It must illustrate an existing Rule without creating new requirements. Prefer revising an existing Case when the semantic contrast is already represented.
+It illustrates an existing Rule and creates no new requirement. Revise an existing Case when the same semantic contrast is already present.
 
-## Update roles or model settings
+<a id="update-runtime-docs"></a>
+## Update Runtime and Docs
 
-Keep each role file limited to its role-specific increment. Models, reasoning efforts, and sandbox modes are editable examples; preserve a clear role purpose and use values supported by the target host. The validator checks schema and valid sandbox syntax instead of a fixed tuple.
+When changing registrations or role settings, keep `.codex/config.toml`, `.codex/agents/`, Configuration, Testing, both READMEs, and the annotated example consistent. Do not add model fallback, permission fallback, preset matrices, or compatibility wrappers without a current consumer.
 
-When changing user-facing runtime guidance, keep [Configuration](CONFIGURATION.md), the annotated [`config.example.toml`](../examples/config.example.toml), the prefixed `kiss_*` role names, and both README summaries consistent. Do not add an active project `config.toml`, automatic model fallback, preset matrix, or compatibility wrapper.
+When changing an English developer document, update its Simplified Chinese companion with the same explicit anchor IDs, section order, and fenced command blocks. Codex-facing AGENTS, Skill, Rules, Cases, role TOML, `LICENSE`, and `CODE_OF_CONDUCT.md` remain English.
 
+<a id="validate"></a>
 ## Validate
+
+Linux or macOS:
 
 ```bash
 ./scripts/validate.sh
 ```
 
-Also inspect the rendered READMEs when navigation, badges, Mermaid, or the hero changes. Static checks cannot establish agent behavior or research validity.
+Windows native PowerShell:
 
-For discovery changes, use a new authenticated session in the repository clone. Do not add a copied `CODEX_HOME`, sandbox fixture, compatibility workspace, or persistent test installation.
+```powershell
+.\scripts\validate.ps1
+```
 
-## Stop boundary
+Inspect rendered Markdown when navigation, tables, badges, Mermaid, or assets change. Use a trusted new Codex session for discovery changes; old sessions are not guaranteed to hot-load.
 
-Stop after the new ambiguity is resolved with the smallest clear instruction. Do not add adjacent governance, installation automation, telemetry, scoring, release machinery, or speculative compatibility.
+<a id="stop-boundary"></a>
+## Stop Boundary
+
+Stop after the ambiguity is resolved with the smallest clear addition. Do not add adjacent governance, installation automation, telemetry, scoring, release machinery, or speculative compatibility.

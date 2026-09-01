@@ -1,0 +1,44 @@
+name: Validate
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate with Python
+        run: python scripts/validate.py
+
+      - name: Validate POSIX wrapper
+        if: runner.os != 'Windows'
+        run: ./scripts/validate.sh
+
+      - name: Validate Windows PowerShell wrapper
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: ./scripts/validate.ps1
+
+      - name: Validate PowerShell wrapper
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./scripts/validate.ps1
