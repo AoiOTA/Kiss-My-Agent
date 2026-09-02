@@ -58,21 +58,13 @@ class SetupContractTests(unittest.TestCase):
 
     def test_entrypoint_declares_static_runtime_execution_contract(self) -> None:
         """Static source assertions do not prove Host runtime behavior."""
+        self.assertIn("preserve linked relative-path text", self.skill)
         self.assertIn(
-            "resolve each link relative to the exact file containing that link",
+            "from the directory of the file containing its link",
             self.skill,
         )
-        self.assertIn(
-            "entrypoint links relative to the exact `SKILL.md` loaded",
-            self.skill,
-        )
-        self.assertIn("after opening a reference", self.skill)
-        self.assertIn("resolve its links relative to that reference file", self.skill)
-        self.assertIn("Never rebase nested links onto `SKILL.md`", self.skill)
-        self.assertIn(
-            "reconstruct or infer cache, marketplace, plugin, or version path components",
-            self.skill,
-        )
+        self.assertIn("reuse an already resolved exact path unchanged", self.skill)
+        self.assertIn("never repeatedly transcribe", self.skill)
         self.assertIn("lifecycle filesystem operations serially", self.skill)
         self.assertIn("one simple direct file operation per tool call", self.skill)
         self.assertIn(
