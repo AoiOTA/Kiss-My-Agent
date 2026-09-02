@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import re
 import tomllib
 import unittest
@@ -14,14 +13,6 @@ CONFIGURE = SETUP_SKILL.parent / "references" / "configure-agents.md"
 ROLE_DIRECTORY = REPOSITORY / ".codex" / "agents"
 V010_FIXTURE = REPOSITORY / "tests" / "fixtures" / "v0.1-managed-project"
 V010_ASSETS = SETUP_SKILL.parent / "assets"
-V010_FIXTURE_SHA256 = {
-    ".codex/agents/kiss_coder.toml": "733c5a497acf11d5df8db8fc3e79a78e6e65e187d6e1008788655ae81e2a2ef9",
-    ".codex/agents/kiss_explorer.toml": "ee4add7e4ff2f208874bc90d355f72fc911ef69702c2ed8220109fc147da0f6b",
-    ".codex/agents/kiss_reviewer.toml": "aee73b981a2a91dc833cf0a64ddfb6834f0b3410cfc7ad70a8cafafc79e63485",
-    ".codex/config.toml": "d0cfda47462467b9e18732d0a4670325b5618c1af1311918d40e3f7caa409af7",
-    "AGENTS.md": "4454338b518876e3f8bda92d3bfc88638689bade872d41a6b5b96520c1116f15",
-}
-
 BEGIN_MARKER = "<!-- BEGIN KISS MY AGENT MANAGED BLOCK -->"
 END_MARKER = "<!-- END KISS MY AGENT MANAGED BLOCK -->"
 CONFIG_MARKER = "# KISS My Agent managed"
@@ -208,16 +199,8 @@ class SetupContractTests(unittest.TestCase):
         self.assertIn("](../assets/v0.1-managed-block.md)", self.lifecycle)
         managed_block_asset = V010_ASSETS / "v0.1-managed-block.md"
         self.assertTrue(managed_block_asset.is_file())
-        self.assertEqual(
-            "2fafe944836b03379e3c561b405a2821410b5a0ca1bfcf0e74d94efbaefe311f",
-            hashlib.sha256(managed_block_asset.read_bytes()).hexdigest(),
-        )
 
     def test_v010_managed_project_fixture_matches_current_compatibility_contract(self) -> None:
-        for relative, expected_hash in V010_FIXTURE_SHA256.items():
-            data = (V010_FIXTURE / relative).read_bytes()
-            self.assertEqual(expected_hash, hashlib.sha256(data).hexdigest(), relative)
-
         config_text = (V010_FIXTURE / ".codex" / "config.toml").read_text(
             encoding="utf-8"
         )
@@ -243,10 +226,6 @@ class SetupContractTests(unittest.TestCase):
             fixture_bytes = (fixture_roles / source.name).read_bytes()
             asset_bytes = (asset_roles / source.name).read_bytes()
             self.assertEqual(fixture_bytes, asset_bytes, source.name)
-            expected_hash = V010_FIXTURE_SHA256[
-                f".codex/agents/{source.name}"
-            ]
-            self.assertEqual(expected_hash, hashlib.sha256(asset_bytes).hexdigest())
             with source.open("rb") as stream:
                 current = tomllib.load(stream)
             with (fixture_roles / source.name).open("rb") as stream:

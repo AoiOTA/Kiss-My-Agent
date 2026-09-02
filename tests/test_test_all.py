@@ -56,46 +56,65 @@ class GitStateTests(unittest.TestCase):
 
     def test_detects_tracked_content_change_with_same_dirty_status(self) -> None:
         tracked = self.repository / "tracked.txt"
-        tracked.write_text("dirty before\n", encoding="utf-8")
+        tracked.write_bytes(b"dirty before\n")
         before = self.state()
+        before_size = tracked.stat().st_size
         self.assertEqual(self.git("status", "--porcelain=v1", "-z"), b" M tracked.txt\0")
 
-        tracked.write_text("dirty after\n", encoding="utf-8")
+        tracked.write_bytes(b"dirty after!\n")
 
+        self.assertEqual(tracked.stat().st_size, before_size)
         self.assertEqual(self.git("status", "--porcelain=v1", "-z"), b" M tracked.txt\0")
         self.assertNotEqual(self.state(), before)
 
     def test_detects_existing_untracked_content_change(self) -> None:
         untracked = self.repository / "notes.txt"
-        untracked.write_text("before\n", encoding="utf-8")
+        untracked.write_bytes(b"before\n")
         before = self.state()
+        before_size = untracked.stat().st_size
         self.assertEqual(self.git("status", "--porcelain=v1", "-z"), b"?? notes.txt\0")
 
-        untracked.write_text("after\n", encoding="utf-8")
+        untracked.write_bytes(b"after!\n")
 
+        self.assertEqual(untracked.stat().st_size, before_size)
         self.assertEqual(self.git("status", "--porcelain=v1", "-z"), b"?? notes.txt\0")
         self.assertNotEqual(self.state(), before)
 
     def test_detects_index_content_change_with_same_dirty_status(self) -> None:
         tracked = self.repository / "tracked.txt"
-        tracked.write_text("index before\n", encoding="utf-8")
+        tracked.write_bytes(b"index before\n")
         self.git("add", "tracked.txt")
-        tracked.write_text("working tree\n", encoding="utf-8")
+        tracked.write_bytes(b"working tree\n")
         before = self.state()
         self.assertEqual(self.git("status", "--porcelain=v1", "-z"), b"MM tracked.txt\0")
 
-        blob = subprocess.run(
-            ["git", "hash-object", "-w", "--stdin"],
-            cwd=self.repository,
-            env=self.environment,
-            check=True,
-            input=b"index after\n",
-            stdout=subprocess.PIPE,
-        ).stdout.strip()
-        self.git("update-index", "--cacheinfo", f"100644,{blob.decode()},tracked.txt")
+        tracked.write_bytes(b"index after!\n")
+        self.git("add", "tracked.txt")
+        tracked.write_bytes(b"working tree\n")
 
         self.assertEqual(self.git("status", "--porcelain=v1", "-z"), b"MM tracked.txt\0")
         self.assertNotEqual(self.state(), before)
+
+    def test_regular_file_state_keeps_complete_bytes(self) -> None:
+        payload = b"\x00full content\xff\n"
+        (self.repository / "payload.bin").write_bytes(payload)
+
+        with mock.patch.object(test_all, "ROOT", self.repository):
+            _kind, _executable, content = test_all.path_state(b"payload.bin")
+
+        self.assertEqual(content, payload)
+
+    def test_symlink_state_keeps_complete_target(self) -> None:
+        target = b"../target with spaces"
+        metadata = mock.Mock(st_mode=test_all.stat.S_IFLNK | 0o777)
+
+        with (
+            mock.patch.object(test_all.os, "lstat", return_value=metadata),
+            mock.patch.object(test_all.os, "readlink", return_value=target),
+        ):
+            _kind, _executable, content = test_all.path_state(b"link")
+
+        self.assertEqual(content, target)
 
     def test_main_allows_unchanged_dirty_tree(self) -> None:
         (self.repository / "tracked.txt").write_text("dirty\n", encoding="utf-8")

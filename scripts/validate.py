@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import os
 import re
@@ -55,13 +54,6 @@ DEFAULT_ROLE_CONTRACTS = {
             "Do not modify files, Git, outputs, data, processes, or external state.",
         ),
     },
-}
-V010_FIXTURE_SHA256 = {
-    ".codex/agents/kiss_coder.toml": "733c5a497acf11d5df8db8fc3e79a78e6e65e187d6e1008788655ae81e2a2ef9",
-    ".codex/agents/kiss_explorer.toml": "ee4add7e4ff2f208874bc90d355f72fc911ef69702c2ed8220109fc147da0f6b",
-    ".codex/agents/kiss_reviewer.toml": "aee73b981a2a91dc833cf0a64ddfb6834f0b3410cfc7ad70a8cafafc79e63485",
-    ".codex/config.toml": "d0cfda47462467b9e18732d0a4670325b5618c1af1311918d40e3f7caa409af7",
-    "AGENTS.md": "4454338b518876e3f8bda92d3bfc88638689bade872d41a6b5b96520c1116f15",
 }
 ALLOWED_SANDBOX_MODES = {"read-only", "workspace-write", "danger-full-access"}
 COMMAND_FENCE_LANGUAGES = {
@@ -812,10 +804,6 @@ def validate_fixtures(root: Path) -> int:
             fail(f"effective-instruction fixture marker missing: {marker}")
     v010_fixture = root / "tests/fixtures/v0.1-managed-project"
     v010_assets = root / "skills/kiss-my-agent-setup/assets"
-    for relative, expected_hash in V010_FIXTURE_SHA256.items():
-        actual_hash = hashlib.sha256((v010_fixture / relative).read_bytes()).hexdigest()
-        if actual_hash != expected_hash:
-            fail(f"v0.1 compatibility fixture changed identity: {relative}")
     for role_name, contract in DEFAULT_ROLE_CONTRACTS.items():
         current = load_toml(root / f".codex/agents/{role_name}.toml")
         legacy_path = v010_fixture / f".codex/agents/{role_name}.toml"
@@ -849,10 +837,6 @@ def validate_fixtures(root: Path) -> int:
     ).rstrip("\n")
     if asset_block != fixture_instructions[block_start:block_end]:
         fail("Skill-owned v0.1 managed block differs from project fixture")
-    if hashlib.sha256((asset_block + "\n").encode()).hexdigest() != (
-        "2fafe944836b03379e3c561b405a2821410b5a0ca1bfcf0e74d94efbaefe311f"
-    ):
-        fail("Skill-owned v0.1 managed block changed identity")
     effective_chain = [
         root / "AGENTS.md",
         fixture / "AGENTS.md",

@@ -93,9 +93,16 @@ class BuildSiteTests(unittest.TestCase):
         self.assertIn("justify-content: center", stylesheet)
 
     def test_repository_files_and_directories_use_blob_and_tree(self) -> None:
-        links = [link.get("href", "") for link in self.inspect("index.html").links]
-        self.assertIn("https://github.com/AoiOTA/Kiss-My-Agent/blob/main/LICENSE", links)
-        self.assertIn("https://github.com/AoiOTA/Kiss-My-Agent/tree/main/.codex/agents", links)
+        routes, _ = build_site.document_routes()
+        rewriter = build_site.LinkRewriter("README.md", routes["README.md"], routes)
+        self.assertEqual(
+            rewriter.rewrite("LICENSE"),
+            "https://github.com/AoiOTA/Kiss-My-Agent/blob/main/LICENSE",
+        )
+        self.assertEqual(
+            rewriter.rewrite(".codex/agents/"),
+            "https://github.com/AoiOTA/Kiss-My-Agent/tree/main/.codex/agents",
+        )
 
     def test_every_local_link_and_fragment_is_closed(self) -> None:
         routes, counterparts = build_site.document_routes()

@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import hashlib
 import importlib.util
 import os
 import stat
@@ -46,14 +45,13 @@ def path_state(relative_path: bytes) -> tuple[int | None, int, bytes]:
 
     kind = stat.S_IFMT(metadata.st_mode)
     executable = metadata.st_mode & 0o111
-    digest = hashlib.sha256()
     if stat.S_ISREG(metadata.st_mode):
-        with open(path, "rb") as source:
-            for chunk in iter(lambda: source.read(1024 * 1024), b""):
-                digest.update(chunk)
+        content = Path(os.fsdecode(path)).read_bytes()
     elif stat.S_ISLNK(metadata.st_mode):
-        digest.update(os.readlink(path))
-    return kind, executable, digest.digest()
+        content = os.readlink(path)
+    else:
+        content = b""
+    return kind, executable, content
 
 
 def git_state(
