@@ -78,9 +78,20 @@ class SetupContractTests(unittest.TestCase):
         self.assertIn("do not batch or parallelize them", self.skill)
         self.assertIn("do not generate compound shell commands", self.skill)
         self.assertIn("suppress diagnostics", self.skill)
+        self.assertIn("one planned target per edit call", self.skill)
+        self.assertIn("exactly one edit operation for that path", self.skill)
+        self.assertIn("update an existing file in place", self.skill)
+        self.assertIn(
+            "never combine add, delete, or update operations for the same path",
+            self.skill,
+        )
         self.assertIn("Inspect and interpret each tool or subprocess status", self.skill)
         self.assertIn("tool or subprocess failure", self.skill)
         self.assertIn("unexpected nonzero status", self.skill)
+        self.assertIn("stops forward work", self.skill)
+        self.assertIn("If no target has been mutated, return immediately", self.skill)
+        self.assertIn("selected reference's guarded rollback or cleanup", self.skill)
+        self.assertIn("original failure plus any rollback failure", self.skill)
         self.assertIn("expected absence or no-match is not a failure", self.skill)
         self.assertIn("explicitly interpret and report it", self.skill)
 
