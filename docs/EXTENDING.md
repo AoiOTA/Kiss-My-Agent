@@ -24,7 +24,7 @@ Do not duplicate one fact across owners. Rules extend `AGENTS.md`; Cases illustr
 <a id="preserve-routing"></a>
 ## Preserve Precise Routing
 
-The plugin-owned `$kiss-my-agent` Skill must remain non-catch-all. Routine implementation, mechanical edits, tests, builds, Git operations, lookups, and formatting stay outside the Skill. One ambiguity routes to one Rule and, only when useful, one Case. Keep `$kiss-my-agent-setup` separate and limited to explicit setup/check/remove operations.
+The plugin-owned `$kiss-my-agent` Skill must remain non-catch-all. Routine implementation, mechanical edits, tests, builds, Git operations, lookups, and formatting stay outside the Skill. One ambiguity routes to one Rule and, only when useful, one Case. Keep `$kiss-my-agent-setup` separate and limited to explicit setup/check/configure/remove operations.
 
 <a id="add-rule"></a>
 ## Add a Rule
@@ -48,36 +48,23 @@ It illustrates an existing Rule and creates no new requirement. Revise an existi
 <a id="update-runtime-docs"></a>
 ## Update Runtime and Docs
 
-When changing public switches, standalone role discovery, or setup scope, keep `.codex/config.toml`, `.codex/agents/`, plugin metadata, setup implementation, Configuration, Installation, Testing, both READMEs, and the annotated example consistent. `.codex/config.toml` owns only the two public enablement switches and never enumerates role files. The three seeds are not a closed catalog, and model/effort remain Host-inherited when omitted. Do not add model fallback, permission fallback, preset matrices, or compatibility wrappers without a current consumer.
+When changing public switches, standalone role discovery, or setup scope, keep `.codex/config.toml`, `.codex/agents/`, plugin metadata, the Agent-native setup references, Configuration, Installation, Testing, both READMEs, and the annotated example consistent. `.codex/config.toml` owns four paths: the paired first-setup master defaults `gpt-5.6-sol` / `max` and the two public enablement switches; it never enumerates role files. The editable seeds explicitly default to `gpt-5.6-sol` / `high` for explorer and coder and `gpt-5.6-sol` / `xhigh` for reviewer. They are not a closed catalog, and user-modified roles remain user-owned. Do not add model fallback, permission fallback, preset matrices, or compatibility wrappers without a current consumer.
 
 When changing an English developer document, update its Simplified Chinese companion with the same explicit anchor IDs, section order, and fenced command blocks. Codex-facing AGENTS, Skill, Rules, Cases, role TOML, `LICENSE`, and `CODE_OF_CONDUCT.md` remain English.
 
 <a id="validate"></a>
 ## Validate
 
-Linux or macOS:
+Plugin/Skill-only changes can run the dependency-free local core checks. Pull-request CI owns the complete cross-platform and site suite:
 
 ```bash
-./scripts/validate.sh
-```
-
-Windows native PowerShell:
-
-```powershell
-.\scripts\validate.ps1
+python scripts/validate.py
+python -m unittest tests.test_setup -v
 ```
 
 Inspect rendered Markdown when navigation, tables, badges, Mermaid, or assets change. Use a trusted new Codex session for discovery changes; old sessions are not guaranteed to hot-load.
 
-For Pages changes, build and test locally before deployment, then verify the deployed English root and Chinese `zh-CN/` URLs:
-
-```bash
-python3 -m pip install -r requirements-site.txt
-python3 -m unittest tests.test_build_site
-python3 scripts/build_site.py --output _site
-```
-
-Keep README language links pointed at verified Pages URLs; do not replace them with unverified deployment targets.
+For Pages changes, inspect the isolated build produced by the suite before deployment, then verify the deployed English root and Chinese `zh-CN/` URLs. Keep README language links pointed at verified Pages URLs; do not replace them with unverified deployment targets.
 
 <a id="stop-boundary"></a>
 ## Stop Boundary

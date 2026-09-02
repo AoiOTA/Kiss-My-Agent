@@ -3,5 +3,6 @@
 session-*.jsonl
 codex-tui.log
 /_site/
+.venv/
 __pycache__/
 *.py[cod]

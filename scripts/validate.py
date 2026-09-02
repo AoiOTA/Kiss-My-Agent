@@ -5,8 +5,10 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import struct
+import subprocess
 import sys
 from pathlib import Path
 
@@ -24,6 +26,8 @@ PROJECT_PAGES = "https://aoiota.github.io/Kiss-My-Agent/"
 PROJECT_PAGES_ZH = f"{PROJECT_PAGES}zh-CN/"
 DEFAULT_ROLE_CONTRACTS = {
     "kiss_explorer": {
+        "model": "gpt-5.6-sol",
+        "model_reasoning_effort": "high",
         "sandbox_mode": "read-only",
         "instruction_fragments": (
             "Investigate only the assigned",
@@ -31,6 +35,8 @@ DEFAULT_ROLE_CONTRACTS = {
         ),
     },
     "kiss_coder": {
+        "model": "gpt-5.6-sol",
+        "model_reasoning_effort": "high",
         "sandbox_mode": "workspace-write",
         "instruction_fragments": (
             "Implement only the assigned",
@@ -39,6 +45,8 @@ DEFAULT_ROLE_CONTRACTS = {
         ),
     },
     "kiss_reviewer": {
+        "model": "gpt-5.6-sol",
+        "model_reasoning_effort": "xhigh",
         "sandbox_mode": "read-only",
         "instruction_fragments": (
             "Independently review only the assigned",
@@ -97,9 +105,14 @@ def require_files(root: Path) -> None:
         "CODE_OF_CONDUCT.md",
         "SECURITY.md",
         "SECURITY.zh-CN.md",
+        ".editorconfig",
         ".gitattributes",
         ".gitignore",
+        ".github/CODEOWNERS",
         ".github/ISSUE_TEMPLATE/bug-report.md",
+        ".github/ISSUE_TEMPLATE/config.yml",
+        ".github/ISSUE_TEMPLATE/documentation.md",
+        ".github/ISSUE_TEMPLATE/feature-request.md",
         ".github/ISSUE_TEMPLATE/rule-or-case-proposal.md",
         ".github/PULL_REQUEST_TEMPLATE.md",
         ".github/workflows/validate.yml",
@@ -118,7 +131,12 @@ def require_files(root: Path) -> None:
         "skills/kiss-my-agent/references/cases/product-contract-provenance-vs-agent-proof.md",
         "skills/kiss-my-agent/references/cases/verification-coordination-vs-workflow-platform.md",
         "skills/kiss-my-agent-setup/SKILL.md",
-        "skills/kiss-my-agent-setup/scripts/setup.py",
+        "skills/kiss-my-agent-setup/assets/v0.1-agents/kiss_explorer.toml",
+        "skills/kiss-my-agent-setup/assets/v0.1-agents/kiss_coder.toml",
+        "skills/kiss-my-agent-setup/assets/v0.1-agents/kiss_reviewer.toml",
+        "skills/kiss-my-agent-setup/assets/v0.1-managed-block.md",
+        "skills/kiss-my-agent-setup/references/setup-lifecycle.md",
+        "skills/kiss-my-agent-setup/references/configure-agents.md",
         "assets/kiss-my-agent-hero.png",
         "examples/config.example.toml",
         "requirements-site.txt",
@@ -127,10 +145,17 @@ def require_files(root: Path) -> None:
         "tests/fixtures/layered-project/AGENTS.md",
         "tests/fixtures/layered-project/component-a/AGENTS.md",
         "tests/fixtures/layered-project/component-b/subsystem/AGENTS.override.md",
+        "tests/fixtures/v0.1-managed-project/.codex/config.toml",
+        "tests/fixtures/v0.1-managed-project/.codex/agents/kiss_explorer.toml",
+        "tests/fixtures/v0.1-managed-project/.codex/agents/kiss_coder.toml",
+        "tests/fixtures/v0.1-managed-project/.codex/agents/kiss_reviewer.toml",
+        "tests/fixtures/v0.1-managed-project/AGENTS.md",
         "tests/scenarios.md",
         "tests/test_build_site.py",
         "tests/test_setup.py",
+        "tests/test_test_all.py",
         "scripts/build_site.py",
+        "scripts/test_all.py",
         "scripts/validate.py",
         "scripts/validate.sh",
         "scripts/validate.ps1",
@@ -152,8 +177,15 @@ def validate_retired_paths(root: Path) -> None:
 def validate_repository_config(root: Path) -> None:
     config_path = root / ".codex/config.toml"
     config = load_toml(config_path)
-    if set(config) != {"features", "agents"}:
-        fail(".codex/config.toml must contain only the features and agents tables")
+    if set(config) != {"model", "model_reasoning_effort", "features", "agents"}:
+        fail(
+            ".codex/config.toml must contain only the master model/effort and "
+            "the features and agents tables"
+        )
+    if config["model"] != "gpt-5.6-sol":
+        fail(".codex/config.toml must set master model = 'gpt-5.6-sol'")
+    if config["model_reasoning_effort"] != "max":
+        fail(".codex/config.toml must set master model_reasoning_effort = 'max'")
     features = config["features"]
     if not isinstance(features, dict) or set(features) != {"multi_agent"}:
         fail(".codex/config.toml features table must contain only multi_agent")
@@ -217,11 +249,14 @@ def validate_roles(root: Path) -> None:
                 f"default role {role_name} must set sandbox_mode = "
                 f"{contract['sandbox_mode']!r}"
             )
-        forbidden_model_keys = {"model", "model_reasoning_effort"} & set(data)
-        if forbidden_model_keys:
+        if data.get("model") != contract["model"]:
             fail(
-                f"default role {role_name} must inherit Host model and reasoning effort; "
-                f"remove {sorted(forbidden_model_keys)}"
+                f"default role {role_name} must set model = {contract['model']!r}"
+            )
+        if data.get("model_reasoning_effort") != contract["model_reasoning_effort"]:
+            fail(
+                f"default role {role_name} must set model_reasoning_effort = "
+                f"{contract['model_reasoning_effort']!r}"
             )
         instructions = data["developer_instructions"]
         missing_fragments = [
@@ -355,9 +390,72 @@ def validate_setup_interface(root: Path) -> None:
         fail("unexpected setup skill name")
     if not fields.get("description"):
         fail("empty setup skill description")
-    for token in ("setup", "check", "remove", "--scope", "--target", "--codex-home"):
+    for token in ("setup", "check", "remove", "configure", "project", "global"):
         if token not in skill:
             fail(f"setup skill interface missing: {token}")
+    links = set(re.findall(r"\[[^\]\n]+\]\(([^)]+)\)", skill))
+    expected_links = {
+        "references/setup-lifecycle.md",
+        "references/configure-agents.md",
+    }
+    if links != expected_links:
+        fail("setup skill must route exactly to its lifecycle and configuration references")
+    scripts = skill_path.parent / "scripts"
+    published_sources = [] if not scripts.exists() else [
+        path
+        for path in scripts.rglob("*")
+        if path.is_file()
+        and "__pycache__" not in path.parts
+        and path.suffix != ".pyc"
+    ]
+    if published_sources:
+        fail("setup skill must not require bundled executable scripts")
+    lifecycle = (skill_path.parent / "references/setup-lifecycle.md").read_text(
+        encoding="utf-8"
+    )
+    for token in (
+        "The master owns orchestration",
+        "must delegate delegable bulk exploration",
+        "Multiple instances of any role",
+        "Coordination is flat by default",
+        "independent subsystem needs substantial parallel work",
+        "direct aggregation would pollute the master's context",
+        "bounded department-lead assignment",
+        "workers must not delegate again",
+        "at most one intermediate management layer",
+        "no deep nesting",
+        "must not silently take over delegated work",
+        "ordinary single-conversation execution",
+        "executive-only workflow cannot staff delegated work",
+        "Static setup cannot observe a higher-precedence `false`",
+        "known v0.1 seed",
+        "first-setup defaults, not enforcement",
+        "all four managed config paths",
+        "four managed config assignment lines",
+        "only when both top-level keys are absent",
+        "leave the missing key absent as intentional inheritance",
+        "one or both missing keys are intentional user changes",
+        "explicit value or `inherit`",
+        "Never silently substitute a fallback model or effort",
+        "Any difference from both the current and known v0.1 exact seeds",
+        "either the current bundled seed or the corresponding known v0.1 seed",
+    ):
+        if token not in lifecycle:
+            fail(f"setup lifecycle compatibility contract missing: {token}")
+    configure = (skill_path.parent / "references/configure-agents.md").read_text(
+        encoding="utf-8"
+    )
+    for token in (
+        "<unique Host project or active workspace root>/.codex/agents",
+        "non-empty `CODEX_HOME`",
+        "multiple roots or no unique root",
+        "absolute role-directory path",
+        "agents.default_subagent_model",
+        "agents.default_subagent_reasoning_effort",
+        "reapplies the parent turn's live sandbox and approval overrides",
+    ):
+        if token not in configure:
+            fail(f"Agent configuration contract missing: {token}")
 
 
 def validate_site_interfaces(root: Path) -> None:
@@ -379,12 +477,74 @@ def validate_site_interfaces(root: Path) -> None:
     workflow = (root / ".github/workflows/pages.yml").read_text(encoding="utf-8")
     for token in (
         "scripts/build_site.py",
-        "actions/configure-pages@",
-        "actions/upload-pages-artifact@",
-        "actions/deploy-pages@",
+        "actions/checkout@v7",
+        "actions/setup-python@v7",
+        "actions/configure-pages@v6",
+        "actions/upload-pages-artifact@v5",
+        "actions/deploy-pages@v5",
     ):
         if token not in workflow:
             fail(f"Pages workflow interface missing: {token}")
+
+    validation_workflow = (root / ".github/workflows/validate.yml").read_text(
+        encoding="utf-8"
+    )
+    for token in (
+        'python: ["3.11", "3.12"]',
+        "actions/checkout@v7",
+        "actions/setup-python@v7",
+        "python scripts/test_all.py",
+        "requirements-site.txt",
+    ):
+        if token not in validation_workflow:
+            fail(f"validation workflow interface missing: {token}")
+
+
+def validate_collaboration_interfaces(root: Path) -> None:
+    codeowners = (root / ".github/CODEOWNERS").read_text(encoding="utf-8").strip()
+    if codeowners != "* @AoiOTA":
+        fail("CODEOWNERS must route repository review to @AoiOTA")
+
+    editorconfig = (root / ".editorconfig").read_text(encoding="utf-8")
+    for token in ("root = true", "charset = utf-8", "end_of_line = lf"):
+        if token not in editorconfig:
+            fail(f"editor configuration interface missing: {token}")
+
+    chooser = (root / ".github/ISSUE_TEMPLATE/config.yml").read_text(encoding="utf-8")
+    for token in (
+        "blank_issues_enabled: false",
+        "/discussions/categories/q-a",
+        "/discussions/categories/ideas",
+        "/security/advisories/new",
+    ):
+        if token not in chooser:
+            fail(f"issue chooser interface missing: {token}")
+
+    for relative in (
+        ".github/ISSUE_TEMPLATE/bug-report.md",
+        ".github/ISSUE_TEMPLATE/documentation.md",
+        ".github/ISSUE_TEMPLATE/feature-request.md",
+        ".github/ISSUE_TEMPLATE/rule-or-case-proposal.md",
+    ):
+        template = (root / relative).read_text(encoding="utf-8")
+        if not re.match(r"\A---\n.*?\n---\n", template, re.DOTALL):
+            fail(f"issue template frontmatter missing: {relative}")
+
+    contributing = (root / "CONTRIBUTING.md").read_text(encoding="utf-8")
+    for token in (
+        "python3 scripts/validate.py",
+        "tests.test_setup",
+        "python scripts/test_all.py",
+        "Dogfooding KISS My Agent",
+        "Squash and merge",
+        "v0.2.0 Release Process",
+    ):
+        if token not in contributing:
+            fail(f"contributor interface missing: {token}")
+
+    security = (root / "SECURITY.md").read_text(encoding="utf-8")
+    if "supports only its latest formal GitHub Release" not in security:
+        fail("security policy must identify the supported release policy")
 
 
 def validate_example_config(root: Path) -> None:
@@ -403,6 +563,16 @@ def validate_example_config(root: Path) -> None:
         or not config["default_permissions"].strip()
     ):
         fail("invalid example config default_permissions")
+    if config.get("model") != "gpt-5.6-sol":
+        fail("example config must set the master model default")
+    if config.get("model_reasoning_effort") != "max":
+        fail("example config must set the master reasoning effort default")
+    features = config.get("features")
+    agents = config.get("agents")
+    if not isinstance(features, dict) or features.get("multi_agent") is not True:
+        fail("example config must enable features.multi_agent")
+    if not isinstance(agents, dict) or agents.get("enabled") is not True:
+        fail("example config must enable agents.enabled")
     workspace_write = config.get("sandbox_workspace_write")
     if workspace_write is not None:
         if not isinstance(workspace_write, dict):
@@ -427,6 +597,8 @@ def validate_skill(root: Path) -> None:
         fail("unexpected skill name")
     if not fields.get("description"):
         fail("empty skill description")
+    if "reversible probe" not in fields["description"]:
+        fail("skill description missing the reversible-probe decision trigger")
 
     skill_links = set(re.findall(r"\[[^\]\n]+\]\(([^)]+)\)", skill))
     expected_links = {
@@ -585,7 +757,8 @@ def validate_document_interfaces(root: Path) -> None:
         "kiss_reviewer",
         "AGENTS.override.md",
         "codex plugin marketplace add",
-        "scripts/setup.py",
+        "configure agents for this project",
+        "codex plugin marketplace upgrade kiss-my-agent",
         "/skills",
     ):
         if interface_name not in installation:
@@ -600,6 +773,25 @@ def validate_document_interfaces(root: Path) -> None:
     ):
         if config_key not in configuration:
             fail(f"configuration key guidance missing: {config_key}")
+    for token in (
+        "model = \"gpt-5.6-sol\"",
+        "model_reasoning_effort = \"max\"",
+        "`kiss_explorer` | Read-only investigation | `gpt-5.6-sol` | `high`",
+        "`kiss_coder` | Bounded implementation and state changes | `gpt-5.6-sol` | `high`",
+        "`kiss_reviewer` | Independent read-only review | `gpt-5.6-sol` | `xhigh`",
+        "first-setup defaults, not enforcement",
+        "known v0.1 seed",
+        "parent turn's live sandbox and approval overrides",
+        "ordinary single-conversation execution",
+        "Coordination is flat by default",
+        "at most one intermediate management layer",
+        "bounded department-lead assignment",
+        "Every shared file or resource still has one writer or operator",
+        "highest-precedence CLI override",
+        "never silently substitutes a fallback model or effort",
+    ):
+        if token not in configuration:
+            fail(f"configuration behavior guidance missing: {token}")
 
 
 def validate_fixtures(root: Path) -> int:
@@ -612,6 +804,41 @@ def validate_fixtures(root: Path) -> int:
     for path, marker in fixture_markers.items():
         if marker not in path.read_text(encoding="utf-8"):
             fail(f"effective-instruction fixture marker missing: {marker}")
+    v010_fixture = root / "tests/fixtures/v0.1-managed-project"
+    v010_assets = root / "skills/kiss-my-agent-setup/assets"
+    for role_name, contract in DEFAULT_ROLE_CONTRACTS.items():
+        current = load_toml(root / f".codex/agents/{role_name}.toml")
+        legacy_path = v010_fixture / f".codex/agents/{role_name}.toml"
+        asset_path = v010_assets / f"v0.1-agents/{role_name}.toml"
+        if asset_path.read_bytes() != legacy_path.read_bytes():
+            fail(f"Skill-owned v0.1 seed differs from project fixture: {role_name}")
+        legacy = load_toml(legacy_path)
+        asset = load_toml(asset_path)
+        if asset.get("name") != role_name:
+            fail(f"Skill-owned v0.1 seed identity differs from filename: {role_name}")
+        if "model_reasoning_effort" in legacy or "model" in legacy:
+            fail(f"v0.1 role fixture contains a current model setting: {role_name}")
+        current_without_runtime_defaults = {
+            key: value
+            for key, value in current.items()
+            if key not in {"model", "model_reasoning_effort"}
+        }
+        if legacy != current_without_runtime_defaults:
+            fail(f"current role differs from v0.1 beyond seed model/effort: {role_name}")
+        if current.get("model") != contract["model"]:
+            fail(f"current role has unexpected model: {role_name}")
+        if current.get("model_reasoning_effort") != contract["model_reasoning_effort"]:
+            fail(f"current role has unexpected reasoning effort: {role_name}")
+    fixture_instructions = (v010_fixture / "AGENTS.md").read_text(encoding="utf-8")
+    begin = "<!-- BEGIN KISS MY AGENT MANAGED BLOCK -->"
+    end = "<!-- END KISS MY AGENT MANAGED BLOCK -->"
+    block_start = fixture_instructions.index(begin)
+    block_end = fixture_instructions.index(end, block_start) + len(end)
+    asset_block = (v010_assets / "v0.1-managed-block.md").read_text(
+        encoding="utf-8"
+    ).rstrip("\n")
+    if asset_block != fixture_instructions[block_start:block_end]:
+        fail("Skill-owned v0.1 managed block differs from project fixture")
     effective_chain = [
         root / "AGENTS.md",
         fixture / "AGENTS.md",
@@ -620,10 +847,55 @@ def validate_fixtures(root: Path) -> int:
     return sum(len(path.read_bytes()) for path in effective_chain)
 
 
+ARCHIVE_EXCLUDED_DIRECTORIES = {
+    ".cache",
+    ".git",
+    ".mypy_cache",
+    ".nox",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".tox",
+    ".venv",
+    "__pycache__",
+    "_site",
+    "cache",
+    "node_modules",
+    "venv",
+}
+
+
+def repository_paths(root: Path) -> list[Path]:
+    if (root / ".git").exists():
+        result = subprocess.run(
+            ["git", "ls-files", "--cached", "--others", "--exclude-standard", "-z"],
+            cwd=root,
+            check=True,
+            stdout=subprocess.PIPE,
+        )
+        return [
+            root / os.fsdecode(relative)
+            for relative in sorted(set(result.stdout.rstrip(b"\0").split(b"\0")))
+            if relative
+        ]
+
+    paths: list[Path] = []
+    for directory, names, filenames in os.walk(root):
+        names[:] = sorted(
+            name for name in names if name not in ARCHIVE_EXCLUDED_DIRECTORIES
+        )
+        base = Path(directory)
+        paths.extend(
+            base / name
+            for name in sorted(filenames)
+            if not name.endswith(".pyc")
+        )
+    return paths
+
+
 def repository_text_files(root: Path) -> list[Path]:
     text_files: list[Path] = []
-    for path in root.rglob("*"):
-        if not path.is_file() or ".git" in path.parts:
+    for path in repository_paths(root):
+        if not path.is_file():
             continue
         try:
             path.read_text(encoding="utf-8")
@@ -631,6 +903,22 @@ def repository_text_files(root: Path) -> list[Path]:
             continue
         text_files.append(path)
     return text_files
+
+
+def validate_trailing_whitespace(root: Path, text_files: list[Path]) -> None:
+    offenders: list[str] = []
+    for path in text_files:
+        for line_number, line in enumerate(
+            path.read_text(encoding="utf-8").splitlines(),
+            start=1,
+        ):
+            if line.endswith((" ", "\t")):
+                offenders.append(f"{path.relative_to(root)}:{line_number}")
+    if offenders:
+        fail(
+            "trailing whitespace violates .editorconfig:\n"
+            + "\n".join(offenders)
+        )
 
 
 def validate_hygiene(root: Path, text_files: list[Path]) -> None:
@@ -722,12 +1010,14 @@ def validate(root: Path) -> None:
     validate_distribution_interfaces(root)
     validate_setup_interface(root)
     validate_site_interfaces(root)
+    validate_collaboration_interfaces(root)
     validate_example_config(root)
     validate_skill(root)
     validate_bilingual_documents(root)
     validate_document_interfaces(root)
     chain_bytes = validate_fixtures(root)
     text_files = repository_text_files(root)
+    validate_trailing_whitespace(root, text_files)
     validate_hygiene(root, text_files)
     validate_relative_links(root, text_files)
     width, height, hero_bytes = validate_hero(root)

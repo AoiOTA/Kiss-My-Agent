@@ -6,169 +6,192 @@
 
 **Keep It Simple, Scientist. Less ceremony. More science.**
 
+减少 Codex 的过度设计和过度防御。先做出能运行、能验证的科研 MVP，让错误尽早暴露，再根据真实结果快速迭代。
+
 [English](https://aoiota.github.io/Kiss-My-Agent/) | [简体中文](https://aoiota.github.io/Kiss-My-Agent/zh-CN/)
 
 [![许可证：MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-![状态：早期阶段](https://img.shields.io/badge/status-early_stage-orange.svg)
+[![Validate](https://github.com/AoiOTA/Kiss-My-Agent/actions/workflows/validate.yml/badge.svg)](https://github.com/AoiOTA/Kiss-My-Agent/actions/workflows/validate.yml)
+![版本：v0.2.0](https://img.shields.io/badge/release-v0.2.0-blue.svg)
 ![宿主：Codex 优先](https://img.shields.io/badge/host-Codex--first-blue.svg)
 
 </div>
 
-<a id="overview"></a>
-## 概览
+<a id="why-this-exists"></a>
+## KISS My Agent 是什么
 
-KISS My Agent 是面向科研型编码 Agent 的紧凑 Codex plugin。人掌握研究目标、架构、验收标准、非目标和停止边界；Agent 在边界内作实现决策，优先选择最小充分改动，让失败保持可见，并且只按证据实际支持的层级汇报结果。
+KISS My Agent 是一个面向科研和探索性工程的开源 Codex 插件。它给 Codex 一套简单的工作原则：围绕当前目标或假设，先做出能运行、能验证的最小版本，再根据真实结果决定继续、修改还是停止。
 
-Plugin 提供两个窄路由 Skills、三个 seed 自定义角色、setup/check/remove 支持、项目指导、静态验证和双语开发者文档。它不是固定工作流、权限系统、行为保证或封闭角色 catalog。
+它以目标为导向，不以过程或工作量为导向：改了多少文件、调用多少 Agent、跑了多少检查、流程走到哪一步，都不能替代“当前问题是否真正得到回答”。
+
+<a id="failure-patterns"></a>
+<a id="overengineering-and-overdefense"></a>
+## 它解决的两个核心问题
+
+| 问题 | 是什么 | 常见结果 |
+| --- | --- | --- |
+| **过度设计** | 当前假设还没有验证，就先按成熟产品去建设，为未来可能性增加现在没人使用的抽象、配置、迁移或平台 | 一个实验变成大型系统，反馈变慢，改动范围和新 bug 一起增加 |
+| **过度防御** | 不让错误自然暴露，而是叠加校验、重试、回退、异常捕获或门禁，甚至把失败包装成成功 | 真正原因被隐藏，错误结果看起来“正常”，下一轮迭代失去可靠起点 |
+
+范围越做越大、没有修到实际生效的代码、把测试通过当成目标，或让多个 Agent 在同一件事上相互冲突，通常都是这两种倾向带来的后果。
+
+<a id="why-agents-drift"></a>
+## 为什么 Codex 容易产生这些问题
+
+Codex 倾向产出“看起来完整、稳健、成功”的答案。用户又常只要求“全面”“稳健”或“生产级”，没有把当前假设、最小目标和停止条件说清；于是增加框架、校验、重试或回退既容易生成，也容易表现为工作有进展。同时，Codex 往往会尽量避免给出明显失败，错误就可能被捕获、绕开或包装成可用结果。成熟产品在有真实需求和风险时当然可能需要完整架构与防护，但科研早期过早加入这些东西，会延长反馈周期，也会遮住最有价值的信号：这次真实运行为什么成功或失败。
+
+<a id="how-kiss-helps"></a>
+<a id="before-and-after"></a>
+## KISS 怎样推动科研闭环
+
+`目标或假设 → 最小可运行、可验证版本 → 真实运行 → 暴露成功或失败 → 下一轮迭代或停止`
+
+- 先把这一轮要回答的问题和最小成功条件说清，不让实现过程悄悄改写目标。
+- 只做让假设能够运行和验证的必要部分；先得到科研 MVP，再决定是否值得产品化。
+- 尽快在真实路径上运行。允许低成本、可恢复的试错，让错误带着原始原因尽早出现，而不是用回退或空结果遮住它。
+- 根据真实结果行动：修复最先暴露的问题进入下一轮；假设已回答或目标已满足时就停止，不用更多流程和改动证明“做过很多工作”。
+
+多 Agent 只是可选的加速手段：任务确实能独立拆分时才使用，共享文件、设备或输出仍由一个明确负责人操作。这里的“不怕犯错”只指低成本、可恢复的试错；认证、权限、不可逆操作和其他高风险安全边界不能删除或绕过。
+
+<a id="is-it-for-you"></a>
+## 它适合你吗？
+
+| 比较适合 | 不是它要解决的场景 |
+| --- | --- |
+| 科研原型、算法验证、实验工具和其他需要尽快完成 MVP 的工作 | 已经有稳定需求、且确实需要完整兼容、迁移、审计或安全体系的成熟产品环节 |
+| 方案还不确定，需要用真实运行结果快速探索 | 失败代价不可恢复，必须先完成严格安全论证的高风险操作 |
+| 调试隐藏错误，或让 Codex 停止为假想未来提前产品化 | 需要确定性安全强制、形式化验证、通用编排平台或非 Codex Host 支持 |
+
+KISS 不保证第一次就做对；它追求的是更快得到可信结果，再据此做对下一步。
 
 <a id="quick-start"></a>
 ## 快速开始
 
-公开安装接口为：
+已在完成认证且支持 Plugin 的 Codex CLI 0.152.1 上测试。还需要 `git`、GitHub 网络访问，以及账号能够使用 `gpt-5.6-sol`；更早 Codex 版本未验证。普通用户不需要 Python、Node.js、Docker 或其他语言运行时。
+
+确认当前 Codex build 支持 Plugins：
+
+```bash
+codex --version
+codex plugin --help
+```
+
+安装 Plugin：
 
 ```bash
 codex plugin marketplace add AoiOTA/Kiss-My-Agent
 codex plugin add kiss-my-agent@kiss-my-agent
 ```
 
-启动新的已认证 Codex 会话，让新安装的 plugin 被发现。在该会话中运行：
+此时只是安装了 Plugin；新的 Codex 会话可以发现它提供的两个 Skills，但项目规则和角色还没有配置。
+
+在复杂项目中打开一个新的 Codex 会话，然后运行：
 
 ```text
-$kiss-my-agent-setup set up this project
+$kiss-my-agent-setup set up this project with the default team
 ```
 
-Setup Skill 只修改当前项目；它不会信任项目或重启 Codex。通过 Host 信任项目，另开一个新会话，然后运行：
+Project setup 会写入持久项目规则和角色配置。通过 Codex 界面信任该项目，再打开一个新会话；只有这个可信的新会话才会加载项目规则和角色。之后像平常一样提任务：
+
+```text
+Find the cause of this failing parser test, make the smallest correct fix, and run the affected tests.
+```
+
+Setup check 是可选的。它只检查配置文件，不能证明 Agents 的真实行为：
 
 ```text
 $kiss-my-agent-setup check this project
 ```
 
-需要真实发现证据时，还应按[测试](docs/TESTING.zh-CN.md)使用 `/skills` 和无害角色 Smoke。
+默认 setup 管理项目中的三个位置：
 
-全局安装绝不隐式发生。必须明确请求 `$kiss-my-agent-setup set up globally`；选择该 scope 前请阅读[安装](docs/INSTALLATION.zh-CN.md)。
+- `.codex/config.toml`：Master 默认值和多 Agent 开关
+- `.codex/agents/`：可编辑的员工角色文件
+- `AGENTS.md`：带标记的 KISS instructions 区块
 
-Git-backed marketplace 将本次 release 固定到 `v0.1.0`。成功的远程安装是该 tag 的发布证据；源码检查与静态验证本身不是远程安装或真实发现证据。
+它会保留已有用户配置，默认不需要选择。只有目标位置或冲突不明确时才会询问。如果 setup 停止，请按报告中的原因和准确路径处理，不要覆盖文件；详见[安装](docs/INSTALLATION.zh-CN.md)。
 
-<a id="components"></a>
-## 组件
+Plugin 没有后台服务；真正加载配置和启动 Agents 的是 Codex Host。
 
-- [`AGENTS.md`](AGENTS.md)：永久的人与 Agent 边界，以及动态调度指导。
-- Plugin Skills：用于所列窄决策场景的 `$kiss-my-agent`，以及用于显式 setup/check/remove 的 `$kiss-my-agent-setup`。
-- [`.codex/config.toml`](.codex/config.toml)：两个公开 multi-agent 启用开关，本项目都显式设为 `true`。
-- [`.codex/agents/`](.codex/agents/)：从独立 TOML 文件自动发现的三个 seed 角色。
-- [`scripts/validate.sh`](scripts/validate.sh) 与 [`scripts/validate.ps1`](scripts/validate.ps1)：原生静态验证入口。
-- [`tests/`](tests/)：分层 instruction fixtures 和人工 scenarios。
-- 英文优先、结构同步的简体中文配套文档。
+<a id="how-to-use"></a>
+## 默认公司班底
 
-<a id="three-layers"></a>
-## 三层职责
+**Master** 就是你现在正在对话的主 Codex Agent，也就是主会话，不是另一个员工角色。
 
-Runtime 表面有三个不同 owner：
-
-1. `.codex/config.toml` 通过 `features.multi_agent = true` 启用 Host multi-agent 能力，通过 `agents.enabled = true` 启用自定义 Agent。
-2. 每个 standalone role TOML 会被自动发现。其 `name` 字段是角色身份；文件名只是约定。
-3. `AGENTS.md` 告诉主线程何时委派值得，不强制流水线或固定 fan-out。
-
-提供的 `kiss_explorer`、`kiss_coder` 与 `kiss_reviewer` 文件是可编辑 seeds，不是封闭 catalog。应有意地增加或删除 standalone roles。首次 setup 后，后续 setup 与 check 会保留 catalog，不会重新创建已删除角色。
-
-角色 model 与 reasoning effort 在省略时继承 Host 设置，也可修改为 Host 支持的值。KISS My Agent 不固定模型、effort、context window 或并发上限。
-
-<a id="platform-support"></a>
-## 平台支持
-
-| 平台 | 原生命令 | 证据状态 |
+| 成员 | 职责 | 默认配置 |
 | --- | --- | --- |
-| Linux | `./scripts/validate.sh` | 只有针对精确 checkout 报告时才算本地已执行。 |
-| macOS | `./scripts/validate.sh` | CI 目标；精确 commit 需要绿色原生 job。 |
-| Windows | 在原生 PowerShell 中运行 `.\scripts\validate.ps1` | CI 目标；精确 commit 需要绿色原生 job。WSL 属于 Linux 证据。 |
+| 你 / Owner | 决定目标、架构、验收标准、非目标和停止点 | 人来决策 |
+| Master | 规划、分配工作、解决冲突、判断证据并汇总 | `gpt-5.6-sol` / `max` |
+| `kiss_explorer` | 调查并报告事实，不编辑文件 | `gpt-5.6-sol` / `high` |
+| `kiss_coder` | 实现分配的改动并运行相关检查 | `gpt-5.6-sol` / `high` |
+| `kiss_reviewer` | 独立检查结果，不编辑文件 | `gpt-5.6-sol` / `xhigh` |
 
-静态验证需要 Python 3.11 或更高版本，不需要 Codex sandbox package、复制的 `CODEX_HOME`、容器、虚拟机或额外测试项目。存在 workflow 定义不等于平台已经通过；精确 commit 上的绿色 jobs 才是权威证据。
+这些是可编辑的默认值，不是锁定。Master 通常直接分配任务，可以启动同一角色的多个实例，每个共享事项由一个 Agent 负责，大型独立子系统可以临时设一个 lead。
 
-<a id="runtime-configuration"></a>
-## 运行配置
+这些 instructions 还要求：如果无法委派，Master 应报告人员配置问题，而不是静默代替员工执行。然后由你选择修复团队配置，或者明确让本次任务改为普通单对话。
 
-主线程与角色文件使用 Host 实际生效的设置。有效用户层或管理员层中的显式 `false`，或者单次启动 CLI override，优先于 KISS 默认值。为单次启动关闭两个公开开关：
+公司类比只用于解释职责，不是固定流程或游戏系统。
+
+<a id="configure-agents"></a>
+## 只有想修改默认值时才看这里
+
+Master 在所选配置文件中修改：
+
+- 项目：`<project>/.codex/config.toml`
+- 全局：`$CODEX_HOME/config.toml`；未设置 `CODEX_HOME` 时是 `~/.codex/config.toml`
+
+如果 bundled default 不受支持，请使用 Host 模型选择器显示的值临时启动一次：
 
 ```bash
-codex --config features.multi_agent=false --config agents.enabled=false
+codex --model YOUR_SUPPORTED_MODEL --config 'model_reasoning_effort="YOUR_SUPPORTED_EFFORT"'
 ```
 
-项目 setup 与全局 setup 是两个独立显式操作。已有设置和 instructions 会被保留；发生冲突时 setup 会停止以供审核。详见[配置](docs/CONFIGURATION.zh-CN.md)。
+Codex 会报告不支持的设置；KISS 不会静默选择 fallback。临时启动后，编辑上面的 Master config，再用下面的 role wizard 修改员工角色。
 
-<a id="core-principles"></a>
-## 核心原则
-
-- 人拥有问题、架构、验收、非目标和停止边界。
-- 有证据支持的“无需修改”是合法结果。
-- 单 consumer 需求保持局部，除非真实边界或第二个 consumer 证明共享合理。
-- 持久机制必须服务当前 consumer 或具体高后果风险。
-- 内部 bug 保持可见；可选降级必须狭窄且显式。
-- 源码检查、测试、构建、Smoke、Pilot 与 Final 支持不同声明。
-- 只有收益大于协调成本时才使用多个 Agent。
-- 相称证据回答目标后立即停止。
-
-<a id="project-structure"></a>
-## 项目结构
+通过 Codex 配置已有员工角色：
 
 ```text
-.
-├── AGENTS.md
-├── .codex/{config.toml,agents/}
-├── plugin and marketplace metadata
-├── skills/kiss-my-agent/
-├── skills/kiss-my-agent-setup/{SKILL.md,scripts/setup.py}
-├── docs/{INSTALLATION,CONFIGURATION,TESTING,EXTENDING,FAQ}{,.zh-CN}.md
-├── scripts/{validate.py,validate.sh,validate.ps1,build_site.py}
-├── tests/
-├── CONTRIBUTING{,.zh-CN}.md
-├── SECURITY{,.zh-CN}.md
-├── CODE_OF_CONDUCT.md
-└── LICENSE
+$kiss-my-agent-setup configure agents for this project
 ```
 
-面向 Codex 的 instructions、Skill 内容、Rules、Cases、角色 TOML、`LICENSE` 和 `CODE_OF_CONDUCT.md` 保持英文，使 runtime 表面只有一个权威语言版本。
+Role wizard 只修改已有角色的 model、reasoning effort 和 permission mode，不修改 Master。全局角色、优先级、权限和恢复细节见[配置](docs/CONFIGURATION.zh-CN.md)。
 
-<a id="pages-status"></a>
-## 文档站点状态
+<a id="updates"></a>
+## 立即更新
 
-文档站点已发布[英文版](https://aoiota.github.io/Kiss-My-Agent/)与[简体中文版](https://aoiota.github.io/Kiss-My-Agent/zh-CN/)。使用以下命令在本地构建并验证：
+第一条命令立即更新，第二条只核验安装结果：
 
 ```bash
-python3 -m pip install -r requirements-site.txt
-python3 -m unittest tests.test_build_site
-python3 scripts/build_site.py --output _site
+codex plugin marketplace upgrade kiss-my-agent
+codex plugin list
 ```
 
-`_site/` 是已忽略的本地产物。Pages workflow 通过 GitHub Actions 从 `main` 发布。绿色 workflow 与真实 HTTP 响应是不同证据；部署后应验证两个语言 URL。
+应看到 `kiss-my-agent@kiss-my-agent`、状态 `installed, enabled`，版本与本 README 顶部的当前 release badge 一致。更新后启动新会话。v0.1-managed 项目还要再运行一次 project setup，才能更新未修改的 KISS 文件。
 
-<a id="validation-boundaries"></a>
-## 验证边界
-
-静态验证可以检查仓库结构、TOML 语法、standalone role identity、Skill 路由、双语文档一致性、相对链接、instruction fixtures、shell 语法和资产。它不能证明 plugin 发布、marketplace 安装、模型服从性、研究有效性、认证、网络访问、文件系统权限或未来 Host 兼容性。
-
-Setup `check` 只证明它检查的文件与 managed content。真实 `/skills` 结果只证明该会话完成发现。角色 Smoke 只证明观察到的无害任务。详见[测试](docs/TESTING.zh-CN.md)。
-
-<a id="documentation"></a>
-## 文档
-
-- [Installation](docs/INSTALLATION.md) / [安装](docs/INSTALLATION.zh-CN.md)
-- [Configuration](docs/CONFIGURATION.md) / [配置](docs/CONFIGURATION.zh-CN.md)
-- [Testing](docs/TESTING.md) / [测试](docs/TESTING.zh-CN.md)
-- [Extending](docs/EXTENDING.md) / [扩展](docs/EXTENDING.zh-CN.md)
-- [FAQ](docs/FAQ.md) / [常见问题](docs/FAQ.zh-CN.md)
-- [Contributing](CONTRIBUTING.md) / [贡献](CONTRIBUTING.zh-CN.md)
-- [Security](SECURITY.md) / [安全](SECURITY.zh-CN.md)
+KISS My Agent 自身没有 updater。Codex 可能在启动时刷新未固定版本的 Git marketplace。固定版本、回退和 v0.1 迁移细节见[安装](docs/INSTALLATION.zh-CN.md#update)。
 
 <a id="limitations"></a>
 ## 局限
 
-- 早期源码分发；不声明兼容性与 release 保证。
-- Codex 优先；其他 Host 尚未验证。
-- Instructions 不授予文件系统、网络、账户或认证权限。
-- 人工 scenarios 与 Smoke 检查不是行为资格认定或研究证据。
-- 项目专有的安全、合规和领域规则仍由采用者负责。
+- 已在 Codex CLI 0.152.1 上测试；更早版本和其他 Host 未验证。
+- Instructions 可以改善工作上下文，但不能保证模型服从、结果正确或通过验收。
+- 成功委派或测试通过，不能证明用户的产品目标或科研目标已经实现。
+- 当前 release 没有 MCP 服务、独立 UI、遥测、评测平台或 LTS 承诺。
+- 它不能替代认证、权限、管理员策略、项目安全规则或专业领域判断。
+
+<a id="documentation"></a>
+## 详细文档
+
+- [Installation and recovery](docs/INSTALLATION.md) / [安装与恢复](docs/INSTALLATION.zh-CN.md)
+- [Configuration](docs/CONFIGURATION.md) / [配置](docs/CONFIGURATION.zh-CN.md)
+- [Testing and evidence](docs/TESTING.md) / [测试与证据](docs/TESTING.zh-CN.md)
+- [FAQ](docs/FAQ.md) / [常见问题](docs/FAQ.zh-CN.md)
+- [Contributing](CONTRIBUTING.md) / [贡献](CONTRIBUTING.zh-CN.md)
+- [Security](SECURITY.md) / [安全](SECURITY.zh-CN.md)
+
+完整文档站点提供[英文版](https://aoiota.github.io/Kiss-My-Agent/)与[简体中文版](https://aoiota.github.io/Kiss-My-Agent/zh-CN/)。
 
 <a id="license"></a>
-## 许可证
+## License
 
 [MIT](LICENSE)

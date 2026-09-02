@@ -43,6 +43,8 @@ This is a non-exhaustive semantic map, not a keyword gate. Mentioning a term doe
 
 Prefer a local repair when the behavior has one owner and caller, the failure is narrow, and existing interfaces can express the correct result. Consider a new shared mechanism only when multiple current consumers need the same stable semantics or when a high-consequence boundary cannot be protected locally. Compare the deletion counterfactual: if removing the proposed system leaves the goal unchanged, it is not part of the minimum solution.
 
+When genuine uncertainty remains, prefer the smallest safe, low-cost, reversible probe that can resolve it over more speculative planning or a new system.
+
 Agent uncertainty and rule vocabulary are not product requirements. Words such as readiness, provenance, lifecycle, contract, goal, or evidence do not justify corresponding schemas or services. A self-created gate may help organize local work only while it remains disposable and cannot override, strengthen, or substitute for the user's goal and acceptance.
 
 ## Failure ownership

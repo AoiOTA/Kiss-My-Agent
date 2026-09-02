@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Usage questions
+    url: https://github.com/AoiOTA/Kiss-My-Agent/discussions/categories/q-a
+    about: Ask how to install, configure, or use KISS My Agent.
+  - name: Open-ended ideas
+    url: https://github.com/AoiOTA/Kiss-My-Agent/discussions/categories/ideas
+    about: Explore an idea before it has a bounded consumer and outcome.
+  - name: Private security report
+    url: https://github.com/AoiOTA/Kiss-My-Agent/security/advisories/new
+    about: Report a vulnerability privately; never disclose sensitive details in a public issue.

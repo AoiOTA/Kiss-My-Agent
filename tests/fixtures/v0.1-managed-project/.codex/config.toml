@@ -1,0 +1,8 @@
+# Existing project setting retained by v0.1 setup.
+model_verbosity = "low"
+
+[features]
+multi_agent = true # KISS My Agent managed
+
+[agents]
+enabled = true # KISS My Agent managed

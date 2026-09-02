@@ -1,7 +1,7 @@
 {
   "name": "kiss-my-agent",
-  "version": "0.1.0",
-  "description": "Minimal research-engineering guidance and explicit Codex multi-agent setup.",
+  "version": "0.2.0",
+  "description": "Reduce Codex overengineering and hidden failure by starting with a runnable research MVP and iterating from real results.",
   "author": {
     "name": "AoiOTA",
     "url": "https://github.com/AoiOTA"
@@ -12,13 +12,15 @@
   "keywords": [
     "research-engineering",
     "multi-agent",
-    "minimalism"
+    "minimalism",
+    "agentic-coding",
+    "overengineering"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "KISS My Agent",
-    "shortDescription": "Minimal research-engineering and multi-agent guidance.",
-    "longDescription": "Resolve consequential research-engineering ambiguity and explicitly set up the bundled Codex agent roles when requested.",
+    "shortDescription": "Reduce overengineering and hidden failure.",
+    "longDescription": "Start with the smallest runnable, verifiable research MVP, expose real failures early, and let real results drive the next iteration without removing necessary safety.",
     "developerName": "AoiOTA",
     "category": "Developer Tools",
     "capabilities": [
@@ -27,9 +29,9 @@
     ],
     "websiteURL": "https://github.com/AoiOTA/Kiss-My-Agent",
     "defaultPrompt": [
-      "Use KISS My Agent to resolve this research-engineering ambiguity.",
-      "Set up KISS My Agent for this project.",
-      "Check the KISS My Agent setup without changing files."
+      "Use KISS My Agent to decide whether to keep planning or run a safe, low-cost, recoverable probe.",
+      "Set up KISS My Agent for this project without requiring an external runtime.",
+      "Configure the existing KISS My Agent roles for this project."
     ]
   }
 }

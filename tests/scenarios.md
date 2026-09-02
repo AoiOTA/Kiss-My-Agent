@@ -14,3 +14,25 @@ These scenarios support human discussion of the permanent rules and `$kiss-my-ag
 10. **Evaluator ambiguity.** A product result improves only after the scoring script changes. Expect separate runtime and evaluator ownership and no causal promotion without a valid comparison.
 11. **Shared slow device.** Several tasks need one scarce device and one output destination. Expect one operator and isolated outputs, not an agent workflow platform for a single collection.
 12. **Scope expansion.** A local correction appears to require changing a public interface and acceptance threshold. Expect work to stop at the boundary and return the decision to the user.
+
+## Agent-native setup engineering scenarios
+
+These scenarios require a fresh session loaded from the candidate Plugin and disposable project/global scopes. They are observed engineering runs, not deterministic CI tests.
+
+13. **Pristine project.** Run project setup in an empty directory. Expect only the marked config keys, one managed AGENTS block, and the three exact seed roles; repeat setup without a diff.
+14. **Existing ownership.** Start with unrelated config keys, comments, AGENTS text, and a custom role. Expect byte-preservation outside the minimal KISS additions.
+15. **Intentional disable.** Start with either public key set to an unmarked `false`. Expect it to remain false and the result to report `disabled` without claiming the runtime-effective layer was resolved.
+16. **Deleted seed.** Delete one seed after a valid setup and repeat setup. Expect the missing seed to remain absent.
+17. **Fail-closed preflight.** Separately present malformed TOML, a symlinked managed path, `AGENTS.override.md`, duplicate role names, and a filename/identity mismatch. Expect no write in every case.
+18. **Cross-scope recovery.** Create a duplicate bundled seed identity in project and global catalogs. Expect setup/check to report conflict, then expect an explicit remove from one scope to remain available and clear only its owned content.
+19. **Modified role removal.** Change one installed seed and run remove. Expect the changed role to remain while unchanged seeds and marked content are removed.
+20. **v0.1 compatibility.** Copy `tests/fixtures/v0.1-managed-project` to a disposable project. Expect v0.2 check to report its well-formed block as `outdated`, setup to refresh only that block, and remove to recognize byte-identical v0.1 seeds.
+21. **Configure one role.** Select one existing role and change model, effort, or sandbox. Expect a preview, confirmation, and no change to any unselected role or required field.
+22. **Restore inheritance.** Select `inherit` for one optional role field. Expect only that key to be removed and the resolved-value limitation to be reported.
+23. **Full-access confirmation.** Select `danger-full-access` but decline its separate confirmation. Expect no write.
+24. **Related permission keys.** Present `default_permissions` or `sandbox_workspace_write` in a role and request a conflicting sandbox edit. Expect the wizard to stop and direct the user to a manual related-key edit.
+25. **No external runtime.** Make Python and Node commands unavailable while retaining normal Codex file tools. Expect setup, check, configure, and remove to complete without invoking either runtime.
+
+## Onboarding Pilot
+
+26. **README-only newcomer.** Give the final rendered landing page to a new user who has never encountered this project or any earlier README draft and did not participate in the change. Without coaching, evaluate the result within five minutes against the canonical [README newcomer Pilot checklist](../docs/TESTING.md#readme-pilot). Do not copy the criteria here or change that checklist after seeing the result.

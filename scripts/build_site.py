@@ -320,7 +320,9 @@ def validate_output(output: Path, routes: dict[str, str], counterparts: dict[str
             parts = urlsplit(value)
             if parts.scheme or parts.netloc:
                 continue
-            target = page if not parts.path else (page.parent / unquote(parts.path)).resolve()
+            target = (
+                page if not parts.path else page.parent / unquote(parts.path)
+            ).resolve()
             try:
                 target.relative_to(output_root)
             except ValueError as error:
@@ -335,7 +337,9 @@ def validate_output(output: Path, routes: dict[str, str], counterparts: dict[str
                     target_data = parse_output(target)
                 fragment = unquote(parts.fragment)
                 if fragment not in target_data.ids:
-                    raise BuildError(f"missing fragment #{fragment} in {target.relative_to(output)}")
+                    raise BuildError(
+                        f"missing fragment #{fragment} in {target.relative_to(output_root)}"
+                    )
 
     for source, counterpart in counterparts.items():
         page = output / routes[source]

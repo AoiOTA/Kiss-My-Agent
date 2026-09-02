@@ -1,366 +1,258 @@
 from __future__ import annotations
 
-import importlib.util
-import io
-import json
-import sys
-import tempfile
+import re
+import tomllib
 import unittest
 from pathlib import Path
-from contextlib import redirect_stdout
-from unittest import mock
 
 
 REPOSITORY = Path(__file__).resolve().parents[1]
-SETUP_PATH = REPOSITORY / "skills" / "kiss-my-agent-setup" / "scripts" / "setup.py"
-SPEC = importlib.util.spec_from_file_location("kiss_my_agent_setup", SETUP_PATH)
-assert SPEC is not None and SPEC.loader is not None
-setup_module = importlib.util.module_from_spec(SPEC)
-sys.modules[SPEC.name] = setup_module
-SPEC.loader.exec_module(setup_module)
+SETUP_SKILL = REPOSITORY / "skills" / "kiss-my-agent-setup" / "SKILL.md"
+LIFECYCLE = SETUP_SKILL.parent / "references" / "setup-lifecycle.md"
+CONFIGURE = SETUP_SKILL.parent / "references" / "configure-agents.md"
+ROLE_DIRECTORY = REPOSITORY / ".codex" / "agents"
+V010_FIXTURE = REPOSITORY / "tests" / "fixtures" / "v0.1-managed-project"
+V010_ASSETS = SETUP_SKILL.parent / "assets"
+BEGIN_MARKER = "<!-- BEGIN KISS MY AGENT MANAGED BLOCK -->"
+END_MARKER = "<!-- END KISS MY AGENT MANAGED BLOCK -->"
+CONFIG_MARKER = "# KISS My Agent managed"
+V010_MANAGED_BLOCK = f"""{BEGIN_MARKER}
+## KISS My Agent
+
+People own the goal, architecture, acceptance criteria, non-goals, and stop boundary. Multi-agent work is available by default, but an explicit user instruction or effective configuration that disables it takes precedence. Select dynamically only from the current Host-exposed role catalog; `kiss_explorer`, `kiss_coder`, and `kiss_reviewer` are initial seeds that users may remove, rename, or replace, not a fixed team or workflow. Keep one operator for each shared resource, preserve unrelated changes, prefer the smallest sufficient change, propagate internal failures, and state evidence only at the level actually reached.
+{END_MARKER}"""
 
 
-class SetupTest(unittest.TestCase):
-    def setUp(self) -> None:
-        self.temporary = tempfile.TemporaryDirectory()
-        self.addCleanup(self.temporary.cleanup)
-        root = Path(self.temporary.name)
-        self.project = root / "project"
-        self.project.mkdir()
-        self.codex_home = root / "codex-home"
-        self.seed_dir = REPOSITORY / ".codex" / "agents"
+def fenced_blocks(text: str, language: str) -> list[str]:
+    pattern = re.compile(rf"```{re.escape(language)}\n(.*?)\n```", re.DOTALL)
+    return pattern.findall(text)
 
-    def manager(self, scope: str = "project"):
-        return setup_module.SetupManager(
-            scope,
-            self.project,
-            self.codex_home,
-            seed_dir=self.seed_dir,
+
+class SetupContractTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.skill = SETUP_SKILL.read_text(encoding="utf-8")
+        cls.lifecycle = LIFECYCLE.read_text(encoding="utf-8")
+        cls.configure = CONFIGURE.read_text(encoding="utf-8")
+
+    def test_entrypoint_routes_each_public_action_to_one_reference(self) -> None:
+        self.assertIn("references/setup-lifecycle.md", self.skill)
+        self.assertIn("references/configure-agents.md", self.skill)
+        for action in ("setup", "check", "remove", "configure"):
+            self.assertIn(action, self.skill)
+
+        executable_lines = re.findall(
+            r"(?mi)^\s*(?:python(?:3)?|py\s+-3|node|npm|npx|bun|deno)\b.*$",
+            self.skill + "\n" + self.lifecycle + "\n" + self.configure,
         )
-
-    def role_path(self, name: str = "kiss_explorer.toml") -> Path:
-        return self.project / ".codex" / "agents" / name
-
-    def run_cli(self, command: str) -> tuple[int, dict[str, object]]:
-        output = io.StringIO()
-        arguments = [
-            command,
-            "--scope",
-            "project",
-            "--target",
-            str(self.project),
-            "--codex-home",
-            str(self.codex_home),
+        self.assertEqual([], executable_lines)
+        scripts = SETUP_SKILL.parent / "scripts"
+        published_sources = [] if not scripts.exists() else [
+            path
+            for path in scripts.rglob("*")
+            if path.is_file()
+            and "__pycache__" not in path.parts
+            and path.suffix != ".pyc"
         ]
-        with redirect_stdout(output):
-            code = setup_module.main(arguments)
-        return code, json.loads(output.getvalue())
+        self.assertEqual([], published_sources)
 
-    def test_pristine_project_setup_and_static_check(self) -> None:
-        result = self.manager().setup()
-
-        self.assertEqual("configured", result["status"])
-        self.assertEqual(set(setup_module.ROLE_FILES), set(result["installed_roles"]))
-        config = (self.project / ".codex" / "config.toml").read_text()
-        self.assertIn("multi_agent = true # KISS My Agent managed", config)
-        self.assertIn("enabled = true # KISS My Agent managed", config)
-        self.assertIn(setup_module.MANAGED_BLOCK, (self.project / "AGENTS.md").read_text())
-        check = self.manager().check()
-        self.assertTrue(check["static_only"])
-        self.assertEqual("current", check["agents_managed_block"])
-        self.assertEqual(set(setup_module.ROLE_FILES), set(check["roles"]))
-
-    def test_existing_comments_and_true_values_remain_unowned(self) -> None:
-        config_path = self.project / ".codex" / "config.toml"
-        config_path.parent.mkdir()
-        original = (
-            b"# keep this comment\n[features]\n"
-            b"multi_agent = true # user value\n\n"
-            b"[agents]\nenabled = true\n"
+    def test_lifecycle_marks_v010_block_outdated_and_adds_wait_semantics(self) -> None:
+        markdown_blocks = fenced_blocks(self.lifecycle, "markdown")
+        self.assertEqual(1, len(markdown_blocks))
+        self.assertNotEqual(V010_MANAGED_BLOCK, markdown_blocks[0])
+        self.assertTrue(markdown_blocks[0].startswith(BEGIN_MARKER))
+        self.assertTrue(markdown_blocks[0].endswith(END_MARKER))
+        self.assertIn("wait window ending without an update", markdown_blocks[0])
+        self.assertIn("not an agent timeout or failure", markdown_blocks[0])
+        self.assertIn("The master owns orchestration", markdown_blocks[0])
+        self.assertIn("must delegate delegable bulk exploration", markdown_blocks[0])
+        self.assertIn("Multiple instances of any role", markdown_blocks[0])
+        self.assertIn("Coordination is flat by default", markdown_blocks[0])
+        self.assertIn("independent subsystem needs substantial parallel work", markdown_blocks[0])
+        self.assertIn("direct aggregation would pollute the master's context", markdown_blocks[0])
+        self.assertIn("bounded department-lead assignment", markdown_blocks[0])
+        self.assertIn("workers must not delegate again", markdown_blocks[0])
+        self.assertIn("at most one intermediate management layer", markdown_blocks[0])
+        self.assertIn("no deep nesting", markdown_blocks[0])
+        self.assertIn("must not silently take over delegated work", markdown_blocks[0])
+        self.assertIn("ordinary single-conversation execution", markdown_blocks[0])
+        self.assertIn("reversible probe", markdown_blocks[0])
+        self.assertIn("safety boundaries", markdown_blocks[0])
+        self.assertLess(
+            markdown_blocks[0].index("reversible probe"),
+            markdown_blocks[0].index("Multi-agent work is available by default"),
         )
-        config_path.write_bytes(original)
+        self.assertEqual(1, self.lifecycle.count(BEGIN_MARKER))
+        self.assertEqual(1, self.lifecycle.count(END_MARKER))
 
-        result = self.manager().setup()
+    def test_lifecycle_config_fragment_is_valid_and_owned(self) -> None:
+        toml_blocks = fenced_blocks(self.lifecycle, "toml")
+        self.assertEqual(1, len(toml_blocks))
+        config = tomllib.loads(toml_blocks[0])
+        self.assertEqual("gpt-5.6-sol", config["model"])
+        self.assertEqual("max", config["model_reasoning_effort"])
+        self.assertIs(config["features"]["multi_agent"], True)
+        self.assertIs(config["agents"]["enabled"], True)
+        self.assertEqual(4, toml_blocks[0].count(CONFIG_MARKER))
 
-        self.assertEqual("configured", result["status"])
-        self.assertEqual(original, config_path.read_bytes())
-        check = self.manager().check()
-        self.assertFalse(check["config"]["features.multi_agent"]["managed"])
-        self.assertFalse(check["config"]["agents.enabled"]["managed"])
+    def test_seed_roles_remain_valid_and_unique(self) -> None:
+        expected_settings = {
+            "kiss_explorer": ("gpt-5.6-sol", "high", "read-only"),
+            "kiss_coder": ("gpt-5.6-sol", "high", "workspace-write"),
+            "kiss_reviewer": ("gpt-5.6-sol", "xhigh", "read-only"),
+        }
+        found: dict[str, tuple[str, str, str]] = {}
+        for path in sorted(ROLE_DIRECTORY.glob("*.toml")):
+            with path.open("rb") as stream:
+                role = tomllib.load(stream)
+            for field in ("name", "description", "developer_instructions"):
+                self.assertIsInstance(role.get(field), str, (path, field))
+                self.assertTrue(role[field].strip(), (path, field))
+            name = role["name"]
+            self.assertNotIn(name, found)
+            found[name] = (
+                role.get("model", ""),
+                role.get("model_reasoning_effort", ""),
+                role.get("sandbox_mode", ""),
+            )
 
-    def test_existing_false_is_preserved_and_reported_disabled(self) -> None:
-        config_path = self.project / ".codex" / "config.toml"
-        config_path.parent.mkdir()
-        config_path.write_text("[features]\nmulti_agent = false # intentional\n")
+        self.assertEqual(expected_settings, found)
 
-        result = self.manager().setup()
+    def test_configure_is_limited_to_existing_role_runtime_fields(self) -> None:
+        self.assertIn("Do not create, delete, rename, copy, or restore roles", self.configure)
+        for field in ("model", "model_reasoning_effort", "sandbox_mode"):
+            self.assertIn(f"`{field}`", self.configure)
+        for required_field in ("name", "description", "developer_instructions"):
+            self.assertIn(f"`{required_field}`", self.configure)
+        self.assertNotRegex(self.configure, r"\bgpt-[0-9]")
+        self.assertIn("`default_permissions`", self.configure)
+        self.assertIn("`sandbox_workspace_write`", self.configure)
 
-        self.assertEqual("disabled", result["status"])
-        self.assertEqual(["features.multi_agent"], result["disabled"])
-        self.assertIn("multi_agent = false # intentional", config_path.read_text())
-        self.assertIn("enabled = true # KISS My Agent managed", config_path.read_text())
-        self.assertEqual("disabled", self.manager().check()["status"])
-        code, check = self.run_cli("check")
-        self.assertEqual(0, code)
-        self.assertEqual("disabled", check["status"])
+    def test_configure_requires_preview_and_full_access_confirmation(self) -> None:
+        self.assertIn("show it before mutation", self.configure)
+        self.assertIn("separate explicit confirmation", self.configure)
+        self.assertIn("danger-full-access", self.configure)
+        self.assertIn("start a new Codex session", self.configure)
 
-    def test_check_blank_target_is_absent_and_nonzero(self) -> None:
-        code, check = self.run_cli("check")
-
-        self.assertEqual(1, code)
-        self.assertEqual("absent", check["status"])
-
-    def test_check_partial_managed_artifact_is_incomplete_and_nonzero(self) -> None:
-        config_path = self.project / ".codex" / "config.toml"
-        config_path.parent.mkdir()
-        config_path.write_text(
-            "[features]\nmulti_agent = true # KISS My Agent managed\n"
+    def test_configure_resolves_its_scope_without_lifecycle_reference(self) -> None:
+        self.assertIn(
+            "<unique Host project or active workspace root>/.codex/agents",
+            self.configure,
         )
+        self.assertIn("non-empty `CODEX_HOME`", self.configure)
+        self.assertIn("current user's `~/.codex`", self.configure)
+        self.assertIn("multiple roots or no unique root", self.configure)
+        self.assertIn("do not write before that choice", self.configure)
+        self.assertIn("absolute role-directory path", self.configure)
 
-        code, check = self.run_cli("check")
+    def test_check_statuses_and_evidence_boundary_are_explicit(self) -> None:
+        for status in (
+            "structurally-valid",
+            "disabled",
+            "absent",
+            "incomplete",
+            "conflict",
+        ):
+            self.assertIn(f"`{status}`", self.lifecycle)
+        self.assertIn("File success is static setup evidence only", self.lifecycle)
+        self.assertIn("Never claim project trust", self.lifecycle)
+        self.assertIn("executive-only workflow cannot staff delegated work", self.lifecycle)
+        self.assertIn("Static setup cannot observe a higher-precedence `false`", self.lifecycle)
 
-        self.assertEqual(1, code)
-        self.assertEqual("incomplete", check["status"])
+    def test_v010_conflict_recovery_and_concurrency_invariants_are_retained(self) -> None:
+        self.assertIn("Do not apply this cross-scope rejection to `remove`", self.lifecycle)
+        self.assertIn("re-read every planned target", self.lifecycle)
+        self.assertIn("already-written target", self.lifecycle)
+        self.assertIn("pending target", self.lifecycle)
+        self.assertIn("directory created by this operation", self.lifecycle)
+        self.assertIn("whether marked or unmarked", self.lifecycle)
+        self.assertIn("marker controls remove ownership only", self.lifecycle)
+        self.assertIn("first-setup defaults, not enforcement", self.lifecycle)
+        self.assertIn("all four managed config paths", self.lifecycle)
+        self.assertIn("only when both top-level keys are absent", self.lifecycle)
+        self.assertIn("managed block was absent at preflight", self.lifecycle)
+        self.assertIn("exactly matched the known v0.1 managed block", self.lifecycle)
+        self.assertIn("leave the missing key absent as intentional inheritance", self.lifecycle)
+        self.assertIn("one or both missing keys are intentional user changes", self.lifecycle)
+        self.assertIn("four managed config assignment lines", self.lifecycle)
+        self.assertIn("complete bytes equal the corresponding known v0.1 seed", self.lifecycle)
+        self.assertIn("difference from both the current and known v0.1 exact seeds", self.lifecycle)
+        self.assertIn("either the current bundled seed or the corresponding known v0.1 seed", self.lifecycle)
 
-    def test_check_after_remove_is_absent_and_nonzero(self) -> None:
-        self.manager().setup()
-        self.manager().remove()
-
-        code, check = self.run_cli("check")
-
-        self.assertEqual(1, code)
-        self.assertEqual("absent", check["status"])
-
-    def test_nested_agent_tables_are_preserved_when_parent_key_is_inserted(self) -> None:
-        config_path = self.project / ".codex" / "config.toml"
-        config_path.parent.mkdir()
-        nested = (
-            '[agents.custom]\n'
-            'description = "keep"\n'
-            'config_file = "agents/custom.toml"\n'
-        )
-        config_path.write_text(nested)
-
-        self.manager().setup()
-
-        configured = config_path.read_text()
-        self.assertIn(nested, configured)
-        self.assertIn("[agents]\nenabled = true # KISS My Agent managed", configured)
-
-    def test_existing_table_without_final_newline_gets_separate_managed_assignment(self) -> None:
-        config_path = self.project / ".codex" / "config.toml"
-        config_path.parent.mkdir()
-        cases = (
-            (
-                "[features]\nfoo = true",
-                "foo = true\nmulti_agent = true # KISS My Agent managed\n",
-            ),
-            (
-                "[features]\nmulti_agent = true\n[agents]\nfoo = true",
-                "foo = true\nenabled = true # KISS My Agent managed\n",
-            ),
-        )
-        for content, expected in cases:
-            with self.subTest(content=content):
-                config_path.write_text(content)
-                self.manager().setup()
-                configured = config_path.read_text()
-                self.assertIn(expected, configured)
-                self.assertNotIn("truemulti_agent", configured)
-                self.assertNotIn("trueenabled", configured)
-                self.manager().remove()
-
-    def test_crlf_and_unicode_comments_are_preserved(self) -> None:
-        config_path = self.project / ".codex" / "config.toml"
-        config_path.parent.mkdir()
-        original = "# 用户注释\r\n[features]\r\nmulti_agent = true\r\n".encode()
-        config_path.write_bytes(original)
-
-        self.manager().setup()
-
-        configured = config_path.read_bytes()
-        self.assertTrue(configured.startswith(original))
-        self.assertIn(b"[agents]\r\nenabled = true # KISS My Agent managed\r\n", configured)
-
-    def test_malformed_and_unknown_shape_fail_before_changes(self) -> None:
-        config_path = self.project / ".codex" / "config.toml"
-        config_path.parent.mkdir()
-        for content in ("[features\n", 'features = { multi_agent = true }\n'):
-            with self.subTest(content=content):
-                config_path.write_text(content)
-                with self.assertRaises(setup_module.SetupError):
-                    self.manager().setup()
-                self.assertEqual(content, config_path.read_text())
-                self.assertFalse((self.project / "AGENTS.md").exists())
-
-    def test_role_name_collision_fails_without_changes(self) -> None:
-        agents_dir = self.project / ".codex" / "agents"
-        agents_dir.mkdir(parents=True)
-        collision = agents_dir / "renamed.toml"
-        collision.write_text(
-            'name = "kiss_explorer"\n'
-            'description = "custom"\n'
-            'developer_instructions = "custom instructions"\n'
+    def test_codex_home_and_outdated_state_rules_are_explicit(self) -> None:
+        self.assertIn("non-empty `CODEX_HOME`", self.lifecycle)
+        self.assertIn("current user's `~/.codex`", self.lifecycle)
+        self.assertIn("`current`, `outdated`, or `absent`", self.lifecycle)
+        self.assertIn("Define a setup trace", self.lifecycle)
+        self.assertIn("managed block is well-formed but `outdated`", self.lifecycle)
+        self.assertIn("explicit value or `inherit`", self.lifecycle)
+        self.assertIn("sole active workspace root", self.lifecycle)
+        self.assertIn("multiple roots", self.lifecycle)
+        self.assertIn("Never silently substitute a fallback model or effort", self.lifecycle)
+        self.assertIn(
+            "codex --config 'model=\"HOST_SUPPORTED_MODEL_ID\"'",
+            self.lifecycle,
         )
 
-        with self.assertRaises(setup_module.SetupError):
-            self.manager().setup()
+    def test_v010_runtime_assets_are_directly_linked_and_identified(self) -> None:
+        for role_name in ("kiss_explorer", "kiss_coder", "kiss_reviewer"):
+            relative = f"../assets/v0.1-agents/{role_name}.toml"
+            self.assertIn(f"]({relative})", self.lifecycle)
+            asset = (LIFECYCLE.parent / relative).resolve()
+            self.assertTrue(asset.is_file(), asset)
+            with asset.open("rb") as stream:
+                self.assertEqual(role_name, tomllib.load(stream)["name"])
+        self.assertIn("](../assets/v0.1-managed-block.md)", self.lifecycle)
+        managed_block_asset = V010_ASSETS / "v0.1-managed-block.md"
+        self.assertTrue(managed_block_asset.is_file())
 
-        self.assertIn('name = "kiss_explorer"', collision.read_text())
-        self.assertFalse((self.project / "AGENTS.md").exists())
-
-    def test_existing_same_filename_and_name_custom_role_is_preserved(self) -> None:
-        agents_dir = self.project / ".codex" / "agents"
-        agents_dir.mkdir(parents=True)
-        custom = self.role_path()
-        custom_bytes = (
-            b'name = "kiss_explorer"\n'
-            b'description = "my custom explorer"\n'
-            b'developer_instructions = "custom instructions"\n'
+    def test_v010_managed_project_fixture_matches_current_compatibility_contract(self) -> None:
+        config_text = (V010_FIXTURE / ".codex" / "config.toml").read_text(
+            encoding="utf-8"
         )
-        custom.write_bytes(custom_bytes)
+        config = tomllib.loads(config_text)
+        self.assertIs(config["features"]["multi_agent"], True)
+        self.assertIs(config["agents"]["enabled"], True)
+        self.assertEqual(2, config_text.count(CONFIG_MARKER))
 
-        result = self.manager().setup()
+        instructions = (V010_FIXTURE / "AGENTS.md").read_text(encoding="utf-8")
+        self.assertIn("Keep this user-owned text.", instructions)
+        start = instructions.index(BEGIN_MARKER)
+        end = instructions.index(END_MARKER, start) + len(END_MARKER)
+        self.assertEqual(V010_MANAGED_BLOCK, instructions[start:end])
 
-        self.assertEqual(custom_bytes, custom.read_bytes())
-        self.assertIn("kiss_explorer.toml", result["preserved_roles"])
-        self.assertEqual(2, len(result["installed_roles"]))
+        fixture_roles = V010_FIXTURE / ".codex" / "agents"
+        asset_roles = V010_ASSETS / "v0.1-agents"
+        expected_efforts = {
+            "kiss_explorer": "high",
+            "kiss_coder": "high",
+            "kiss_reviewer": "xhigh",
+        }
+        for source in sorted(ROLE_DIRECTORY.glob("*.toml")):
+            fixture_bytes = (fixture_roles / source.name).read_bytes()
+            asset_bytes = (asset_roles / source.name).read_bytes()
+            self.assertEqual(fixture_bytes, asset_bytes, source.name)
+            with source.open("rb") as stream:
+                current = tomllib.load(stream)
+            with (fixture_roles / source.name).open("rb") as stream:
+                v010 = tomllib.load(stream)
+            self.assertNotIn("model", v010)
+            self.assertNotIn("model_reasoning_effort", v010)
+            self.assertEqual("gpt-5.6-sol", current["model"])
+            self.assertEqual(expected_efforts[current["name"]], current["model_reasoning_effort"])
+            self.assertEqual(
+                v010,
+                {
+                    key: value
+                    for key, value in current.items()
+                    if key not in {"model", "model_reasoning_effort"}
+                },
+            )
 
-    def test_repeated_setup_is_noop(self) -> None:
-        self.manager().setup()
-        tracked = [
-            self.project / ".codex" / "config.toml",
-            self.project / "AGENTS.md",
-            *(self.role_path(name) for name in setup_module.ROLE_FILES),
-        ]
-        before = {path: path.read_bytes() for path in tracked}
-
-        result = self.manager().setup()
-
-        self.assertFalse(result["changed"])
-        self.assertEqual(before, {path: path.read_bytes() for path in tracked})
-
-    def test_deleted_default_role_is_not_restored_after_managed_block_exists(self) -> None:
-        self.manager().setup()
-        deleted = self.role_path("kiss_reviewer.toml")
-        deleted.unlink()
-        agents_path = self.project / "AGENTS.md"
-        agents_path.write_text(
-            agents_path.read_text().replace("## KISS My Agent", "## stale managed text")
+        managed_block_asset = (V010_ASSETS / "v0.1-managed-block.md").read_text(
+            encoding="utf-8"
         )
-
-        result = self.manager().setup()
-
-        self.assertFalse(deleted.exists())
-        self.assertNotIn("kiss_reviewer.toml", result["installed_roles"])
-        self.assertIn(setup_module.MANAGED_BLOCK, agents_path.read_text())
-        self.assertEqual("structurally-valid", self.manager().check()["status"])
-
-    def test_remove_preserves_modified_role_and_unowned_config(self) -> None:
-        config_path = self.project / ".codex" / "config.toml"
-        config_path.parent.mkdir()
-        config_path.write_text("# user\n[features]\nmulti_agent = true\n")
-        self.manager().setup()
-        modified = self.role_path("kiss_coder.toml")
-        modified_bytes = modified.read_bytes() + b"\n# user modification\n"
-        modified.write_bytes(modified_bytes)
-
-        result = self.manager().remove()
-
-        self.assertEqual(modified_bytes, modified.read_bytes())
-        self.assertEqual(["kiss_coder.toml"], result["preserved_modified_roles"])
-        self.assertFalse(self.role_path("kiss_explorer.toml").exists())
-        self.assertFalse(self.role_path("kiss_reviewer.toml").exists())
-        self.assertNotIn(setup_module.MANAGED_BLOCK, (self.project / "AGENTS.md").read_text())
-        config = config_path.read_text()
-        self.assertIn("multi_agent = true", config)
-        self.assertNotIn("enabled = true", config)
-
-    def test_override_rejected(self) -> None:
-        override = self.project / "AGENTS.override.md"
-        override.write_text("override\n")
-
-        with self.assertRaises(setup_module.SetupError):
-            self.manager().setup()
-
-        self.assertEqual("override\n", override.read_text())
-        self.assertFalse((self.project / ".codex").exists())
-
-    def test_project_and_global_role_catalogs_cannot_duplicate_seed_names(self) -> None:
-        self.manager("project").setup()
-
-        with self.assertRaises(setup_module.SetupError):
-            self.manager("global").setup()
-
-        self.assertFalse(self.codex_home.exists())
-
-    def test_global_scope_writes_only_under_codex_home(self) -> None:
-        other_project = Path(self.temporary.name) / "other-project"
-        other_project.mkdir()
-        manager = setup_module.SetupManager(
-            "global", other_project, self.codex_home, seed_dir=self.seed_dir
-        )
-
-        manager.setup()
-
-        self.assertTrue((self.codex_home / "config.toml").is_file())
-        self.assertTrue((self.codex_home / "AGENTS.md").is_file())
-        self.assertTrue((self.codex_home / "agents" / "kiss_coder.toml").is_file())
-        self.assertEqual([], list(other_project.iterdir()))
-
-    def test_symlinked_managed_path_is_rejected(self) -> None:
-        external = Path(self.temporary.name) / "external.toml"
-        external.write_text("# external\n")
-        codex_dir = self.project / ".codex"
-        codex_dir.mkdir()
-        try:
-            (codex_dir / "config.toml").symlink_to(external)
-        except OSError as error:
-            self.skipTest(f"symlink creation is unavailable: {error}")
-
-        with self.assertRaises(setup_module.SetupError):
-            self.manager().setup()
-
-        self.assertEqual("# external\n", external.read_text())
-        self.assertFalse((self.project / "AGENTS.md").exists())
-
-    def test_replace_failure_rolls_back_all_completed_changes(self) -> None:
-        real_replace = setup_module.os.replace
-        calls = 0
-
-        def fail_second_replace(source, destination):
-            nonlocal calls
-            calls += 1
-            if calls == 2:
-                raise OSError("injected replace failure")
-            return real_replace(source, destination)
-
-        with mock.patch.object(setup_module.os, "replace", side_effect=fail_second_replace):
-            with self.assertRaises(OSError):
-                self.manager().setup()
-
-        self.assertFalse((self.project / ".codex").exists())
-        self.assertFalse((self.project / "AGENTS.md").exists())
-
-    def test_concurrent_change_is_preserved_while_earlier_write_rolls_back(self) -> None:
-        real_replace = setup_module.os.replace
-        agents_path = self.project / "AGENTS.md"
-        calls = 0
-
-        def change_next_target(source, destination):
-            nonlocal calls
-            calls += 1
-            result = real_replace(source, destination)
-            if calls == 1:
-                agents_path.write_text("concurrent user content\n")
-            return result
-
-        with mock.patch.object(setup_module.os, "replace", side_effect=change_next_target):
-            with self.assertRaises(setup_module.SetupError):
-                self.manager().setup()
-
-        self.assertEqual("concurrent user content\n", agents_path.read_text())
-        self.assertFalse((self.project / ".codex" / "config.toml").exists())
+        self.assertEqual(V010_MANAGED_BLOCK, managed_block_asset.rstrip("\n"))
 
 
 if __name__ == "__main__":

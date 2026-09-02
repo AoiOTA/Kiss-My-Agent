@@ -1,6 +1,6 @@
 ---
 name: kiss-my-agent
-description: Use only when a research-engineering task has a non-obvious decision about a persistent or shared mechanism, a local fix versus a new system, experiment validity or evidence strength, runtime versus evaluator ambiguity, or expansion of scope or acceptance. Do not use for an already-decided implementation, ordinary small fix, mechanical edit, routine test or build, Git operation, lookup, or formatting.
+description: Use only when a research-engineering task has a non-obvious decision about a persistent or shared mechanism, a local fix versus a new system, a reversible probe versus more planning or a new mechanism, experiment validity or evidence strength, runtime versus evaluator ambiguity, or expansion of scope or acceptance. Do not use for an already-decided implementation, ordinary small fix, mechanical edit, routine test or build, Git operation, lookup, or formatting.
 ---
 
 # KISS My Agent

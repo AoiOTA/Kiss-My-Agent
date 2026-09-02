@@ -6,6 +6,8 @@ Use this rule when a claim depends on what was actually executed, measured, or e
 
 State the research question, primary variable, controlled variables, core metric, and invalid conditions before interpreting results. Add samples only when variance or intermittent behavior affects the decision, and do not move criteria after seeing the outcome.
 
+Choose the minimum valid run that can answer the research question, execute the real path, observe actual outputs and failures without masking their causes, and use that result to iterate or stop.
+
 Classify outcomes by failed precondition, not desirability. Valid negative means the planned inputs, execution, observations, and evaluator were intact but the product outcome was adverse or neutral. Invalid means a required precondition or measurement path failed, so the product hypothesis was not tested. Preserve both records without converting one into the other.
 
 ## Discriminating the active evidence
