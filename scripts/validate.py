@@ -165,8 +165,8 @@ def require_files(root: Path) -> None:
         "skills/kiss-my-agent-setup/assets/v0.1-agents/kiss_coder.toml",
         "skills/kiss-my-agent-setup/assets/v0.1-agents/kiss_reviewer.toml",
         "skills/kiss-my-agent-setup/assets/v0.1-managed-block.md",
-        "skills/kiss-my-agent-setup/references/setup-lifecycle.md",
-        "skills/kiss-my-agent-setup/references/configure-agents.md",
+        "skills/kiss-my-agent-setup/setup-lifecycle.md",
+        "skills/kiss-my-agent-setup/configure-agents.md",
         "assets/kiss-my-agent-hero.png",
         "examples/config.example.toml",
         "requirements-site.txt",
@@ -425,8 +425,8 @@ def validate_setup_interface(root: Path) -> None:
             fail(f"setup skill interface missing: {token}")
     links = set(re.findall(r"\[[^\]\n]+\]\(([^)]+)\)", skill))
     expected_links = {
-        "references/setup-lifecycle.md",
-        "references/configure-agents.md",
+        "setup-lifecycle.md",
+        "configure-agents.md",
     }
     if links != expected_links:
         fail("setup skill must route exactly to its lifecycle and configuration references")
@@ -440,7 +440,7 @@ def validate_setup_interface(root: Path) -> None:
     ]
     if published_sources:
         fail("setup skill must not require bundled executable scripts")
-    lifecycle = (skill_path.parent / "references/setup-lifecycle.md").read_text(
+    lifecycle = (skill_path.parent / "setup-lifecycle.md").read_text(
         encoding="utf-8"
     )
     for token in (
@@ -472,7 +472,7 @@ def validate_setup_interface(root: Path) -> None:
     ):
         if token not in lifecycle:
             fail(f"setup lifecycle compatibility contract missing: {token}")
-    configure = (skill_path.parent / "references/configure-agents.md").read_text(
+    configure = (skill_path.parent / "configure-agents.md").read_text(
         encoding="utf-8"
     )
     for token in (

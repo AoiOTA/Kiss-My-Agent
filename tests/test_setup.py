@@ -8,8 +8,8 @@ from pathlib import Path
 
 REPOSITORY = Path(__file__).resolve().parents[1]
 SETUP_SKILL = REPOSITORY / "skills" / "kiss-my-agent-setup" / "SKILL.md"
-LIFECYCLE = SETUP_SKILL.parent / "references" / "setup-lifecycle.md"
-CONFIGURE = SETUP_SKILL.parent / "references" / "configure-agents.md"
+LIFECYCLE = SETUP_SKILL.parent / "setup-lifecycle.md"
+CONFIGURE = SETUP_SKILL.parent / "configure-agents.md"
 ROLE_DIRECTORY = REPOSITORY / ".codex" / "agents"
 V010_FIXTURE = REPOSITORY / "tests" / "fixtures" / "v0.1-managed-project"
 V010_ASSETS = SETUP_SKILL.parent / "assets"
@@ -36,8 +36,8 @@ class SetupContractTests(unittest.TestCase):
         cls.configure = CONFIGURE.read_text(encoding="utf-8")
 
     def test_entrypoint_routes_each_public_action_to_one_reference(self) -> None:
-        self.assertIn("references/setup-lifecycle.md", self.skill)
-        self.assertIn("references/configure-agents.md", self.skill)
+        self.assertIn("](setup-lifecycle.md)", self.skill)
+        self.assertIn("](configure-agents.md)", self.skill)
         for action in ("setup", "check", "remove", "configure"):
             self.assertIn(action, self.skill)
 
@@ -58,13 +58,17 @@ class SetupContractTests(unittest.TestCase):
 
     def test_entrypoint_declares_static_runtime_execution_contract(self) -> None:
         """Static source assertions do not prove Host runtime behavior."""
-        self.assertIn("preserve linked relative-path text", self.skill)
+        self.assertIn("exact loaded `SKILL.md` directory", self.skill)
         self.assertIn(
-            "from the directory of the file containing its link",
+            "single base for sibling `setup-lifecycle.md` and `configure-agents.md`",
             self.skill,
         )
-        self.assertIn("reuse an already resolved exact path unchanged", self.skill)
-        self.assertIn("never repeatedly transcribe", self.skill)
+        self.assertIn("every relative link they contain", self.skill)
+        self.assertIn("preserve linked relative-path text", self.skill)
+        self.assertIn(
+            "never reconstruct cache, marketplace, plugin, or version path components",
+            self.skill,
+        )
         self.assertIn("lifecycle filesystem operations serially", self.skill)
         self.assertIn("one simple direct file operation per tool call", self.skill)
         self.assertIn(
@@ -220,13 +224,13 @@ class SetupContractTests(unittest.TestCase):
 
     def test_v010_runtime_assets_are_directly_linked_and_identified(self) -> None:
         for role_name in ("kiss_explorer", "kiss_coder", "kiss_reviewer"):
-            relative = f"../assets/v0.1-agents/{role_name}.toml"
+            relative = f"assets/v0.1-agents/{role_name}.toml"
             self.assertIn(f"]({relative})", self.lifecycle)
             asset = (LIFECYCLE.parent / relative).resolve()
             self.assertTrue(asset.is_file(), asset)
             with asset.open("rb") as stream:
                 self.assertEqual(role_name, tomllib.load(stream)["name"])
-        self.assertIn("](../assets/v0.1-managed-block.md)", self.lifecycle)
+        self.assertIn("](assets/v0.1-managed-block.md)", self.lifecycle)
         managed_block_asset = V010_ASSETS / "v0.1-managed-block.md"
         self.assertTrue(managed_block_asset.is_file())
 
