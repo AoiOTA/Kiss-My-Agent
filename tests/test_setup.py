@@ -58,7 +58,21 @@ class SetupContractTests(unittest.TestCase):
 
     def test_entrypoint_declares_static_runtime_execution_contract(self) -> None:
         """Static source assertions do not prove Host runtime behavior."""
+        self.assertIn(
+            "relative to the directory containing the exact `SKILL.md` loaded",
+            self.skill,
+        )
+        self.assertIn(
+            "never reconstruct or infer any cache, marketplace, plugin, or version path component",
+            self.skill,
+        )
+        self.assertIn("lifecycle filesystem operations serially", self.skill)
         self.assertIn("one simple direct file operation per tool call", self.skill)
+        self.assertIn(
+            "exactly one such operation in each outer tool or orchestration call",
+            self.skill,
+        )
+        self.assertIn("do not batch or parallelize them", self.skill)
         self.assertIn("do not generate compound shell commands", self.skill)
         self.assertIn("suppress diagnostics", self.skill)
         self.assertIn("Inspect and interpret each tool or subprocess status", self.skill)
