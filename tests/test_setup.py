@@ -56,6 +56,17 @@ class SetupContractTests(unittest.TestCase):
         ]
         self.assertEqual([], published_sources)
 
+    def test_entrypoint_declares_static_runtime_execution_contract(self) -> None:
+        """Static source assertions do not prove Host runtime behavior."""
+        self.assertIn("one simple direct file operation per tool call", self.skill)
+        self.assertIn("do not generate compound shell commands", self.skill)
+        self.assertIn("suppress diagnostics", self.skill)
+        self.assertIn("Inspect and interpret each tool or subprocess status", self.skill)
+        self.assertIn("tool or subprocess failure", self.skill)
+        self.assertIn("unexpected nonzero status", self.skill)
+        self.assertIn("expected absence or no-match is not a failure", self.skill)
+        self.assertIn("explicitly interpret and report it", self.skill)
+
     def test_lifecycle_marks_v010_block_outdated_and_adds_wait_semantics(self) -> None:
         markdown_blocks = fenced_blocks(self.lifecycle, "markdown")
         self.assertEqual(1, len(markdown_blocks))

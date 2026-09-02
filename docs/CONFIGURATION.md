@@ -71,8 +71,8 @@ Project and global setup are always distinct. Start a new session after changing
 Keep the inherited defaults unless a real workload needs a different model, effort, or sandbox. To configure existing roles in one explicit scope, run:
 
 ```text
-$kiss-my-agent-setup configure agents for this project
-$kiss-my-agent-setup configure global agents
+$kiss-my-agent:kiss-my-agent-setup configure agents for this project
+$kiss-my-agent:kiss-my-agent-setup configure global agents
 ```
 
 The wizard lists the current role catalog, lets you select one or more roles, and offers `keep`, `inherit`, or an explicit value for `model`, `model_reasoning_effort`, and `sandbox_mode`. It shows the exact diff before writing and requires a separate confirmation for `danger-full-access`.
@@ -123,13 +123,13 @@ Then edit the persistent config or role TOML and start another new session. KISS
 The Plugin-owned Skill performs Agent-native file operations without Python, Node.js, or a package manager:
 
 ```text
-$kiss-my-agent-setup set up this project
-$kiss-my-agent-setup check this project
-$kiss-my-agent-setup remove from this project
+$kiss-my-agent:kiss-my-agent-setup set up this project
+$kiss-my-agent:kiss-my-agent-setup check this project
+$kiss-my-agent:kiss-my-agent-setup remove from this project
 
-$kiss-my-agent-setup set up globally
-$kiss-my-agent-setup check global setup
-$kiss-my-agent-setup remove global setup
+$kiss-my-agent:kiss-my-agent-setup set up globally
+$kiss-my-agent:kiss-my-agent-setup check global setup
+$kiss-my-agent:kiss-my-agent-setup remove global setup
 ```
 
 Project scope manages `<target>/.codex/config.toml`, `<target>/.codex/agents/`, and one managed block in `<target>/AGENTS.md`. Global scope manages the corresponding files under `$CODEX_HOME`. The Skill itself stays in the installed Plugin.

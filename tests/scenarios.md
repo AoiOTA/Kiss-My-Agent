@@ -1,6 +1,6 @@
 # Manual scenarios
 
-These scenarios support human discussion of the permanent rules and `$kiss-my-agent` routing. They are not scores, automated evaluations, release gates, or claims that an agent will behave identically in every environment. Invoke the skill only for the non-obvious mechanism or evidence decisions below, not for routine execution.
+These scenarios support human discussion of the permanent rules and `kiss-my-agent` routing. They are not scores, automated evaluations, release gates, or claims that an agent will behave identically in every environment. Invoke `$kiss-my-agent:kiss-my-agent` only for the non-obvious mechanism or evidence decisions below, not for routine execution.
 
 1. **No change is correct.** A reported configuration bug is not reproducible because the current value already matches the requested behavior. Expect an evidence-backed no-change conclusion.
 2. **One caller, one fix.** A private parser used by one command mishandles an empty field. Expect a local repair and focused check, not a shared parsing framework.

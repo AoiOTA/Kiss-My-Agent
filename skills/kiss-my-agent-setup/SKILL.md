@@ -7,6 +7,8 @@ description: Explicitly set up, inspect, configure existing KISS My Agent roles,
 
 Use Codex's existing file inspection and editing tools. Do not require Python, Node.js, a package manager, or a bundled executable for setup operations.
 
+Operational discipline: perform one simple direct file operation per tool call; do not generate compound shell commands or suppress diagnostics. Inspect and interpret each tool or subprocess status. Stop after a tool or subprocess failure or an unexpected nonzero status, before any further operation or mutation. An expected absence or no-match is not a failure, but explicitly interpret and report it; never suppress it.
+
 1. Identify the exact action and scope before changing anything. Project scope may be inferred only from an explicit phrase such as "this project" and must resolve to the Host's current unique project or active workspace root, not an arbitrary child working directory. Show the absolute target before writing; ask when multiple roots exist or the target is not unique. Global scope must always be explicit.
 2. Read exactly one matching reference:
    - For project/global `setup`, `check`, or `remove`, read [references/setup-lifecycle.md](references/setup-lifecycle.md).

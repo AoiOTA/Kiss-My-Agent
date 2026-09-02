@@ -24,9 +24,9 @@ KISS My Agent 有几个彼此不同的证据表面：
 简单一次性任务直接使用普通单对话，不需要 setup 证据。若要在安装或更新 Plugin 后验证持久 executive workflow，请启动新会话并使用 Plugin-owned interfaces：
 
 ```text
-$kiss-my-agent-setup set up this project
-$kiss-my-agent-setup check this project
-$kiss-my-agent-setup configure agents for this project
+$kiss-my-agent:kiss-my-agent-setup set up this project
+$kiss-my-agent:kiss-my-agent-setup check this project
+$kiss-my-agent:kiss-my-agent-setup configure agents for this project
 ```
 
 这些操作使用 Codex 文件工具，不需要 Python、Node.js、Docker 或包管理器。Git-backed Plugin 的安装或刷新另行要求可用的 `git` executable 和 GitHub 网络访问。`check` 只证明检查到的文件状态。需要真实 discovery 证据时再使用 `/skills` 和窄范围 role Smoke。如果 delegation 不可用或没有角色能承担测试，应记录 failed precondition，并在切换为普通单对话测试前取得用户明确选择。
@@ -93,12 +93,12 @@ $plugin-creator update this existing KISS My Agent plugin for local development.
 <a id="skill-smoke"></a>
 ## Skill 发现 Smoke
 
-在新会话中运行 `/skills`，确认 Plugin-owned `kiss-my-agent` 和 `kiss-my-agent-setup` entries。然后：
+在新会话中运行 `/skills`，确认 canonical Plugin Skills `kiss-my-agent:kiss-my-agent` 与 `kiss-my-agent:kiss-my-agent-setup`；在已测试的 Codex 0.152.1 baseline 上，picker labels 可能显示为 `kiss-my-agent (kiss-my-agent)` 与 `kiss-my-agent-setup (kiss-my-agent)`。然后：
 
-- 只有真实存在非显然机制、scope、runtime/evaluator 或证据决策时才使用 `$kiss-my-agent`；
-- 只有显式 setup/check/configure/remove 工作才使用 `$kiss-my-agent-setup`。
+- 只有真实存在非显然机制、scope、runtime/evaluator 或证据决策时才使用 `$kiss-my-agent:kiss-my-agent`；
+- 只有显式 setup/check/configure/remove 工作才使用 `$kiss-my-agent:kiss-my-agent-setup`。
 
-普通实现、测试、构建、Git、查询和格式化不应路由到 `$kiss-my-agent`。发现只证明该会话可见，不能保证未来遵循 instructions。
+普通实现、测试、构建、Git、查询和格式化不应路由到 `kiss-my-agent`。发现只证明该会话可见，不能保证未来遵循 instructions。
 
 <a id="role-smoke"></a>
 ## 三角色 Smoke
@@ -118,14 +118,14 @@ $plugin-creator update this existing KISS My Agent plugin for local development.
 
 在 release pull request 前，只测试暂存的本地 candidate：candidate fresh install、fresh-session discovery、窄 role Smokes 与 README 新用户 Pilot。这些只属于 candidate 证据，不是公开 install 或 upgrade 证据。
 
-Pull request 合并且精确 commit 已创建并推送 `v0.2.0` tag 后，使用隔离的公开安装证明支持的迁移：
+Pull request 合并且精确 commit 已创建并推送 `v0.2.1` tag 后，使用隔离的公开安装证明支持的迁移：
 
 ```bash
 codex plugin marketplace upgrade kiss-my-agent
 codex plugin list
 ```
 
-先测试 public fresh install。然后从已安装 v0.1.0 开始刷新 marketplace，确认 installed cache 报告 0.2.0，再打开新会话。验证 `configure agents` 等 v0.2.0 独有接口，对 v0.1-managed 一次性项目运行 setup，并确认完全一致、未经修改的 v0.1 seeds 会升级，修改过的 model/effort 选择和其他已编辑角色会保留。最后执行文档中的固定 tag 回退；确认普通 upgrade 仍停留在该 pinned channel，再用文档中的 marketplace remove 加 unpinned-add 流程恢复 current channel。只有这三条公开路径全部通过后，maintainer 才能创建 GitHub Release。任一步失败时都保留已推送 tag，不得移动它，并改为发布修复后的 patch version。保留第一个决定性错误。
+`v0.2.0` immutable tag 的 post-tag 调用测试暴露了本次在 v0.2.1 修复的 raw-command 缺陷，因此该 tag 保留，但没有创建 GitHub Release。先测试 public v0.2.1 fresh install。然后从已安装 v0.1.0 开始刷新 marketplace，确认 installed cache 报告 0.2.1，再打开新会话。验证 `configure agents` 等 v0.2 接口，对 v0.1-managed 一次性项目运行 setup，并确认完全一致、未经修改的 v0.1 seeds 会升级，修改过的 model/effort 选择和其他已编辑角色会保留。最后执行文档中的固定 tag 回退；确认普通 upgrade 仍停留在该 pinned channel，再用文档中的 marketplace remove 加 unpinned-add 流程恢复 current channel。只有这三条公开路径全部通过后，maintainer 才能创建 GitHub Release。任一步失败时都保留已推送 tag，不得移动它，并改为发布修复后的 patch version。保留第一个决定性错误。
 
 <a id="dogfooding"></a>
 ## 开发过程中的 Dogfooding

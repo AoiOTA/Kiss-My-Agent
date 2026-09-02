@@ -24,7 +24,7 @@
 <a id="preserve-routing"></a>
 ## 保持精确路由
 
-Plugin-owned `$kiss-my-agent` Skill 必须保持 non-catch-all。常规实现、机械编辑、测试、构建、Git 操作、查询和格式化都不进入 Skill。一个歧义路由到一个 Rule，并且只在有用时读取一个 Case。`$kiss-my-agent-setup` 保持独立，并且只处理显式 setup/check/configure/remove 操作。
+Plugin-owned `kiss-my-agent` Skill 必须保持 non-catch-all。常规实现、机械编辑、测试、构建、Git 操作、查询和格式化都不进入 Skill。一个歧义路由到一个 Rule，并且只在有用时读取一个 Case。`kiss-my-agent-setup` 保持独立，并且只处理显式 setup/check/configure/remove 操作。
 
 <a id="add-rule"></a>
 ## 新增 Rule

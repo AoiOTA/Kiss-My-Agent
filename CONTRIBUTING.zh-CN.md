@@ -9,7 +9,7 @@ KISS My Agent 是一个科研工程插件，用于让 Agent 工作与问题规�
 
 通过 Git-backed marketplace 安装或更新正式发布的 Plugin，需要可用的 Git executable 和 GitHub 网络访问，但不需要 Python、Node.js、Docker 或其他语言运行时。贡献者工具链与用户路径分开：Git 与 Python 3.11 或更高版本足以运行标准库 validator 和 Setup contract tests。只修改 Plugin 或 Skill 的贡献者不需要安装 Markdown，也不需要在本地构建站点；pull-request CI 会验证站点。只有真实 discovery 和 dogfooding 检查才需要 Codex。
 
-v0.1 contributor CLI `skills/kiss-my-agent-setup/scripts/setup.py` 已在 v0.2 移除，这是 breaking contributor-interface change。Setup、check、remove 与 role configuration 应迁移到对话式 `$kiss-my-agent-setup` Skill，并把 Agent 原生 engineering evidence 与 deterministic repository-test evidence 分开。
+v0.1 contributor CLI `skills/kiss-my-agent-setup/scripts/setup.py` 已在 v0.2 移除，这是 breaking contributor-interface change。Setup、check、remove 与 role configuration 应迁移到对话式 `kiss-my-agent-setup` Skill；粘贴 raw text 时使用 `$kiss-my-agent:kiss-my-agent-setup` 调用，并把 Agent 原生 engineering evidence 与 deterministic repository-test evidence 分开。
 
 参与本项目即表示同意遵守 [Code of Conduct](CODE_OF_CONDUCT.md)。
 
@@ -55,7 +55,7 @@ py -3 --version
 ## 修改边界
 
 - 保持人对目标、架构、验收标准、非目标和停止边界的所有权。
-- 保持 `$kiss-my-agent` 精确路由且 non-catch-all。只有反复出现的方法才新增 Rule，只有有用的具体对照才新增 Case。
+- 保持 `kiss-my-agent` 精确路由且 non-catch-all。只有反复出现的方法才新增 Rule，只有有用的具体对照才新增 Case。
 - 没有已批准的当前 consumer 时，不扩张 setup、workflow、release、compatibility、telemetry、scoring 或 evaluation machinery。
 - 保持三个 owner：`config.toml` 中四个 config paths（成对的 Master model/effort defaults 加两个独立补默认的公开开关）、standalone role TOML discovery，以及 AGENTS 中的动态调度。Marker 只控制 remove ownership，不授权重置已有值。Config 不得枚举角色文件。
 - 把提供的角色视为可编辑 seeds，而不是封闭 catalog；角色 `name` 是身份，文件名只是约定。
@@ -173,7 +173,7 @@ $plugin-creator update this existing KISS My Agent plugin for local development.
 
 参见 OpenAI 官方的 [Plugin Creator 与 local marketplace 指南](https://developers.openai.com/plugins/build/plugins#package-with-plugin-creator)和[marketplace add/upgrade 命令](https://developers.openai.com/plugins/build/plugins#add-a-marketplace-from-the-cli)。不要为此 workflow 新增仓库 staging script。
 
-在新 thread 中确认 `/skills` 显示 `kiss-my-agent` 与 `kiss-my-agent-setup`。只对匹配的非显然决策调用 `$kiss-my-agent`。只在一次性 project scope 中检查 setup、check、Agent 配置和 remove；开发测试不得使用真实 global scope。保留首次 failed precondition，不要通过重试隐藏它。
+在新 thread 中确认 `/skills` 显示 canonical Plugin Skills `kiss-my-agent:kiss-my-agent` 与 `kiss-my-agent:kiss-my-agent-setup`。只对匹配的非显然决策调用 `$kiss-my-agent:kiss-my-agent`。只在一次性 project scope 中使用 `$kiss-my-agent:kiss-my-agent-setup` 检查 setup、check、Agent 配置和 remove；开发测试不得使用真实 global scope。保留首次 failed precondition，不要通过重试隐藏它。
 
 分别报告每种证据层级：
 
@@ -203,25 +203,25 @@ Pull request 要聚焦且便于审查。解决重大 review findings 时不要�
 测试通过不能证明模型行为、可用性、发布或 release 成功。直接说明所有未测试表面。
 
 <a id="release-process"></a>
-## v0.2.0 发布流程
+## v0.2.1 发布流程
 
-本节仅供 maintainer 使用。`v0.1.0` tag 不可变，绝不能移动或重建。
+本节仅供 maintainer 使用。`v0.1.0` 与 `v0.2.0` tags 不可变，绝不能移动或重建。`v0.2.0` tag 的 post-tag 调用测试暴露了本次在 v0.2.1 修复的 raw-command 缺陷，因此该 tag 保留，但没有创建 GitHub Release。
 
-1. 使用 issue 跟踪 v0.2.0，并写明验收标准、兼容性约束和非目标。
+1. 使用 issue 跟踪 v0.2.1，并写明验收标准、兼容性约束和非目标。
 2. 创建 release pull request 前，运行适用且不需要第三方依赖的 core checks，只安装暂存的本地 candidate，并完成 fresh-session Skill discovery、无害 role Smokes 与仅依赖 README 的新用户 Pilot。只修改 Plugin/Skill 时可以把文档站点构建交给 pull-request CI。这些只属于 candidate 结果；公开 tag 存在前，不得声称 public install 或 upgrade 证据。
-3. 通过聚焦 pull request 合入实现。将 Plugin manifest version 与 marketplace ref 对齐为 `0.2.0` / `v0.2.0`，同步中英文文档，并要求完整测试套件以及 Ubuntu、macOS、Windows 原生 pull-request CI 全绿。
+3. 通过聚焦 pull request 合入实现。将 Plugin manifest version 与 marketplace ref 对齐为 `0.2.1` / `v0.2.1`，同步中英文文档，并要求完整测试套件以及 Ubuntu、macOS、Windows 原生 pull-request CI 全绿。
 4. Pull request squash-merge 后，验证精确的 `origin/main` commit，创建不可变的 annotated tag 并推送。此时还不能创建 GitHub Release：
 
 ```bash
 git fetch origin
 git switch main
 git pull --ff-only origin main
-python scripts/test_all.py
-git tag -a v0.2.0 -m "KISS My Agent v0.2.0"
-git push origin v0.2.0
+python3 scripts/test_all.py
+git tag -a v0.2.1 -m "KISS My Agent v0.2.1"
+git push origin v0.2.1
 ```
 
-5. 针对已推送的公开 tag，依次测试 public fresh install、隔离的 `v0.1.0` 到 `v0.2.0` marketplace upgrade，以及文档给出的固定 tag rollback。在可信新 session 中确认 installed cache 报告并加载 v0.2.0，确认 Host/账号支持 bundled `gpt-5.6-sol` defaults，再验证 v0.1-managed 项目迁移，包括升级完全一致、未经修改的 seeds，并保留已有 model/effort 选择和其他修改过的角色。确认普通 upgrade 仍停留在 rollback pin，再用文档中的 marketplace remove 加 unpinned-add 流程恢复 current channel：
+5. 针对已推送的公开 tag，依次测试 public fresh install、隔离的 `v0.1.0` 到 `v0.2.1` marketplace upgrade，以及文档给出的固定 tag rollback。在可信新 session 中确认 installed cache 报告并加载 v0.2.1，确认 Host/账号支持 bundled `gpt-5.6-sol` defaults，再验证 v0.1-managed 项目迁移，包括升级完全一致、未经修改的 seeds，并保留已有 model/effort 选择和其他修改过的角色。确认普通 upgrade 仍停留在 rollback pin，再用文档中的 marketplace remove 加 unpinned-add 流程恢复 current channel：
 
 ```bash
 codex plugin marketplace upgrade kiss-my-agent
@@ -231,9 +231,9 @@ codex plugin list
 6. 只有三条公开路径全部通过后，才能创建 GitHub Release：
 
 ```bash
-gh release create v0.2.0 --verify-tag --title "KISS My Agent v0.2.0" --generate-notes
+gh release create v0.2.1 --verify-tag --title "KISS My Agent v0.2.1" --generate-notes
 ```
 
 7. 验证公开 Release 页面与 archives，通过 HTTPS 验证 Pages 的两种语言，并通过后续 pull request 在 canonical handoff 中记录精确 commit、CI runs、公开 install/upgrade/rollback 结果、真实 Smokes、Pilot 结果和剩余限制。
 
-如果 post-tag public install、upgrade 或 rollback 检查失败，保留该 tag，不创建误导性的 v0.2.0 Release，并以新的 patch version 发布修复。如果已经发布的 Release 后来发现缺陷，同样保留 tag 并发布新的 patch version。绝不 force-push `main`、移动任何已推送 tag、压掉失败检查，或把 invalid run 重新标记为成功。
+如果 post-tag public install、upgrade 或 rollback 检查失败，保留该 tag，不创建误导性的 v0.2.1 Release，并以新的 patch version 发布修复。如果已经发布的 Release 后来发现缺陷，同样保留 tag 并发布新的 patch version。绝不 force-push `main`、移动任何已推送 tag、压掉失败检查，或把 invalid run 重新标记为成功。

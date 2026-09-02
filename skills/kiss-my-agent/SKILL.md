@@ -5,7 +5,7 @@ description: Use only when a research-engineering task has a non-obvious decisio
 
 # KISS My Agent
 
-Invoke this skill explicitly as `$kiss-my-agent` to resolve one consequential ambiguity, then return to the task. It is not a general workflow.
+Invoke this skill explicitly as `$kiss-my-agent:kiss-my-agent` to resolve one consequential ambiguity, then return to the task. It is not a general workflow.
 
 1. Name the ambiguity and its current consumer or decision.
 2. Read exactly one relevant rule file:

@@ -1,6 +1,6 @@
 {
   "name": "kiss-my-agent",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Reduce Codex overengineering and hidden failure by starting with a runnable research MVP and iterating from real results.",
   "author": {
     "name": "AoiOTA",

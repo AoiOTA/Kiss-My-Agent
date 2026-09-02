@@ -75,6 +75,36 @@ DOC_PAIRS = (
     ("docs/FAQ.md", "docs/FAQ.zh-CN.md"),
     ("docs/TESTING.md", "docs/TESTING.zh-CN.md"),
 )
+PUBLIC_INVOCATION_SOURCES = tuple(dict.fromkeys(
+    path
+    for group in (
+        *DOC_PAIRS,
+        ("AGENTS.md",),
+        (
+            "skills/kiss-my-agent/SKILL.md",
+            "skills/kiss-my-agent-setup/SKILL.md",
+        ),
+        ("tests/scenarios.md",),
+    )
+    for path in group
+))
+SETUP_INVOCATION_SOURCES = tuple(
+    path
+    for english, chinese in DOC_PAIRS
+    if english in {
+        "README.md",
+        "docs/INSTALLATION.md",
+        "docs/TESTING.md",
+    }
+    for path in (english, chinese)
+)
+QUALIFIED_DECISION_INVOCATION = "$kiss-my-agent:kiss-my-agent"
+QUALIFIED_SETUP_INVOCATION = "$kiss-my-agent:kiss-my-agent-setup"
+ALLOWED_PUBLIC_INVOCATIONS = frozenset({
+    QUALIFIED_DECISION_INVOCATION,
+    QUALIFIED_SETUP_INVOCATION,
+})
+PUBLIC_INVOCATION_TOKEN = re.compile(r"\$kiss-my-agent[A-Za-z0-9_:-]*")
 
 
 class ValidationError(Exception):
@@ -537,10 +567,18 @@ def validate_collaboration_interfaces(root: Path) -> None:
         "python scripts/test_all.py",
         "Dogfooding KISS My Agent",
         "Squash and merge",
-        "v0.2.0 Release Process",
+        "v0.2.1 Release Process",
     ):
         if token not in contributing:
             fail(f"contributor interface missing: {token}")
+
+    release_sequence = (
+        "git pull --ff-only origin main\n"
+        "python3 scripts/test_all.py\n"
+        "git tag -a v0.2.1"
+    )
+    if release_sequence not in contributing:
+        fail("v0.2.1 release sequence is incomplete or out of order")
 
     security = (root / "SECURITY.md").read_text(encoding="utf-8")
     if "supports only its latest formal GitHub Release" not in security:
@@ -645,6 +683,29 @@ def validate_skill(root: Path) -> None:
         )
         if headings != case_headings:
             fail(f"case structure invalid: {case_path.relative_to(root)}")
+
+
+def contains_invocation(text: str, invocation: str) -> bool:
+    return invocation in PUBLIC_INVOCATION_TOKEN.findall(text)
+
+
+def validate_public_invocations(root: Path) -> None:
+    for relative in PUBLIC_INVOCATION_SOURCES:
+        text = (root / relative).read_text(encoding="utf-8")
+        for match in PUBLIC_INVOCATION_TOKEN.finditer(text):
+            if match.group(0) not in ALLOWED_PUBLIC_INVOCATIONS:
+                line = text.count("\n", 0, match.start()) + 1
+                fail(f"invalid Skill invocation in {relative}:{line}: {match.group(0)}")
+
+    for relative in SETUP_INVOCATION_SOURCES:
+        text = (root / relative).read_text(encoding="utf-8")
+        if not contains_invocation(text, QUALIFIED_SETUP_INVOCATION):
+            fail(f"qualified setup invocation missing from {relative}")
+
+    skill_relative = "skills/kiss-my-agent/SKILL.md"
+    skill = (root / skill_relative).read_text(encoding="utf-8")
+    if not contains_invocation(skill, QUALIFIED_DECISION_INVOCATION):
+        fail(f"qualified self-invocation missing from {skill_relative}")
 
 
 def markdown_targets(text: str) -> list[str]:
@@ -1013,6 +1074,7 @@ def validate(root: Path) -> None:
     validate_collaboration_interfaces(root)
     validate_example_config(root)
     validate_skill(root)
+    validate_public_invocations(root)
     validate_bilingual_documents(root)
     validate_document_interfaces(root)
     chain_bytes = validate_fixtures(root)
