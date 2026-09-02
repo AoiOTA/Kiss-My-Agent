@@ -6,7 +6,7 @@
 
 **Keep It Simple, Scientist. Less ceremony. More science.**
 
-KISS My Agent helps Codex finish complex research-engineering work without turning every uncertainty into more machinery. You set the goal and decide what counts as done; the Agents keep changes small, failures visible, and conclusions honest.
+KISS My Agent helps Codex keep key human decisions human, match the size of a change to the current task, keep failures visible, make multi-Agent responsibilities and conflicts explicit, and keep conclusions within the evidence. It is built for complex research-engineering work where a plausible-looking result is not enough.
 
 [English](https://aoiota.github.io/Kiss-My-Agent/) | [简体中文](https://aoiota.github.io/Kiss-My-Agent/zh-CN/)
 
@@ -18,28 +18,57 @@ KISS My Agent helps Codex finish complex research-engineering work without turni
 </div>
 
 <a id="why-this-exists"></a>
-## Two Problems It Targets
+## What KISS My Agent Is
 
-**1. A small bug becomes a new platform.**
+KISS My Agent is a versioned Codex Plugin for complex research and engineering projects. It packages a small set of working rules, three editable starter roles, and two Skills: one helps with the few important decisions that are not obvious, and the other handles setup, checks, and configuration.
 
-Before: one parser fails, so the Agent proposes a framework, registry, configuration format, migration plan, and large test system. After: KISS directs it to fix the parser, add the smallest useful regression check, and stop.
+It improves Codex's decisions through clearer working boundaries. It is not an autonomous manager above Codex or a correctness checker, and it does not replace human product or scientific judgment.
 
-**2. A real failure is hidden as success.**
+<a id="failure-patterns"></a>
+<a id="overengineering-and-overdefense"></a>
+## The Two Core Problems It Solves
 
-Before: an internal error is caught and returned as an empty or stale “successful” result. After: KISS directs expected optional outages to be reported clearly and lets real bugs fail with their cause.
+| Core problem | Definition | Common signs | Cost |
+| --- | --- | --- | --- |
+| **Overengineering** | Adding frameworks, abstractions, configuration, migrations, or process for future possibilities that nobody needs now, so the change grows beyond the current goal | One local bug becomes a new platform; a small task gets a fixed multi-Agent workflow | Code, maintenance, and review costs rise while the solution quietly replaces human architecture and scope decisions |
+| **Overdefense** | Facing uncertainty without first checking facts and the failure boundary, then accumulating validation, retries, fallbacks, approvals, compatibility layers, or gates | A real bug becomes an empty or stale “success”; tests repeat without confirming what is actually running; work is refused beyond the real permission boundary | Causes become harder to find, conclusions become less trustworthy, and maintenance cost keeps growing |
+
+These tendencies also appear as changing scope or acceptance without the user, editing a visible file instead of fixing the code that actually runs, treating a passing test as the final goal, or letting several Agents duplicate work and overwrite shared state. These are consequences of the two core problems, not six unrelated product features.
+
+Necessary safety is not overdefense. Authentication, authorization, least privilege, validation at a real boundary, safe cleanup, and explicit handling of a known optional outage should remain. No task or keyword inevitably triggers these problems, and KISS is not a safety bypass.
+
+<a id="why-agents-drift"></a>
+## Why Codex Can Fall Into Them
+
+Prompts often say “complete,” “robust,” or “production-ready” without also stating the goal, acceptance criteria, non-goals, and stop condition. Codex must infer the missing decisions, and a more complex answer can look more complete and safer in text. It also cannot know from those adjectives alone which risks truly matter to this project.
+
+Research projects often have several source versions, builds, configurations, datasets, and scoring methods, while multiple Agents see different slices of the work. That makes it easier to fix the wrong thing, duplicate effort, collide on shared state, or mistake a local check for the real result.
+
+<a id="how-kiss-helps"></a>
+<a id="before-and-after"></a>
+## How KISS Reduces These Problems
+
+- **People keep the key decisions:** people decide the goal, architecture, what counts as done, what is out of scope, and when to stop. Codex works inside those boundaries and asks before materially expanding them.
+- **Start from the real need:** check the facts and find the person or code actually affected instead of building a new system because it may be useful someday.
+- **Prefer the smallest correct change:** repair the part truly responsible for the problem and test what it affects. Do not turn it into a general framework without a present need, and allow no change when the current result already meets the goal.
+- **Keep failures and evidence truthful:** preserve the cause of internal errors; degrade only for a clear optional failure and explain why; a passing test proves the test passed, not automatically that the product or research goal succeeded.
+- **Divide work only when it helps:** use multiple Agents only when the split adds value. Give every shared file, device, or output one clearly responsible Agent, while the main conversation combines results and decisions.
 
 <a id="is-it-for-you"></a>
 ## Is It for You?
 
-- **Simple, clear, one-off task:** you do not need project setup. Use a normal Codex conversation.
-- **Complex research or engineering project:** use KISS when several Agents, important decisions, shared files, experiments, or strong evidence claims need clear ownership.
+| Good fit | Not designed for |
+| --- | --- |
+| Long-running or complex research-engineering projects that need persistent boundaries for scope, failure handling, and evidence claims | Simple, isolated work with an obvious acceptance check; a normal Codex conversation is enough |
+| You often remove speculative frameworks, broad fallbacks, or process machinery from Agent proposals | You want the Agent to choose the product goal, architecture, risk tolerance, or acceptance criteria for you |
+| Multiple Agents, experiments, shared files, or devices are useful but need clear responsibility | You need deterministic security enforcement, formal verification, a general orchestration platform, or verified non-Codex support |
 
-KISS is guidance, not a permission bypass or a guarantee that a model will never make a mistake.
+KISS improves the rules and role boundaries under which Codex works. It does not make the system automatically correct or bypass authentication, permissions, administrator policy, project trust, or necessary safety controls.
 
 <a id="quick-start"></a>
 ## Quick Start
 
-Tested with authenticated, Plugin-capable Codex CLI 0.152.1. You need `git`, GitHub network access, and account access to `gpt-5.6-sol`; earlier Codex versions are not verified.
+Tested with authenticated, Plugin-capable Codex CLI 0.152.1. You need `git`, GitHub network access, and account access to `gpt-5.6-sol`; earlier Codex versions are not verified. Normal users do not need Python, Node.js, Docker, or another language runtime.
 
 Confirm that this Codex build supports Plugins:
 
@@ -55,13 +84,15 @@ codex plugin marketplace add AoiOTA/Kiss-My-Agent
 codex plugin add kiss-my-agent@kiss-my-agent
 ```
 
+At this point only the Plugin is installed. A new Codex session can discover its two Skills, but no persistent project rules or roles have been configured yet.
+
 Open a new Codex session in the complex project and run:
 
 ```text
 $kiss-my-agent-setup set up this project with the default team
 ```
 
-Open another new session. Then ask for work normally:
+Project setup writes the persistent project rules and role configuration. Trust the project through the Codex interface, then open another new session; only that trusted fresh session loads the project rules and roles. Then ask for work normally:
 
 ```text
 Find the cause of this failing parser test, make the smallest correct fix, and run the affected tests.
@@ -81,7 +112,7 @@ Default setup manages three project locations:
 
 It preserves existing user configuration and needs no choices by default. It asks only when the target or a conflict is unclear. If setup stops, follow its reported reason and exact path instead of overwriting files; see [Installation](docs/INSTALLATION.md).
 
-The Plugin has no background service. It installs instructions and role configuration; the Codex Host starts the requested Agents.
+The Plugin has no background service; the Codex Host loads the configuration and starts the requested Agents.
 
 <a id="how-to-use"></a>
 ## The Default Team
