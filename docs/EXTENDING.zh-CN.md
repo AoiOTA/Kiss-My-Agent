@@ -24,7 +24,7 @@
 <a id="preserve-routing"></a>
 ## 保持精确路由
 
-Plugin-owned `$kiss-my-agent` Skill 必须保持 non-catch-all。常规实现、机械编辑、测试、构建、Git 操作、查询和格式化都不进入 Skill。一个歧义路由到一个 Rule，并且只在有用时读取一个 Case。`$kiss-my-agent-setup` 保持独立，并且只处理显式 setup/check/remove 操作。
+Plugin-owned `$kiss-my-agent` Skill 必须保持 non-catch-all。常规实现、机械编辑、测试、构建、Git 操作、查询和格式化都不进入 Skill。一个歧义路由到一个 Rule，并且只在有用时读取一个 Case。`$kiss-my-agent-setup` 保持独立，并且只处理显式 setup/check/configure/remove 操作。
 
 <a id="add-rule"></a>
 ## 新增 Rule
@@ -48,36 +48,23 @@ Case 保持以下精确章节顺序：
 <a id="update-runtime-docs"></a>
 ## 更新 Runtime 与文档
 
-修改公开开关、standalone role discovery 或 setup scope 时，保持 `.codex/config.toml`、`.codex/agents/`、plugin metadata、setup implementation、Configuration、Installation、Testing、两份 README 与带注释示例一致。`.codex/config.toml` 只拥有两个公开启用开关，绝不枚举角色文件。三个 seeds 不是封闭 catalog，model/effort 在省略时保持 Host-inherited。没有当前 consumer 时，不新增模型 fallback、权限 fallback、preset matrices 或 compatibility wrappers。
+修改公开开关、standalone role discovery 或 setup scope 时，保持 `.codex/config.toml`、`.codex/agents/`、plugin metadata、Agent 原生 setup references、Configuration、Installation、Testing、两份 README 与带注释示例一致。`.codex/config.toml` 只拥有两个公开启用开关，绝不枚举角色文件。三个 seeds 不是封闭 catalog，model/effort 在省略时保持 Host-inherited。没有当前 consumer 时，不新增模型 fallback、权限 fallback、preset matrices 或 compatibility wrappers。
 
 修改英文开发者文档时，同步更新简体中文配套文件，保持相同显式 anchor IDs、章节顺序和 fenced command blocks。面向 Codex 的 AGENTS、Skill、Rules、Cases、角色 TOML、`LICENSE` 和 `CODE_OF_CONDUCT.md` 保持英文。
 
 <a id="validate"></a>
 ## 验证
 
-Linux 或 macOS：
+只修改 Plugin/Skill 时可以运行不需要第三方包的本地核心检查。Pull request CI 负责完整跨平台和站点套件：
 
 ```bash
-./scripts/validate.sh
-```
-
-Windows 原生 PowerShell：
-
-```powershell
-.\scripts\validate.ps1
+python scripts/validate.py
+python -m unittest tests.test_setup -v
 ```
 
 导航、tables、badges、Mermaid 或 assets 改变时检查渲染 Markdown。发现行为改变时使用可信新 Codex 会话；旧会话不保证热加载。
 
-Pages 变更应在部署前完成本地构建与测试，随后验证已部署的英文根 URL 与中文 `zh-CN/` URL：
-
-```bash
-python3 -m pip install -r requirements-site.txt
-python3 -m unittest tests.test_build_site
-python3 scripts/build_site.py --output _site
-```
-
-README 语言链接应指向已验证的 Pages URL；不要替换为未经验证的部署目标。
+Pages 变更应在部署前检查测试套件生成的隔离构建，随后验证已部署的英文根 URL 与中文 `zh-CN/` URL。README 语言链接应指向已验证的 Pages URL；不要替换为未经验证的部署目标。
 
 <a id="stop-boundary"></a>
 ## 停止边界

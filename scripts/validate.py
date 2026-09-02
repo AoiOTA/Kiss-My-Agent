@@ -97,9 +97,14 @@ def require_files(root: Path) -> None:
         "CODE_OF_CONDUCT.md",
         "SECURITY.md",
         "SECURITY.zh-CN.md",
+        ".editorconfig",
         ".gitattributes",
         ".gitignore",
+        ".github/CODEOWNERS",
         ".github/ISSUE_TEMPLATE/bug-report.md",
+        ".github/ISSUE_TEMPLATE/config.yml",
+        ".github/ISSUE_TEMPLATE/documentation.md",
+        ".github/ISSUE_TEMPLATE/feature-request.md",
         ".github/ISSUE_TEMPLATE/rule-or-case-proposal.md",
         ".github/PULL_REQUEST_TEMPLATE.md",
         ".github/workflows/validate.yml",
@@ -118,7 +123,8 @@ def require_files(root: Path) -> None:
         "skills/kiss-my-agent/references/cases/product-contract-provenance-vs-agent-proof.md",
         "skills/kiss-my-agent/references/cases/verification-coordination-vs-workflow-platform.md",
         "skills/kiss-my-agent-setup/SKILL.md",
-        "skills/kiss-my-agent-setup/scripts/setup.py",
+        "skills/kiss-my-agent-setup/references/setup-lifecycle.md",
+        "skills/kiss-my-agent-setup/references/configure-agents.md",
         "assets/kiss-my-agent-hero.png",
         "examples/config.example.toml",
         "requirements-site.txt",
@@ -127,10 +133,16 @@ def require_files(root: Path) -> None:
         "tests/fixtures/layered-project/AGENTS.md",
         "tests/fixtures/layered-project/component-a/AGENTS.md",
         "tests/fixtures/layered-project/component-b/subsystem/AGENTS.override.md",
+        "tests/fixtures/v0.1-managed-project/.codex/config.toml",
+        "tests/fixtures/v0.1-managed-project/.codex/agents/kiss_explorer.toml",
+        "tests/fixtures/v0.1-managed-project/.codex/agents/kiss_coder.toml",
+        "tests/fixtures/v0.1-managed-project/.codex/agents/kiss_reviewer.toml",
+        "tests/fixtures/v0.1-managed-project/AGENTS.md",
         "tests/scenarios.md",
         "tests/test_build_site.py",
         "tests/test_setup.py",
         "scripts/build_site.py",
+        "scripts/test_all.py",
         "scripts/validate.py",
         "scripts/validate.sh",
         "scripts/validate.ps1",
@@ -355,9 +367,26 @@ def validate_setup_interface(root: Path) -> None:
         fail("unexpected setup skill name")
     if not fields.get("description"):
         fail("empty setup skill description")
-    for token in ("setup", "check", "remove", "--scope", "--target", "--codex-home"):
+    for token in ("setup", "check", "remove", "configure", "project", "global"):
         if token not in skill:
             fail(f"setup skill interface missing: {token}")
+    links = set(re.findall(r"\[[^\]\n]+\]\(([^)]+)\)", skill))
+    expected_links = {
+        "references/setup-lifecycle.md",
+        "references/configure-agents.md",
+    }
+    if links != expected_links:
+        fail("setup skill must route exactly to its lifecycle and configuration references")
+    scripts = skill_path.parent / "scripts"
+    published_sources = [] if not scripts.exists() else [
+        path
+        for path in scripts.rglob("*")
+        if path.is_file()
+        and "__pycache__" not in path.parts
+        and path.suffix != ".pyc"
+    ]
+    if published_sources:
+        fail("setup skill must not require bundled executable scripts")
 
 
 def validate_site_interfaces(root: Path) -> None:
@@ -379,12 +408,74 @@ def validate_site_interfaces(root: Path) -> None:
     workflow = (root / ".github/workflows/pages.yml").read_text(encoding="utf-8")
     for token in (
         "scripts/build_site.py",
-        "actions/configure-pages@",
-        "actions/upload-pages-artifact@",
-        "actions/deploy-pages@",
+        "actions/checkout@v7",
+        "actions/setup-python@v7",
+        "actions/configure-pages@v6",
+        "actions/upload-pages-artifact@v5",
+        "actions/deploy-pages@v5",
     ):
         if token not in workflow:
             fail(f"Pages workflow interface missing: {token}")
+
+    validation_workflow = (root / ".github/workflows/validate.yml").read_text(
+        encoding="utf-8"
+    )
+    for token in (
+        'python: ["3.11", "3.12"]',
+        "actions/checkout@v7",
+        "actions/setup-python@v7",
+        "python scripts/test_all.py",
+        "requirements-site.txt",
+    ):
+        if token not in validation_workflow:
+            fail(f"validation workflow interface missing: {token}")
+
+
+def validate_collaboration_interfaces(root: Path) -> None:
+    codeowners = (root / ".github/CODEOWNERS").read_text(encoding="utf-8").strip()
+    if codeowners != "* @AoiOTA":
+        fail("CODEOWNERS must route repository review to @AoiOTA")
+
+    editorconfig = (root / ".editorconfig").read_text(encoding="utf-8")
+    for token in ("root = true", "charset = utf-8", "end_of_line = lf"):
+        if token not in editorconfig:
+            fail(f"editor configuration interface missing: {token}")
+
+    chooser = (root / ".github/ISSUE_TEMPLATE/config.yml").read_text(encoding="utf-8")
+    for token in (
+        "blank_issues_enabled: false",
+        "/discussions/categories/q-a",
+        "/discussions/categories/ideas",
+        "/security/advisories/new",
+    ):
+        if token not in chooser:
+            fail(f"issue chooser interface missing: {token}")
+
+    for relative in (
+        ".github/ISSUE_TEMPLATE/bug-report.md",
+        ".github/ISSUE_TEMPLATE/documentation.md",
+        ".github/ISSUE_TEMPLATE/feature-request.md",
+        ".github/ISSUE_TEMPLATE/rule-or-case-proposal.md",
+    ):
+        template = (root / relative).read_text(encoding="utf-8")
+        if not re.match(r"\A---\n.*?\n---\n", template, re.DOTALL):
+            fail(f"issue template frontmatter missing: {relative}")
+
+    contributing = (root / "CONTRIBUTING.md").read_text(encoding="utf-8")
+    for token in (
+        "python3 scripts/validate.py",
+        "tests.test_setup",
+        "python scripts/test_all.py",
+        "Dogfooding KISS My Agent",
+        "Squash and merge",
+        "v0.2.0 Release Process",
+    ):
+        if token not in contributing:
+            fail(f"contributor interface missing: {token}")
+
+    security = (root / "SECURITY.md").read_text(encoding="utf-8")
+    if "supports only its latest formal GitHub Release" not in security:
+        fail("security policy must identify the supported release policy")
 
 
 def validate_example_config(root: Path) -> None:
@@ -585,7 +676,8 @@ def validate_document_interfaces(root: Path) -> None:
         "kiss_reviewer",
         "AGENTS.override.md",
         "codex plugin marketplace add",
-        "scripts/setup.py",
+        "configure agents for this project",
+        "codex plugin marketplace upgrade kiss-my-agent",
         "/skills",
     ):
         if interface_name not in installation:
@@ -722,6 +814,7 @@ def validate(root: Path) -> None:
     validate_distribution_interfaces(root)
     validate_setup_interface(root)
     validate_site_interfaces(root)
+    validate_collaboration_interfaces(root)
     validate_example_config(root)
     validate_skill(root)
     validate_bilingual_documents(root)

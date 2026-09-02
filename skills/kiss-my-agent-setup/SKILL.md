@@ -1,20 +1,16 @@
 ---
 name: kiss-my-agent-setup
-description: Explicitly set up, inspect, or remove KISS My Agent Codex configuration, managed AGENTS.md guidance, and bundled role files for one project or a Codex home. Use only when the user asks to install, configure, check, or remove the KISS My Agent multi-agent setup. The check command is static and does not prove live Codex loading.
+description: Explicitly set up, inspect, configure existing KISS My Agent roles, or remove KISS My Agent Codex configuration for one project or one Codex home. Use only for a user-requested setup, check, configure, or remove action. Static checks do not prove live Codex loading.
 ---
 
 # KISS My Agent Setup
 
-Run the bundled script only after the user explicitly asks to change or inspect setup state. The skill itself is loaded from the plugin and is never copied into the target.
+Use Codex's existing file inspection and editing tools. Do not require Python, Node.js, a package manager, or a bundled executable for setup operations.
 
-```bash
-python3 scripts/setup.py setup --scope project --target /path/to/project
-python3 scripts/setup.py check --scope project --target /path/to/project
-python3 scripts/setup.py remove --scope project --target /path/to/project
-```
-
-Use `--scope global` to manage `config.toml`, `AGENTS.md`, and `agents/` under the selected Codex home. `--codex-home` selects an explicit Codex home and also supplies the opposite-scope collision check for project setup. `--target` defaults to the current directory; `--codex-home` defaults to `CODEX_HOME` or `~/.codex`.
-
-`setup` preserves existing `false` feature values and reports a prominent `disabled` status. `check` performs only static file and catalog inspection: it does not invoke Codex or claim that a running process loaded the configuration. It exits nonzero with `absent` for a never-configured target and with `incomplete` for partial managed artifacts. A current managed block remains structurally valid when users delete any initial seed roles; explicit `false` values report `disabled` without making the installed structure invalid. `remove` removes only the managed AGENTS block, marked configuration keys, and unchanged bundled roles; it reports modified roles that it preserves.
-
-All commands reject an applicable `AGENTS.override.md`, symlinked managed paths, malformed TOML, unsupported config shapes, role-name collisions, and duplicate bundled role names across project and global catalogs. A failed setup or removal rolls back its own completed file changes.
+1. Identify the exact action and scope before changing anything. Project scope may be inferred only from an explicit phrase such as "this project" and must resolve to the Host's current unique project or active workspace root, not an arbitrary child working directory. Show the absolute target before writing; ask when multiple roots exist or the target is not unique. Global scope must always be explicit.
+2. Read exactly one matching reference:
+   - For project/global `setup`, `check`, or `remove`, read [references/setup-lifecycle.md](references/setup-lifecycle.md).
+   - For the optional wizard that configures existing agents, read [references/configure-agents.md](references/configure-agents.md).
+3. Inspect every affected file before writing. Preserve unrelated settings, instructions, roles, and user changes. Stop on ambiguous ownership or a state the selected reference does not safely cover.
+4. Do not install or uninstall the plugin itself, establish project trust, restart Codex, or claim that the current session hot-loaded changed files.
+5. After a successful mutation, re-read the affected files, report the exact scope and paths changed, and tell the user to start a new Codex session before testing discovery or behavior.

@@ -7,102 +7,130 @@
 <a id="test-surfaces"></a>
 ## 测试表面
 
-KISS My Agent 有四个彼此不同的测试表面：
+KISS My Agent 有几个彼此不同的证据表面：
 
-1. 仓库文件的原生静态验证。
-2. 对一个显式文件系统 scope 的 setup `check`。
-3. 可信新 Codex 会话中 plugin Skills 与 standalone roles 的真实发现。
-4. 每个角色只验证一项窄职责的无害 Smoke。
+1. 仓库验证和确定性的贡献者测试。
+2. 隔离文件系统 scope 中 Agent 原生 setup/check/remove/configure 行为。
+3. 新 Codex 会话中的 Plugin 安装或升级与 Skill 发现。
+4. 每个 standalone role 的窄范围观察行为。
+5. 新用户对首页的理解。
+6. 精确 commit 的原生 CI 与已部署 Pages 响应。
 
-不要把这些结果合并成更强声明。静态 PASS 不等于 setup 或发布证据；setup `check` 不等于真实发现；发现不等于行为资格认定；Smoke 也不是研究或产品证据。
+不要把这些结果合并成更强声明。源码检查不是真实发现，CI 不是行为保证，一次角色运行不是通用可靠性，文档构建也不能证明新用户看懂了产品。
 
-<a id="static-validation"></a>
-## 静态验证
+<a id="user-verification"></a>
+## 用户验证不需要 Python
 
-前置条件为 Python 3.11 或更高版本。Linux 或 macOS 的 POSIX wrapper 使用 `python3`；Windows wrapper 可使用 `py -3` launcher 或 `python`。
-
-Linux 或 macOS：
-
-```bash
-cd /absolute/path/to/kiss-my-agent
-./scripts/validate.sh
-```
-
-Windows 原生 PowerShell：
-
-```powershell
-Set-Location C:\absolute\path\to\kiss-my-agent
-.\scripts\validate.ps1
-```
-
-WSL 使用 Linux 命令，只产生 Linux 证据，不产生 Windows 证据。[`Validate` workflow](../.github/workflows/validate.yml) 执行原生 wrappers。配置了 CI job 不等于测试通过；必须引用精确 commit 上的绿色 job。
-
-Validator 不需要 Codex sandbox package、复制的 `CODEX_HOME`、容器、虚拟机或额外测试项目。它只检查输出和源码明确列出的属性。
-
-<a id="project-defaults"></a>
-## 项目默认值
-
-跟踪的 `.codex/config.toml` 显式设置 `features.multi_agent = true` 与 `agents.enabled = true`，且不枚举角色。Host 自动发现 standalone role TOML；每个文件的 `name` 字段是身份，文件名只是约定。
-
-提供的三个角色是可编辑 seeds，不是封闭 catalog。配置不选择 trust、模型、权限、上下文、并发、provider 或凭证。角色 model 与 effort 在省略时继承 Host 设置。Host 必须先信任项目，项目 config 才能加载；实际生效的显式 `false` 仍表示禁用。
-
-<a id="setup-check"></a>
-## Setup 检查
-
-Setup 后启动新会话，并检查同一显式 scope：
+安装或更新 Plugin 后启动新会话，并使用 Plugin-owned interfaces：
 
 ```text
+$kiss-my-agent-setup set up this project
 $kiss-my-agent-setup check this project
-$kiss-my-agent-setup check global setup
+$kiss-my-agent-setup configure agents for this project
 ```
 
-只使用与已修改 scope 匹配的命令。Setup `check` 支持关于其检查的 managed config、standalone seed files 与 AGENTS block 的声明。它不建立项目 trust、不证明活动会话 discovery、不恢复已删除角色，也不会把 source/static 证据提升为远程安装证据。
+这些操作使用 Codex 文件工具，不需要 Python、Node.js、Docker 或包管理器。`check` 只证明检查到的文件状态。需要真实 discovery 证据时再使用 `/skills` 和窄范围 role Smoke。
+
+<a id="contributor-suite"></a>
+## 贡献者测试套件
+
+只修改 Plugin/Skill 的贡献者需要 Python 3.11 或更高版本，但不需要第三方包。运行本地核心检查：
+
+```bash
+python scripts/validate.py
+python -m unittest tests.test_setup -v
+```
+
+这些改动不要求本地构建站点。Pull request CI 会安装 `requirements-site.txt` 并运行 `python scripts/test_all.py`，执行静态验证、全部单元测试和临时目录中的文档构建。它不得留下 tracked 文件改动。Linux/macOS 与原生 Windows CI 使用同一个完整入口；shell wrappers 只检查各自平台的原生启动行为。
+
+测试套件验证仓库拥有的契约。CI 若没有真实已认证 Codex 会话，就无法执行模型驱动的 setup workflow，因此这些场景必须标记为明确的 engineering runs，不能用伪单测代替。
+
+<a id="setup-scenarios"></a>
+## Agent 原生 Setup 场景
+
+Setup 场景只能在一次性项目和明确隔离的 Codex home 中运行。保留 before/after 文件用于审查，但不要提交日志或临时用户数据。
+
+必测场景包括：
+
+- 空项目 setup、重复 setup、check 与 remove；
+- 无关 config、comments、换行风格、AGENTS 内容和已有角色；
+- 有意设置的 `false` 与有意删除的 seed roles；
+- 损坏 TOML、不安全路径类型、`AGENTS.override.md`、重复名称、文件名/identity 不匹配和 project/global 冲突；
+- remove 能作为 cross-scope seed-name 冲突的解除出口；
+- remove 保留已修改角色；
+- 只配置一个选中角色，其他字段和文件保持不变；
+- 恢复继承时只删除选中的可选 key；
+- 未单独确认时拒绝写入 `danger-full-access`；
+- 与 v0.1.0 markers 创建的项目兼容。
+
+模型驱动文件编辑期间的进程或机器崩溃不在事务证明范围内。应直接报告，而不能声称原子恢复。
+
+<a id="local-plugin"></a>
+## 测试修改后的 Plugin，而不是旧缓存
+
+开发时使用隔离的本地 marketplace，让它预先指向被编辑 Plugin 的临时副本。使用当前 Plugin Creator helper 对该副本加入一个 Codex cachebuster，从该本地 marketplace 重新安装，然后启动新会话。
+
+不得给 canonical release manifest 添加 cachebuster、手工编辑已配置 marketplace，也不得把 Git-backed v0.1.0 cache 当作工作树改动的证据。记录实际加载的 Plugin 版本和候选版本独有行为。
 
 <a id="fresh-session"></a>
 ## 可信新会话
 
-安装 plugin 或修改 config、instructions、Skills、角色 TOML 后，关闭或离开旧会话，再从仓库根目录启动新的已认证会话。
+安装、升级、setup、remove 以及 config、instructions、Skills 或 roles 的改变都会影响启动与发现。应在目标项目中新开已认证会话，并在 Host 提示时通过界面建立 trust。
 
-Linux 或 macOS：
-
-```bash
-cd /absolute/path/to/kiss-my-agent
-codex
-```
-
-Windows 原生 PowerShell：
-
-```powershell
-Set-Location C:\absolute\path\to\kiss-my-agent
-codex
-```
-
-Host 提示时通过其界面建立项目 trust。当前已在运行的会话不保证热加载以上任何表面，因此旧会话的结果不能证明新项目 config 已经或没有加载。
+记录 OS、原生 shell、Codex 版本、Plugin 版本、source identity、scope、trust state，以及会话是否为新会话。旧会话不能证明新配置已加载或没有加载。
 
 <a id="skill-smoke"></a>
 ## Skill 发现 Smoke
 
-在可信新会话中运行 `/skills`，确认 plugin-owned `kiss-my-agent` 与 `kiss-my-agent-setup` entries。然后只针对匹配的非显然机制或证据决策调用 `$kiss-my-agent`。Setup Skill 只用于显式 project/global setup、check 与 remove 操作。
+在新会话中运行 `/skills`，确认 Plugin-owned `kiss-my-agent` 和 `kiss-my-agent-setup` entries。然后：
 
-这只证明该会话与该 prompt 的发现和路由，不证明未来 prompt 的服从性。
+- 只有真实存在非显然机制、scope、runtime/evaluator 或证据决策时才使用 `$kiss-my-agent`；
+- 只有显式 setup/check/configure/remove 工作才使用 `$kiss-my-agent-setup`。
+
+普通实现、测试、构建、Git、查询和格式化不应路由到 `$kiss-my-agent`。发现只证明该会话可见，不能保证未来遵循 instructions。
 
 <a id="role-smoke"></a>
 ## 三角色 Smoke
 
-使用 Host 自定义 Agent 界面，或明确要求主线程委派给指定已发现角色。逐个运行并保持任务无害：
+使用 Host 自定义 Agent 界面，或明确要求主线程把一个有界任务委派给每个已发现角色：
 
-1. `kiss_explorer`：要求它只读 `README.md`、列出显式 HTML anchor IDs，且不作修改。
-2. `kiss_coder`：要求它仅在 `tests/.kiss-coder-smoke.txt` 不存在时创建该文件、写入一行、报告后只删除这个自有文件；路径已存在时必须停止且不覆盖。
-3. `kiss_reviewer`：把当前文档 diff 交给它，要求只读报告带精确位置的实质 findings，不编辑文件。
+1. `kiss_explorer`：读取 fixture 并报告准确 anchors，不编辑文件。
+2. `kiss_coder`：只拥有一个隔离的一次性文件，仅在不存在时创建，验证后只删除该文件。
+3. `kiss_reviewer`：检查给定 diff，报告带准确位置的实质 findings，不编辑文件。
 
-Smoke 前后都检查 working tree，并保留无关改动。Coder Smoke 若在创建后中断，可能遗留该命名文件；确认它确属 Smoke 产物后才能移除。
+前后都检查工作树和选定 fixtures。一次成功调用只支持角色发现和观察到的窄行为。
 
-预期 owner 分别是只读 explorer、在分配内改变状态的 coder，以及独立只读 reviewer。成功调用只支持角色发现和已观察的窄行为。
+<a id="upgrade-smoke"></a>
+## 升级 Smoke
 
-<a id="manual-scenarios"></a>
-## 人工 Scenarios
+使用隔离安装证明支持的迁移：
 
-[`tests/scenarios.md`](../tests/scenarios.md) 是用于讨论永久规则与 Skill 路由的 fixtures。它们不是自动评分、release gates，也不保证所有模型行为一致。
+```bash
+codex plugin marketplace upgrade kiss-my-agent
+codex plugin list
+```
+
+从已安装 v0.1.0 开始，在真实 v0.2.0 tag 存在后刷新 marketplace，确认 installed cache 报告 0.2.0，然后打开新会话。验证 `configure agents` 等 v0.2.0 独有接口，再检查一个 v0.1-managed 一次性项目。同时执行文档中的固定 tag 回退。如果任一步失败，保留第一个决定性错误。
+
+<a id="dogfooding"></a>
+## 开发过程中的 Dogfooding
+
+开发下一版本时，使用当前 KISS 项目 instructions 和适合的真实角色。记录它们在哪里减少了 scope、暴露了失败或改善了证据，也记录可复现的错误停止或不必要机制。
+
+保持产品 runtime 与 evaluator owner 分离：被测 Plugin 不能定义自己的验收标准，也不能批准自己的 release。人类维护者拥有目标与验收；确定性测试、独立审查和新会话 replay 判断观察结果。Dogfooding 是 engineering evidence，不是自主自证。
+
+<a id="readme-pilot"></a>
+## README 新用户 Pilot
+
+只把渲染后的首页交给一名没有参与改动的人，不额外解释，并要求其在五分钟内找出：
+
+- 过度设计和过度防御这两种失败模式；
+- Agent 为什么以及什么时候容易出现这些问题；
+- KISS My Agent 怎样提供帮助、不能保证什么；
+- 它是否适合自己的工作；
+- 安装、第一次使用、Agent 配置和更新入口。
+
+条件允许时，让对方在一次性项目中完成 setup，且不安装 Python。只记录匿名的通过/失败观察和阻塞性困惑。修订后复用同一清单，不得移动标准。
 
 <a id="evidence-boundaries"></a>
 ## 证据边界
@@ -110,16 +138,17 @@ Smoke 前后都检查 working tree，并保留无关改动。Coder Smoke 若在�
 | 证据 | 支持 | 不支持 |
 | --- | --- | --- |
 | 源码检查 | 跟踪文件写了什么 | 实际加载的 runtime identity 或行为 |
-| 静态 validator PASS | 被检查的仓库 invariants | Plugin 发布、Agent 服从、Host 支持、研究有效性 |
-| Setup `check` PASS | 对应显式 scope 的 managed files | Trust、活动加载、远程安装、角色行为 |
-| CI 绿色 job | 对应 job、平台和 commit 上原生 wrapper PASS | 所有 OS 版本或未来兼容性 |
-| `/skills` 发现 | Plugin Skills 在该新会话可见 | 未来服从性或权限 |
-| 单次角色 Smoke | 已发现角色完成该窄任务 | 通用角色可靠性或产品验收 |
-| 人工 scenario 讨论 | 人对该 Case 的解释 | 自动评估或资格认定 |
+| 静态/单元测试 PASS | 被测试的仓库 invariants | Agent 原生 workflow 行为 |
+| Setup engineering run | 该 scope 和 prompt 下观察到的文件 | 未来模型一致性或崩溃原子性 |
+| 精确 SHA 原生 CI | 该 job、平台、Python 和 commit | 所有 OS/client 版本或未来兼容性 |
+| `/skills` 发现 | 该新会话中的 Skill 可见性 | 通用 instructions 遵循或权限 |
+| Role Smoke | 观察到的窄角色任务 | 通用角色可靠性 |
+| 新用户 Pilot | 该参与者的理解 | 通用可用性 |
+| HTTP 200 加内容检查 | 已部署页面可访问及检查到的内容 | Plugin 安装或行为 |
 
-始终记录平台、原生 shell；归因需要时记录精确 commit；真实检查还应记录 Host 版本、项目是否可信以及会话是否为新会话。直接报告失败和未测试表面。
+直接报告失败和未测试表面。前置条件失败造成的 invalid run 不能变成产品负面证据。
 
 <a id="stop-boundary"></a>
 ## 停止边界
 
-测试回答其既定问题后停止。不要为了制造信心重复 Smoke、创建持久测试安装，或把窄结果提升为兼容性或行为保证。
+既定问题得到相称证据后停止。不要重复模型 Smoke 来制造信心，不要为一次 release 检查建立永久 evaluation platform，也不要把窄结果提升为兼容性、行为、研究、认证、权限或安全保证。

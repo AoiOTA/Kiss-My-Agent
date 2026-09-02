@@ -6,147 +6,219 @@
 
 **Keep It Simple, Scientist. Less ceremony. More science.**
 
+A Codex plugin that helps research-engineering agents solve the task you asked for without turning uncertainty into extra systems, hidden fallbacks, or process theater.
+
 [English](https://aoiota.github.io/Kiss-My-Agent/) | [简体中文](https://aoiota.github.io/Kiss-My-Agent/zh-CN/)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-![Status: early stage](https://img.shields.io/badge/status-early_stage-orange.svg)
+[![Validate](https://github.com/AoiOTA/Kiss-My-Agent/actions/workflows/validate.yml/badge.svg)](https://github.com/AoiOTA/Kiss-My-Agent/actions/workflows/validate.yml)
+![Release: v0.2.0](https://img.shields.io/badge/release-v0.2.0-blue.svg)
 ![Host: Codex-first](https://img.shields.io/badge/host-Codex--first-blue.svg)
 
 </div>
 
-<a id="overview"></a>
-## Overview
+<a id="why-this-exists"></a>
+## Why This Exists
 
-KISS My Agent is a compact Codex plugin for research-oriented coding agents. People retain the research goal, architecture, acceptance criteria, non-goals, and stop boundary. Agents make bounded implementation decisions, prefer the smallest sufficient change, keep failures visible, and report evidence at the level it actually supports.
+Coding agents are often asked to be thorough, safe, reusable, and future-proof while working from incomplete context. Those are reasonable goals, but when the actual acceptance boundary is unclear, an agent can make the task larger instead of making the result better.
 
-The plugin supplies two narrowly routed Skills, three seed custom roles, setup/check/remove support, project guidance, static validation, and bilingual developer documentation. It is not a fixed workflow, permission system, behavioral guarantee, or closed role catalog.
+You may recognize the symptoms:
+
+- one parser bug becomes a framework, registry, configuration layer, and migration plan;
+- an internal error is caught and returned as an empty or stale “successful” result;
+- speculative checks, gates, state machines, or telemetry appear without a current consumer;
+- several agents and handoff artifacts are created for work one thread could finish clearly;
+- tests pass, so the agent claims the product or research goal is proven;
+- the agent keeps polishing after the requested outcome is already met.
+
+KISS My Agent gives Codex a small set of persistent boundaries for these decisions. It keeps the human in control of the goal and asks the agent to prefer the smallest sufficient change, visible failures, proportionate evidence, and a real stop point.
+
+<a id="overengineering-and-overdefense"></a>
+## Overengineering and Overdefense
+
+**Overengineering** means adding abstractions, infrastructure, configuration, compatibility layers, workflows, or persistent state that the current task and its real consumers do not need.
+
+**Overdefense** means reacting to uncertainty with behavior that obscures the truth: broad catch-and-continue logic, stale-data fallback, duplicate safety layers, invented approval gates, or refusal beyond the actual safety and permission boundary.
+
+Necessary safety is not overdefense. Authentication, least privilege, input validation at a real boundary, safe cleanup, and explicit handling of a known optional outage can all be essential. The problem is defensive machinery that hides an internal bug, changes the requested acceptance criteria, or adds cost without protecting a concrete risk.
+
+There is no task or keyword that inevitably triggers these problems, and KISS My Agent is not a bypass for Codex safety. It reduces the tendency by making ownership, failure semantics, evidence, and stopping rules explicit.
+
+<a id="when-it-happens"></a>
+## When Agents Are Most Likely to Drift
+
+The risk rises when a prompt asks for “complete,” “robust,” “production-ready,” or “future-proof” work without concrete acceptance criteria; when a failure path or optional dependency is ambiguous; when runtime behavior disagrees with tests or evaluators; when a research claim is stronger than the experiment; or when multi-agent coordination itself starts becoming the product.
+
+This is not unique to Codex, and it does not happen in every session. Language-model coding agents infer intent from the available instructions and context. When several plausible solutions exist, an elaborate solution can look safer or more complete even when it is worse for the current goal.
+
+<a id="how-kiss-helps"></a>
+## How KISS My Agent Helps
+
+| Drift | KISS boundary | Intended result |
+| --- | --- | --- |
+| The agent expands an underspecified goal | People own the goal, architecture, acceptance criteria, non-goals, and stop boundary | Material scope changes return to the user |
+| A local need becomes a shared system | Keep a single-consumer need in its owning module unless a real boundary or second consumer justifies extraction | Smaller, easier-to-review changes |
+| Defensive code hides a defect | Propagate internal bugs; degrade only for a specific expected optional failure and make the reason visible | Failures remain diagnosable |
+| Checks become stronger claims | Separate source inspection, tests, build, Smoke, Pilot, and Final evidence | Reports say only what was actually proven |
+| Multi-agent work becomes a fixed ceremony | Delegate only when the information or execution benefit exceeds coordination cost | One thread for bounded work; dynamic roles when useful |
+| Work continues to manufacture confidence | Treat supported no-change as valid and stop when proportionate evidence answers the goal | Less churn and process theater |
+
+These are guidance constraints, not a formal verifier or a behavioral guarantee. They improve the decision context in which Codex works; they cannot guarantee that every model, prompt, or future Host version behaves identically.
+
+<a id="is-it-for-you"></a>
+## Is It for You?
+
+KISS My Agent is a good fit if you:
+
+- use Codex for research software, experiments, infrastructure, debugging, or substantial engineering work;
+- want the agent to distinguish a local fix from a justified shared mechanism;
+- care about visible failures and claims that match the evidence;
+- want optional multi-agent help without a fixed pipeline or mandatory team size;
+- prefer project-owned boundaries that contributors can inspect and change.
+
+It is probably not the right tool if you want:
+
+- a generic autonomous orchestrator, approval platform, telemetry service, or evaluation system;
+- a way around Codex permissions, administrator policy, project trust, or security controls;
+- deterministic enforcement that guarantees a model will never overengineer;
+- verified support for non-Codex hosts;
+- extra process for simple one-off work that already has a clear boundary.
 
 <a id="quick-start"></a>
-## Quick Start
+## Three-Minute Start
 
-The public installation interface is:
+**Normal users need Codex and GitHub access only. Setup and Agent configuration do not require Python, Node.js, Docker, a package manager, or a separate executable.**
+
+1. Install the plugin from its Git-backed marketplace:
 
 ```bash
 codex plugin marketplace add AoiOTA/Kiss-My-Agent
 codex plugin add kiss-my-agent@kiss-my-agent
 ```
 
-Start a new authenticated Codex session so the newly installed plugin can be discovered. In that session, run:
+2. Start a new authenticated Codex session in the project you want to configure, then run:
 
 ```text
 $kiss-my-agent-setup set up this project
 ```
 
-The setup Skill changes the current project only. It does not trust the project or restart Codex. Trust the project through the Host, start another new session, then run:
+3. Trust the project through the Codex Host when prompted. Start another new session so the project instructions and roles can be discovered, then run:
 
 ```text
 $kiss-my-agent-setup check this project
 ```
 
-Also use `/skills` and a harmless role Smoke from [Testing](docs/TESTING.md) when live discovery evidence is required.
-
-Global installation is never implicit. Request it explicitly with `$kiss-my-agent-setup set up globally`; see [Installation](docs/INSTALLATION.md) before choosing that scope.
-
-The Git-backed marketplace pins this release to `v0.1.0`. A successful remote install is publication evidence for that tag; source inspection and static validation alone are not remote-install or live-discovery evidence.
-
-<a id="components"></a>
-## Components
-
-- [`AGENTS.md`](AGENTS.md): permanent human/agent boundaries and dynamic-dispatch guidance.
-- Plugin Skills: `$kiss-my-agent` for the narrow decision cases it names, and `$kiss-my-agent-setup` for explicit setup/check/remove operations.
-- [`.codex/config.toml`](.codex/config.toml): the two public multi-agent enablement switches, both explicitly `true` for this project.
-- [`.codex/agents/`](.codex/agents/): three standalone seed roles discovered from TOML files.
-- [`scripts/validate.sh`](scripts/validate.sh) and [`scripts/validate.ps1`](scripts/validate.ps1): native static-validation entrypoints.
-- [`tests/`](tests/): layered-instruction fixtures and manual scenarios.
-- English-first documentation with synchronized Simplified Chinese companions.
-
-<a id="three-layers"></a>
-## Three Responsibilities
-
-The runtime surface has three separate owners:
-
-1. `.codex/config.toml` enables the Host multi-agent capability with `features.multi_agent = true` and custom agents with `agents.enabled = true`.
-2. Each standalone role TOML is auto-discovered. Its `name` field is the role identity; the filename is only a convention.
-3. `AGENTS.md` tells the primary thread when delegation is worthwhile. It does not force a pipeline or fixed fan-out.
-
-The supplied `kiss_explorer`, `kiss_coder`, and `kiss_reviewer` files are editable seeds, not a closed catalog. Add or remove standalone roles deliberately. After initial setup, later setup and check operations preserve the catalog and do not recreate a deleted role.
-
-Role model and reasoning effort inherit Host settings when omitted and may be edited to supported values. KISS My Agent does not pin a model, effort, context window, or concurrency limit.
-
-<a id="platform-support"></a>
-## Platform Support
-
-| Platform | Native command | Evidence status |
-| --- | --- | --- |
-| Linux | `./scripts/validate.sh` | Locally exercised only when reported for the exact checkout. |
-| macOS | `./scripts/validate.sh` | CI target; the exact commit needs a green native job. |
-| Windows | `.\scripts\validate.ps1` in native PowerShell | CI target; the exact commit needs a green native job. WSL is Linux evidence. |
-
-Static validation needs Python 3.11 or newer and no Codex sandbox package, copied `CODEX_HOME`, container, VM, or extra test project. A workflow definition is not proof of a passing platform; green jobs for the exact commit are the authority.
-
-<a id="runtime-configuration"></a>
-## Runtime Configuration
-
-The primary thread and role files use the effective Host settings. An explicit `false` in an effective user or administrative layer, or a one-launch CLI override, takes precedence over KISS defaults. To disable both public switches for one launch:
-
-```bash
-codex --config features.multi_agent=false --config agents.enabled=false
-```
-
-Project and global setup are separate explicit operations. Existing settings and instructions are preserved; conflicts stop setup for review. See [Configuration](docs/CONFIGURATION.md).
-
-<a id="core-principles"></a>
-## Core Principles
-
-- People own the question, architecture, acceptance, non-goals, and stop boundary.
-- A supported no-change result is valid.
-- Keep single-consumer needs local unless a real boundary or second consumer justifies sharing.
-- Persistent mechanisms must serve a current consumer or concrete high-consequence risk.
-- Internal bugs remain visible; optional degradation is narrow and explicit.
-- Source inspection, tests, builds, Smoke, Pilot, and Final support different claims.
-- Use multiple agents only when the benefit exceeds coordination cost.
-- Stop when proportionate evidence answers the goal.
-
-<a id="project-structure"></a>
-## Project Structure
+That is the default setup. You do not need to choose models, edit TOML, or invoke a Skill before every task. Ask Codex for normal work as usual:
 
 ```text
-.
-├── AGENTS.md
-├── .codex/{config.toml,agents/}
-├── plugin and marketplace metadata
-├── skills/kiss-my-agent/
-├── skills/kiss-my-agent-setup/{SKILL.md,scripts/setup.py}
-├── docs/{INSTALLATION,CONFIGURATION,TESTING,EXTENDING,FAQ}{,.zh-CN}.md
-├── scripts/{validate.py,validate.sh,validate.ps1,build_site.py}
-├── tests/
-├── CONTRIBUTING{,.zh-CN}.md
-├── SECURITY{,.zh-CN}.md
-├── CODE_OF_CONDUCT.md
-└── LICENSE
+Find the cause of this failing parser test, make the smallest correct fix, and run the affected tests.
 ```
 
-Codex-facing instructions, Skill content, Rules, Cases, role TOML, `LICENSE`, and `CODE_OF_CONDUCT.md` remain English so the runtime surface has one authoritative language.
+The setup adds or merges project-owned KISS guidance, enables the two supported multi-agent switches when they are absent, and seeds `kiss_explorer`, `kiss_coder`, and `kiss_reviewer`. It preserves unrelated content and intentional `false` settings, and stops instead of guessing through ownership or identity conflicts. See [Installation](docs/INSTALLATION.md) for the exact file boundary and fresh-session requirements.
 
-<a id="pages-status"></a>
-## Documentation Site Status
+<a id="how-to-use"></a>
+## What Do I Invoke?
 
-The documentation site is published in [English](https://aoiota.github.io/Kiss-My-Agent/) and [Simplified Chinese](https://aoiota.github.io/Kiss-My-Agent/zh-CN/). Build and verify it locally with:
+| Need | What to do |
+| --- | --- |
+| Ordinary implementation, debugging, tests, review, or Git work | Ask Codex normally. The project `AGENTS.md` guidance is already in scope after setup. |
+| One consequential ambiguity about a shared mechanism, local fix versus new system, hidden failure, experiment validity, evidence strength, runtime/evaluator mismatch, or scope expansion | Explicitly invoke `$kiss-my-agent` for that decision, then return to the task. It is not a general workflow. |
+| Set up, check, remove, or configure KISS files and existing roles | Invoke `$kiss-my-agent-setup` with an explicit project or global scope. |
+
+The three bundled roles are editable seeds, not a mandatory workflow or closed catalog:
+
+- `kiss_explorer` performs bounded read-only investigation.
+- `kiss_coder` owns a bounded implementation and its checks.
+- `kiss_reviewer` performs an independent read-only review.
+
+The primary thread chooses whether delegation is worthwhile and may use other Host-exposed roles. A small task can and should stay in one thread.
+
+<a id="before-and-after"></a>
+## Two Concrete Contrasts
+
+### A parser defect
+
+**Before:** A parser fails on one valid input. The proposed repair adds a generic validation framework, adapter registry, new configuration schema, compatibility mode, and broad test harness “for future parsers.”
+
+**With KISS:** Trace the active parser and its consumer, fix the defect in the owning module, add the smallest regression case that fails before the repair, run the affected closure, and stop. Extract shared behavior only when another current consumer or a real interface boundary requires it.
+
+### An optional service is unavailable
+
+**Before:** A broad exception handler returns an empty success or stale enrichment, so internal computation bugs look like an expected outage.
+
+**With KISS:** Catch only the known availability failure at the owner boundary, keep the primary behavior correct, expose the degraded reason, and let internal defects fail with their cause. This preserves real safety without hiding failure.
+
+<a id="configure-agents"></a>
+## Optional Agent Configuration
+
+The three seeds inherit the effective Host model and reasoning settings by default. To configure existing project or global roles through a Codex conversation, use:
+
+```text
+$kiss-my-agent-setup configure agents for this project
+$kiss-my-agent-setup configure global agents
+```
+
+The wizard can change only `model`, `model_reasoning_effort`, and `sandbox_mode` on roles that already exist. It previews the diff, preserves every unrelated field, and requires separate confirmation for `danger-full-access`. It does not maintain a model catalog or create, delete, or rename roles.
+
+For manual configuration, edit the relevant standalone role files under `<project>/.codex/agents/` or `$CODEX_HOME/agents/`; see [Configuration](docs/CONFIGURATION.md). An explicit `model` or `model_reasoning_effort` in a role file is a role override; when either field is omitted, resolution follows explicit spawn settings, then `[agents]` defaults, then the parent's resolved setting. The parent session's live sandbox/approval state and administrator requirements can still constrain permissions. Start a new session after any role change.
+
+<a id="updates"></a>
+## Explicit One-Command Update
+
+Update the installed plugin, confirm the resolved version, and then start a new Codex session:
 
 ```bash
-python3 -m pip install -r requirements-site.txt
-python3 -m unittest tests.test_build_site
-python3 scripts/build_site.py --output _site
+codex plugin marketplace upgrade kiss-my-agent
+codex plugin list
 ```
 
-`_site/` is a local ignored artifact. The Pages workflow publishes from `main` through GitHub Actions. A green workflow and live HTTP responses are separate evidence; verify both language URLs after deployment.
+The v0.2.0 marketplace entry pins its source to the immutable `v0.2.0` tag. KISS My Agent does not silently update itself in the background. An upgrade refreshes plugin-owned Skills and resources; it does not overwrite project roles that developers may have customized after setup. Release-specific installation and rollback evidence belongs in [Installation](docs/INSTALLATION.md) and [Testing](docs/TESTING.md).
 
-<a id="validation-boundaries"></a>
-## Validation Boundaries
+<a id="project-and-global-scope"></a>
+## Project and Global Scope
 
-Static validation can check repository structure, TOML syntax, standalone role identity, Skill routing, bilingual-document parity, relative links, instruction fixtures, shell syntax, and assets. It does not prove plugin publication, marketplace installation, model compliance, research validity, authentication, network access, filesystem authority, or future Host compatibility.
+Project setup is the recommended default. It manages only the selected repository's `.codex/config.toml`, `.codex/agents/`, and a marked block in `AGENTS.md`. It does not copy the plugin Skills, establish project trust, restart Codex, or modify `$CODEX_HOME`.
 
-A setup `check` proves only the files and managed content it inspects. A live `/skills` result proves discovery in that session. A role Smoke proves only the harmless task observed. See [Testing](docs/TESTING.md).
+Global setup is optional and must be requested explicitly:
+
+```text
+$kiss-my-agent-setup set up globally
+$kiss-my-agent-setup check global setup
+```
+
+Global setup manages the corresponding config, roles, and instructions under `$CODEX_HOME`, so it may affect every project using that Codex home. Project/global role collisions, malformed TOML, symlinks, ambiguous managed content, or an effective `AGENTS.override.md` make setup stop for review instead of overwriting. `check` proves inspected file structure only; it does not prove trust, live discovery, permissions, publication, or model behavior.
+
+<a id="architecture"></a>
+## What the Plugin Contains
+
+- `$kiss-my-agent`: narrowly routed decision guidance for research-engineering ambiguity.
+- `$kiss-my-agent-setup`: file-tool-native setup, check, remove, and existing-role configuration guidance.
+- `AGENTS.md`: persistent human/agent ownership, scope, failure, evidence, and stop boundaries.
+- [`.codex/agents/*.toml`](.codex/agents/): three editable seed roles discovered by Codex.
+- `.codex/config.toml`: only `features.multi_agent = true` and `agents.enabled = true`; it does not pin models, context, concurrency, providers, authentication, or telemetry.
+
+Codex-facing instructions remain English so runtime behavior has one authoritative language. The user documentation is maintained in synchronized English and Simplified Chinese.
+
+<a id="contributor-runtime"></a>
+## Users and Contributors Have Different Requirements
+
+Plugin users do not need a language runtime for installation, setup, role configuration, normal use, or updates. Contributors use Python 3.11 or newer for repository validation and documentation-site builds; this is a development toolchain, not a user runtime dependency.
+
+Start with [Contributing](CONTRIBUTING.md), then follow the native platform commands and evidence rules in [Testing](docs/TESTING.md). Windows validation runs in native PowerShell; WSL is Linux evidence. The repository is designed for fork, branch, test, and pull-request collaboration without requiring contributors to share one local Codex model or permission configuration.
+
+<a id="evidence-boundaries"></a>
+## Evidence Boundaries
+
+KISS My Agent does not turn a check into a stronger claim than it supports:
+
+- source inspection says what files contain;
+- static tests say which repository invariants passed;
+- setup `check` says what managed files were inspected;
+- `/skills` in a new session demonstrates discovery in that session;
+- a harmless role Smoke demonstrates only the observed narrow behavior;
+- a Pilot or Final result needs its own acceptance criteria and real environment.
+
+Passing tests does not prove the user's research or product goal. Instructions also do not grant filesystem, network, account, or authentication authority, and they do not replace project-specific safety, security, compliance, or domain rules.
 
 <a id="documentation"></a>
 ## Documentation
@@ -159,14 +231,16 @@ A setup `check` proves only the files and managed content it inspects. A live `/
 - [Contributing](CONTRIBUTING.md) / [贡献](CONTRIBUTING.zh-CN.md)
 - [Security](SECURITY.md) / [安全](SECURITY.zh-CN.md)
 
+The documentation site is published in [English](https://aoiota.github.io/Kiss-My-Agent/) and [Simplified Chinese](https://aoiota.github.io/Kiss-My-Agent/zh-CN/).
+
 <a id="limitations"></a>
 ## Limitations
 
-- Early-stage source distribution; compatibility and release guarantees are not claimed.
-- Codex-first; other hosts have not been verified.
-- Instructions do not grant filesystem, network, account, or authentication authority.
-- Manual scenarios and Smoke checks are not behavioral qualification or research evidence.
-- Project-specific safety, compliance, and domain rules remain the adopter's responsibility.
+- Codex-first; other hosts are not verified.
+- Guidance reduces a tendency; it cannot guarantee model compliance or identical future behavior.
+- The seed roles do not form a required team, and successful delegation is not product acceptance.
+- The current release does not provide silent auto-update, an MCP service, a standalone UI, telemetry, or an evaluation platform.
+- The latest release is supported without an LTS compatibility promise; check release notes before upgrading customized environments.
 
 <a id="license"></a>
 ## License
