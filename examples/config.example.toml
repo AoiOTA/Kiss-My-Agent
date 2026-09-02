@@ -1,14 +1,20 @@
-# KISS My Agent public enablement example.
+# KISS My Agent default model, effort, and enablement example.
 #
-# This file is inert at examples/config.example.toml. Setup merges these two
-# switches into the explicitly selected project or global config while
-# preserving unrelated settings. An effective user, administrator, or
-# one-launch `false` remains authoritative.
+# This file is inert at examples/config.example.toml. On first setup or exact
+# v0.1 migration, setup adds the master model/effort only when both are absent;
+# either existing key leaves its missing companion inherited. Feature defaults
+# are added independently when absent. Every existing value is preserved,
+# marked or unmarked. These are defaults, not enforcement. This inert example
+# and a static setup check do not resolve the final runtime value across Codex
+# configuration layers or prove Host/account model support.
 #
 # Standalone roles are discovered from <scope>/agents/*.toml. Do not register
-# individual role files here. Role model and reasoning effort inherit Host
-# settings when omitted and belong in the role TOML only when explicitly
-# customized. KISS My Agent does not set context or concurrency defaults.
+# individual role files here. The current bundled roles set gpt-5.6-sol with
+# high/high/xhigh effort for explorer/coder/reviewer. KISS My Agent does not set
+# context or concurrency defaults.
+
+model = "gpt-5.6-sol"
+model_reasoning_effort = "max"
 
 [features]
 multi_agent = true

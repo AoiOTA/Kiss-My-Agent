@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import re
 import tomllib
 import unittest
@@ -12,6 +13,14 @@ LIFECYCLE = SETUP_SKILL.parent / "references" / "setup-lifecycle.md"
 CONFIGURE = SETUP_SKILL.parent / "references" / "configure-agents.md"
 ROLE_DIRECTORY = REPOSITORY / ".codex" / "agents"
 V010_FIXTURE = REPOSITORY / "tests" / "fixtures" / "v0.1-managed-project"
+V010_ASSETS = SETUP_SKILL.parent / "assets"
+V010_FIXTURE_SHA256 = {
+    ".codex/agents/kiss_coder.toml": "733c5a497acf11d5df8db8fc3e79a78e6e65e187d6e1008788655ae81e2a2ef9",
+    ".codex/agents/kiss_explorer.toml": "ee4add7e4ff2f208874bc90d355f72fc911ef69702c2ed8220109fc147da0f6b",
+    ".codex/agents/kiss_reviewer.toml": "aee73b981a2a91dc833cf0a64ddfb6834f0b3410cfc7ad70a8cafafc79e63485",
+    ".codex/config.toml": "d0cfda47462467b9e18732d0a4670325b5618c1af1311918d40e3f7caa409af7",
+    "AGENTS.md": "4454338b518876e3f8bda92d3bfc88638689bade872d41a6b5b96520c1116f15",
+}
 
 BEGIN_MARKER = "<!-- BEGIN KISS MY AGENT MANAGED BLOCK -->"
 END_MARKER = "<!-- END KISS MY AGENT MANAGED BLOCK -->"
@@ -56,10 +65,26 @@ class SetupContractTests(unittest.TestCase):
         ]
         self.assertEqual([], published_sources)
 
-    def test_lifecycle_preserves_v010_managed_block(self) -> None:
+    def test_lifecycle_marks_v010_block_outdated_and_adds_wait_semantics(self) -> None:
         markdown_blocks = fenced_blocks(self.lifecycle, "markdown")
         self.assertEqual(1, len(markdown_blocks))
-        self.assertEqual(V010_MANAGED_BLOCK, markdown_blocks[0])
+        self.assertNotEqual(V010_MANAGED_BLOCK, markdown_blocks[0])
+        self.assertTrue(markdown_blocks[0].startswith(BEGIN_MARKER))
+        self.assertTrue(markdown_blocks[0].endswith(END_MARKER))
+        self.assertIn("wait window ending without an update", markdown_blocks[0])
+        self.assertIn("not an agent timeout or failure", markdown_blocks[0])
+        self.assertIn("The master owns orchestration", markdown_blocks[0])
+        self.assertIn("must delegate delegable bulk exploration", markdown_blocks[0])
+        self.assertIn("Multiple instances of any role", markdown_blocks[0])
+        self.assertIn("Coordination is flat by default", markdown_blocks[0])
+        self.assertIn("independent subsystem needs substantial parallel work", markdown_blocks[0])
+        self.assertIn("direct aggregation would pollute the master's context", markdown_blocks[0])
+        self.assertIn("bounded department-lead assignment", markdown_blocks[0])
+        self.assertIn("workers must not delegate again", markdown_blocks[0])
+        self.assertIn("at most one intermediate management layer", markdown_blocks[0])
+        self.assertIn("no deep nesting", markdown_blocks[0])
+        self.assertIn("must not silently take over delegated work", markdown_blocks[0])
+        self.assertIn("ordinary single-conversation execution", markdown_blocks[0])
         self.assertEqual(1, self.lifecycle.count(BEGIN_MARKER))
         self.assertEqual(1, self.lifecycle.count(END_MARKER))
 
@@ -67,17 +92,19 @@ class SetupContractTests(unittest.TestCase):
         toml_blocks = fenced_blocks(self.lifecycle, "toml")
         self.assertEqual(1, len(toml_blocks))
         config = tomllib.loads(toml_blocks[0])
+        self.assertEqual("gpt-5.6-sol", config["model"])
+        self.assertEqual("max", config["model_reasoning_effort"])
         self.assertIs(config["features"]["multi_agent"], True)
         self.assertIs(config["agents"]["enabled"], True)
-        self.assertEqual(2, toml_blocks[0].count(CONFIG_MARKER))
+        self.assertEqual(4, toml_blocks[0].count(CONFIG_MARKER))
 
     def test_seed_roles_remain_valid_and_unique(self) -> None:
-        expected_modes = {
-            "kiss_explorer": "read-only",
-            "kiss_coder": "workspace-write",
-            "kiss_reviewer": "read-only",
+        expected_settings = {
+            "kiss_explorer": ("gpt-5.6-sol", "high", "read-only"),
+            "kiss_coder": ("gpt-5.6-sol", "high", "workspace-write"),
+            "kiss_reviewer": ("gpt-5.6-sol", "xhigh", "read-only"),
         }
-        found: dict[str, str] = {}
+        found: dict[str, tuple[str, str, str]] = {}
         for path in sorted(ROLE_DIRECTORY.glob("*.toml")):
             with path.open("rb") as stream:
                 role = tomllib.load(stream)
@@ -86,9 +113,13 @@ class SetupContractTests(unittest.TestCase):
                 self.assertTrue(role[field].strip(), (path, field))
             name = role["name"]
             self.assertNotIn(name, found)
-            found[name] = role.get("sandbox_mode", "")
+            found[name] = (
+                role.get("model", ""),
+                role.get("model_reasoning_effort", ""),
+                role.get("sandbox_mode", ""),
+            )
 
-        self.assertEqual(expected_modes, found)
+        self.assertEqual(expected_settings, found)
 
     def test_configure_is_limited_to_existing_role_runtime_fields(self) -> None:
         self.assertIn("Do not create, delete, rename, copy, or restore roles", self.configure)
@@ -106,6 +137,17 @@ class SetupContractTests(unittest.TestCase):
         self.assertIn("danger-full-access", self.configure)
         self.assertIn("start a new Codex session", self.configure)
 
+    def test_configure_resolves_its_scope_without_lifecycle_reference(self) -> None:
+        self.assertIn(
+            "<unique Host project or active workspace root>/.codex/agents",
+            self.configure,
+        )
+        self.assertIn("non-empty `CODEX_HOME`", self.configure)
+        self.assertIn("current user's `~/.codex`", self.configure)
+        self.assertIn("multiple roots or no unique root", self.configure)
+        self.assertIn("do not write before that choice", self.configure)
+        self.assertIn("absolute role-directory path", self.configure)
+
     def test_check_statuses_and_evidence_boundary_are_explicit(self) -> None:
         for status in (
             "structurally-valid",
@@ -117,6 +159,8 @@ class SetupContractTests(unittest.TestCase):
             self.assertIn(f"`{status}`", self.lifecycle)
         self.assertIn("File success is static setup evidence only", self.lifecycle)
         self.assertIn("Never claim project trust", self.lifecycle)
+        self.assertIn("executive-only workflow cannot staff delegated work", self.lifecycle)
+        self.assertIn("Static setup cannot observe a higher-precedence `false`", self.lifecycle)
 
     def test_v010_conflict_recovery_and_concurrency_invariants_are_retained(self) -> None:
         self.assertIn("Do not apply this cross-scope rejection to `remove`", self.lifecycle)
@@ -126,6 +170,17 @@ class SetupContractTests(unittest.TestCase):
         self.assertIn("directory created by this operation", self.lifecycle)
         self.assertIn("whether marked or unmarked", self.lifecycle)
         self.assertIn("marker controls remove ownership only", self.lifecycle)
+        self.assertIn("first-setup defaults, not enforcement", self.lifecycle)
+        self.assertIn("all four managed config paths", self.lifecycle)
+        self.assertIn("only when both top-level keys are absent", self.lifecycle)
+        self.assertIn("managed block was absent at preflight", self.lifecycle)
+        self.assertIn("exactly matched the known v0.1 managed block", self.lifecycle)
+        self.assertIn("leave the missing key absent as intentional inheritance", self.lifecycle)
+        self.assertIn("one or both missing keys are intentional user changes", self.lifecycle)
+        self.assertIn("four managed config assignment lines", self.lifecycle)
+        self.assertIn("complete bytes equal the corresponding known v0.1 seed", self.lifecycle)
+        self.assertIn("difference from both the current and known v0.1 exact seeds", self.lifecycle)
+        self.assertIn("either the current bundled seed or the corresponding known v0.1 seed", self.lifecycle)
 
     def test_codex_home_and_outdated_state_rules_are_explicit(self) -> None:
         self.assertIn("non-empty `CODEX_HOME`", self.lifecycle)
@@ -133,10 +188,36 @@ class SetupContractTests(unittest.TestCase):
         self.assertIn("`current`, `outdated`, or `absent`", self.lifecycle)
         self.assertIn("Define a setup trace", self.lifecycle)
         self.assertIn("managed block is well-formed but `outdated`", self.lifecycle)
+        self.assertIn("explicit value or `inherit`", self.lifecycle)
         self.assertIn("sole active workspace root", self.lifecycle)
         self.assertIn("multiple roots", self.lifecycle)
+        self.assertIn("Never silently substitute a fallback model or effort", self.lifecycle)
+        self.assertIn(
+            "codex --config 'model=\"HOST_SUPPORTED_MODEL_ID\"'",
+            self.lifecycle,
+        )
+
+    def test_v010_runtime_assets_are_directly_linked_and_identified(self) -> None:
+        for role_name in ("kiss_explorer", "kiss_coder", "kiss_reviewer"):
+            relative = f"../assets/v0.1-agents/{role_name}.toml"
+            self.assertIn(f"]({relative})", self.lifecycle)
+            asset = (LIFECYCLE.parent / relative).resolve()
+            self.assertTrue(asset.is_file(), asset)
+            with asset.open("rb") as stream:
+                self.assertEqual(role_name, tomllib.load(stream)["name"])
+        self.assertIn("](../assets/v0.1-managed-block.md)", self.lifecycle)
+        managed_block_asset = V010_ASSETS / "v0.1-managed-block.md"
+        self.assertTrue(managed_block_asset.is_file())
+        self.assertEqual(
+            "2fafe944836b03379e3c561b405a2821410b5a0ca1bfcf0e74d94efbaefe311f",
+            hashlib.sha256(managed_block_asset.read_bytes()).hexdigest(),
+        )
 
     def test_v010_managed_project_fixture_matches_current_compatibility_contract(self) -> None:
+        for relative, expected_hash in V010_FIXTURE_SHA256.items():
+            data = (V010_FIXTURE / relative).read_bytes()
+            self.assertEqual(expected_hash, hashlib.sha256(data).hexdigest(), relative)
+
         config_text = (V010_FIXTURE / ".codex" / "config.toml").read_text(
             encoding="utf-8"
         )
@@ -152,8 +233,41 @@ class SetupContractTests(unittest.TestCase):
         self.assertEqual(V010_MANAGED_BLOCK, instructions[start:end])
 
         fixture_roles = V010_FIXTURE / ".codex" / "agents"
+        asset_roles = V010_ASSETS / "v0.1-agents"
+        expected_efforts = {
+            "kiss_explorer": "high",
+            "kiss_coder": "high",
+            "kiss_reviewer": "xhigh",
+        }
         for source in sorted(ROLE_DIRECTORY.glob("*.toml")):
-            self.assertEqual(source.read_bytes(), (fixture_roles / source.name).read_bytes())
+            fixture_bytes = (fixture_roles / source.name).read_bytes()
+            asset_bytes = (asset_roles / source.name).read_bytes()
+            self.assertEqual(fixture_bytes, asset_bytes, source.name)
+            expected_hash = V010_FIXTURE_SHA256[
+                f".codex/agents/{source.name}"
+            ]
+            self.assertEqual(expected_hash, hashlib.sha256(asset_bytes).hexdigest())
+            with source.open("rb") as stream:
+                current = tomllib.load(stream)
+            with (fixture_roles / source.name).open("rb") as stream:
+                v010 = tomllib.load(stream)
+            self.assertNotIn("model", v010)
+            self.assertNotIn("model_reasoning_effort", v010)
+            self.assertEqual("gpt-5.6-sol", current["model"])
+            self.assertEqual(expected_efforts[current["name"]], current["model_reasoning_effort"])
+            self.assertEqual(
+                v010,
+                {
+                    key: value
+                    for key, value in current.items()
+                    if key not in {"model", "model_reasoning_effort"}
+                },
+            )
+
+        managed_block_asset = (V010_ASSETS / "v0.1-managed-block.md").read_text(
+            encoding="utf-8"
+        )
+        self.assertEqual(V010_MANAGED_BLOCK, managed_block_asset.rstrip("\n"))
 
 
 if __name__ == "__main__":

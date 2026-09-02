@@ -48,7 +48,7 @@ It illustrates an existing Rule and creates no new requirement. Revise an existi
 <a id="update-runtime-docs"></a>
 ## Update Runtime and Docs
 
-When changing public switches, standalone role discovery, or setup scope, keep `.codex/config.toml`, `.codex/agents/`, plugin metadata, the Agent-native setup references, Configuration, Installation, Testing, both READMEs, and the annotated example consistent. `.codex/config.toml` owns only the two public enablement switches and never enumerates role files. The three seeds are not a closed catalog, and model/effort remain Host-inherited when omitted. Do not add model fallback, permission fallback, preset matrices, or compatibility wrappers without a current consumer.
+When changing public switches, standalone role discovery, or setup scope, keep `.codex/config.toml`, `.codex/agents/`, plugin metadata, the Agent-native setup references, Configuration, Installation, Testing, both READMEs, and the annotated example consistent. `.codex/config.toml` owns four paths: the paired first-setup master defaults `gpt-5.6-sol` / `max` and the two public enablement switches; it never enumerates role files. The editable seeds explicitly default to `gpt-5.6-sol` / `high` for explorer and coder and `gpt-5.6-sol` / `xhigh` for reviewer. They are not a closed catalog, and user-modified roles remain user-owned. Do not add model fallback, permission fallback, preset matrices, or compatibility wrappers without a current consumer.
 
 When changing an English developer document, update its Simplified Chinese companion with the same explicit anchor IDs, section order, and fenced command blocks. Codex-facing AGENTS, Skill, Rules, Cases, role TOML, `LICENSE`, and `CODE_OF_CONDUCT.md` remain English.
 

@@ -60,7 +60,7 @@ This is not unique to Codex, and it does not happen in every session. Language-m
 | A local need becomes a shared system | Keep a single-consumer need in its owning module unless a real boundary or second consumer justifies extraction | Smaller, easier-to-review changes |
 | Defensive code hides a defect | Propagate internal bugs; degrade only for a specific expected optional failure and make the reason visible | Failures remain diagnosable |
 | Checks become stronger claims | Separate source inspection, tests, build, Smoke, Pilot, and Final evidence | Reports say only what was actually proven |
-| Multi-agent work becomes a fixed ceremony | Delegate only when the information or execution benefit exceeds coordination cost | One thread for bounded work; dynamic roles when useful |
+| Multi-agent work becomes a fixed ceremony | Keep simple one-off work in an ordinary single conversation; use dynamic delegation only in a configured complex project | Flat direct fan-out by default; at most one temporary lead for a qualifying large subsystem |
 | Work continues to manufacture confidence | Treat supported no-change as valid and stop when proportionate evidence answers the goal | Less churn and process theater |
 
 These are guidance constraints, not a formal verifier or a behavioral guarantee. They improve the decision context in which Codex works; they cannot guarantee that every model, prompt, or future Host version behaves identically.
@@ -87,7 +87,12 @@ It is probably not the right tool if you want:
 <a id="quick-start"></a>
 ## Three-Minute Start
 
-**Normal users need Codex and GitHub access only. Setup and Agent configuration do not require Python, Node.js, Docker, a package manager, or a separate executable.**
+**Normal users need Codex, a usable `git` executable, and network access to GitHub. Setup and Agent configuration do not require Python, Node.js, Docker, a package manager, or a separate KISS executable.**
+
+Choose the mode that matches the work:
+
+- **Simple one-off task:** install the Plugin if you want its decision Skill, but skip project setup and use an ordinary single conversation with your chosen model and effort.
+- **Complex research-engineering project:** use the steps below to install a persistent executive workflow in which the master coordinates and delegates routine work.
 
 1. Install the plugin from its Git-backed marketplace:
 
@@ -96,7 +101,7 @@ codex plugin marketplace add AoiOTA/Kiss-My-Agent
 codex plugin add kiss-my-agent@kiss-my-agent
 ```
 
-2. Start a new authenticated Codex session in the project you want to configure, then run:
+2. Only for the persistent complex-project mode, start a new authenticated Codex session in the project you want to configure, then run:
 
 ```text
 $kiss-my-agent-setup set up this project
@@ -108,30 +113,35 @@ $kiss-my-agent-setup set up this project
 $kiss-my-agent-setup check this project
 ```
 
-That is the default setup. You do not need to choose models, edit TOML, or invoke a Skill before every task. Ask Codex for normal work as usual:
+That completes the persistent project mode. You do not need to invoke a Skill before every task. Ask Codex for normal work as usual:
 
 ```text
 Find the cause of this failing parser test, make the smallest correct fix, and run the affected tests.
 ```
 
-The setup adds or merges project-owned KISS guidance, enables the two supported multi-agent switches when they are absent, and seeds `kiss_explorer`, `kiss_coder`, and `kiss_reviewer`. It preserves unrelated content and intentional `false` settings, and stops instead of guessing through ownership or identity conflicts. See [Installation](docs/INSTALLATION.md) for the exact file boundary and fresh-session requirements.
+Setup owns four config paths: the paired master model/effort defaults and two public multi-agent switches. It adds the master pair only when both are absent in a first setup or exact v0.1 migration; one existing master key preserves the other as absent. Feature defaults are added independently when missing. It also seeds `kiss_explorer`, `kiss_coder`, and `kiss_reviewer`. Existing values and user changes are preserved. If configured delegation is disabled or unavailable, or no suitable role exists, the master reports the staffing issue and asks the user to repair staffing or explicitly switch this task to ordinary single-conversation execution; it does not silently take over. See [Installation](docs/INSTALLATION.md) for the exact boundary, Host-support caveat, and fresh-session requirements.
 
 <a id="how-to-use"></a>
 ## What Do I Invoke?
 
 | Need | What to do |
 | --- | --- |
-| Ordinary implementation, debugging, tests, review, or Git work | Ask Codex normally. The project `AGENTS.md` guidance is already in scope after setup. |
+| Simple one-off implementation, debugging, tests, review, or Git work | Use an ordinary single conversation; project setup is not required. |
+| Persistent executive workflow for a complex project | Run project setup, then ask Codex normally; the master coordinates and delegates routine work under the project `AGENTS.md`. |
 | One consequential ambiguity about a shared mechanism, local fix versus new system, hidden failure, experiment validity, evidence strength, runtime/evaluator mismatch, or scope expansion | Explicitly invoke `$kiss-my-agent` for that decision, then return to the task. It is not a general workflow. |
 | Set up, check, remove, or configure KISS files and existing roles | Invoke `$kiss-my-agent-setup` with an explicit project or global scope. |
 
 The three bundled roles are editable seeds, not a mandatory workflow or closed catalog:
 
-- `kiss_explorer` performs bounded read-only investigation.
-- `kiss_coder` owns a bounded implementation and its checks.
-- `kiss_reviewer` performs an independent read-only review.
+- `kiss_explorer` performs bounded read-only investigation with `gpt-5.6-sol` / `high`.
+- `kiss_coder` owns a bounded implementation and its checks with `gpt-5.6-sol` / `high`.
+- `kiss_reviewer` performs an independent read-only review with `gpt-5.6-sol` / `xhigh`.
 
-The primary thread chooses whether delegation is worthwhile and may use other Host-exposed roles. A small task can and should stay in one thread.
+The bundled master default is `gpt-5.6-sol` / `max`. The Host and account must support those model/effort values; setup preserves existing target choices. The master dynamically chooses available roles, and may use multiple instances of the same role. Coordination is flat by default: the master directly fans out to current roles while keeping one writer or operator for every shared file or resource.
+
+Only when a large independent subsystem needs substantial parallel work and direct aggregation would pollute the master's context may one existing Agent temporarily act as a bounded department lead. That lead may delegate within its scope and summarize to the master, but its workers do not delegate again. The assignment ends with the task: there is at most one intermediate layer, never a permanent department, new role, fixed headcount, or deep hierarchy.
+
+A useful company analogy is: the user or Owner sets the destination; the master acts like the CEO and owns strategy, architecture and acceptance decisions, orchestration, conflict resolution, evidence interpretation, and final synthesis; explorer supplies intelligence, coder does the engineering, and reviewer performs an independent audit. This explains ownership only—it is not a fixed pipeline, required team, or game mechanic.
 
 <a id="before-and-after"></a>
 ## Two Concrete Contrasts
@@ -149,21 +159,29 @@ The primary thread chooses whether delegation is worthwhile and may use other Ho
 **With KISS:** Catch only the known availability failure at the owner boundary, keep the primary behavior correct, expose the degraded reason, and let internal defects fail with their cause. This preserves real safety without hiding failure.
 
 <a id="configure-agents"></a>
-## Optional Agent Configuration
+## Configure the Master and Roles
 
-The three seeds inherit the effective Host model and reasoning settings by default. To configure existing project or global roles through a Codex conversation, use:
+The bundled defaults are `gpt-5.6-sol` / `high` for `kiss_explorer` and `kiss_coder`, and `gpt-5.6-sol` / `xhigh` for `kiss_reviewer`; the master default is `gpt-5.6-sol` / `max`. These values require Host/account support and are not locks.
+
+The master settings belong to the selected scope's `config.toml`, not to a role. Edit `model` and `model_reasoning_effort` there directly. If an unsupported persistent setting prevents the master from starting, use a one-launch CLI override, then repair the persistent config and start another new session:
+
+```bash
+codex --config 'model="HOST_SUPPORTED_MODEL_ID"' --config 'model_reasoning_effort="HOST_SUPPORTED_EFFORT"'
+```
+
+The conversational wizard configures only existing role TOML files:
 
 ```text
 $kiss-my-agent-setup configure agents for this project
 $kiss-my-agent-setup configure global agents
 ```
 
-The wizard can change only `model`, `model_reasoning_effort`, and `sandbox_mode` on roles that already exist. It previews the diff, preserves every unrelated field, and requires separate confirmation for `danger-full-access`. It does not maintain a model catalog or create, delete, or rename roles.
+The wizard can change only `model`, `model_reasoning_effort`, and `sandbox_mode` on roles that already exist. It cannot modify the master. It previews the diff, preserves every unrelated field, and requires separate confirmation for `danger-full-access`. It does not maintain a model catalog or create, delete, or rename roles.
 
 For manual configuration, edit the relevant standalone role files under `<project>/.codex/agents/` or `$CODEX_HOME/agents/`; see [Configuration](docs/CONFIGURATION.md). An explicit `model` or `model_reasoning_effort` in a role file is a role override; when either field is omitted, resolution follows explicit spawn settings, then `[agents]` defaults, then the parent's resolved setting. The parent session's live sandbox/approval state and administrator requirements can still constrain permissions. Start a new session after any role change.
 
 <a id="updates"></a>
-## Explicit One-Command Update
+## One-Command Manual Refresh
 
 Update the installed plugin, confirm the resolved version, and then start a new Codex session:
 
@@ -172,12 +190,16 @@ codex plugin marketplace upgrade kiss-my-agent
 codex plugin list
 ```
 
-The v0.2.0 marketplace entry pins its source to the immutable `v0.2.0` tag. KISS My Agent does not silently update itself in the background. An upgrade refreshes plugin-owned Skills and resources; it does not overwrite project roles that developers may have customized after setup. Release-specific installation and rollback evidence belongs in [Installation](docs/INSTALLATION.md) and [Testing](docs/TESTING.md).
+The explicit `marketplace upgrade` command requests an immediate manual refresh. KISS My Agent contains no updater of its own; whether an unpinned Git marketplace is also refreshed automatically at startup is behavior owned by the current Codex Host. The v0.2.0 marketplace entry pins the Plugin source to the immutable `v0.2.0` tag. A refresh can update Plugin-owned Skills and resources, but project role handling remains setup-owned.
+
+After upgrading a v0.1-managed project, run project setup once in a new session. It refreshes the KISS managed AGENTS block and upgrades only role files that still exactly match bundled v0.1 seeds; customized or ambiguously owned roles and existing explicit config values remain preserved.
+
+If explicit-only marketplace movement matters more than one-command upgrades, add the marketplace at the pinned `@v0.2.0` tag. That prevents the marketplace source from following later releases. A rollback pin such as `@v0.1.0` likewise stays on that channel during ordinary upgrades; returning to the current unpinned channel requires removing and re-adding the marketplace without a tag. See [Installation](docs/INSTALLATION.md) for exact pinning, rollback, and channel-restoration commands and [Testing](docs/TESTING.md) for the evidence boundary.
 
 <a id="project-and-global-scope"></a>
 ## Project and Global Scope
 
-Project setup is the recommended default. It manages only the selected repository's `.codex/config.toml`, `.codex/agents/`, and a marked block in `AGENTS.md`. It does not copy the plugin Skills, establish project trust, restart Codex, or modify `$CODEX_HOME`.
+Project setup is the recommended persistent mode for a complex project, not a prerequisite for a simple one-off task. It manages only the selected repository's `.codex/config.toml`, `.codex/agents/`, and a marked block in `AGENTS.md`. It does not copy the Plugin Skills, establish project trust, restart Codex, or modify `$CODEX_HOME`.
 
 Global setup is optional and must be requested explicitly:
 
@@ -195,14 +217,14 @@ Global setup manages the corresponding config, roles, and instructions under `$C
 - `$kiss-my-agent-setup`: file-tool-native setup, check, remove, and existing-role configuration guidance.
 - `AGENTS.md`: persistent human/agent ownership, scope, failure, evidence, and stop boundaries.
 - [`.codex/agents/*.toml`](.codex/agents/): three editable seed roles discovered by Codex.
-- `.codex/config.toml`: only `features.multi_agent = true` and `agents.enabled = true`; it does not pin models, context, concurrency, providers, authentication, or telemetry.
+- `.codex/config.toml`: the paired first-setup master defaults `model = "gpt-5.6-sol"` and `model_reasoning_effort = "max"`, plus `features.multi_agent = true` and `agents.enabled = true`; it does not set context, concurrency, providers, authentication, or telemetry.
 
 Codex-facing instructions remain English so runtime behavior has one authoritative language. The user documentation is maintained in synchronized English and Simplified Chinese.
 
 <a id="contributor-runtime"></a>
 ## Users and Contributors Have Different Requirements
 
-Plugin users do not need a language runtime for installation, setup, role configuration, normal use, or updates. Contributors use Python 3.11 or newer for repository validation and documentation-site builds; this is a development toolchain, not a user runtime dependency.
+Plugin users do not need a language runtime for installation, setup, role configuration, normal use, or updates. Contributors use Python 3.11 or newer for repository validation and documentation-site builds; this is a development toolchain, not a user runtime dependency. The v0.1 contributor CLI `skills/kiss-my-agent-setup/scripts/setup.py` was removed in v0.2, which is a breaking contributor-interface change: migrate setup/check/remove/configure work to the conversational `$kiss-my-agent-setup` Skill. Its Agent-native engineering evidence is not the same as deterministic CLI or unit-test evidence.
 
 Start with [Contributing](CONTRIBUTING.md), then follow the native platform commands and evidence rules in [Testing](docs/TESTING.md). Windows validation runs in native PowerShell; WSL is Linux evidence. The repository is designed for fork, branch, test, and pull-request collaboration without requiring contributors to share one local Codex model or permission configuration.
 
@@ -239,7 +261,7 @@ The documentation site is published in [English](https://aoiota.github.io/Kiss-M
 - Codex-first; other hosts are not verified.
 - Guidance reduces a tendency; it cannot guarantee model compliance or identical future behavior.
 - The seed roles do not form a required team, and successful delegation is not product acceptance.
-- The current release does not provide silent auto-update, an MCP service, a standalone UI, telemetry, or an evaluation platform.
+- KISS My Agent does not contain its own updater; the Codex Host may automatically refresh an unpinned Git marketplace. The current release does not provide an MCP service, standalone UI, telemetry, or evaluation platform.
 - The latest release is supported without an LTS compatibility promise; check release notes before upgrading customized environments.
 
 <a id="license"></a>

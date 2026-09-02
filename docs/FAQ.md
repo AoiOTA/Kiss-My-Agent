@@ -41,12 +41,14 @@ codex plugin marketplace add AoiOTA/Kiss-My-Agent
 codex plugin add kiss-my-agent@kiss-my-agent
 ```
 
-Start a new session, run `$kiss-my-agent-setup set up this project`, trust the project through the Host when prompted, then start another new session and run `$kiss-my-agent-setup check this project`.
+The Git-backed marketplace requires a usable `git` executable on `PATH` and network access to GitHub. For a simple one-off task, stop after installation and use an ordinary single conversation. For a complex project that needs the persistent executive workflow, start a new session, run `$kiss-my-agent-setup set up this project`, trust the project through the Host when prompted, then start another new session and run `$kiss-my-agent-setup check this project`.
 
 <a id="after-setup"></a>
 ## What do I do after setup?
 
-Use Codex normally. You do not have to invoke KISS before every task. The project `AGENTS.md` guidance is already applicable; the primary thread decides whether any role is useful. Invoke a Skill only for the specific interfaces described below.
+Use Codex normally. You do not have to invoke KISS before every task. The project `AGENTS.md` guidance is already applicable; the master coordinates, decides, and synthesizes, while delegated roles own investigation, implementation, and review. It directly fans out by default, may use multiple instances of one role, and keeps one writer/operator for each shared resource. A qualifying large independent subsystem may have one temporary department lead, but no deeper or permanent hierarchy.
+
+If delegation is disabled or unavailable, or no suitable role exists, the master reports the staffing issue and asks you to repair staffing or explicitly switch this task to ordinary single-conversation execution. Only that explicit switch authorizes it to perform the work directly.
 
 <a id="plugin-vs-skills"></a>
 ## Is this a Plugin or just a Skill?
@@ -64,21 +66,34 @@ The configured project then owns its `.codex/config.toml`, standalone role TOML 
 Use it for one consequential, non-obvious decision about a persistent/shared mechanism, local fix versus new system, experiment validity, evidence strength, runtime/evaluator ambiguity, or material scope expansion. Do not use it as a wrapper around ordinary implementation, tests, builds, Git, lookup, or formatting. `$kiss-my-agent-setup` is a separate operational Skill.
 
 <a id="configure"></a>
-## How do I configure the initial Agents?
+## How do I configure the master or initial Agents?
 
-The three seeds work immediately by inheriting the Host model and reasoning effort. To change existing role models, effort, or sandbox defaults in a conversational wizard, run:
+The bundled defaults use `gpt-5.6-sol`: the master uses `max`, `kiss_explorer` and `kiss_coder` use `high`, and `kiss_reviewer` uses `xhigh`. The Host and account must support these values. The master pair is added together only when both keys are absent during first setup or exact v0.1 migration. Existing keys are preserved, a missing companion remains absent, and later setup or Plugin updates do not reset choices.
+
+The master is not a role and cannot be changed by the role wizard. Edit `model` and `model_reasoning_effort` in the selected scope's `config.toml`. If the master cannot start because those values are unsupported, use one temporary CLI override, repair the persistent config, and start another new session:
+
+```bash
+codex --config 'model="HOST_SUPPORTED_MODEL_ID"' --config 'model_reasoning_effort="HOST_SUPPORTED_EFFORT"'
+```
+
+Use the conversational wizard only for existing role TOML files:
 
 ```text
 $kiss-my-agent-setup configure agents for this project
 $kiss-my-agent-setup configure global agents
 ```
 
-You can also edit `.codex/agents/*.toml` or `$CODEX_HOME/agents/*.toml` directly. The wizard does not create, delete, or rename roles and does not hard-code a changing model catalog.
+You can also edit `.codex/agents/*.toml` or `$CODEX_HOME/agents/*.toml` directly. The wizard does not modify master config, create, delete, or rename roles, and does not hard-code a changing model catalog.
+
+<a id="legacy-setup-cli"></a>
+## What happened to the v0.1 setup CLI?
+
+The contributor interface `skills/kiss-my-agent-setup/scripts/setup.py` was removed in v0.2. This is an intentional breaking contributor-interface change. Migrate setup, check, remove, and role configuration to the conversational `$kiss-my-agent-setup` Skill. Its Agent-native engineering evidence is different from deterministic CLI or repository-test evidence; report them separately.
 
 <a id="python"></a>
 ## Do users need Python?
 
-No. Plugin installation, setup, check, remove, Agent configuration, normal use, and updates do not require Python, Node.js, Docker, or a package manager. Python 3.11+ and the pinned Markdown package are only for contributors running repository tests or building the documentation site.
+No. Plugin installation, setup, check, remove, Agent configuration, normal use, and updates do not require Python, Node.js, Docker, or a package manager. A Git-backed install or update does require a usable `git` executable and GitHub network access. Python 3.11+ is contributor-only; the pinned Markdown package is used only to render and test the documentation site, and Plugin/Skill-only contributors may leave that site build to pull-request CI.
 
 <a id="update"></a>
 ## How do installed users update? Is it automatic?
@@ -90,7 +105,11 @@ codex plugin marketplace upgrade kiss-my-agent
 codex plugin list
 ```
 
-Start a new session afterward. Updates are not silent or automatic because changing Agent guidance without user review harms reproducibility. Plugin updates also do not overwrite project-owned role files.
+On the verified Codex 0.152.1 baseline, the Host automatically refreshes a default unpinned Git marketplace at startup and force-reinstalls an enabled non-curated Plugin. KISS My Agent contains no updater of its own, and other Codex versions may behave differently. The explicit command above requests an immediate manual refresh. Start a new session after any refresh that changes the installed Plugin.
+
+For a v0.1-managed project, run project setup once after the upgrade. It refreshes the versioned managed AGENTS block and upgrades only exact, unmodified bundled v0.1 role seeds; modified or ambiguously owned roles and existing config values remain preserved.
+
+To require explicit-only marketplace movement, pin the marketplace source to `AoiOTA/Kiss-My-Agent@v0.2.0`. The tradeoff is that the source will not follow a future release through the one-command refresh; you must replace the pin. A rollback to `@v0.1.0` also remains on the v0.1.0 channel during ordinary upgrades. See [Installation](INSTALLATION.md#update) for the exact remove plus unpinned-add commands that restore the current channel.
 
 <a id="global"></a>
 ## Does project setup configure every project?
@@ -100,17 +119,17 @@ No. Project scope changes only the selected project. Global setup must be explic
 <a id="roles"></a>
 ## Are the three roles fixed?
 
-No. They are editable standalone seed files, not a closed catalog or mandatory team. The `name` field is the identity; the filename is a convention. Users may add, edit, rename, or remove roles deliberately. Later setup and check operations do not recreate a deliberately removed seed.
+No. They are editable standalone seed files, not a closed catalog or mandatory team. The `name` field is the identity; the filename is a convention. Multiple instances of one role may run. The default topology is flat master fan-out; only a qualifying large independent subsystem may receive one temporary lead layer. Users may add, edit, rename, or remove roles deliberately. Later setup and check operations do not recreate a deliberately removed seed. Setup may upgrade an existing role only when it still exactly matches an unmodified bundled v0.1 seed; user-modified roles remain untouched.
 
 <a id="existing-files"></a>
 ## What if I already have config, AGENTS, or role files?
 
-Setup preserves unrelated content and explicit `false` values. It stops before writing on invalid TOML, unsafe path types, duplicate identities, ownership conflicts, project/global seed-name conflicts, or an applicable `AGENTS.override.md`. Explicit remove remains available to resolve a cross-scope collision.
+Setup owns four config paths but does not fill all four independently. It adds the master model/effort pair only when both keys are absent during first setup or exact v0.1 migration; if either exists, both existing state and any missing companion are preserved. Each missing public switch is added independently. Existing marked or unmarked assignments, unrelated content, and explicit `false` values remain byte-for-byte. Setup stops before writing on invalid TOML, unsafe path types, duplicate identities, ownership conflicts, project/global seed-name conflicts, or an applicable `AGENTS.override.md`. Explicit remove remains available to resolve a cross-scope collision.
 
 <a id="remove"></a>
 ## What does remove delete?
 
-Only KISS-marked config assignments, the delimited managed AGENTS block, and unchanged bundled roles in the explicitly selected scope. Modified or ambiguously owned roles remain. Removing setup does not uninstall the Plugin.
+Only the four KISS-marked config assignments, the delimited managed AGENTS block, and role files that exactly match a current or known v0.1 bundled seed in the explicitly selected scope. Unmarked config, modified roles, and ambiguously owned roles remain. Removing setup does not uninstall the Plugin.
 
 <a id="verification"></a>
 ## How do I confirm it works?

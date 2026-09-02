@@ -60,7 +60,7 @@ KISS My Agent 为这些决策给 Codex 一组小而持久的边界：人掌握�
 | 局部需求变成共享系统 | 单 consumer 需求留在 owning module，除非真实边界或第二个 consumer 证明值得抽取 | 改动更小、更容易审查 |
 | 防御代码隐藏缺陷 | 传播内部 bug；只为明确、预期的可选失败降级，并显示原因 | 失败仍可诊断 |
 | 检查结果被夸大成更强声明 | 区分源码检查、测试、构建、Smoke、Pilot 与 Final 证据 | 只汇报实际证明的内容 |
-| 多 Agent 变成固定仪式 | 只有信息或执行收益超过协调成本时才委派 | 小任务单线程；需要时动态选角色 |
+| 多 Agent 变成固定仪式 | 简单一次性任务使用普通单对话；只有已配置的复杂项目才动态委派 | 默认扁平 direct fan-out；合格的大型子系统最多一个临时 lead |
 | 为制造信心而继续工作 | 允许有证据支持的“无需修改”，相称证据回答目标后停止 | 减少无谓 churn 和流程表演 |
 
 这些是指导约束，不是形式化 verifier，也不保证行为。它们改善 Codex 作决策时的上下文，但无法保证所有模型、prompt 或未来 Host 版本表现完全一致。
@@ -87,7 +87,12 @@ KISS My Agent 为这些决策给 Codex 一组小而持久的边界：人掌握�
 <a id="quick-start"></a>
 ## 三分钟开始使用
 
-**普通用户只需要 Codex 和 GitHub 访问。Setup 和 Agent 配置不需要 Python、Node.js、Docker、包管理器或独立可执行程序。**
+**普通用户只需要 Codex、可用的 `git` executable 与 GitHub 网络访问。Setup 和 Agent 配置不需要 Python、Node.js、Docker、包管理器或独立的 KISS executable。**
+
+先选择与任务匹配的模式：
+
+- **简单一次性任务：** 如果需要 decision Skill，可以安装 Plugin，但跳过 project setup，使用用户选择 model/effort 的普通单对话。
+- **复杂科研工程项目：** 按下面步骤安装持久 executive workflow，由 Master 调度并委派日常执行工作。
 
 1. 从 Git-backed marketplace 安装 Plugin：
 
@@ -96,7 +101,7 @@ codex plugin marketplace add AoiOTA/Kiss-My-Agent
 codex plugin add kiss-my-agent@kiss-my-agent
 ```
 
-2. 在你准备配置的项目中启动一个新的、已认证的 Codex 会话，然后运行：
+2. 只有选择复杂项目持久模式时，才在准备配置的项目中启动新的已认证 Codex 会话，然后运行：
 
 ```text
 $kiss-my-agent-setup set up this project
@@ -108,30 +113,35 @@ $kiss-my-agent-setup set up this project
 $kiss-my-agent-setup check this project
 ```
 
-默认配置到这里就完成了。你不需要先选模型、编辑 TOML，也不需要每次提任务前调用 Skill。像平时一样直接让 Codex 工作即可：
+到这里，项目持久模式配置完成。你不需要每次提任务前调用 Skill，像平时一样直接让 Codex 工作即可：
 
 ```text
 Find the cause of this failing parser test, make the smallest correct fix, and run the affected tests.
 ```
 
-Setup 会添加或合并项目内、由项目拥有的 KISS 指导；当两个受支持的 multi-agent 开关不存在时启用它们；并提供 `kiss_explorer`、`kiss_coder`、`kiss_reviewer` 三个 seed。它会保留无关内容与有意设置的 `false`；遇到 ownership 或 identity 冲突时会停止，而不是猜测覆盖。精确文件边界与新会话要求见[安装](docs/INSTALLATION.zh-CN.md)。
+Setup 管理四个 config paths：成对的 Master model/effort defaults 与两个公开 multi-agent 开关。只有首次 setup 或精确 v0.1 migration 且两个 Master keys 都缺失时才添加这一对；若任一 Master key 已存在，另一个保持缺失。两个 feature defaults 各自在缺失时添加。Setup 还提供 `kiss_explorer`、`kiss_coder`、`kiss_reviewer` 三个 seed，并保留已有值与用户改动。若已配置 workflow 的 delegation 被禁用、不可用或没有合适角色，Master 会报告 staffing issue，让用户选择修复 staffing 或明确把本任务切换为普通单对话；不会静默接手。精确边界、Host 支持条件与新会话要求见[安装](docs/INSTALLATION.zh-CN.md)。
 
 <a id="how-to-use"></a>
 ## 到底该调用什么
 
 | 需要 | 做法 |
 | --- | --- |
-| 普通实现、调试、测试、审查或 Git 工作 | 正常向 Codex 提要求。Setup 后，项目 `AGENTS.md` 的指导已经生效。 |
+| 简单一次性实现、调试、测试、审查或 Git 工作 | 使用普通单对话，不需要 project setup。 |
+| 复杂项目的持久 executive workflow | 运行 project setup 后正常提要求；Master 按项目 `AGENTS.md` 调度并委派日常执行工作。 |
 | 对共享机制、局部修复还是新系统、隐藏失败、实验有效性、证据强度、runtime/evaluator 不一致或扩 scope 存在一个重要且不显然的决策 | 为这个决策显式调用 `$kiss-my-agent`，然后回到原任务。它不是通用工作流。 |
 | 安装、检查、移除 KISS 文件，或配置现有角色 | 使用 `$kiss-my-agent-setup`，并明确项目或全局 scope。 |
 
 三个内置角色是可编辑的 seeds，不是强制工作流或封闭 catalog：
 
-- `kiss_explorer` 负责有边界的只读调查。
-- `kiss_coder` 负责有边界的实现及其检查。
-- `kiss_reviewer` 负责独立只读审查。
+- `kiss_explorer` 以 `gpt-5.6-sol` / `high` 负责有边界的只读调查。
+- `kiss_coder` 以 `gpt-5.6-sol` / `high` 负责有边界的实现及其检查。
+- `kiss_reviewer` 以 `gpt-5.6-sol` / `xhigh` 负责独立只读审查。
 
-主线程决定委派是否值得，也可以使用 Host 当前暴露的其他角色。小任务可以而且应该留在一个线程中完成。
+Bundled Master default 是 `gpt-5.6-sol` / `max`。Host 与账号必须支持这些 model/effort；setup 会保留目标中已有的选择。Master 动态选择当前可用角色，同一角色可以启动多个实例。组织默认扁平：Master 直接 fan-out 到当前角色，同时每个共享文件或资源保持一个 writer/operator。
+
+只有大型独立子系统需要大量并行、且直接汇总会污染 Master context 时，才可临时让一个现有 Agent 担任有界的 department lead。该 lead 可在自身 scope 内委派并向 Master 汇总，但其 workers 不再委派。Assignment 随任务结束而消失：最多一层中间管理，不形成永久部门、新角色、固定人数或深层层级。
+
+可以把它类比为一家小公司：用户或 Owner 确定目标，Master 像 CEO，负责战略、架构与验收决策、调度、冲突解决、证据判断和最终汇总；explorer 提供情报，coder 负责工程实现，reviewer 做独立审计。这只是帮助理解 ownership，不是固定 pipeline、强制团队或游戏机制。
 
 <a id="before-and-after"></a>
 ## 两个具体对照
@@ -149,21 +159,29 @@ Setup 会添加或合并项目内、由项目拥有的 KISS 指导；当两个�
 **使用 KISS：** 只在 owner 边界捕获已知的可用性失败，保持主行为正确，公开降级原因，让内部缺陷携带原始原因失败。这样保留真正的安全性，也不隐藏错误。
 
 <a id="configure-agents"></a>
-## 可选 Agent 配置
+## 配置 Master 与 Roles
 
-三个 seeds 默认继承实际生效的 Host 模型和 reasoning 设置。要通过 Codex 对话配置已有的项目或全局角色，使用：
+Bundled defaults 为：`kiss_explorer` 与 `kiss_coder` 使用 `gpt-5.6-sol` / `high`，`kiss_reviewer` 使用 `gpt-5.6-sol` / `xhigh`，Master 使用 `gpt-5.6-sol` / `max`。这些值要求 Host/账号支持，也不是锁定。
+
+Master settings 属于所选 scope 的 `config.toml`，不属于 role。请直接编辑其中的 `model` 与 `model_reasoning_effort`。若不支持的持久配置导致 Master 无法启动，先用单次 CLI override 启动，再修复持久 config 并另开新会话：
+
+```bash
+codex --config 'model="HOST_SUPPORTED_MODEL_ID"' --config 'model_reasoning_effort="HOST_SUPPORTED_EFFORT"'
+```
+
+对话向导只配置已有 role TOML：
 
 ```text
 $kiss-my-agent-setup configure agents for this project
 $kiss-my-agent-setup configure global agents
 ```
 
-向导只能修改现有角色的 `model`、`model_reasoning_effort` 和 `sandbox_mode`。它会预览 diff、保留所有无关字段，并对 `danger-full-access` 单独二次确认。它不维护模型目录，也不创建、删除或重命名角色。
+向导只能修改现有角色的 `model`、`model_reasoning_effort` 和 `sandbox_mode`，不能修改 Master。它会预览 diff、保留所有无关字段，并对 `danger-full-access` 单独二次确认。它不维护模型目录，也不创建、删除或重命名角色。
 
 如需手工配置，请编辑 `<project>/.codex/agents/` 或 `$CODEX_HOME/agents/` 下对应的 standalone role 文件，详见[配置](docs/CONFIGURATION.zh-CN.md)。Role 文件里显式的 `model` 或 `model_reasoning_effort` 是 role override；任一字段省略时，依次按显式 spawn 设置、`[agents]` 默认值、父会话已解析设置决定。父会话实时的 sandbox/approval 状态与管理员要求仍可限制权限。修改角色后请启动新会话。
 
 <a id="updates"></a>
-## 显式一键更新
+## 一键手动刷新
 
 更新已安装的 Plugin、确认最终解析到的版本，然后启动新的 Codex 会话：
 
@@ -172,12 +190,16 @@ codex plugin marketplace upgrade kiss-my-agent
 codex plugin list
 ```
 
-v0.2.0 marketplace 条目将 source 固定到不可移动的 `v0.2.0` tag。KISS My Agent 不在后台静默更新。升级会刷新 Plugin 所有的 Skills 和资源；不会覆盖开发者在 setup 后可能已经自定义的项目角色。与 release 对应的安装和回退证据见[安装](docs/INSTALLATION.zh-CN.md)与[测试](docs/TESTING.zh-CN.md)。
+显式运行 `marketplace upgrade` 会立即请求一次手动刷新。KISS My Agent 自身不包含 updater；未固定 tag 的 Git marketplace 是否还会在启动时自动刷新，由当前 Codex Host 的行为决定。v0.2.0 marketplace 条目把 Plugin source 固定到不可移动的 `v0.2.0` tag。刷新可以更新 Plugin-owned Skills 与资源，但项目角色仍由 setup 负责处理。
+
+升级一个 v0.1-managed 项目后，在新会话中再运行一次 project setup。它会刷新 KISS managed AGENTS block，并且只升级仍与 bundled v0.1 seeds 完全一致的角色文件；自定义或 owner 不清的角色以及已有 config values 都会保留。
+
+若“只在显式操作时移动 marketplace”比一键升级更重要，可在添加 marketplace 时固定 `@v0.2.0` tag。这样 marketplace source 不会跟随后续 release。`@v0.1.0` 之类的 rollback pin 在普通 upgrade 后也会继续停留在该 channel；返回 current/unpinned channel 时必须移除并重新添加不带 tag 的 marketplace。准确 pin、rollback 与 channel 恢复命令见[安装](docs/INSTALLATION.zh-CN.md)，证据边界见[测试](docs/TESTING.zh-CN.md)。
 
 <a id="project-and-global-scope"></a>
 ## 项目与全局 Scope
 
-推荐默认使用项目 setup。它只管理所选仓库的 `.codex/config.toml`、`.codex/agents/` 和 `AGENTS.md` 内带 marker 的区块。它不会复制 Plugin Skills、建立项目 trust、重启 Codex 或修改 `$CODEX_HOME`。
+Project setup 是复杂项目推荐的持久模式，不是简单一次性任务的前置条件。它只管理所选仓库的 `.codex/config.toml`、`.codex/agents/` 和 `AGENTS.md` 内带 marker 的区块。它不会复制 Plugin Skills、建立项目 trust、重启 Codex 或修改 `$CODEX_HOME`。
 
 全局 setup 是可选操作，必须显式请求：
 
@@ -195,14 +217,14 @@ $kiss-my-agent-setup check global setup
 - `$kiss-my-agent-setup`：使用 Codex 文件工具完成 setup、check、remove 和现有角色配置。
 - `AGENTS.md`：持久的人与 Agent ownership、scope、失败、证据与停止边界。
 - [`.codex/agents/*.toml`](.codex/agents/)：由 Codex 发现的三个可编辑 seed 角色。
-- `.codex/config.toml`：只包含 `features.multi_agent = true` 和 `agents.enabled = true`；不固定模型、context、并发、provider、认证或遥测。
+- `.codex/config.toml`：成对的首次 setup Master defaults `model = "gpt-5.6-sol"` 与 `model_reasoning_effort = "max"`，以及 `features.multi_agent = true` 和 `agents.enabled = true`；不设置 context、并发、provider、认证或遥测。
 
 面向 Codex 的 instructions 保持英文，使 runtime 行为只有一个权威语言版本；用户文档同步维护英文与简体中文版本。
 
 <a id="contributor-runtime"></a>
 ## 用户与贡献者的环境要求不同
 
-Plugin 用户在安装、setup、角色配置、正常使用和更新时都不需要语言 runtime。贡献者进行仓库验证和文档站点构建时使用 Python 3.11 或更高版本；这是开发工具链，不是用户运行时依赖。
+Plugin 用户在安装、setup、角色配置、正常使用和更新时都不需要语言 runtime。贡献者进行仓库验证和文档站点构建时使用 Python 3.11 或更高版本；这是开发工具链，不是用户运行时依赖。v0.1 contributor CLI `skills/kiss-my-agent-setup/scripts/setup.py` 已在 v0.2 移除，这是 breaking contributor-interface change：setup/check/remove/configure 应迁移到对话式 `$kiss-my-agent-setup` Skill。Agent 原生 engineering evidence 与 deterministic CLI 或 unit-test evidence 不同。
 
 从[贡献指南](CONTRIBUTING.zh-CN.md)开始，再按[测试](docs/TESTING.zh-CN.md)中的原生平台命令和证据规则操作。Windows 验证在原生 PowerShell 中运行；WSL 属于 Linux 证据。仓库支持 fork、branch、test 和 pull request 协作，不要求贡献者共享同一种本地 Codex 模型或权限配置。
 
@@ -239,7 +261,7 @@ KISS My Agent 不会把检查结果升级成它无法支持的更强声明：
 - Codex 优先；尚未验证其他 Host。
 - 指导会降低某种倾向，但不能保证模型服从或未来行为完全一致。
 - Seed roles 不构成必需团队；成功委派也不等于产品验收通过。
-- 当前 release 不提供静默自动更新、MCP 服务、独立 UI、遥测或评测平台。
+- KISS My Agent 自身不包含 updater；Codex Host 可能自动刷新 unpinned Git marketplace。当前 release 不提供 MCP 服务、独立 UI、遥测或评测平台。
 - 只支持最新 release，不承诺 LTS 兼容；自定义环境升级前应检查 release notes。
 
 <a id="license"></a>

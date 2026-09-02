@@ -3,6 +3,7 @@ from __future__ import annotations
 from html.parser import HTMLParser
 import importlib.util
 from pathlib import Path
+import shutil
 import tempfile
 import unittest
 
@@ -99,6 +100,32 @@ class BuildSiteTests(unittest.TestCase):
     def test_every_local_link_and_fragment_is_closed(self) -> None:
         routes, counterparts = build_site.document_routes()
         build_site.validate_output(self.output, routes, counterparts)
+
+    def test_fragment_only_links_validate_through_output_alias(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            alias = Path(temporary) / "site-alias"
+            try:
+                alias.symlink_to(self.output, target_is_directory=True)
+            except (NotImplementedError, OSError) as error:
+                self.skipTest(f"directory symlinks are unavailable: {error}")
+
+            routes, counterparts = build_site.document_routes()
+            build_site.validate_output(alias, routes, counterparts)
+
+    def test_output_alias_fix_still_rejects_real_path_escape(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary) / "site"
+            shutil.copytree(self.output, output)
+            (Path(temporary) / "outside.txt").write_text("outside\n", encoding="utf-8")
+            index = output / "index.html"
+            markup = index.read_text(encoding="utf-8").replace(
+                "</article>", '<a href="../outside.txt">escape</a></article>'
+            )
+            index.write_text(markup, encoding="utf-8")
+
+            routes, counterparts = build_site.document_routes()
+            with self.assertRaisesRegex(build_site.BuildError, "escapes output"):
+                build_site.validate_output(output, routes, counterparts)
 
     def test_every_page_has_current_navigation_and_no_javascript(self) -> None:
         for page in self.output.rglob("*.html"):

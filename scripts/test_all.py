@@ -3,8 +3,10 @@
 
 from __future__ import annotations
 
+import hashlib
 import importlib.util
 import os
+import stat
 import subprocess
 import sys
 import tempfile
@@ -24,15 +26,51 @@ def run(label: str, command: list[str], *, environment: dict[str, str]) -> None:
     subprocess.run(command, cwd=ROOT, env=environment, check=True)
 
 
-def git_state(environment: dict[str, str]) -> bytes:
+def git_output(arguments: list[str], environment: dict[str, str]) -> bytes:
     result = subprocess.run(
-        ["git", "status", "--porcelain=v1", "-z"],
+        ["git", *arguments],
         cwd=ROOT,
         env=environment,
         check=True,
         stdout=subprocess.PIPE,
     )
     return result.stdout
+
+
+def path_state(relative_path: bytes) -> tuple[int | None, int, bytes]:
+    path = os.path.join(os.fsencode(ROOT), relative_path)
+    try:
+        metadata = os.lstat(path)
+    except FileNotFoundError:
+        return None, 0, b""
+
+    kind = stat.S_IFMT(metadata.st_mode)
+    executable = metadata.st_mode & 0o111
+    digest = hashlib.sha256()
+    if stat.S_ISREG(metadata.st_mode):
+        with open(path, "rb") as source:
+            for chunk in iter(lambda: source.read(1024 * 1024), b""):
+                digest.update(chunk)
+    elif stat.S_ISLNK(metadata.st_mode):
+        digest.update(os.readlink(path))
+    return kind, executable, digest.digest()
+
+
+def git_state(
+    environment: dict[str, str],
+) -> tuple[bytes, bytes, tuple[tuple[bytes, int | None, int, bytes], ...]]:
+    status = git_output(["status", "--porcelain=v1", "-z"], environment)
+    index = git_output(["ls-files", "--stage", "-z"], environment)
+    paths = git_output(
+        ["ls-files", "--cached", "--others", "--exclude-standard", "-z"],
+        environment,
+    )
+    working_tree = tuple(
+        (relative_path, *path_state(relative_path))
+        for relative_path in sorted(set(paths.rstrip(b"\0").split(b"\0")))
+        if relative_path
+    )
+    return status, index, working_tree
 
 
 def main() -> int:

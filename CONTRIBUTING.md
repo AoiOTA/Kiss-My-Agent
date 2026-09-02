@@ -7,7 +7,9 @@
 
 KISS My Agent is a research-engineering plugin for keeping Agent work proportionate, failure-visible, and evidence-honest. Read [`AGENTS.md`](AGENTS.md) before changing the repository. For Skill, Rule, or Case changes, also read [Extending](docs/EXTENDING.md). Runtime and test behavior belong in [Configuration](docs/CONFIGURATION.md) and [Testing](docs/TESTING.md).
 
-Installing or configuring the released plugin does not require Python, Node.js, or another language runtime. The contributor toolchain is separate: Git and Python 3.11 or newer are sufficient for the standard-library validation and Setup contract tests. Plugin- or Skill-only contributors do not need to install Markdown or build the site locally. Codex is needed only for live discovery and dogfooding checks.
+Installing or updating the released Plugin through its Git-backed marketplace requires a usable Git executable and GitHub network access, but not Python, Node.js, Docker, or another language runtime. The contributor toolchain is separate: Git and Python 3.11 or newer are sufficient for the standard-library validation and Setup contract tests. Plugin- or Skill-only contributors do not need to install Markdown or build the site locally; pull-request CI validates the site. Codex is needed only for live discovery and dogfooding checks.
+
+The v0.1 contributor CLI `skills/kiss-my-agent-setup/scripts/setup.py` was removed in v0.2. This is a breaking contributor-interface change. Migrate setup, check, remove, and role configuration to the conversational `$kiss-my-agent-setup` Skill, and keep its Agent-native engineering evidence separate from deterministic repository-test evidence.
 
 By participating, you agree to follow the [Code of Conduct](CODE_OF_CONDUCT.md).
 
@@ -55,8 +57,10 @@ The reported Python version must be 3.11 or newer. WSL follows the Linux instruc
 - Preserve human ownership of the goal, architecture, acceptance criteria, non-goals, and stop boundary.
 - Keep `$kiss-my-agent` precisely routed and non-catch-all. Add a Rule only for a recurring method and a Case only for a useful concrete contrast.
 - Do not expand setup, workflow, release, compatibility, telemetry, scoring, or evaluation machinery without an approved current consumer.
-- Preserve the three owners: two public switches in config, standalone role TOML discovery, and dynamic dispatch in AGENTS. Config must not enumerate role files.
+- Preserve the three owners: four config paths in `config.toml` (the paired master model/effort defaults plus two independently defaulted public switches), standalone role TOML discovery, and dynamic dispatch in AGENTS. The marker controls remove ownership; it does not authorize resetting an existing value. Config must not enumerate role files.
 - Treat the supplied roles as editable seeds rather than a closed catalog; role `name` is identity and filename is only a convention.
+- Keep the master on coordination, decisions, and synthesis. Default to flat direct fan-out, allow multiple instances of one role, and keep one writer/operator for each shared resource. A qualifying large independent subsystem may use one temporary bounded lead whose workers do not delegate; never add deeper or permanent hierarchy.
+- Keep master settings and role settings distinct. The editable bundled defaults are `gpt-5.6-sol` / `max` in scope config for the master, `gpt-5.6-sol` / `high` for explorer/coder roles, and `gpt-5.6-sol` / `xhigh` for reviewer. Preserve existing choices; later setup and updates must not reset them, and the role wizard must not edit master config.
 - Preserve unrelated user and Agent changes. Keep refactors, generated artifacts, and formatting outside the scoped diff.
 - Keep every English developer document synchronized with its Simplified Chinese companion: language switch, explicit anchor IDs, section order, and fenced command blocks.
 - Keep Codex-facing AGENTS, Skills, Rules, Cases, role TOML, `LICENSE`, and `CODE_OF_CONDUCT.md` English-only.
@@ -78,12 +82,15 @@ Before opening a pull request, inspect the complete diff, confirm unrelated work
 
 ```bash
 git status --short
-git diff --check
+git diff upstream/main
+git add path/to/intended-file path/to/another-intended-file
+git diff --cached --check
+git commit -m "docs: clarify onboarding"
 git diff --stat upstream/main...HEAD
 git push -u origin docs/clear-onboarding
 ```
 
-Do not rewrite another contributor's branch, force-push shared work, or mix release preparation with an unrelated fix.
+Replace the example paths and commit message with the actual scoped change; do not use `git add .`. Do not rewrite another contributor's branch, force-push shared work, or mix release preparation with an unrelated fix.
 
 <a id="local-validation"></a>
 ## Local Validation
@@ -105,6 +112,8 @@ py -3 -m unittest tests.test_setup -v
 ```
 
 These checks validate source and Setup contracts; they do not execute a live Codex setup or prove Host behavior.
+
+They also validate removal of the v0.1 `skills/kiss-my-agent-setup/scripts/setup.py` interface. Do not restore or replace it with another repository staging or setup script; the supported setup interface is the conversational Skill.
 
 For documentation or site changes, CI is the required site-build evidence. A contributor may optionally preview the site locally by creating an isolated environment outside the checkout.
 
@@ -153,8 +162,16 @@ codex --version
 
 There are two distinct live checks:
 
-1. **Project instructions and roles.** Start a trusted new Codex session from this checkout. Give it a real, bounded contribution task. When delegation is useful, have `kiss_explorer` inspect read-only, give `kiss_coder` exclusive ownership of named files, and ask `kiss_reviewer` for an independent read-only review. Confirm that unrelated dirty-tree changes survive and that subprocess failures remain visible.
+1. **Project instructions and roles.** Start a trusted new Codex session from this checkout. Give it a real, bounded contribution task. Keep the master on coordination, decisions, and synthesis: use flat direct fan-out to `kiss_explorer`, `kiss_coder`, and `kiss_reviewer`, with multiple same-role instances when justified and one owner for every shared resource. Use a temporary lead only for a qualifying large independent subsystem, never a deeper hierarchy. Confirm that unrelated dirty-tree changes survive and that subprocess failures remain visible.
 2. **The edited plugin package.** Do not change the tracked release manifest or Git-backed marketplace merely to invalidate a local cache. Use Codex's Plugin Creator local-update workflow to stage a disposable copy in a separate local marketplace, point that marketplace at the staged copy, and add exactly one `+codex.<cachebuster>` suffix to the staged manifest only. Install from that local marketplace into an isolated Codex home, then start a new thread so the Host loads the staged Skills.
+
+External contributors can invoke that workflow with this Codex prompt:
+
+```text
+$plugin-creator update this existing KISS My Agent plugin for local development. Stage a disposable candidate copy outside the checkout in a separate local marketplace, point that marketplace only at the candidate copy, add exactly one +codex.<cachebuster> suffix to the copy's manifest version, reinstall it from that marketplace into an isolated Codex home, and tell me to start a new thread. Do not modify tracked release files or the Git-backed marketplace.
+```
+
+See the official OpenAI [Plugin Creator and local marketplace guidance](https://developers.openai.com/plugins/build/plugins#package-with-plugin-creator) and [marketplace add/upgrade commands](https://developers.openai.com/plugins/build/plugins#add-a-marketplace-from-the-cli). Do not add a repository staging script for this workflow.
 
 In the new thread, confirm `/skills` shows `kiss-my-agent` and `kiss-my-agent-setup`. Exercise `$kiss-my-agent` only on a matching non-obvious decision. Exercise setup, check, Agent configuration, and removal only in a disposable project scope; do not use a real global scope for a development test. Preserve any first failed precondition instead of hiding it with retries.
 
@@ -172,6 +189,10 @@ Report each evidence level separately:
 
 Record the platform, native shell, exact source state, Codex version, trust state, whether the session was new, marketplace source/version, prompt, expected outcome, actual outcome, and untested surfaces. Stop when the stated question is answered; do not repeat runs merely to manufacture confidence.
 
+A coordinator wait window that returns without an update is not evidence that a child Agent timed out or failed. Let bounded non-conflicting work continue, and interrupt only when the assignment is obsolete, out of scope, competing for a shared resource, or explicitly stopped by the user.
+
+If delegation is disabled or unavailable, or no suitable role exists, report the staffing issue and ask the user to repair or enable staffing or explicitly switch this task to ordinary single-conversation execution. The master may work directly only after the latter choice; it must not silently take over.
+
 <a id="pull-requests"></a>
 ## Pull Requests
 
@@ -187,9 +208,9 @@ A passing test is not proof of model behavior, usability, publication, or releas
 This section is maintainer-only. The `v0.1.0` tag is immutable and must never be moved or recreated.
 
 1. Track v0.2.0 in an issue with acceptance criteria, compatibility constraints, and non-goals.
-2. Land implementation through a focused pull request. Align the plugin manifest version and marketplace ref at `0.2.0` / `v0.2.0`, synchronize English and Chinese documentation, and require the complete test suite plus green native Ubuntu, macOS, and Windows CI for the exact release commit.
-3. Complete a fresh-install Smoke, an isolated `v0.1.0` to `v0.2.0` marketplace-upgrade Smoke, fresh-session Skill discovery, harmless role Smokes, and the README-only new-user Pilot. Do not claim an upgrade path until the installed cache actually reports and loads v0.2.0.
-4. After the pull request is squash-merged and the exact `origin/main` commit is verified, create an immutable annotated tag and GitHub Release:
+2. Before opening the release pull request, run the applicable dependency-free core checks, install only the staged local candidate, and complete fresh-session Skill discovery, harmless role Smokes, and the README-only new-user Pilot. Plugin/Skill-only work may leave the documentation-site build to pull-request CI. These are candidate results; do not claim public install or upgrade evidence before a public tag exists.
+3. Land implementation through a focused pull request. Align the Plugin manifest version and marketplace ref at `0.2.0` / `v0.2.0`, synchronize English and Chinese documentation, and require the complete test suite plus green native Ubuntu, macOS, and Windows pull-request CI.
+4. After the pull request is squash-merged, verify the exact `origin/main` commit, create an immutable annotated tag, and push it. Do not create the GitHub Release yet:
 
 ```bash
 git fetch origin
@@ -198,16 +219,21 @@ git pull --ff-only origin main
 python scripts/test_all.py
 git tag -a v0.2.0 -m "KISS My Agent v0.2.0"
 git push origin v0.2.0
-gh release create v0.2.0 --verify-tag --title "KISS My Agent v0.2.0" --generate-notes
 ```
 
-5. Verify the public Release page and archives, then test the documented user upgrade in an isolated installation and a trusted new session:
+5. Against that pushed public tag, test a public fresh install, the isolated `v0.1.0` to `v0.2.0` marketplace upgrade, and the documented pinned-tag rollback. Confirm the installed cache reports and loads v0.2.0 in a trusted new session; confirm the Host/account supports the bundled `gpt-5.6-sol` defaults; then verify the v0.1-managed project transition, including upgrade of exact unmodified seeds and preservation of existing model/effort choices and other modified roles. Confirm ordinary upgrade remains on the rollback pin, then restore the current channel with the documented marketplace remove plus unpinned-add sequence:
 
 ```bash
 codex plugin marketplace upgrade kiss-my-agent
 codex plugin list
 ```
 
-6. Verify both deployed Pages languages over HTTPS and record the exact commit, CI runs, public install/upgrade result, live Smokes, Pilot result, and residual limits in the canonical handoff through a follow-up pull request.
+6. Only after all three public paths pass, create the GitHub Release:
 
-If a published release is defective, preserve its tag and publish a new patch version. Never force-push `main`, move a published tag, suppress a failing check, or relabel an invalid run as success.
+```bash
+gh release create v0.2.0 --verify-tag --title "KISS My Agent v0.2.0" --generate-notes
+```
+
+7. Verify the public Release page and archives, verify both deployed Pages languages over HTTPS, and record the exact commit, CI runs, public install/upgrade/rollback results, live Smokes, Pilot result, and residual limits in the canonical handoff through a follow-up pull request.
+
+If a post-tag public install, upgrade, or rollback check fails, preserve the tag, do not create a misleading v0.2.0 Release, and publish the correction under a new patch version. If a published Release is later found defective, preserve its tag and publish a new patch version. Never force-push `main`, move any pushed tag, suppress a failing check, or relabel an invalid run as success.
