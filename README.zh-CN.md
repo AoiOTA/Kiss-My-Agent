@@ -12,7 +12,7 @@
 
 [![许可证：MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Validate](https://github.com/AoiOTA/Kiss-My-Agent/actions/workflows/validate.yml/badge.svg)](https://github.com/AoiOTA/Kiss-My-Agent/actions/workflows/validate.yml)
-![版本：v0.2.0](https://img.shields.io/badge/release-v0.2.0-blue.svg)
+![版本：v0.2.1](https://img.shields.io/badge/release-v0.2.1-blue.svg)
 ![宿主：Codex 优先](https://img.shields.io/badge/host-Codex--first-blue.svg)
 
 </div>
@@ -85,10 +85,10 @@ codex plugin add kiss-my-agent@kiss-my-agent
 
 此时只是安装了 Plugin；新的 Codex 会话可以发现它提供的两个 Skills，但项目规则和角色还没有配置。
 
-在复杂项目中打开一个新的 Codex 会话，然后运行：
+在复杂项目中打开一个新的 Codex 会话。在已测试的 Codex CLI 0.152.1 baseline 上，先输入 `$`，再在 Skill picker 中选择 `kiss-my-agent-setup (kiss-my-agent)`。Picker 会插入一个结构化 Skill reference；继续补充 setup 请求并提交 prompt 后，才会调用该 Skill。如果直接粘贴文字，请使用下面完整限定的命令：
 
 ```text
-$kiss-my-agent-setup set up this project with the default team
+$kiss-my-agent:kiss-my-agent-setup set up this project with the default team
 ```
 
 Project setup 会写入持久项目规则和角色配置。通过 Codex 界面信任该项目，再打开一个新会话；只有这个可信的新会话才会加载项目规则和角色。之后像平常一样提任务：
@@ -100,7 +100,7 @@ Find the cause of this failing parser test, make the smallest correct fix, and r
 Setup check 是可选的。它只检查配置文件，不能证明 Agents 的真实行为：
 
 ```text
-$kiss-my-agent-setup check this project
+$kiss-my-agent:kiss-my-agent-setup check this project
 ```
 
 默认 setup 管理项目中的三个位置：
@@ -151,7 +151,7 @@ Codex 会报告不支持的设置；KISS 不会静默选择 fallback。临时启
 通过 Codex 配置已有员工角色：
 
 ```text
-$kiss-my-agent-setup configure agents for this project
+$kiss-my-agent:kiss-my-agent-setup configure agents for this project
 ```
 
 Role wizard 只修改已有角色的 model、reasoning effort 和 permission mode，不修改 Master。全局角色、优先级、权限和恢复细节见[配置](docs/CONFIGURATION.zh-CN.md)。

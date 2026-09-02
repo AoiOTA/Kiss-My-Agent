@@ -8,8 +8,8 @@ from pathlib import Path
 
 REPOSITORY = Path(__file__).resolve().parents[1]
 SETUP_SKILL = REPOSITORY / "skills" / "kiss-my-agent-setup" / "SKILL.md"
-LIFECYCLE = SETUP_SKILL.parent / "references" / "setup-lifecycle.md"
-CONFIGURE = SETUP_SKILL.parent / "references" / "configure-agents.md"
+LIFECYCLE = SETUP_SKILL.parent / "setup-lifecycle.md"
+CONFIGURE = SETUP_SKILL.parent / "configure-agents.md"
 ROLE_DIRECTORY = REPOSITORY / ".codex" / "agents"
 V010_FIXTURE = REPOSITORY / "tests" / "fixtures" / "v0.1-managed-project"
 V010_ASSETS = SETUP_SKILL.parent / "assets"
@@ -36,8 +36,8 @@ class SetupContractTests(unittest.TestCase):
         cls.configure = CONFIGURE.read_text(encoding="utf-8")
 
     def test_entrypoint_routes_each_public_action_to_one_reference(self) -> None:
-        self.assertIn("references/setup-lifecycle.md", self.skill)
-        self.assertIn("references/configure-agents.md", self.skill)
+        self.assertIn("](setup-lifecycle.md)", self.skill)
+        self.assertIn("](configure-agents.md)", self.skill)
         for action in ("setup", "check", "remove", "configure"):
             self.assertIn(action, self.skill)
 
@@ -55,6 +55,45 @@ class SetupContractTests(unittest.TestCase):
             and path.suffix != ".pyc"
         ]
         self.assertEqual([], published_sources)
+
+    def test_entrypoint_declares_static_runtime_execution_contract(self) -> None:
+        """Static source assertions do not prove Host runtime behavior."""
+        self.assertIn("exact loaded `SKILL.md` directory", self.skill)
+        self.assertIn(
+            "single base for sibling `setup-lifecycle.md` and `configure-agents.md`",
+            self.skill,
+        )
+        self.assertIn("every relative link they contain", self.skill)
+        self.assertIn("preserve linked relative-path text", self.skill)
+        self.assertIn(
+            "never reconstruct cache, marketplace, plugin, or version path components",
+            self.skill,
+        )
+        self.assertIn("lifecycle filesystem operations serially", self.skill)
+        self.assertIn("one simple direct file operation per tool call", self.skill)
+        self.assertIn(
+            "exactly one such operation in each outer tool or orchestration call",
+            self.skill,
+        )
+        self.assertIn("do not batch or parallelize them", self.skill)
+        self.assertIn("do not generate compound shell commands", self.skill)
+        self.assertIn("suppress diagnostics", self.skill)
+        self.assertIn("one planned target per edit call", self.skill)
+        self.assertIn("exactly one edit operation for that path", self.skill)
+        self.assertIn("update an existing file in place", self.skill)
+        self.assertIn(
+            "never combine add, delete, or update operations for the same path",
+            self.skill,
+        )
+        self.assertIn("Inspect and interpret each tool or subprocess status", self.skill)
+        self.assertIn("tool or subprocess failure", self.skill)
+        self.assertIn("unexpected nonzero status", self.skill)
+        self.assertIn("stops forward work", self.skill)
+        self.assertIn("If no target has been mutated, return immediately", self.skill)
+        self.assertIn("selected reference's guarded rollback or cleanup", self.skill)
+        self.assertIn("original failure plus any rollback failure", self.skill)
+        self.assertIn("expected absence or no-match is not a failure", self.skill)
+        self.assertIn("explicitly interpret and report it", self.skill)
 
     def test_lifecycle_marks_v010_block_outdated_and_adds_wait_semantics(self) -> None:
         markdown_blocks = fenced_blocks(self.lifecycle, "markdown")
@@ -196,13 +235,13 @@ class SetupContractTests(unittest.TestCase):
 
     def test_v010_runtime_assets_are_directly_linked_and_identified(self) -> None:
         for role_name in ("kiss_explorer", "kiss_coder", "kiss_reviewer"):
-            relative = f"../assets/v0.1-agents/{role_name}.toml"
+            relative = f"assets/v0.1-agents/{role_name}.toml"
             self.assertIn(f"]({relative})", self.lifecycle)
             asset = (LIFECYCLE.parent / relative).resolve()
             self.assertTrue(asset.is_file(), asset)
             with asset.open("rb") as stream:
                 self.assertEqual(role_name, tomllib.load(stream)["name"])
-        self.assertIn("](../assets/v0.1-managed-block.md)", self.lifecycle)
+        self.assertIn("](assets/v0.1-managed-block.md)", self.lifecycle)
         managed_block_asset = V010_ASSETS / "v0.1-managed-block.md"
         self.assertTrue(managed_block_asset.is_file())
 

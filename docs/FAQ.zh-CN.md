@@ -49,7 +49,7 @@ codex plugin add kiss-my-agent@kiss-my-agent
 codex plugin list
 ```
 
-列表中应看到 `kiss-my-agent@kiss-my-agent` 的状态为 `installed, enabled`，版本为 `0.2.0`；cache path 可以不同。如果 Plugin 命令、认证或 marketplace 访问失败，请检查客户端支持、login 状态、`git` 与 GitHub 网络。简单一次性任务安装后直接使用普通单对话。复杂项目若需要持久 workflow，再启动新会话，运行 `$kiss-my-agent-setup set up this project`；Host 提示时信任项目；随后另开新会话并运行 `$kiss-my-agent-setup check this project`。
+列表中应看到 `kiss-my-agent@kiss-my-agent` 的状态为 `installed, enabled`，版本为 `0.2.1`；cache path 可以不同。如果 Plugin 命令、认证或 marketplace 访问失败，请检查客户端支持、login 状态、`git` 与 GitHub 网络。简单一次性任务安装后直接使用普通单对话。复杂项目若需要持久 workflow，请启动新会话。在已测试的 Codex 0.152.1 baseline 上，输入 `$` 并在 picker 中选择 `kiss-my-agent-setup (kiss-my-agent)`。Picker 会插入一个结构化 Skill reference；继续补充 setup 请求并提交 prompt 后，才会调用该 Skill。如果直接粘贴文字，运行 `$kiss-my-agent:kiss-my-agent-setup set up this project`。Host 提示时信任项目；随后另开新会话并运行 `$kiss-my-agent:kiss-my-agent-setup check this project`。
 
 <a id="after-setup"></a>
 ## Setup 后该怎么用？
@@ -63,15 +63,15 @@ codex plugin list
 
 它是一个带版本的 Codex Plugin。Plugin 负责安装、分发与更新，目前打包两个 Skills：
 
-- `$kiss-my-agent` 提供窄范围决策指导。
-- `$kiss-my-agent-setup` 管理显式 project/global setup、检查、移除和现有角色配置。
+- `kiss-my-agent` 提供窄范围决策指导。
+- `kiss-my-agent-setup` 管理显式 project/global setup、检查、移除和现有角色配置。
 
 配置后的项目拥有自己的 `.codex/config.toml`、standalone role TOML 和 managed AGENTS block。这些文件工具工作流仍可由 Skill 完成，不需要 MCP 服务或独立程序。
 
 <a id="when-skill"></a>
-## 何时调用 `$kiss-my-agent`？
+## 何时调用 `$kiss-my-agent:kiss-my-agent`？
 
-用于一个重要且不显然的决策，例如应继续规划或增加持久机制，还是先运行一个安全、低成本、可恢复的小型 probe；也可用于局部修复还是新系统、实验有效性、证据强度或重大 scope 扩张。不要把它套在普通实现、测试、构建、Git、查询或格式化外面。`$kiss-my-agent-setup` 是另一个操作型 Skill。
+用于一个重要且不显然的决策，例如应继续规划或增加持久机制，还是先运行一个安全、低成本、可恢复的小型 probe；也可用于局部修复还是新系统、实验有效性、证据强度或重大 scope 扩张。不要把它套在普通实现、测试、构建、Git、查询或格式化外面。`kiss-my-agent-setup` 是另一个操作型 Skill。
 
 <a id="configure"></a>
 ## 如何配置 Master 或初始 Agents？
@@ -87,8 +87,8 @@ codex --config 'model="HOST_SUPPORTED_MODEL_ID"' --config 'model_reasoning_effor
 对话向导只用于已有 role TOML：
 
 ```text
-$kiss-my-agent-setup configure agents for this project
-$kiss-my-agent-setup configure global agents
+$kiss-my-agent:kiss-my-agent-setup configure agents for this project
+$kiss-my-agent:kiss-my-agent-setup configure global agents
 ```
 
 也可以直接编辑 `.codex/agents/*.toml` 或 `$CODEX_HOME/agents/*.toml`。向导不会修改 Master config，不会创建、删除或重命名角色，也不会硬编码会变化的 model catalog。
@@ -96,7 +96,7 @@ $kiss-my-agent-setup configure global agents
 <a id="legacy-setup-cli"></a>
 ## v0.1 setup CLI 去哪里了？
 
-Contributor interface `skills/kiss-my-agent-setup/scripts/setup.py` 已在 v0.2 移除。这是有意的 breaking contributor-interface change。Setup、check、remove 和 role configuration 应迁移到对话式 `$kiss-my-agent-setup` Skill。其 Agent 原生 engineering evidence 与 deterministic CLI 或 repository-test evidence 不同，必须分别报告。
+Contributor interface `skills/kiss-my-agent-setup/scripts/setup.py` 已在 v0.2 移除。这是有意的 breaking contributor-interface change。Setup、check、remove 和 role configuration 应迁移到对话式 `kiss-my-agent-setup` Skill；粘贴 raw text 时使用 `$kiss-my-agent:kiss-my-agent-setup` 调用。其 Agent 原生 engineering evidence 与 deterministic CLI 或 repository-test evidence 不同，必须分别报告。
 
 <a id="python"></a>
 ## 用户需要 Python 吗？
@@ -113,7 +113,7 @@ codex plugin marketplace upgrade kiss-my-agent
 codex plugin list
 ```
 
-在已验证的 Codex 0.152.1 baseline 上，Host 会在启动时自动刷新默认的 unpinned Git marketplace，并重新安装已启用的 non-curated Plugin。KISS My Agent 自身没有 updater，其他 Codex 版本的行为可能不同。执行上面命令后，应看到 `kiss-my-agent@kiss-my-agent` 为 `installed, enabled`，版本是 `0.2.0`。更新改变已安装 Plugin 后，请启动新会话。
+在已验证的 Codex 0.152.1 baseline 上，Host 会在启动时自动刷新默认的 unpinned Git marketplace，并重新安装已启用的 non-curated Plugin。KISS My Agent 自身没有 updater，其他 Codex 版本的行为可能不同。执行上面命令后，应看到 `kiss-my-agent@kiss-my-agent` 为 `installed, enabled`，版本是 `0.2.1`。更新改变已安装 Plugin 后，请启动新会话。
 
 只更新 Plugin 不会迁移项目文件。v0.1-managed 项目更新后，请启动新会话并再运行一次 project setup。它会刷新 KISS instruction block，并且只升级仍与 bundled v0.1 starter roles 完全一致、未经修改的角色文件；修改过或 owner 不清的角色以及已有 config values 都会保留。
 
@@ -122,7 +122,7 @@ codex plugin list
 <a id="global"></a>
 ## 项目 setup 会配置所有项目吗？
 
-不会。Project scope 只修改所选项目。全局 setup 必须明确运行 `$kiss-my-agent-setup set up globally`，并可能影响加载该 Codex home 的所有项目。项目和全局 check/configure/remove 命令始终分开。
+不会。Project scope 只修改所选项目。全局 setup 必须明确运行 `$kiss-my-agent:kiss-my-agent-setup set up globally`，并可能影响加载该 Codex home 的所有项目。项目和全局 check/configure/remove 命令始终分开。
 
 <a id="roles"></a>
 ## 三个角色是固定的吗？

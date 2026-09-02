@@ -71,8 +71,8 @@ Codex 配置优先级从高到低为：CLI flags 与 `--config` overrides；可�
 没有真实工作负载需要不同模型、effort 或 sandbox 时，应保留继承默认值。要在一个明确 scope 中配置现有角色，运行：
 
 ```text
-$kiss-my-agent-setup configure agents for this project
-$kiss-my-agent-setup configure global agents
+$kiss-my-agent:kiss-my-agent-setup configure agents for this project
+$kiss-my-agent:kiss-my-agent-setup configure global agents
 ```
 
 向导会列出当前 role catalog，让用户选择一个或多个角色，并为 `model`、`model_reasoning_effort` 与 `sandbox_mode` 提供 `keep`、`inherit` 或显式值。写入前会展示准确 diff；设置 `danger-full-access` 时必须单独确认。
@@ -123,13 +123,13 @@ codex --config 'model="HOST_SUPPORTED_MODEL_ID"' --config 'model_reasoning_effor
 Plugin-owned Skill 使用 Agent 原生文件操作，不需要 Python、Node.js 或包管理器：
 
 ```text
-$kiss-my-agent-setup set up this project
-$kiss-my-agent-setup check this project
-$kiss-my-agent-setup remove from this project
+$kiss-my-agent:kiss-my-agent-setup set up this project
+$kiss-my-agent:kiss-my-agent-setup check this project
+$kiss-my-agent:kiss-my-agent-setup remove from this project
 
-$kiss-my-agent-setup set up globally
-$kiss-my-agent-setup check global setup
-$kiss-my-agent-setup remove global setup
+$kiss-my-agent:kiss-my-agent-setup set up globally
+$kiss-my-agent:kiss-my-agent-setup check global setup
+$kiss-my-agent:kiss-my-agent-setup remove global setup
 ```
 
 项目 scope 管理 `<target>/.codex/config.toml`、`<target>/.codex/agents/` 和 `<target>/AGENTS.md` 中的一个 managed block。全局 scope 管理 `$CODEX_HOME` 下的对应文件。Skill 始终留在已安装 Plugin 中。

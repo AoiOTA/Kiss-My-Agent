@@ -7,7 +7,7 @@
 <a id="release-status"></a>
 ## 发布状态
 
-当前 Git-backed marketplace 条目把 Plugin source 固定到 `v0.2.0`。成功的远程安装是该 tag 的发布证据；源码检查和静态验证本身不是远程安装或真实发现证据。已有 `v0.1.0` tag 与项目文件保持不变。
+当前 Git-backed marketplace 条目把 Plugin source 固定到 `v0.2.1`。成功的远程安装是该 tag 的发布证据；源码检查和静态验证本身不是远程安装或真实发现证据。Post-tag 调用测试暴露了本次修复的 raw-command 缺陷，因此 immutable `v0.2.0` tag 保留，但没有创建 GitHub Release。已有 `v0.1.0` tag 与项目文件保持不变。
 
 <a id="requirements"></a>
 ## 用户环境要求
@@ -34,24 +34,24 @@ codex plugin add kiss-my-agent@kiss-my-agent
 codex plugin list
 ```
 
-列表中应看到 Plugin ID `kiss-my-agent@kiss-my-agent`、状态 `installed, enabled`、版本 `0.2.0`；cache path 可以不同。安装后启动新的已认证 Codex 会话。已经运行的会话不保证发现刚安装的 Plugin 或 Skill。
+列表中应看到 Plugin ID `kiss-my-agent@kiss-my-agent`、状态 `installed, enabled`、版本 `0.2.1`；cache path 可以不同。安装后启动新的已认证 Codex 会话。已经运行的会话不保证发现刚安装的 Plugin 或 Skill。
 
 <a id="first-use"></a>
 ## 第一次使用
 
-简单一次性任务直接使用普通单对话，跳过 project setup。复杂科研工程项目若需要持久协调 instructions，请在目标项目中新开会话并运行：
+简单一次性任务直接使用普通单对话，跳过 project setup。复杂科研工程项目若需要持久协调 instructions，请在目标项目中新开会话。在已测试的 Codex CLI 0.152.1 baseline 上，先输入 `$`，再在 Skill picker 中选择 `kiss-my-agent-setup (kiss-my-agent)`。Picker 会插入一个结构化 Skill reference；继续补充 setup 请求并提交 prompt 后，才会调用该 Skill。如果直接粘贴文字，请使用下面完整限定的命令：
 
 ```text
-$kiss-my-agent-setup set up this project
+$kiss-my-agent:kiss-my-agent-setup set up this project
 ```
 
 Host 提示时通过界面信任项目，再启动一个新会话并运行：
 
 ```text
-$kiss-my-agent-setup check this project
+$kiss-my-agent:kiss-my-agent-setup check this project
 ```
 
-Setup 完成后直接正常使用 Codex。项目 instructions 要求 Master 调度持久 workflow，并委派日常执行工作；只有遇到重要工程疑问时才使用 `$kiss-my-agent`。如果 delegation 被禁用、不可用或没有合适角色，这些 instructions 要求 Master 报告 staffing issue，让你选择修复或启用 staffing，或者明确把本任务切换为普通单对话，而不是静默接手 delegated work。
+Setup 完成后直接正常使用 Codex。项目 instructions 要求 Master 调度持久 workflow，并委派日常执行工作；只有遇到重要工程疑问时才使用 `kiss-my-agent`。如果 delegation 被禁用、不可用或没有合适角色，这些 instructions 要求 Master 报告 staffing issue，让你选择修复或启用 staffing，或者明确把本任务切换为普通单对话，而不是静默接手 delegated work。
 
 需要真实 discovery 证据时，在该新会话中运行 `/skills`，确认两个 Plugin-owned Skills，再执行[测试](TESTING.zh-CN.md)中的窄范围 Smokes。
 
@@ -82,7 +82,7 @@ codex --config 'model="HOST_SUPPORTED_MODEL_ID"' --config 'model_reasoning_effor
 若要通过对话向导修改已有 role 的 model、reasoning effort 或 sandbox default，运行：
 
 ```text
-$kiss-my-agent-setup configure agents for this project
+$kiss-my-agent:kiss-my-agent-setup configure agents for this project
 ```
 
 向导只编辑已有 role TOML，并在写入前预览准确改动。它不会修改 Master config，也不会创建、删除或重命名角色。也可以直接编辑 `.codex/agents/*.toml`；详见[配置](CONFIGURATION.zh-CN.md)。
@@ -93,9 +93,9 @@ $kiss-my-agent-setup configure agents for this project
 全局 setup 绝不会从项目请求推断，必须明确运行：
 
 ```text
-$kiss-my-agent-setup set up globally
-$kiss-my-agent-setup check global setup
-$kiss-my-agent-setup configure global agents
+$kiss-my-agent:kiss-my-agent-setup set up globally
+$kiss-my-agent:kiss-my-agent-setup check global setup
+$kiss-my-agent:kiss-my-agent-setup configure global agents
 ```
 
 它管理 `$CODEX_HOME` 下的 `config.toml`、`agents/` 和 `AGENTS.md` 中的 KISS block。未设置 `CODEX_HOME` 时，全局 Master config 是 `~/.codex/config.toml`。全局状态可能影响加载该 Codex home 的所有项目，因此项目专有行为应优先使用项目 scope。
@@ -130,16 +130,16 @@ codex plugin marketplace upgrade kiss-my-agent
 codex plugin list
 ```
 
-KISS My Agent 自身没有 updater。在已测试的 Codex 0.152.1 baseline 上，Host 可在启动时刷新 unpinned Git marketplace，并重新安装已启用的 non-curated Plugin；其他版本可能不同。执行上面命令后，应确认 `kiss-my-agent@kiss-my-agent` 为 `installed, enabled`，版本是 `0.2.0`。更新改变已安装 Plugin 后，应启动新会话。
+KISS My Agent 自身没有 updater。在已测试的 Codex 0.152.1 baseline 上，Host 可在启动时刷新 unpinned Git marketplace，并重新安装已启用的 non-curated Plugin；其他版本可能不同。执行上面命令后，应确认 `kiss-my-agent@kiss-my-agent` 为 `installed, enabled`，版本是 `0.2.1`。更新改变已安装 Plugin 后，应启动新会话。
 
-更新 Plugin 不会迁移项目拥有的文件。v0.1-managed 项目升级后，还要启动新会话并运行一次 `$kiss-my-agent-setup set up this project`。Setup 会替换旧 KISS instruction block，并且只升级仍与 bundled v0.1 starter roles 完全一致、未经修改的角色文件。已有 config values 以及修改过或 owner 不清的角色都会保留。
+更新 Plugin 不会迁移项目拥有的文件。v0.1-managed 项目升级后，还要启动新会话并运行一次 `$kiss-my-agent:kiss-my-agent-setup set up this project`。Setup 会替换旧 KISS instruction block，并且只升级仍与 bundled v0.1 starter roles 完全一致、未经修改的角色文件。已有 config values 以及修改过或 owner 不清的角色都会保留。
 
 如果要求 marketplace 只能在显式操作后移动，请把未固定的 Git marketplace 换成固定 tag 的 source：
 
 ```bash
 codex plugin remove kiss-my-agent@kiss-my-agent
 codex plugin marketplace remove kiss-my-agent
-codex plugin marketplace add AoiOTA/Kiss-My-Agent@v0.2.0
+codex plugin marketplace add AoiOTA/Kiss-My-Agent@v0.2.1
 codex plugin add kiss-my-agent@kiss-my-agent
 ```
 
@@ -169,11 +169,11 @@ Rollback 或 channel 恢复后都要启动新会话。已有项目文件仍归�
 使用与显式 scope 匹配的命令：
 
 ```text
-$kiss-my-agent-setup check this project
-$kiss-my-agent-setup remove from this project
+$kiss-my-agent:kiss-my-agent-setup check this project
+$kiss-my-agent:kiss-my-agent-setup remove from this project
 
-$kiss-my-agent-setup check global setup
-$kiss-my-agent-setup remove global setup
+$kiss-my-agent:kiss-my-agent-setup check global setup
+$kiss-my-agent:kiss-my-agent-setup remove global setup
 ```
 
 `check` 只检查 managed filesystem state。`remove` 只删除所选 scope 中带 KISS marker 的 Master model/effort 与两个公开开关 assignments、managed AGENTS block，以及与 current 或 known v0.1 bundled seed 完全一致的角色文件。不带 marker 的 config、已修改角色和 owner 不清的角色都会保留并报告。移除 setup 不会卸载 Plugin。
@@ -190,7 +190,7 @@ python -m unittest tests.test_setup -v
 
 他们无需安装 Markdown 包或在本地构建站点。该依赖只用于渲染文档站点；Pull request CI 会安装其固定版本并运行 `python scripts/test_all.py`，其中包括隔离站点构建。各平台细节见[贡献指南](../CONTRIBUTING.zh-CN.md)。这些工具都不会被 Plugin 用户执行。
 
-v0.1 contributor CLI `skills/kiss-my-agent-setup/scripts/setup.py` 已在 v0.2 移除。这是 breaking contributor-interface change，不是缺少用户 runtime dependency。Setup、check、remove 与 Agent configuration 应迁移到对话式 `$kiss-my-agent-setup` Skill。Agent 原生 engineering run 证明观察到的文件工具行为；仓库 validation 证明 deterministic source contracts，两者不能互相替代。
+v0.1 contributor CLI `skills/kiss-my-agent-setup/scripts/setup.py` 已在 v0.2 移除。这是 breaking contributor-interface change，不是缺少用户 runtime dependency。Setup、check、remove 与 Agent configuration 应迁移到对话式 `kiss-my-agent-setup` Skill；粘贴 raw text 时使用 `$kiss-my-agent:kiss-my-agent-setup` 调用。Agent 原生 engineering run 证明观察到的文件工具行为；仓库 validation 证明 deterministic source contracts，两者不能互相替代。
 
 <a id="fresh-session"></a>
 ## 新会话边界

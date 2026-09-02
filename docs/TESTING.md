@@ -24,9 +24,9 @@ Do not combine them into a stronger claim. A source check is not live discovery,
 For a simple one-off task, use an ordinary single conversation; no setup evidence is required. To verify the persistent executive workflow after Plugin installation or update, start a new session and use the Plugin-owned interfaces:
 
 ```text
-$kiss-my-agent-setup set up this project
-$kiss-my-agent-setup check this project
-$kiss-my-agent-setup configure agents for this project
+$kiss-my-agent:kiss-my-agent-setup set up this project
+$kiss-my-agent:kiss-my-agent-setup check this project
+$kiss-my-agent:kiss-my-agent-setup configure agents for this project
 ```
 
 These operations use Codex file tools and require no Python, Node.js, Docker, or package manager. Git-backed Plugin installation or refresh separately requires a usable `git` executable and GitHub network access. `check` proves only the inspected file state. Use `/skills` and a narrow role Smoke when live discovery matters. If delegation is unavailable or no role can staff the test, record the failed precondition and obtain the user's explicit choice before switching to an ordinary single-conversation test.
@@ -93,12 +93,12 @@ Record the OS, native shell, Codex version, Plugin version, source identity, sco
 <a id="skill-smoke"></a>
 ## Skill discovery Smoke
 
-In the fresh session, run `/skills` and confirm the Plugin-owned `kiss-my-agent` and `kiss-my-agent-setup` entries. Then use:
+In the fresh session, run `/skills` and confirm the canonical Plugin Skills `kiss-my-agent:kiss-my-agent` and `kiss-my-agent:kiss-my-agent-setup` (the picker labels may appear as `kiss-my-agent (kiss-my-agent)` and `kiss-my-agent-setup (kiss-my-agent)` on the tested Codex 0.152.1 baseline). Then use:
 
-- `$kiss-my-agent` only for a real non-obvious mechanism, scope, runtime/evaluator, or evidence decision;
-- `$kiss-my-agent-setup` only for explicit setup/check/configure/remove work.
+- `$kiss-my-agent:kiss-my-agent` only for a real non-obvious mechanism, scope, runtime/evaluator, or evidence decision;
+- `$kiss-my-agent:kiss-my-agent-setup` only for explicit setup/check/configure/remove work.
 
-Ordinary implementation, tests, builds, Git, lookup, and formatting should not route through `$kiss-my-agent`. Discovery proves visibility for that session, not future instruction following.
+Ordinary implementation, tests, builds, Git, lookup, and formatting should not route through `kiss-my-agent`. Discovery proves visibility for that session, not future instruction following.
 
 <a id="role-smoke"></a>
 ## Three-role Smoke
@@ -118,14 +118,14 @@ Test a department lead only for a large independent disposable subsystem whose d
 
 Before the release pull request, test only the staged local candidate: fresh candidate installation, fresh-session discovery, narrow role Smokes, and the README newcomer Pilot. Those results are candidate evidence, not public install or upgrade evidence.
 
-After the pull request is merged and the exact commit has been tagged and pushed as `v0.2.0`, use an isolated public installation to prove the supported transition:
+After the pull request is merged and the exact commit has been tagged and pushed as `v0.2.1`, use an isolated public installation to prove the supported transition:
 
 ```bash
 codex plugin marketplace upgrade kiss-my-agent
 codex plugin list
 ```
 
-Test a public fresh install first. Then start from an installed v0.1.0, refresh the marketplace, confirm that the installed cache reports 0.2.0, and open a new session. Verify a v0.2.0-only interface such as `configure agents`, run setup against a v0.1-managed disposable project, and confirm that exact unmodified v0.1 seeds upgrade while modified model/effort choices and other edited roles remain. Exercise the documented pinned-tag rollback last; confirm an ordinary upgrade remains on that pinned channel, then use the documented remove plus unpinned-add sequence to restore the current channel. Only after all three public paths pass may the maintainer create the GitHub Release. If any fails, preserve the pushed tag, do not move it, and release a corrective patch version instead. Preserve the first decisive failure.
+The immutable `v0.2.0` tag was preserved without a GitHub Release after its post-tag invocation test exposed the raw-command defect corrected in v0.2.1. Test a public v0.2.1 fresh install first. Then start from an installed v0.1.0, refresh the marketplace, confirm that the installed cache reports 0.2.1, and open a new session. Verify a v0.2 interface such as `configure agents`, run setup against a v0.1-managed disposable project, and confirm that exact unmodified v0.1 seeds upgrade while modified model/effort choices and other edited roles remain. Exercise the documented pinned-tag rollback last; confirm an ordinary upgrade remains on that pinned channel, then use the documented remove plus unpinned-add sequence to restore the current channel. Only after all three public paths pass may the maintainer create the GitHub Release. If any fails, preserve the pushed tag, do not move it, and release a corrective patch version instead. Preserve the first decisive failure.
 
 <a id="dogfooding"></a>
 ## Dogfooding during development

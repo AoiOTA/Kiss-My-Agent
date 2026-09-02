@@ -12,7 +12,7 @@ Reduce Codex overengineering and overdefense. Build a runnable, verifiable resea
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Validate](https://github.com/AoiOTA/Kiss-My-Agent/actions/workflows/validate.yml/badge.svg)](https://github.com/AoiOTA/Kiss-My-Agent/actions/workflows/validate.yml)
-![Release: v0.2.0](https://img.shields.io/badge/release-v0.2.0-blue.svg)
+![Release: v0.2.1](https://img.shields.io/badge/release-v0.2.1-blue.svg)
 ![Host: Codex-first](https://img.shields.io/badge/host-Codex--first-blue.svg)
 
 </div>
@@ -85,10 +85,10 @@ codex plugin add kiss-my-agent@kiss-my-agent
 
 At this point only the Plugin is installed. A new Codex session can discover its two Skills, but no persistent project rules or roles have been configured yet.
 
-Open a new Codex session in the complex project and run:
+Open a new Codex session in the complex project. On the tested Codex CLI 0.152.1 baseline, type `$` and select `kiss-my-agent-setup (kiss-my-agent)` in the Skill picker. The picker inserts a structured Skill reference; add the setup request and submit the prompt to invoke it. If you paste raw text instead, use the fully qualified command shown here:
 
 ```text
-$kiss-my-agent-setup set up this project with the default team
+$kiss-my-agent:kiss-my-agent-setup set up this project with the default team
 ```
 
 Project setup writes the persistent project rules and role configuration. Trust the project through the Codex interface, then open another new session; only that trusted fresh session loads the project rules and roles. Then ask for work normally:
@@ -100,7 +100,7 @@ Find the cause of this failing parser test, make the smallest correct fix, and r
 Setup check is optional. It inspects the configured files; it does not prove live Agent behavior:
 
 ```text
-$kiss-my-agent-setup check this project
+$kiss-my-agent:kiss-my-agent-setup check this project
 ```
 
 Default setup manages three project locations:
@@ -151,7 +151,7 @@ Codex reports the unsupported setting; KISS does not silently choose a fallback.
 Configure existing employee roles through Codex:
 
 ```text
-$kiss-my-agent-setup configure agents for this project
+$kiss-my-agent:kiss-my-agent-setup configure agents for this project
 ```
 
 The role wizard changes only an existing role's model, reasoning effort, and permission mode; it does not modify the Master. See [Configuration](docs/CONFIGURATION.md) for global roles, precedence, permissions, and recovery details.

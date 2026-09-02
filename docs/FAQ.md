@@ -49,7 +49,7 @@ codex plugin add kiss-my-agent@kiss-my-agent
 codex plugin list
 ```
 
-The list should show `kiss-my-agent@kiss-my-agent` as `installed, enabled` at version `0.2.0`; cache paths may differ. If Plugin commands, authentication, or marketplace access fail, check client support, login state, `git`, and GitHub network access. For a simple one-off task, stop after installation and use an ordinary single conversation. For a complex project that needs the persistent workflow, start a new session, run `$kiss-my-agent-setup set up this project`, trust the project through the Host when prompted, then start another new session and run `$kiss-my-agent-setup check this project`.
+The list should show `kiss-my-agent@kiss-my-agent` as `installed, enabled` at version `0.2.1`; cache paths may differ. If Plugin commands, authentication, or marketplace access fail, check client support, login state, `git`, and GitHub network access. For a simple one-off task, stop after installation and use an ordinary single conversation. For a complex project that needs the persistent workflow, start a new session. On the tested Codex 0.152.1 baseline, type `$` and select `kiss-my-agent-setup (kiss-my-agent)` in the picker. The picker inserts a structured Skill reference; add the setup request and submit the prompt to invoke it. If you paste raw text, run `$kiss-my-agent:kiss-my-agent-setup set up this project`. Trust the project through the Host when prompted, then start another new session and run `$kiss-my-agent:kiss-my-agent-setup check this project`.
 
 <a id="after-setup"></a>
 ## What do I do after setup?
@@ -63,15 +63,15 @@ If delegation is disabled or unavailable, or no suitable role exists, the instru
 
 It is a versioned Codex Plugin. The Plugin is the install, distribution, and update container. It currently packages two Skills:
 
-- `$kiss-my-agent` supplies narrow decision guidance.
-- `$kiss-my-agent-setup` manages explicit project/global setup, checks, removal, and existing-role configuration.
+- `kiss-my-agent` supplies narrow decision guidance.
+- `kiss-my-agent-setup` manages explicit project/global setup, checks, removal, and existing-role configuration.
 
 The configured project then owns its `.codex/config.toml`, standalone role TOML files, and managed AGENTS block. A Skill is still sufficient for these file-tool workflows; an MCP service or standalone executable is not required.
 
 <a id="when-skill"></a>
-## When should I invoke `$kiss-my-agent`?
+## When should I invoke `$kiss-my-agent:kiss-my-agent`?
 
-Use it for one consequential, non-obvious decision—for example, whether to keep planning or add a persistent mechanism, or first run a safe, low-cost, recoverable probe. It also applies to a local fix versus a new system, experiment validity, evidence strength, or material scope expansion. Do not use it as a wrapper around ordinary implementation, tests, builds, Git, lookup, or formatting. `$kiss-my-agent-setup` is a separate operational Skill.
+Use it for one consequential, non-obvious decision—for example, whether to keep planning or add a persistent mechanism, or first run a safe, low-cost, recoverable probe. It also applies to a local fix versus a new system, experiment validity, evidence strength, or material scope expansion. Do not use it as a wrapper around ordinary implementation, tests, builds, Git, lookup, or formatting. `kiss-my-agent-setup` is a separate operational Skill.
 
 <a id="configure"></a>
 ## How do I configure the master or initial Agents?
@@ -87,8 +87,8 @@ codex --config 'model="HOST_SUPPORTED_MODEL_ID"' --config 'model_reasoning_effor
 Use the conversational wizard only for existing role TOML files:
 
 ```text
-$kiss-my-agent-setup configure agents for this project
-$kiss-my-agent-setup configure global agents
+$kiss-my-agent:kiss-my-agent-setup configure agents for this project
+$kiss-my-agent:kiss-my-agent-setup configure global agents
 ```
 
 You can also edit `.codex/agents/*.toml` or `$CODEX_HOME/agents/*.toml` directly. The wizard does not modify master config, create, delete, or rename roles, and does not hard-code a changing model catalog.
@@ -96,7 +96,7 @@ You can also edit `.codex/agents/*.toml` or `$CODEX_HOME/agents/*.toml` directly
 <a id="legacy-setup-cli"></a>
 ## What happened to the v0.1 setup CLI?
 
-The contributor interface `skills/kiss-my-agent-setup/scripts/setup.py` was removed in v0.2. This is an intentional breaking contributor-interface change. Migrate setup, check, remove, and role configuration to the conversational `$kiss-my-agent-setup` Skill. Its Agent-native engineering evidence is different from deterministic CLI or repository-test evidence; report them separately.
+The contributor interface `skills/kiss-my-agent-setup/scripts/setup.py` was removed in v0.2. This is an intentional breaking contributor-interface change. Migrate setup, check, remove, and role configuration to the conversational `kiss-my-agent-setup` Skill, invoking it as `$kiss-my-agent:kiss-my-agent-setup` when pasting raw text. Its Agent-native engineering evidence is different from deterministic CLI or repository-test evidence; report them separately.
 
 <a id="python"></a>
 ## Do users need Python?
@@ -113,7 +113,7 @@ codex plugin marketplace upgrade kiss-my-agent
 codex plugin list
 ```
 
-On the verified Codex 0.152.1 baseline, the Host automatically refreshes a default unpinned Git marketplace at startup and reinstalls an enabled non-curated Plugin. KISS My Agent contains no updater of its own, and other Codex versions may behave differently. After the commands above, expect `kiss-my-agent@kiss-my-agent` to be `installed, enabled` at version `0.2.0`. Start a new session after an update changes the installed Plugin.
+On the verified Codex 0.152.1 baseline, the Host automatically refreshes a default unpinned Git marketplace at startup and reinstalls an enabled non-curated Plugin. KISS My Agent contains no updater of its own, and other Codex versions may behave differently. After the commands above, expect `kiss-my-agent@kiss-my-agent` to be `installed, enabled` at version `0.2.1`. Start a new session after an update changes the installed Plugin.
 
 Updating the Plugin alone does not migrate project files. For a v0.1-managed project, start a new session and run project setup once after the update. It refreshes the KISS instruction block and upgrades only exact, unmodified bundled v0.1 starter roles; modified or ambiguously owned roles and existing config values remain preserved.
 
@@ -122,7 +122,7 @@ See [Installation](INSTALLATION.md#update) for explicit-only marketplace pinning
 <a id="global"></a>
 ## Does project setup configure every project?
 
-No. Project scope changes only the selected project. Global setup must be explicitly requested with `$kiss-my-agent-setup set up globally` and can affect every project that loads the selected Codex home. Project and global check/configure/remove commands remain separate.
+No. Project scope changes only the selected project. Global setup must be explicitly requested with `$kiss-my-agent:kiss-my-agent-setup set up globally` and can affect every project that loads the selected Codex home. Project and global check/configure/remove commands remain separate.
 
 <a id="roles"></a>
 ## Are the three roles fixed?

@@ -24,7 +24,7 @@ Do not duplicate one fact across owners. Rules extend `AGENTS.md`; Cases illustr
 <a id="preserve-routing"></a>
 ## Preserve Precise Routing
 
-The plugin-owned `$kiss-my-agent` Skill must remain non-catch-all. Routine implementation, mechanical edits, tests, builds, Git operations, lookups, and formatting stay outside the Skill. One ambiguity routes to one Rule and, only when useful, one Case. Keep `$kiss-my-agent-setup` separate and limited to explicit setup/check/configure/remove operations.
+The plugin-owned `kiss-my-agent` Skill must remain non-catch-all. Routine implementation, mechanical edits, tests, builds, Git operations, lookups, and formatting stay outside the Skill. One ambiguity routes to one Rule and, only when useful, one Case. Keep `kiss-my-agent-setup` separate and limited to explicit setup/check/configure/remove operations.
 
 <a id="add-rule"></a>
 ## Add a Rule

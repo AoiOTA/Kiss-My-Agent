@@ -7,7 +7,7 @@
 <a id="release-status"></a>
 ## Release status
 
-The current Git-backed marketplace entry pins the Plugin source to `v0.2.0`. A successful remote install is publication evidence for that tag; source inspection and static validation alone are not remote-install or live-discovery evidence. Existing `v0.1.0` tags and project files remain untouched.
+The current Git-backed marketplace entry pins the Plugin source to `v0.2.1`. A successful remote install is publication evidence for that tag; source inspection and static validation alone are not remote-install or live-discovery evidence. The immutable `v0.2.0` tag was preserved without a GitHub Release after a post-tag invocation test exposed the raw-command defect corrected here. Existing `v0.1.0` tags and project files remain untouched.
 
 <a id="requirements"></a>
 ## User requirements
@@ -34,24 +34,24 @@ codex plugin add kiss-my-agent@kiss-my-agent
 codex plugin list
 ```
 
-In the list, expect Plugin ID `kiss-my-agent@kiss-my-agent`, status `installed, enabled`, and version `0.2.0`. Cache paths may differ. Start a new authenticated Codex session after installation. A session that was already running is not guaranteed to discover a newly installed Plugin or Skill.
+In the list, expect Plugin ID `kiss-my-agent@kiss-my-agent`, status `installed, enabled`, and version `0.2.1`. Cache paths may differ. Start a new authenticated Codex session after installation. A session that was already running is not guaranteed to discover a newly installed Plugin or Skill.
 
 <a id="first-use"></a>
 ## First use
 
-For a simple one-off task, use an ordinary single conversation and skip project setup. For a complex research-engineering project that needs persistent coordination instructions, open a new session at the project and run:
+For a simple one-off task, use an ordinary single conversation and skip project setup. For a complex research-engineering project that needs persistent coordination instructions, open a new session at the project. On the tested Codex CLI 0.152.1 baseline, type `$` and select `kiss-my-agent-setup (kiss-my-agent)` in the Skill picker. The picker inserts a structured Skill reference; add the setup request and submit the prompt to invoke it. If you paste raw text instead, use the fully qualified command shown here:
 
 ```text
-$kiss-my-agent-setup set up this project
+$kiss-my-agent:kiss-my-agent-setup set up this project
 ```
 
 Trust the project through the Host interface when prompted, then start one more new session and run:
 
 ```text
-$kiss-my-agent-setup check this project
+$kiss-my-agent:kiss-my-agent-setup check this project
 ```
 
-After setup, use Codex normally. The project instructions direct the master to coordinate the persistent workflow and delegate routine work; `$kiss-my-agent` remains reserved for an important engineering uncertainty. If delegation is disabled or unavailable, or no suitable role exists, those instructions require the master to report a staffing issue and ask you to repair or enable staffing or explicitly switch this task to ordinary single-conversation execution instead of silently taking over.
+After setup, use Codex normally. The project instructions direct the master to coordinate the persistent workflow and delegate routine work; `kiss-my-agent` remains reserved for an important engineering uncertainty. If delegation is disabled or unavailable, or no suitable role exists, those instructions require the master to report a staffing issue and ask you to repair or enable staffing or explicitly switch this task to ordinary single-conversation execution instead of silently taking over.
 
 When you need live discovery evidence, run `/skills` in that fresh session and confirm both Plugin-owned Skills before using the narrow Smokes in [Testing](TESTING.md).
 
@@ -82,7 +82,7 @@ codex --config 'model="HOST_SUPPORTED_MODEL_ID"' --config 'model_reasoning_effor
 To change an existing role's model, reasoning effort, or sandbox default through the conversational wizard, run:
 
 ```text
-$kiss-my-agent-setup configure agents for this project
+$kiss-my-agent:kiss-my-agent-setup configure agents for this project
 ```
 
 The wizard edits only existing role TOML files and previews the exact changes before writing. It does not modify master config, create, delete, or rename roles. You can also edit `.codex/agents/*.toml` directly; see [Configuration](CONFIGURATION.md).
@@ -93,9 +93,9 @@ The wizard edits only existing role TOML files and previews the exact changes be
 Global setup is never inferred from a project request. It must be explicit:
 
 ```text
-$kiss-my-agent-setup set up globally
-$kiss-my-agent-setup check global setup
-$kiss-my-agent-setup configure global agents
+$kiss-my-agent:kiss-my-agent-setup set up globally
+$kiss-my-agent:kiss-my-agent-setup check global setup
+$kiss-my-agent:kiss-my-agent-setup configure global agents
 ```
 
 It manages `config.toml`, `agents/`, and the KISS block in `AGENTS.md` under `$CODEX_HOME`. When `CODEX_HOME` is unset, the global master config is `~/.codex/config.toml`. Global state can affect every project that loads that Codex home, so prefer project scope for project-specific behavior.
@@ -130,16 +130,16 @@ codex plugin marketplace upgrade kiss-my-agent
 codex plugin list
 ```
 
-KISS My Agent has no updater of its own. On the tested Codex 0.152.1 baseline, the Host can refresh an unpinned Git marketplace at startup and reinstall an enabled non-curated Plugin; other versions may differ. After the commands above, verify that `kiss-my-agent@kiss-my-agent` is `installed, enabled` at version `0.2.0`. Start a new session after an update changes the installed Plugin.
+KISS My Agent has no updater of its own. On the tested Codex 0.152.1 baseline, the Host can refresh an unpinned Git marketplace at startup and reinstall an enabled non-curated Plugin; other versions may differ. After the commands above, verify that `kiss-my-agent@kiss-my-agent` is `installed, enabled` at version `0.2.1`. Start a new session after an update changes the installed Plugin.
 
-Updating the Plugin does not migrate project-owned files. For a v0.1-managed project, start a new session and run `$kiss-my-agent-setup set up this project` once after upgrading. Setup replaces the old KISS instruction block and upgrades only exact, unmodified bundled v0.1 starter roles. Existing config values and modified or ambiguously owned roles remain preserved.
+Updating the Plugin does not migrate project-owned files. For a v0.1-managed project, start a new session and run `$kiss-my-agent:kiss-my-agent-setup set up this project` once after upgrading. Setup replaces the old KISS instruction block and upgrades only exact, unmodified bundled v0.1 starter roles. Existing config values and modified or ambiguously owned roles remain preserved.
 
 If you require marketplace movement to happen only after an explicit action, replace the unpinned Git marketplace with a tag-pinned source:
 
 ```bash
 codex plugin remove kiss-my-agent@kiss-my-agent
 codex plugin marketplace remove kiss-my-agent
-codex plugin marketplace add AoiOTA/Kiss-My-Agent@v0.2.0
+codex plugin marketplace add AoiOTA/Kiss-My-Agent@v0.2.1
 codex plugin add kiss-my-agent@kiss-my-agent
 ```
 
@@ -169,11 +169,11 @@ Start a new session after rollback or channel restoration. Existing project file
 Use the command that matches the explicit scope:
 
 ```text
-$kiss-my-agent-setup check this project
-$kiss-my-agent-setup remove from this project
+$kiss-my-agent:kiss-my-agent-setup check this project
+$kiss-my-agent:kiss-my-agent-setup remove from this project
 
-$kiss-my-agent-setup check global setup
-$kiss-my-agent-setup remove global setup
+$kiss-my-agent:kiss-my-agent-setup check global setup
+$kiss-my-agent:kiss-my-agent-setup remove global setup
 ```
 
 `check` inspects managed filesystem state only. `remove` removes only KISS-marked assignments for the master model/effort and two public switches, the managed AGENTS block, and role files that exactly match either a current or known v0.1 bundled seed in the chosen scope. Unmarked config, modified roles, and ambiguously owned roles are preserved and reported. Removing setup does not uninstall the Plugin.
@@ -190,7 +190,7 @@ python -m unittest tests.test_setup -v
 
 They do not need to install the Markdown package or build the site locally. That dependency exists only to render the documentation site; pull-request CI installs its pinned version and runs `python scripts/test_all.py`, including the isolated site build. See [Contributing](../CONTRIBUTING.md) for platform-specific details. None of these tools are used by Plugin consumers.
 
-The v0.1 contributor CLI `skills/kiss-my-agent-setup/scripts/setup.py` was removed in v0.2. This is a breaking contributor-interface change, not a missing user runtime dependency. Migrate setup, check, remove, and Agent configuration to the conversational `$kiss-my-agent-setup` Skill. Its Agent-native engineering run demonstrates observed file-tool behavior; repository validation demonstrates deterministic source contracts, so neither is a substitute for the other.
+The v0.1 contributor CLI `skills/kiss-my-agent-setup/scripts/setup.py` was removed in v0.2. This is a breaking contributor-interface change, not a missing user runtime dependency. Migrate setup, check, remove, and Agent configuration to the conversational `kiss-my-agent-setup` Skill, invoking it as `$kiss-my-agent:kiss-my-agent-setup` when you paste raw text. Its Agent-native engineering run demonstrates observed file-tool behavior; repository validation demonstrates deterministic source contracts, so neither is a substitute for the other.
 
 <a id="fresh-session"></a>
 ## New-session boundary

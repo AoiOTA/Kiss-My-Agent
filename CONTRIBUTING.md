@@ -9,7 +9,7 @@ KISS My Agent is a research-engineering plugin for keeping Agent work proportion
 
 Installing or updating the released Plugin through its Git-backed marketplace requires a usable Git executable and GitHub network access, but not Python, Node.js, Docker, or another language runtime. The contributor toolchain is separate: Git and Python 3.11 or newer are sufficient for the standard-library validation and Setup contract tests. Plugin- or Skill-only contributors do not need to install Markdown or build the site locally; pull-request CI validates the site. Codex is needed only for live discovery and dogfooding checks.
 
-The v0.1 contributor CLI `skills/kiss-my-agent-setup/scripts/setup.py` was removed in v0.2. This is a breaking contributor-interface change. Migrate setup, check, remove, and role configuration to the conversational `$kiss-my-agent-setup` Skill, and keep its Agent-native engineering evidence separate from deterministic repository-test evidence.
+The v0.1 contributor CLI `skills/kiss-my-agent-setup/scripts/setup.py` was removed in v0.2. This is a breaking contributor-interface change. Migrate setup, check, remove, and role configuration to the conversational `kiss-my-agent-setup` Skill, invoke it as `$kiss-my-agent:kiss-my-agent-setup` when pasting raw text, and keep its Agent-native engineering evidence separate from deterministic repository-test evidence.
 
 By participating, you agree to follow the [Code of Conduct](CODE_OF_CONDUCT.md).
 
@@ -55,7 +55,7 @@ The reported Python version must be 3.11 or newer. WSL follows the Linux instruc
 ## Change Boundaries
 
 - Preserve human ownership of the goal, architecture, acceptance criteria, non-goals, and stop boundary.
-- Keep `$kiss-my-agent` precisely routed and non-catch-all. Add a Rule only for a recurring method and a Case only for a useful concrete contrast.
+- Keep `kiss-my-agent` precisely routed and non-catch-all. Add a Rule only for a recurring method and a Case only for a useful concrete contrast.
 - Do not expand setup, workflow, release, compatibility, telemetry, scoring, or evaluation machinery without an approved current consumer.
 - Preserve the three owners: four config paths in `config.toml` (the paired master model/effort defaults plus two independently defaulted public switches), standalone role TOML discovery, and dynamic dispatch in AGENTS. The marker controls remove ownership; it does not authorize resetting an existing value. Config must not enumerate role files.
 - Treat the supplied roles as editable seeds rather than a closed catalog; role `name` is identity and filename is only a convention.
@@ -173,7 +173,7 @@ $plugin-creator update this existing KISS My Agent plugin for local development.
 
 See the official OpenAI [Plugin Creator and local marketplace guidance](https://developers.openai.com/plugins/build/plugins#package-with-plugin-creator) and [marketplace add/upgrade commands](https://developers.openai.com/plugins/build/plugins#add-a-marketplace-from-the-cli). Do not add a repository staging script for this workflow.
 
-In the new thread, confirm `/skills` shows `kiss-my-agent` and `kiss-my-agent-setup`. Exercise `$kiss-my-agent` only on a matching non-obvious decision. Exercise setup, check, Agent configuration, and removal only in a disposable project scope; do not use a real global scope for a development test. Preserve any first failed precondition instead of hiding it with retries.
+In the new thread, confirm `/skills` shows the canonical Plugin Skills `kiss-my-agent:kiss-my-agent` and `kiss-my-agent:kiss-my-agent-setup`. Exercise `$kiss-my-agent:kiss-my-agent` only on a matching non-obvious decision. Exercise `$kiss-my-agent:kiss-my-agent-setup` for setup, check, Agent configuration, and removal only in a disposable project scope; do not use a real global scope for a development test. Preserve any first failed precondition instead of hiding it with retries.
 
 Report each evidence level separately:
 
@@ -203,25 +203,25 @@ Keep the pull request focused and reviewable. Resolve material review findings w
 A passing test is not proof of model behavior, usability, publication, or release success. State every untested surface directly.
 
 <a id="release-process"></a>
-## v0.2.0 Release Process
+## v0.2.1 Release Process
 
-This section is maintainer-only. The `v0.1.0` tag is immutable and must never be moved or recreated.
+This section is maintainer-only. The `v0.1.0` and `v0.2.0` tags are immutable and must never be moved or recreated. The `v0.2.0` tag was preserved without a GitHub Release after a post-tag invocation test exposed the raw-command defect corrected in v0.2.1.
 
-1. Track v0.2.0 in an issue with acceptance criteria, compatibility constraints, and non-goals.
+1. Track v0.2.1 in an issue with acceptance criteria, compatibility constraints, and non-goals.
 2. Before opening the release pull request, run the applicable dependency-free core checks, install only the staged local candidate, and complete fresh-session Skill discovery, harmless role Smokes, and the README-only new-user Pilot. Plugin/Skill-only work may leave the documentation-site build to pull-request CI. These are candidate results; do not claim public install or upgrade evidence before a public tag exists.
-3. Land implementation through a focused pull request. Align the Plugin manifest version and marketplace ref at `0.2.0` / `v0.2.0`, synchronize English and Chinese documentation, and require the complete test suite plus green native Ubuntu, macOS, and Windows pull-request CI.
+3. Land implementation through a focused pull request. Align the Plugin manifest version and marketplace ref at `0.2.1` / `v0.2.1`, synchronize English and Chinese documentation, and require the complete test suite plus green native Ubuntu, macOS, and Windows pull-request CI.
 4. After the pull request is squash-merged, verify the exact `origin/main` commit, create an immutable annotated tag, and push it. Do not create the GitHub Release yet:
 
 ```bash
 git fetch origin
 git switch main
 git pull --ff-only origin main
-python scripts/test_all.py
-git tag -a v0.2.0 -m "KISS My Agent v0.2.0"
-git push origin v0.2.0
+python3 scripts/test_all.py
+git tag -a v0.2.1 -m "KISS My Agent v0.2.1"
+git push origin v0.2.1
 ```
 
-5. Against that pushed public tag, test a public fresh install, the isolated `v0.1.0` to `v0.2.0` marketplace upgrade, and the documented pinned-tag rollback. Confirm the installed cache reports and loads v0.2.0 in a trusted new session; confirm the Host/account supports the bundled `gpt-5.6-sol` defaults; then verify the v0.1-managed project transition, including upgrade of exact unmodified seeds and preservation of existing model/effort choices and other modified roles. Confirm ordinary upgrade remains on the rollback pin, then restore the current channel with the documented marketplace remove plus unpinned-add sequence:
+5. Against that pushed public tag, test a public fresh install, the isolated `v0.1.0` to `v0.2.1` marketplace upgrade, and the documented pinned-tag rollback. Confirm the installed cache reports and loads v0.2.1 in a trusted new session; confirm the Host/account supports the bundled `gpt-5.6-sol` defaults; then verify the v0.1-managed project transition, including upgrade of exact unmodified seeds and preservation of existing model/effort choices and other modified roles. Confirm ordinary upgrade remains on the rollback pin, then restore the current channel with the documented marketplace remove plus unpinned-add sequence:
 
 ```bash
 codex plugin marketplace upgrade kiss-my-agent
@@ -231,9 +231,9 @@ codex plugin list
 6. Only after all three public paths pass, create the GitHub Release:
 
 ```bash
-gh release create v0.2.0 --verify-tag --title "KISS My Agent v0.2.0" --generate-notes
+gh release create v0.2.1 --verify-tag --title "KISS My Agent v0.2.1" --generate-notes
 ```
 
 7. Verify the public Release page and archives, verify both deployed Pages languages over HTTPS, and record the exact commit, CI runs, public install/upgrade/rollback results, live Smokes, Pilot result, and residual limits in the canonical handoff through a follow-up pull request.
 
-If a post-tag public install, upgrade, or rollback check fails, preserve the tag, do not create a misleading v0.2.0 Release, and publish the correction under a new patch version. If a published Release is later found defective, preserve its tag and publish a new patch version. Never force-push `main`, move any pushed tag, suppress a failing check, or relabel an invalid run as success.
+If a post-tag public install, upgrade, or rollback check fails, preserve the tag, do not create a misleading v0.2.1 Release, and publish the correction under a new patch version. If a published Release is later found defective, preserve its tag and publish a new patch version. Never force-push `main`, move any pushed tag, suppress a failing check, or relabel an invalid run as success.
