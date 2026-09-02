@@ -36,19 +36,27 @@
 <a id="install"></a>
 ## 如何安装？
 
+已测试基线是已认证且支持 Plugin 的 Codex CLI 0.152.1。还需要 `git`、GitHub 网络访问和账号支持 bundled default model `gpt-5.6-sol`。更早 Codex 版本未验证。请先检查客户端：
+
+```bash
+codex --version
+codex plugin --help
+```
+
 ```bash
 codex plugin marketplace add AoiOTA/Kiss-My-Agent
 codex plugin add kiss-my-agent@kiss-my-agent
+codex plugin list
 ```
 
-Git-backed marketplace 要求 `PATH` 中有可用的 `git` executable，并且网络可以访问 GitHub。简单一次性任务安装后直接使用普通单对话。复杂项目若需要持久 executive workflow，再启动新会话，运行 `$kiss-my-agent-setup set up this project`；Host 提示时信任项目；随后另开新会话并运行 `$kiss-my-agent-setup check this project`。
+列表中应看到 `kiss-my-agent@kiss-my-agent` 的状态为 `installed, enabled`，版本为 `0.2.0`；cache path 可以不同。如果 Plugin 命令、认证或 marketplace 访问失败，请检查客户端支持、login 状态、`git` 与 GitHub 网络。简单一次性任务安装后直接使用普通单对话。复杂项目若需要持久 workflow，再启动新会话，运行 `$kiss-my-agent-setup set up this project`；Host 提示时信任项目；随后另开新会话并运行 `$kiss-my-agent-setup check this project`。
 
 <a id="after-setup"></a>
 ## Setup 后该怎么用？
 
-直接正常使用 Codex，不需要每次任务前先调用 KISS。项目 `AGENTS.md` 指导已经生效；Master 负责调度、决策和汇总，被委派的角色分别拥有调查、实现与审查。默认由 Master 直接 fan-out，同一角色可有多个实例，每个共享资源保持一个 writer/operator。合格的大型独立子系统可有一个临时 department lead，但不建立更深或永久层级。
+直接正常使用 Codex，不需要每次任务前先调用 KISS。项目 `AGENTS.md` instructions 要求 Master 负责调度、决策和汇总，被委派的角色分别负责调查、实现与审查。默认由 Master 直接分配，同一角色可有多个实例，每个共享资源由一个人或 Agent 负责。合格的大型独立子系统可有一个临时 lead，但不建立更深或永久层级。
 
-如果 delegation 被禁用、不可用或没有合适角色，Master 会报告 staffing issue，让你选择修复 staffing 或明确把本任务切换为普通单对话。只有后者才授权 Master 直接执行。
+如果 delegation 被禁用、不可用或没有合适角色，instructions 要求 Master 报告 staffing issue，让你选择修复 staffing 或明确把本任务切换为普通单对话。只有后者才授权直接执行。
 
 <a id="plugin-vs-skills"></a>
 ## 这是 Plugin 还是只有一个 Skill？
@@ -70,7 +78,7 @@ Git-backed marketplace 要求 `PATH` 中有可用的 `git` executable，并且�
 
 Bundled defaults 使用 `gpt-5.6-sol`：Master 为 `max`，`kiss_explorer` 与 `kiss_coder` 为 `high`，`kiss_reviewer` 为 `xhigh`。Host 与账号必须支持这些值。只有首次 setup 或精确 v0.1 migration 且两个 Master keys 都缺失时，才成对添加 Master defaults。已有 keys 会保留，缺失 companion 继续缺失，后续 setup 或 Plugin update 不会重置选择。
 
-Master 不是 role，role wizard 不能修改它。请编辑所选 scope 的 `config.toml` 中的 `model` 与 `model_reasoning_effort`。如果这些值不受支持导致 Master 无法启动，请用临时 CLI override 启动一次，修复持久 config 后另开新会话：
+Master 不是 role，role wizard 不能修改它。Project setup 编辑 `<project>/.codex/config.toml`；global setup 编辑 `$CODEX_HOME/config.toml`，未设置 `CODEX_HOME` 时编辑 `~/.codex/config.toml`。如果这些值不受支持导致 Master 无法启动，请用临时 CLI override 启动一次，修复持久 config 后另开新会话：
 
 ```bash
 codex --config 'model="HOST_SUPPORTED_MODEL_ID"' --config 'model_reasoning_effort="HOST_SUPPORTED_EFFORT"'
@@ -98,18 +106,18 @@ Contributor interface `skills/kiss-my-agent-setup/scripts/setup.py` 已在 v0.2 
 <a id="update"></a>
 ## 已安装用户如何更新？会自动更新吗？
 
-用一条显式 marketplace refresh，然后确认解析到的版本：
+第一条命令立即更新，第二条只用于核验结果：
 
 ```bash
 codex plugin marketplace upgrade kiss-my-agent
 codex plugin list
 ```
 
-在已验证的 Codex 0.152.1 baseline 上，Host 会在启动时自动刷新默认的 unpinned Git marketplace，并强制重新安装已启用的 non-curated Plugin。KISS My Agent 自身没有 updater，其他 Codex 版本的行为可能不同。上面的显式命令会立即请求一次手动刷新。只要刷新改变了已安装 Plugin，就启动新会话。
+在已验证的 Codex 0.152.1 baseline 上，Host 会在启动时自动刷新默认的 unpinned Git marketplace，并重新安装已启用的 non-curated Plugin。KISS My Agent 自身没有 updater，其他 Codex 版本的行为可能不同。执行上面命令后，应看到 `kiss-my-agent@kiss-my-agent` 为 `installed, enabled`，版本是 `0.2.0`。更新改变已安装 Plugin 后，请启动新会话。
 
-对于 v0.1-managed 项目，升级后再运行一次 project setup。它会刷新带版本差异的 managed AGENTS block，并且只升级仍与 bundled v0.1 seeds 完全一致、未经修改的角色文件；修改过或 owner 不清的角色以及已有 config values 都会保留。
+只更新 Plugin 不会迁移项目文件。v0.1-managed 项目更新后，请启动新会话并再运行一次 project setup。它会刷新 KISS instruction block，并且只升级仍与 bundled v0.1 starter roles 完全一致、未经修改的角色文件；修改过或 owner 不清的角色以及已有 config values 都会保留。
 
-若要求 marketplace 只在显式操作后移动，可把 marketplace source 固定到 `AoiOTA/Kiss-My-Agent@v0.2.0`。代价是它不能通过一键刷新跟随未来 release，必须手动替换 pin。回退到 `@v0.1.0` 后，普通 upgrade 同样会继续留在 v0.1.0 channel。恢复 current channel 所需的 marketplace remove 加 unpinned add 准确命令见[安装](INSTALLATION.zh-CN.md#update)。
+显式 marketplace pin、rollback 与恢复 current unpinned channel 的命令见[安装](INSTALLATION.zh-CN.md#update)。
 
 <a id="global"></a>
 ## 项目 setup 会配置所有项目吗？
@@ -119,12 +127,14 @@ codex plugin list
 <a id="roles"></a>
 ## 三个角色是固定的吗？
 
-不是。它们是可编辑的 standalone seed files，不是封闭 catalog 或强制团队。`name` 字段是身份，文件名只是约定，同一角色可以运行多个实例。默认 topology 是 Master 扁平 fan-out；只有合格的大型独立子系统可临时增加一层 lead。用户可以有意地新增、编辑、重命名或删除角色。后续 setup 与 check 不会重建有意删除的 seed。只有角色仍与 bundled v0.1 seed 完全一致、未经修改时，setup 才可升级它；用户修改过的角色保持不变。
+不是。它们是可编辑的 standalone starter-role files，不是封闭列表或强制团队。`name` 字段是身份，文件名只是约定，同一角色可以运行多个实例。默认由 Master 直接分配；只有合格的大型独立子系统可临时增加一层 lead。用户可以有意地新增、编辑、重命名或删除角色。后续 setup 与 check 不会重建有意删除的 starter。只有角色仍与 bundled v0.1 starter 完全一致、未经修改时，setup 才可升级它；用户修改过的角色保持不变。
 
 <a id="existing-files"></a>
 ## 已经有 config、AGENTS 或角色文件怎么办？
 
-Setup 拥有四个 config paths，但不会逐项独立补齐。只有首次 setup 或精确 v0.1 migration 且两个 Master keys 都缺失时，才成对添加 model/effort；任一 key 已存在时，已有状态与缺失 companion 都会保留。两个公开开关各自在缺失时添加。已有带 marker 或不带 marker 的 assignments、无关内容和显式 `false` 都逐字节保留。遇到无效 TOML、不安全路径类型、重复 identity、ownership 冲突、project/global seed-name 冲突或适用的 `AGENTS.override.md` 时，会在写入前停止。显式 remove 仍可用于解除 cross-scope 冲突。
+Setup 管理四项 settings，但不会逐项独立补齐。只有首次 setup 或精确 v0.1 migration 且两个 Master keys 都缺失时，才成对添加 model/effort；任一 key 已存在时，已有状态与缺失 companion 都会保留。两个公开开关各自在缺失时添加。已有带 marker 或不带 marker 的 assignments、无关内容和显式 `false` 都逐字节保留。遇到无效 TOML、不安全路径类型、重复 identity、ownership 冲突、project/global starter-role 冲突或适用的 `AGENTS.override.md` 时，会在写入前停止。
+
+请按报告中的原因和准确路径解决冲突，不覆盖用户工作，然后重跑同一个 setup 命令。完整策略见[安装](INSTALLATION.zh-CN.md#collision-policy)。
 
 <a id="remove"></a>
 ## Remove 会删除什么？
@@ -134,7 +144,7 @@ Setup 拥有四个 config paths，但不会逐项独立补齐。只有首次 set
 <a id="verification"></a>
 ## 怎样确认它有效？
 
-应分开证据：仓库测试、setup `check`、可信新会话中的 `/skills` 发现、窄 role Smoke、升级测试和真实项目 Pilot 分别支持不同结论。详见[测试](TESTING.zh-CN.md)。静态 PASS 不能证明模型行为或用户科研目标。
+应分开证据：仓库测试、setup `check`、可信新会话中的 `/skills` 发现、窄范围实时 **Smoke**、更新测试和小规模真实 **Pilot** 分别支持不同结论。**Final** 表示按用户标准完成完整验收。详见[测试](TESTING.zh-CN.md)。静态 PASS 不能证明模型行为或用户科研目标。
 
 <a id="windows-wsl"></a>
 ## WSL 是 Windows 测试路径吗？

@@ -12,7 +12,7 @@
 <a id="requirements"></a>
 ## 用户环境要求
 
-通过 Git-backed marketplace 安装或更新 KISS My Agent，需要支持 Plugin 的 Codex 客户端、`PATH` 中可用的 `git` executable，以及 GitHub 网络访问。项目 setup、检查、移除和 Agent 配置使用 Codex 自带的文件工具。用户不需要 Python、Node.js、Docker 或包管理器。
+已测试基线是已认证且支持 Plugin 的 Codex CLI 0.152.1。安装和更新还需要 `PATH` 中可用的 `git` executable、GitHub 网络访问，以及账号支持 bundled default model `gpt-5.6-sol`。更早 Codex 版本未验证。项目 setup、检查、移除和 Agent 配置使用 Codex 自带的文件工具。用户不需要 Python、Node.js、Docker 或包管理器。
 
 Python 3.11 或更高版本只供贡献者运行仓库测试和文档站点使用，不是 Plugin 运行时依赖。
 
@@ -22,16 +22,24 @@ Python 3.11 或更高版本只供贡献者运行仓库测试和文档站点使�
 使用公开 Git marketplace：
 
 ```bash
-codex plugin marketplace add AoiOTA/Kiss-My-Agent
-codex plugin add kiss-my-agent@kiss-my-agent
+codex --version
+codex plugin --help
 ```
 
-安装后启动新的已认证 Codex 会话。已经运行的会话不保证发现刚安装的 Plugin 或 Skill。
+如果 `codex plugin --help` 不可用，请更新到支持 Plugin 的客户端。认证或 marketplace 访问失败时，先检查客户端 login 状态、`git` 与 GitHub 网络，再重试。
+
+```bash
+codex plugin marketplace add AoiOTA/Kiss-My-Agent
+codex plugin add kiss-my-agent@kiss-my-agent
+codex plugin list
+```
+
+列表中应看到 Plugin ID `kiss-my-agent@kiss-my-agent`、状态 `installed, enabled`、版本 `0.2.0`；cache path 可以不同。安装后启动新的已认证 Codex 会话。已经运行的会话不保证发现刚安装的 Plugin 或 Skill。
 
 <a id="first-use"></a>
 ## 第一次使用
 
-简单一次性任务直接使用普通单对话，跳过 project setup。复杂科研工程项目若需要持久 executive workflow，请在目标项目中新开会话并运行：
+简单一次性任务直接使用普通单对话，跳过 project setup。复杂科研工程项目若需要持久协调 instructions，请在目标项目中新开会话并运行：
 
 ```text
 $kiss-my-agent-setup set up this project
@@ -43,7 +51,7 @@ Host 提示时通过界面信任项目，再启动一个新会话并运行：
 $kiss-my-agent-setup check this project
 ```
 
-Setup 完成后直接正常使用 Codex。Master 负责持久 workflow 的调度，并委派日常执行工作；只有遇到重大工程歧义时才使用 `$kiss-my-agent`。如果 delegation 被禁用、不可用或没有合适角色，Master 会报告 staffing issue，让你选择修复或启用 staffing，或者明确把本任务切换为普通单对话；不会静默接手 delegated work。
+Setup 完成后直接正常使用 Codex。项目 instructions 要求 Master 调度持久 workflow，并委派日常执行工作；只有遇到重要工程疑问时才使用 `$kiss-my-agent`。如果 delegation 被禁用、不可用或没有合适角色，这些 instructions 要求 Master 报告 staffing issue，让你选择修复或启用 staffing，或者明确把本任务切换为普通单对话，而不是静默接手 delegated work。
 
 需要真实 discovery 证据时，在该新会话中运行 `/skills`，确认两个 Plugin-owned Skills，再执行[测试](TESTING.zh-CN.md)中的窄范围 Smokes。
 
@@ -52,20 +60,20 @@ Setup 完成后直接正常使用 Codex。Master 负责持久 workflow 的调度
 
 项目 setup 只管理明确选择的目标：
 
-- `.codex/config.toml`：拥有四个 paths——成对的首次 setup Master defaults `model = "gpt-5.6-sol"` 与 `model_reasoning_effort = "max"`，以及两个公开启用开关。只有首次 setup 或精确 v0.1 migration 且两个 Master keys 都缺失时，才添加这一对；任一 key 已存在时，setup 会保留它并让缺失 companion 继续缺失。两个 feature switches 各自在缺失时添加。
-- `.codex/agents/`：安装 standalone seeds：`kiss_explorer` 与 `kiss_coder` 使用 `gpt-5.6-sol` / `high`，`kiss_reviewer` 使用 `gpt-5.6-sol` / `xhigh`；后续 setup 只可把仍与 bundled v0.1 seed 完全一致且未修改的文件替换成 v0.2 seed。
+- `.codex/config.toml`：管理四项 settings——成对的首次 setup Master defaults `model = "gpt-5.6-sol"` 与 `model_reasoning_effort = "max"`，以及两个公开启用开关。只有首次 setup 或精确 v0.1 migration 且两个 Master keys 都缺失时，才添加这一对；任一 key 已存在时，setup 会保留它并让缺失 companion 继续缺失。两个 feature switches 各自在缺失时添加。
+- `.codex/agents/`：安装可编辑 starter roles：`kiss_explorer` 与 `kiss_coder` 使用 `gpt-5.6-sol` / `high`，`kiss_reviewer` 使用 `gpt-5.6-sol` / `xhigh`；后续 setup 只可把仍与 bundled v0.1 starter 完全一致且未修改的文件替换成 v0.2 版本。
 - `AGENTS.md`：追加一个有界的 KISS managed block，并保留原有 instructions。
 
 这些只是首次默认值，不是锁定。Host 与账号必须支持所选 model/effort。目标中已有的值会保留，后续 setup 或 Plugin update 不会重置。Master settings 位于 `config.toml`；role settings 位于 standalone role TOML。Managed instructions 让 Master 只负责战略、架构与验收决策、调度、冲突解决、证据判断和汇总，把调查、实现和审查交给相应角色。
 
-组织默认扁平：Master 直接 fan-out 到当前角色，同一角色可以有多个实例；每个共享文件或慢资源仍只有一个 writer/operator。只有大型独立子系统的直接汇总会污染 Master context 时，才可临时指定一个有界 department lead。其 workers 不得继续委派，assignment 随任务结束而消失，不建立更深或永久层级。
+Managed instructions 要求默认扁平协调：直接向当前角色分配任务，同一角色可以有多个实例；每个共享文件或慢资源仍只有一个 writer/operator。只有大型独立子系统的直接汇总会污染 Master context 时，才可临时指定一个有界 department lead。其 workers 不得继续委派，assignment 随任务结束而消失，不建立更深或永久层级。
 
 Skill 始终归 Plugin 所有，不会复制进项目。Setup 不安装软件、不建立 trust、不启动 Codex，也不修改全局配置。
 
 <a id="configure-agents"></a>
 ## 配置 Master 或现有 Agents
 
-Bundled model/effort 是可编辑默认值。Master 只能通过直接编辑所选项目或 Codex-home `config.toml` 中的 `model` 与 `model_reasoning_effort` 修改；role wizard 不能修改 Master。若不支持的持久值导致 Master 无法启动，请用最高优先级临时 override 启动一次，修复持久 config 后再开新会话：
+Bundled model/effort 是可编辑默认值。Project setup 的 Master 在 `<project>/.codex/config.toml` 中修改；global setup 使用 `$CODEX_HOME/config.toml`，未设置 `CODEX_HOME` 时使用 `~/.codex/config.toml`。Role wizard 不能修改 Master。若不支持的持久值导致 Master 无法启动，请用最高优先级临时 override 启动一次，修复持久 config 后再开新会话：
 
 ```bash
 codex --config 'model="HOST_SUPPORTED_MODEL_ID"' --config 'model_reasoning_effort="HOST_SUPPORTED_EFFORT"'
@@ -90,7 +98,7 @@ $kiss-my-agent-setup check global setup
 $kiss-my-agent-setup configure global agents
 ```
 
-它管理 `$CODEX_HOME` 下的 `config.toml`、`agents/` 和 `AGENTS.md` 中的 KISS block。全局状态可能影响加载该 Codex home 的所有项目，因此项目专有行为应优先使用项目 scope。
+它管理 `$CODEX_HOME` 下的 `config.toml`、`agents/` 和 `AGENTS.md` 中的 KISS block。未设置 `CODEX_HOME` 时，全局 Master config 是 `~/.codex/config.toml`。全局状态可能影响加载该 Codex home 的所有项目，因此项目专有行为应优先使用项目 scope。
 
 <a id="collision-policy"></a>
 ## 冲突与 Override 策略
@@ -110,21 +118,21 @@ $kiss-my-agent-setup configure global agents
 
 Setup 在首次写入前准备全部改动，写入后验证文件；失败时只在安全的情况下回滚仍与本次 after-content 完全一致的自有修改。Agent 原生文件操作不能保证从进程或机器崩溃中恢复，因此所有歧义状态都会 fail closed。
 
-观察到 `false` 开关时报告 `disabled`。如果真实新会话无法委派或没有合适角色，Master 会报告 staffing issue 并等待用户选择；不能把持久 executive workflow 重新解释成 Master 可直接执行。
+Setup 停止时，请按报告中的原因和准确路径解决冲突，不覆盖用户工作，然后重跑同一命令。观察到 `false` 开关时报告 `disabled`。如果真实新会话无法委派或没有合适角色，项目 instructions 要求 Master 报告 staffing issue 并等待用户选择，而不是把持久 workflow 解释成 Master 可直接执行。
 
 <a id="update"></a>
-## 更新已安装的 Plugin
+## 立即更新
 
-请求立即手动刷新 Git marketplace 和已安装 Plugin cache，然后确认选择的版本：
+第一条命令立即请求更新 marketplace 与已安装 Plugin；第二条只核验结果：
 
 ```bash
 codex plugin marketplace upgrade kiss-my-agent
 codex plugin list
 ```
 
-KISS My Agent 自身没有 updater。当前 Codex Host 可能会在启动时自动刷新未固定 tag 的 Git marketplace，并强制重新安装已启用的 non-curated Plugin；这种启动行为归 Host 所有，也可能随 Codex 版本变化。上面的显式命令会立即请求刷新。只要刷新改变了已安装 Plugin，就应启动新会话。
+KISS My Agent 自身没有 updater。在已测试的 Codex 0.152.1 baseline 上，Host 可在启动时刷新 unpinned Git marketplace，并重新安装已启用的 non-curated Plugin；其他版本可能不同。执行上面命令后，应确认 `kiss-my-agent@kiss-my-agent` 为 `installed, enabled`，版本是 `0.2.0`。更新改变已安装 Plugin 后，应启动新会话。
 
-v0.2.0 managed block 加入了 dogfooding 发现的 coordinator-wait 与 Master ownership 说明。v0.1-managed 项目会被识别为结构完整但 `outdated`；升级后运行一次 `$kiss-my-agent-setup set up this project`。Setup 会替换 managed block，并且只升级仍与 bundled v0.1 seeds 完全一致、未经修改的角色文件。已有 config values 以及修改过或 owner 不清的角色都会保留。
+更新 Plugin 不会迁移项目拥有的文件。v0.1-managed 项目升级后，还要启动新会话并运行一次 `$kiss-my-agent-setup set up this project`。Setup 会替换旧 KISS instruction block，并且只升级仍与 bundled v0.1 starter roles 完全一致、未经修改的角色文件。已有 config values 以及修改过或 owner 不清的角色都会保留。
 
 如果要求 marketplace 只能在显式操作后移动，请把未固定的 Git marketplace 换成固定 tag 的 source：
 
