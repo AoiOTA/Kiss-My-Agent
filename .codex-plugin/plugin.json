@@ -1,7 +1,7 @@
 {
   "name": "kiss-my-agent",
   "version": "0.2.0",
-  "description": "Keep Codex research-engineering work scoped, failure-visible, and evidence-honest.",
+  "description": "Reduce Codex overengineering and hidden failure by starting with a runnable research MVP and iterating from real results.",
   "author": {
     "name": "AoiOTA",
     "url": "https://github.com/AoiOTA"
@@ -19,8 +19,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "KISS My Agent",
-    "shortDescription": "Reduce Agent over-design and hidden failure.",
-    "longDescription": "Keep research-engineering changes proportionate, preserve real failures, match claims to evidence, and explicitly set up or configure bundled Codex roles without an external runtime.",
+    "shortDescription": "Reduce overengineering and hidden failure.",
+    "longDescription": "Start with the smallest runnable, verifiable research MVP, expose real failures early, and let real results drive the next iteration without removing necessary safety.",
     "developerName": "AoiOTA",
     "category": "Developer Tools",
     "capabilities": [
@@ -29,7 +29,7 @@
     ],
     "websiteURL": "https://github.com/AoiOTA/Kiss-My-Agent",
     "defaultPrompt": [
-      "Use KISS My Agent to decide whether this research-engineering change needs a local fix or a shared mechanism.",
+      "Use KISS My Agent to decide whether to keep planning or run a safe, low-cost, recoverable probe.",
       "Set up KISS My Agent for this project without requiring an external runtime.",
       "Configure the existing KISS My Agent roles for this project."
     ]

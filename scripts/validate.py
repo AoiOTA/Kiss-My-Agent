@@ -597,6 +597,8 @@ def validate_skill(root: Path) -> None:
         fail("unexpected skill name")
     if not fields.get("description"):
         fail("empty skill description")
+    if "reversible probe" not in fields["description"]:
+        fail("skill description missing the reversible-probe decision trigger")
 
     skill_links = set(re.findall(r"\[[^\]\n]+\]\(([^)]+)\)", skill))
     expected_links = {

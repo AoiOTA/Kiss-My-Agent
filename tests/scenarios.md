@@ -35,4 +35,4 @@ These scenarios require a fresh session loaded from the candidate Plugin and dis
 
 ## Onboarding Pilot
 
-26. **README-only newcomer.** Give the rendered landing page to one person who did not build it. Within five minutes, expect them to explain the two drift problems, why KISS helps, whether it fits them, and where to install, start, configure Agents, and update. Do not coach them or change the checklist after seeing the result.
+26. **README-only newcomer.** Give the final rendered landing page to a new user who has never encountered this project or any earlier README draft and did not participate in the change. Without coaching, evaluate the result within five minutes against the canonical [README newcomer Pilot checklist](../docs/TESTING.md#readme-pilot). Do not copy the criteria here or change that checklist after seeing the result.

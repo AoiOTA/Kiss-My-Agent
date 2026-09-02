@@ -7,31 +7,31 @@
 <a id="what-is-kiss"></a>
 ## What does KISS mean here?
 
-“Keep It Simple, Scientist”: choose the smallest sufficient implementation and evidence for the current problem while preserving real contracts, necessary safety, and visible failure.
+“Keep It Simple, Scientist”: start with the smallest runnable, verifiable version, use real success or failure to decide the next step, and add complexity only when the result shows it is needed.
 
 <a id="problem"></a>
 ## What problem does KISS My Agent solve?
 
-It reduces common Agent drift in research engineering:
+It primarily reduces two tendencies that slow the research loop:
 
-- **Overengineering:** a local defect or one-consumer need grows into unnecessary abstractions, configuration, compatibility layers, workflows, or persistent systems.
-- **Overdefense:** uncertainty produces broad catch-and-continue behavior, stale fallback, duplicate gates, or refusals that hide the real failure or exceed the actual boundary.
-- **Process theater:** multi-agent coordination, handoffs, checks, or status machinery become outputs instead of serving the requested result.
-- **Evidence inflation:** a source check or passing test is reported as proof of a product or research goal it did not measure.
+- **Overengineering:** productizing before the current hypothesis is tested by adding abstractions, configuration, migrations, compatibility layers, or platforms for future possibilities that nobody uses today.
+- **Overdefense:** preventing errors from surfacing naturally by layering validation, retries, fallbacks, exception handling, approvals, or gates—and sometimes presenting failure as success.
 
-Necessary authentication, authorization, boundary validation, cleanup, and narrow handling of a known optional outage are not overdefense. KISS removes unsupported machinery, not real safety.
+Multi-Agent process, handoffs, and checks becoming outputs, or a passing test being inflated into product or research success, are common signs or consequences of these two problems—not two more core features.
+
+Necessary authentication, authorization, boundary validation, cleanup, and explicit handling of a known optional outage are not overdefense. KISS allows low-cost, recoverable experimentation; it does not remove safeguards for irreversible or other high-risk operations.
 
 <a id="why-agents-drift"></a>
-## Why and when do coding Agents drift this way?
+## Why do coding Agents drift this way, and how does KISS respond?
 
-Models infer intent from incomplete instructions. The risk rises when “complete,” “robust,” “production-ready,” or “future-proof” is requested without explicit acceptance criteria; when failure ownership is unclear; when runtime and evaluator outputs disagree; when a claim exceeds an experiment; or when several Agents share mutable work.
+Codex tends to produce answers that look complete, robust, and successful. Prompts often say “comprehensive,” “robust,” or “production-ready” without naming the current hypothesis, minimum goal, and stop condition. Frameworks, defensive code, validation, retries, and fallbacks are easy to generate and easy to present as progress; the model also tends to avoid an obvious failure, so an error may be caught, routed around, or packaged as a usable result.
 
-Elaborate behavior can look safer or more complete to a model even when it is worse for the current consumer. KISS improves the decision context by assigning human and Agent ownership, requiring a current consumer for mechanisms, keeping failures visible, separating evidence levels, and defining a stop boundary. It reduces the tendency; it cannot guarantee identical behavior from every model or prompt.
+Mature products can genuinely need complete architecture and safeguards when real requirements and risks justify them. Added too early in research, they slow feedback and hide real errors. KISS drives a shorter loop: `goal or hypothesis → smallest runnable validation → real run → explicit success or failure → iterate or stop`. Tests and process serve that outcome; they do not replace the real result.
 
 <a id="fit"></a>
 ## Is it right for me?
 
-It is aimed primarily at Codex users doing research software, experiments, debugging, infrastructure, or substantial engineering work who want bounded autonomy without a fixed multi-agent pipeline. It is not a general orchestrator, permission bypass, policy engine, formal evaluator, or guarantee against model mistakes. See the landing page's [fit guide](../README.md#is-it-for-you).
+It is aimed primarily at Codex users building research MVPs, validating algorithms, doing exploratory development, or debugging hidden errors—especially when real runs should quickly decide the next step. It is not a general orchestrator, permission bypass, deterministic executor, or formal evaluator, and it cannot guarantee a correct first attempt. See the landing page's [fit guide](../README.md#is-it-for-you).
 
 <a id="install"></a>
 ## How do I install it?
@@ -71,7 +71,7 @@ The configured project then owns its `.codex/config.toml`, standalone role TOML 
 <a id="when-skill"></a>
 ## When should I invoke `$kiss-my-agent`?
 
-Use it for one consequential, non-obvious decision about a persistent/shared mechanism, local fix versus new system, experiment validity, evidence strength, runtime/evaluator ambiguity, or material scope expansion. Do not use it as a wrapper around ordinary implementation, tests, builds, Git, lookup, or formatting. `$kiss-my-agent-setup` is a separate operational Skill.
+Use it for one consequential, non-obvious decision—for example, whether to keep planning or add a persistent mechanism, or first run a safe, low-cost, recoverable probe. It also applies to a local fix versus a new system, experiment validity, evidence strength, or material scope expansion. Do not use it as a wrapper around ordinary implementation, tests, builds, Git, lookup, or formatting. `$kiss-my-agent-setup` is a separate operational Skill.
 
 <a id="configure"></a>
 ## How do I configure the master or initial Agents?

@@ -6,7 +6,7 @@
 
 **Keep It Simple, Scientist. Less ceremony. More science.**
 
-KISS My Agent helps Codex keep key human decisions human, match the size of a change to the current task, keep failures visible, make multi-Agent responsibilities and conflicts explicit, and keep conclusions within the evidence. It is built for complex research-engineering work where a plausible-looking result is not enough.
+Reduce Codex overengineering and overdefense. Build a runnable, verifiable research MVP first, expose errors early, then iterate quickly from real results.
 
 [English](https://aoiota.github.io/Kiss-My-Agent/) | [简体中文](https://aoiota.github.io/Kiss-My-Agent/zh-CN/)
 
@@ -20,50 +20,49 @@ KISS My Agent helps Codex keep key human decisions human, match the size of a ch
 <a id="why-this-exists"></a>
 ## What KISS My Agent Is
 
-KISS My Agent is a versioned Codex Plugin for complex research and engineering projects. It packages a small set of working rules, three editable starter roles, and two Skills: one helps with the few important decisions that are not obvious, and the other handles setup, checks, and configuration.
+KISS My Agent is an open-source Codex Plugin for research and exploratory engineering. It gives Codex a simple set of working principles: start from the current goal or hypothesis, build the smallest version that can run and be validated, then use real results to decide whether to continue, change, or stop.
 
-It improves Codex's decisions through clearer working boundaries. It is not an autonomous manager above Codex or a correctness checker, and it does not replace human product or scientific judgment.
+It is outcome-driven, not process- or workload-driven: the number of files changed, Agents used, checks run, or steps completed cannot replace the question “did this answer the current problem?”
 
 <a id="failure-patterns"></a>
 <a id="overengineering-and-overdefense"></a>
 ## The Two Core Problems It Solves
 
-| Core problem | Definition | Common signs | Cost |
-| --- | --- | --- | --- |
-| **Overengineering** | Adding frameworks, abstractions, configuration, migrations, or process for future possibilities that nobody needs now, so the change grows beyond the current goal | One local bug becomes a new platform; a small task gets a fixed multi-Agent workflow | Code, maintenance, and review costs rise while the solution quietly replaces human architecture and scope decisions |
-| **Overdefense** | Facing uncertainty without first checking facts and the failure boundary, then accumulating validation, retries, fallbacks, approvals, compatibility layers, or gates | A real bug becomes an empty or stale “success”; tests repeat without confirming what is actually running; work is refused beyond the real permission boundary | Causes become harder to find, conclusions become less trustworthy, and maintenance cost keeps growing |
+| Problem | What it means | Common result |
+| --- | --- | --- |
+| **Overengineering** | Productizing before the current hypothesis is tested: adding abstractions, configuration, migrations, or platforms for future possibilities that nobody uses today | One experiment becomes a large system, feedback slows down, and both scope and new bugs grow |
+| **Overdefense** | Preventing errors from surfacing naturally by layering validation, retries, fallbacks, exception handling, or gates—and sometimes presenting failure as success | The real cause disappears, a wrong result looks “normal,” and the next iteration starts from unreliable information |
 
-These tendencies also appear as changing scope or acceptance without the user, editing a visible file instead of fixing the code that actually runs, treating a passing test as the final goal, or letting several Agents duplicate work and overwrite shared state. These are consequences of the two core problems, not six unrelated product features.
-
-Necessary safety is not overdefense. Authentication, authorization, least privilege, validation at a real boundary, safe cleanup, and explicit handling of a known optional outage should remain. No task or keyword inevitably triggers these problems, and KISS is not a safety bypass.
+Growing the scope, fixing something other than the code actually in use, treating a passing test as the goal, or letting several Agents conflict over the same work are common consequences of these two tendencies.
 
 <a id="why-agents-drift"></a>
 ## Why Codex Can Fall Into Them
 
-Prompts often say “complete,” “robust,” or “production-ready” without also stating the goal, acceptance criteria, non-goals, and stop condition. Codex must infer the missing decisions, and a more complex answer can look more complete and safer in text. It also cannot know from those adjectives alone which risks truly matter to this project.
-
-Research projects often have several source versions, builds, configurations, datasets, and scoring methods, while multiple Agents see different slices of the work. That makes it easier to fix the wrong thing, duplicate effort, collide on shared state, or mistake a local check for the real result.
+Codex tends to produce answers that look complete, robust, and successful. Prompts often ask for “comprehensive,” “robust,” or “production-ready” work without stating the current hypothesis, minimum goal, and stop condition. Adding frameworks, validation, retries, or fallbacks is easy to generate and easy to present as progress. Codex also tends to avoid an obvious failure, so an error may be caught, routed around, or packaged as a usable result. Mature products can genuinely need complete architecture and safeguards when real requirements and risks justify them. Added too early in research, however, they slow the feedback loop and obscure its most valuable signal: why this real run succeeded or failed.
 
 <a id="how-kiss-helps"></a>
 <a id="before-and-after"></a>
-## How KISS Reduces These Problems
+## How KISS Drives a Research Loop
 
-- **People keep the key decisions:** people decide the goal, architecture, what counts as done, what is out of scope, and when to stop. Codex works inside those boundaries and asks before materially expanding them.
-- **Start from the real need:** check the facts and find the person or code actually affected instead of building a new system because it may be useful someday.
-- **Prefer the smallest correct change:** repair the part truly responsible for the problem and test what it affects. Do not turn it into a general framework without a present need, and allow no change when the current result already meets the goal.
-- **Keep failures and evidence truthful:** preserve the cause of internal errors; degrade only for a clear optional failure and explain why; a passing test proves the test passed, not automatically that the product or research goal succeeded.
-- **Divide work only when it helps:** use multiple Agents only when the split adds value. Give every shared file, device, or output one clearly responsible Agent, while the main conversation combines results and decisions.
+`Goal or hypothesis → smallest runnable, verifiable version → real run → visible success or failure → next iteration or stop`
+
+- Define the question and the minimum success condition for this round so implementation does not quietly rewrite the goal.
+- Build only what is needed to run and test the hypothesis. Get a research MVP first; decide whether to productize it after the result.
+- Run the real path early. Allow low-cost, recoverable mistakes to expose their original cause instead of covering them with a fallback or empty result.
+- Act on the real result: fix the first revealed problem and start the next round, or stop when the hypothesis is answered or the goal is met. More process and changes do not prove more progress.
+
+Multi-Agent work is only an optional accelerator: use it when the task truly splits into independent parts, and keep one clear person or Agent responsible for each shared file, device, or output. “Do not fear mistakes” means only low-cost, recoverable experimentation; never remove or bypass authentication, permissions, irreversible-operation safeguards, or other high-risk safety boundaries.
 
 <a id="is-it-for-you"></a>
 ## Is It for You?
 
-| Good fit | Not designed for |
+| Good fit | Not the problem it solves |
 | --- | --- |
-| Long-running or complex research-engineering projects that need persistent boundaries for scope, failure handling, and evidence claims | Simple, isolated work with an obvious acceptance check; a normal Codex conversation is enough |
-| You often remove speculative frameworks, broad fallbacks, or process machinery from Agent proposals | You want the Agent to choose the product goal, architecture, risk tolerance, or acceptance criteria for you |
-| Multiple Agents, experiments, shared files, or devices are useful but need clear responsibility | You need deterministic security enforcement, formal verification, a general orchestration platform, or verified non-Codex support |
+| Research prototypes, algorithm validation, experimental tools, and other work that needs an MVP quickly | Mature product work with stable requirements and a real need for complete compatibility, migration, audit, or safety systems |
+| The solution is uncertain and real runs should guide rapid exploration | High-risk work where failure is irreversible and strict safety analysis must come first |
+| Debugging hidden errors, or stopping Codex from productizing an imagined future | Deterministic security enforcement, formal verification, a general orchestration platform, or verified non-Codex support |
 
-KISS improves the rules and role boundaries under which Codex works. It does not make the system automatically correct or bypass authentication, permissions, administrator policy, project trust, or necessary safety controls.
+KISS does not promise to get the first attempt right. It aims to produce trustworthy feedback sooner so the next step can be right.
 
 <a id="quick-start"></a>
 ## Quick Start

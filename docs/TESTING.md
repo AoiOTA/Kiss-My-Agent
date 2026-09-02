@@ -141,12 +141,15 @@ If delegation becomes disabled or unavailable, or no suitable role exists, recor
 <a id="readme-pilot"></a>
 ## README newcomer Pilot
 
-Give only the rendered landing page to one person who did not build the change. Without extra explanation, ask them to identify within five minutes:
+Give only the final rendered landing page to a new user who has never encountered this project or any earlier README draft and did not participate in the change. Without extra explanation, ask them to identify within five minutes:
 
 - the over-design and over-defensive failure modes;
 - why and when an Agent tends toward them;
 - how KISS My Agent helps and what it cannot guarantee;
+- in plain language, the loop `goal/assumption → smallest runnable validation → real result → iterate or stop`, and the difference between a low-cost reversible trial and bypassing authentication or permissions or crossing an irreversible high-risk boundary;
 - whether it fits their work;
+- the company model: the Owner retains the goal, architecture, acceptance criteria, and stop point; the Master / CEO owns orchestration, decisions, and synthesis; `kiss_explorer`, `kiss_coder`, and `kiss_reviewer` own read-only investigation, bounded implementation, and independent read-only review, respectively;
+- that the defaults are editable and the Master normally delegates directly in a flat structure, not through a fixed workflow or deep organization;
 - the install, first-use, Agent configuration, and update paths.
 
 When practical, have them complete setup in a disposable project without installing Python. Record only anonymous pass/fail observations and blocking confusion. Revise and replay the same checklist instead of moving the criteria.

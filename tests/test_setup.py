@@ -76,6 +76,12 @@ class SetupContractTests(unittest.TestCase):
         self.assertIn("no deep nesting", markdown_blocks[0])
         self.assertIn("must not silently take over delegated work", markdown_blocks[0])
         self.assertIn("ordinary single-conversation execution", markdown_blocks[0])
+        self.assertIn("reversible probe", markdown_blocks[0])
+        self.assertIn("safety boundaries", markdown_blocks[0])
+        self.assertLess(
+            markdown_blocks[0].index("reversible probe"),
+            markdown_blocks[0].index("Multi-agent work is available by default"),
+        )
         self.assertEqual(1, self.lifecycle.count(BEGIN_MARKER))
         self.assertEqual(1, self.lifecycle.count(END_MARKER))
 
