@@ -12,7 +12,7 @@ Reduce Codex overengineering and overdefense. Build a runnable, verifiable resea
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Validate](https://github.com/AoiOTA/Kiss-My-Agent/actions/workflows/validate.yml/badge.svg)](https://github.com/AoiOTA/Kiss-My-Agent/actions/workflows/validate.yml)
-![Release: v0.2.4](https://img.shields.io/badge/release-v0.2.4-blue.svg)
+![Release: v0.2.5](https://img.shields.io/badge/release-v0.2.5-blue.svg)
 ![Host: Codex-first](https://img.shields.io/badge/host-Codex--first-blue.svg)
 
 </div>

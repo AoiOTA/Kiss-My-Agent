@@ -56,8 +56,8 @@ Setup 场景只能在一次性项目和明确隔离的 Codex home 中运行。�
 - managed block 分类互斥：current block 绝不补缺失的 Master keys；block 缺失或被识别为 outdated 时，只有两个 keys 都缺失才补入这一对；其他情况都保留已有 assignments，并让每个缺失 key 继续缺失和继承；
 - 两个 feature switches 各自在缺失时添加，同时保留四个 paths 的 marked/unmarked values、无关 config、comments、换行风格、AGENTS 内容和已有角色；
 - 有意设置的 `false` 与有意删除的 seed roles；
-- 损坏 TOML、不安全路径类型、`AGENTS.override.md`、重复名称、文件名/identity 不匹配和 project/global 冲突；
-- remove 能作为 cross-scope seed-name 冲突的解除出口；
+- 损坏的 managed config 或准确 bundled-role TOML、不安全的 managed path type、`AGENTS.override.md`，以及准确 bundled filename/identity mismatch；无效的未选 custom role 不属于 KISS ownership，不会阻塞 setup、check、remove，也不会阻塞已经选择其他角色的配置请求；
+- project 与 global scope 中同一个 bundled role filename 使用不同的可观察定义：project setup/check 只检查 project target 并保持 global role 不变；fresh project session 证明 Host 使用 project-over-global precedence，KISS 不拒绝也不协调这个 duplicate；
 - remove 只删除四个 marked config assignments 和 current/v0.1 exact role seeds，并保留 unmarked config 与已修改角色；
 - 只配置一个选中角色，其他字段和文件保持不变；
 - 恢复继承时只删除选中的可选 key；

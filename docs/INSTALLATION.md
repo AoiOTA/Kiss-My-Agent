@@ -61,7 +61,7 @@ When you need live discovery evidence, run `/skills` in that fresh session and c
 Project setup manages only the selected target:
 
 - `.codex/config.toml`: manages four settings—the paired initial master defaults `model = "gpt-5.6-sol"` and `model_reasoning_effort = "max"`, plus the two public enablement switches. The managed-block classifications are mutually exclusive: a current block never receives missing master keys; an absent or recognized-outdated block receives the pair only when both keys are absent; otherwise existing assignments are preserved and each missing key remains absent for inheritance. Each missing feature switch is added independently.
-- `.codex/agents/`: during fresh setup, installs any missing editable starter role with `gpt-5.6-sol` / `high` for `kiss_explorer` and `kiss_coder`, and `gpt-5.6-sol` / `xhigh` for `kiss_reviewer`. Every role that already exists is user-owned and remains byte-for-byte unchanged. After setup, an absent starter is a valid intentionally absent catalog entry and is not recreated.
+- `.codex/agents/`: during fresh setup, installs any missing editable starter role with `gpt-5.6-sol` / `high` for `kiss_explorer` and `kiss_coder`, and `gpt-5.6-sol` / `xhigh` for `kiss_reviewer`. Setup inspects only these three exact target paths, not the complete role directory or another scope. Every role that already exists is user-owned and remains byte-for-byte unchanged. After setup, an absent starter is a valid intentionally absent catalog entry and is not recreated.
 - `AGENTS.md`: appends one bounded KISS managed block while preserving existing instructions.
 
 These are initial defaults, not locks. The Host and account must support the selected model and effort. Existing target values are preserved, and later setup or Plugin updates do not reset them. Plugin cache role files are package resources; they do not automatically enter the Host role catalog, so fresh setup is still required. Master settings live in `config.toml`; role settings live in standalone role TOML files. The managed instructions keep the master on strategy, architecture and acceptance decisions, orchestration, conflict resolution, evidence interpretation, and synthesis, with investigation, implementation, and review assigned to roles.
@@ -85,7 +85,7 @@ To change an existing role's model, reasoning effort, or sandbox default through
 $kiss-my-agent:kiss-my-agent-setup configure agents for this project
 ```
 
-The wizard edits only existing role TOML files and previews the exact changes before writing. It does not modify master config, create, delete, or rename roles. You can also edit `.codex/agents/*.toml` directly; see [Configuration](CONFIGURATION.md).
+The wizard edits only existing role TOML files and previews the exact changes before writing. If the request names roles, it resolves and parses only those files. Otherwise it first lists direct role paths without parsing them, waits for your selection, and then parses only the selected files. An invalid unselected role does not block configuration; broader catalog warnings and precedence remain the Host's responsibility. The wizard does not modify master config, create, delete, or rename roles. You can also edit `.codex/agents/*.toml` directly; see [Configuration](CONFIGURATION.md).
 
 <a id="global-setup"></a>
 ## Optional global setup
@@ -112,12 +112,13 @@ It manages `config.toml`, `agents/`, and the KISS block in `AGENTS.md` under `$C
 | Existing public switch, marked or unmarked | Preserve its complete assignment, including `false`. |
 | Unrelated config keys or AGENTS content | Preserve them. |
 | Starter role missing during fresh setup | Create it from the current bundled seed. |
-| Any role file already exists | Treat it as user-owned and preserve it byte-for-byte; do not infer or migrate a role version. |
-| Filename/identity mismatch, duplicate identity, or project/global seed-name conflict | Stop before writing. |
+| Any exact bundled target already exists | Treat it as user-owned and preserve it byte-for-byte; do not infer or migrate a role version. |
+| An exact bundled target has an unsafe type, invalid TOML, missing identity fields, or a `name` different from its filename | Stop before writing. |
+| An unrelated role or a role in another scope is malformed or declares the same identity | Leave it untouched. The Host owns broader catalog warnings and project-over-global precedence. |
 | Valid existing managed block | Update only that block; report missing starters as intentionally absent and do not restore them. |
 | Malformed markers, invalid TOML, unsafe path type, or applicable `AGENTS.override.md` | Stop without claiming success. |
 
-Setup prepares all changes before the first write, verifies files afterward, and rolls back only its own unchanged after-content when a failure permits safe rollback. Agent-native file operations cannot promise recovery from a process or machine crash, so all ambiguous states fail closed.
+Setup, check, and remove inspect only their selected KISS config and AGENTS paths plus the three exact bundled role targets in the selected scope. They do not validate the full role catalog or reconcile project and global roles. Setup prepares all changes before the first write, verifies files afterward, and rolls back only its own unchanged after-content when a failure permits safe rollback. Agent-native file operations cannot promise recovery from a process or machine crash, so ambiguity in a managed target fails closed.
 
 When setup stops, use its reported reason and exact path to resolve the conflict without overwriting user work, then rerun the same command. An observed `false` switch is reported as `disabled`. If a real new session cannot delegate or has no suitable role, the project instructions require the master to report the staffing issue and wait for the user's choice instead of treating the persistent workflow as permission to work directly.
 

@@ -63,7 +63,7 @@ Current seeds 显式设置上表中的 model 与 effort，是可编辑的 fresh-
 
 Codex 配置优先级从高到低为：CLI flags 与 `--config` overrides；可信项目中的 `.codex/config.toml`（越接近当前工作目录优先级越高）；`--profile` 选择的 profile；用户 config；系统 config；内置 defaults。因此，project 中的 `true` 可以覆盖更低层的 user `false`，CLI `false` 也可以覆盖 project。管理员 requirements 还可能单独约束最终设置。
 
-项目与全局 setup 始终分开。修改 config、instructions、Skills、Plugins 或角色 TOML 后启动新会话；已有会话不保证热加载。
+项目与全局 setup 始终分开。对于 role definitions，Host 应用 project-over-global precedence 并负责更广泛的 catalog warnings；KISS setup 不会拒绝或协调这两个 scope 中的 roles。修改 config、instructions、Skills、Plugins 或角色 TOML 后启动新会话；已有会话不保证热加载。
 
 <a id="configure-wizard"></a>
 ## 对话式 Agent 配置向导
@@ -75,7 +75,7 @@ $kiss-my-agent:kiss-my-agent-setup configure agents for this project
 $kiss-my-agent:kiss-my-agent-setup configure global agents
 ```
 
-向导会列出当前 role catalog，让用户选择一个或多个角色，并为 `model`、`model_reasoning_effort` 与 `sandbox_mode` 提供 `keep`、`inherit` 或显式值。写入前会展示准确 diff；设置 `danger-full-access` 时必须单独确认。
+请求已经点名一个或多个角色时，向导只解析这些 targets；没有点名时，先只列出 direct role paths 而不解析内容，等待用户选择一个或多个角色后，再只解析选中的文件。向导为 `model`、`model_reasoning_effort` 与 `sandbox_mode` 提供 `keep`、`inherit` 或显式值，写入前展示准确 diff；设置 `danger-full-access` 时必须单独确认。无效的未选角色不会阻塞操作，其 catalog warnings 由 Host 负责。
 
 Project scope 解析到 `<unique Host project or active workspace root>/.codex/agents`；存在多个 roots 或没有唯一 root 时，向导会先要求选择绝对 project target，选择前不写入。Global scope 优先使用非空 `CODEX_HOME`，否则使用当前用户的 `~/.codex`，并定位到其 `agents/` 目录。向导会在检查前展示解析后的绝对 role-directory path。
 
@@ -132,7 +132,7 @@ $kiss-my-agent:kiss-my-agent-setup check global setup
 $kiss-my-agent:kiss-my-agent-setup remove global setup
 ```
 
-项目 scope 管理 `<target>/.codex/config.toml`、`<target>/.codex/agents/` 和 `<target>/AGENTS.md` 中的一个 managed block。全局 scope 管理 `$CODEX_HOME` 下的对应文件。Skill 始终留在已安装 Plugin 中。
+项目 scope 管理 `<target>/.codex/config.toml`、准确的 `<target>/.codex/agents/{kiss_explorer,kiss_coder,kiss_reviewer}.toml` targets，以及 `<target>/AGENTS.md` 中的一个 managed block。全局 scope 管理 `$CODEX_HOME` 下的对应 paths。Skill 始终留在已安装 Plugin 中。
 
 “This project” 表示 Host 当前唯一的 project 或 active workspace root，而不是 shell 恰好所在的某个子目录。Skill 会显示解析后的绝对目标；存在多个 workspace roots、目标不唯一时先让用户选择。
 
@@ -140,8 +140,9 @@ $kiss-my-agent:kiss-my-agent-setup remove global setup
 ## 冲突与 Ownership
 
 - 保留无关 config、角色、instructions、comments 和显式 `false`。
-- TOML 损坏、路径类型不安全、identity 重复、文件名/identity 冲突或存在适用的 `AGENTS.override.md` 时，在写入前停止。
-- project/global seed 名称重复会阻止 setup 和 check，但不会阻止从一个明确 scope 执行 remove，因为 remove 是解除该冲突的出口。
+- Setup、check 与 remove 只检查所选 scope 中由 KISS 管理的 config、AGENTS paths 和三个准确 bundled role targets；不解析其他 role files 或 opposite scope 中的 roles。
+- 所选 managed path 的类型不安全、所选 config 或准确 bundled target 的 TOML 无效、准确 bundled target 缺少 identity fields 或 `name` 与文件名不同、managed ownership 不明确，或存在适用的 `AGENTS.override.md` 时，在写入前停止。
+- 其他文件中的 duplicate identities 与 project/global duplicate role names 不会阻塞 KISS setup 或 check。Catalog warnings 和 project-over-global precedence 由 Host 负责；KISS 不会协调这些冲突。
 - 每个已有角色都归用户所有并逐字节保留。Setup 永不拿它与历史 seeds 比较、判定版本或迁移它。后续 setup 不会恢复用户有意删除的 starter。
 - 显式 remove 会删除带 marker 的 config assignments、managed AGENTS block，以及字节完全匹配 current 或 known v0.1 seed 的 bundled roles；其他角色文件仍归用户所有。
 

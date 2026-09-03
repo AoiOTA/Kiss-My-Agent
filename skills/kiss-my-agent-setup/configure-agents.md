@@ -22,12 +22,13 @@ For global scope, resolve the Codex home from a non-empty `CODEX_HOME` environme
 
 ## Inspect
 
-1. Resolve the selected role directory and inspect its metadata. Stop on a symlinked directory, non-regular TOML file, invalid TOML, missing required role field, or duplicate `name`.
-2. Require existing `model`, `model_reasoning_effort`, and `sandbox_mode` values to be non-empty strings; require `sandbox_mode`, when present, to be `read-only`, `workspace-write`, or `danger-full-access`. Do not normalize an invalid value by guesswork.
-3. If a role has `default_permissions`, do not add `sandbox_mode`; those settings cannot be combined. If it has `sandbox_workspace_write`, do not change away from `workspace-write` without a separate manual edit that owns the related table.
-4. Read each role completely and show a compact table with its identity, path, and current values. Label omitted fields as `inherit`.
-5. If no roles exist, stop and explain that setup or a manual role definition is needed first.
-6. Ask which one or more existing roles to configure. Do not select every role by default.
+1. Resolve the selected role directory and inspect its metadata. Reject a symlinked directory or a directory whose type cannot be established safely.
+2. If the user explicitly named one or more roles or paths, resolve only those targets. A bare role name maps to `<role-directory>/<name>.toml`; a supplied path must resolve to a direct `.toml` child of the selected role directory. Reject traversal, a symlinked target, a duplicate target, a missing target, or a non-regular file. Do not list, read, or parse unselected role files.
+3. If the user did not name a role, list only the direct `.toml` paths in the selected role directory without reading or parsing their contents. Show those paths and ask which one or more to configure. If none exist, stop and explain that setup or a manual role definition is needed first. Do not select every role by default.
+4. After the targets are selected, read and parse only those files. Stop if a selected file has invalid TOML or a missing or empty string `name`, `description`, or `developer_instructions` field. An invalid or duplicate identity in an unselected role does not block this operation; the Host owns broader catalog validation and warnings.
+5. Require selected `model`, `model_reasoning_effort`, and `sandbox_mode` values to be non-empty strings; require `sandbox_mode`, when present, to be `read-only`, `workspace-write`, or `danger-full-access`. Do not normalize an invalid value by guesswork.
+6. If a selected role has `default_permissions`, do not add `sandbox_mode`; those settings cannot be combined. If it has `sandbox_workspace_write`, do not change away from `workspace-write` without a separate manual edit that owns the related table.
+7. Show a compact table for the selected roles with identity, path, and current values. Label omitted fields as `inherit`.
 
 ## Ask for settings
 
@@ -50,8 +51,8 @@ Explain precedence before confirmation. Codex first resolves each model or effor
 
 1. Build the complete proposed diff for only the selected files and show it before mutation.
 2. Ask once for confirmation of the displayed non-dangerous changes. The separate full-access confirmation remains mandatory when applicable.
-3. Immediately re-read every selected file. If any content differs from the preview base, stop without writing.
-4. Apply minimal edits and then re-read and parse every selected file. Confirm the required role fields are unchanged and only the selected optional settings changed.
-5. If a write or verification fails, restore only a file still equal to this operation's after-content. Never overwrite a concurrent change during rollback.
+3. Immediately before mutating each selected file, re-read that file and require it to still equal its preview base. If a pending target differs, preserve that concurrent-change cause, stop forward work, and restore only already-written files that still equal this operation's exact after-content. Never overwrite a concurrent change during rollback.
+4. Apply the minimal edit to that file, then re-read and parse it. Confirm the required role fields are unchanged and only the selected optional settings changed before continuing to the next selected file.
+5. If a write or verification fails, preserve the original failure and use the same exact-after-content guarded rollback for already-written files.
 
 Report the exact roles and fields changed, inherited fields removed, preserved fields, scope, and paths. Tell the user to start a new Codex session. Do not claim the configured model exists, the role was discovered, or the requested permission became effective until the new session demonstrates it.

@@ -63,7 +63,7 @@ For a simple task, do not run setup or trigger the KISS My Agent Skill solely to
 
 Codex resolves configuration from highest to lowest precedence: CLI flags and `--config` overrides; trusted project `.codex/config.toml` files, with the file nearest the current working directory winning; the profile selected by `--profile`; user config; system config; then built-in defaults. Therefore a project `true` can override a lower user `false`, while a CLI `false` can override the project. Administrator requirements may constrain the resulting settings separately.
 
-Project and global setup are always distinct. Start a new session after changing config, instructions, Skills, Plugins, or role TOML; an existing session is not guaranteed to hot-load them.
+Project and global setup are always distinct. For role definitions, the Host applies project-over-global precedence and owns broader catalog warnings; KISS setup does not reject or reconcile roles across those scopes. Start a new session after changing config, instructions, Skills, Plugins, or role TOML; an existing session is not guaranteed to hot-load them.
 
 <a id="configure-wizard"></a>
 ## Conversational Agent configuration wizard
@@ -75,7 +75,7 @@ $kiss-my-agent:kiss-my-agent-setup configure agents for this project
 $kiss-my-agent:kiss-my-agent-setup configure global agents
 ```
 
-The wizard lists the current role catalog, lets you select one or more roles, and offers `keep`, `inherit`, or an explicit value for `model`, `model_reasoning_effort`, and `sandbox_mode`. It shows the exact diff before writing and requires a separate confirmation for `danger-full-access`.
+If the request names one or more roles, the wizard resolves and parses only those targets. Otherwise it lists direct role paths without parsing their contents, waits for the user to select one or more, and then parses only the selected files. It offers `keep`, `inherit`, or an explicit value for `model`, `model_reasoning_effort`, and `sandbox_mode`, shows the exact diff before writing, and requires a separate confirmation for `danger-full-access`. Invalid unselected roles do not block the operation; their catalog warnings remain the Host's responsibility.
 
 Project scope resolves to `<unique Host project or active workspace root>/.codex/agents`; if multiple roots or no unique root are available, the wizard asks for an absolute project target before writing. Global scope resolves from a non-empty `CODEX_HOME`, otherwise from the current user's `~/.codex`, and uses its `agents/` directory. The wizard shows the resolved absolute role-directory path before inspection.
 
@@ -132,7 +132,7 @@ $kiss-my-agent:kiss-my-agent-setup check global setup
 $kiss-my-agent:kiss-my-agent-setup remove global setup
 ```
 
-Project scope manages `<target>/.codex/config.toml`, `<target>/.codex/agents/`, and one managed block in `<target>/AGENTS.md`. Global scope manages the corresponding files under `$CODEX_HOME`. The Skill itself stays in the installed Plugin.
+Project scope manages `<target>/.codex/config.toml`, the exact `<target>/.codex/agents/{kiss_explorer,kiss_coder,kiss_reviewer}.toml` targets, and one managed block in `<target>/AGENTS.md`. Global scope manages the corresponding paths under `$CODEX_HOME`. The Skill itself stays in the installed Plugin.
 
 “This project” means the Host's current unique project or active workspace root, not whichever child directory a shell happens to use. The Skill displays the resolved absolute target and asks the user to choose when multiple workspace roots make it ambiguous.
 
@@ -140,8 +140,9 @@ Project scope manages `<target>/.codex/config.toml`, `<target>/.codex/agents/`, 
 ## Conflicts and ownership
 
 - Preserve unrelated config, roles, instructions, comments, and explicit `false` values.
-- Stop before writing on malformed TOML, unsafe path types, duplicate identities, filename/identity conflicts, or an applicable `AGENTS.override.md`.
-- Project/global duplicate seed names prevent setup and check. They do not prevent an explicit remove from one selected scope, because remove is the recovery path.
+- Setup, check, and remove inspect only their selected KISS config and AGENTS paths plus the three exact bundled role targets in that scope. They do not parse other role files or roles in the opposite scope.
+- Stop before writing when a selected managed path has an unsafe type, the selected config or an exact bundled target has invalid TOML, an exact bundled target has missing identity fields or a `name` different from its filename, managed ownership is ambiguous, or an applicable `AGENTS.override.md` exists.
+- Duplicate identities in other files and project/global duplicate role names do not block KISS setup or check. The Host owns catalog warnings and project-over-global precedence; KISS does not reconcile them.
 - Every existing role is user-owned and preserved byte-for-byte. Setup never compares it with historical seeds, assigns it a version, or migrates it. A later setup does not restore a deliberately deleted starter.
 - Explicit remove deletes marked config assignments, the managed AGENTS block, and bundled roles whose bytes exactly match a current or known v0.1 seed. Other role files remain user-owned.
 
