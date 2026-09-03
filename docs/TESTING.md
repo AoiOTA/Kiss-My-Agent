@@ -53,7 +53,7 @@ Run setup scenarios only in disposable projects and an explicitly isolated Codex
 Required scenarios cover:
 
 - pristine project setup, repeated setup, check, and remove;
-- paired master defaults added only when both keys are absent and the managed block is absent or recognized as outdated, with one existing key or a current block leaving any companion absent;
+- mutually exclusive managed-block classification: a current block never receives missing master keys; an absent or recognized-outdated block receives the pair only when both keys are absent; otherwise existing assignments are preserved and each missing key remains absent for inheritance;
 - each missing feature switch added independently, while marked and unmarked values for all four paths, unrelated config, comments, newline style, AGENTS content, and existing roles are preserved;
 - intentional `false` values and deliberately deleted seed roles;
 - malformed TOML, unsafe path types, `AGENTS.override.md`, duplicate names, filename/identity mismatch, and project/global conflicts;
@@ -118,19 +118,19 @@ Test a department lead only for a large independent disposable subsystem whose d
 
 Before tagging, run the dependency-free local core checks and require the complete native pull-request CI for the exact candidate commit. Those results are candidate evidence, not public install or live Host evidence.
 
-After the pull request is merged and the exact commit has been tagged and pushed as `v0.2.3`, use isolated public installs to run the bounded release checks:
+After the pull request is merged and the exact commit has been tagged and pushed as `v0.2.4`, use isolated public installs to run the bounded release checks:
 
 ```bash
 codex plugin marketplace upgrade kiss-my-agent
 codex plugin list
 ```
 
-The immutable `v0.2.0`, `v0.2.1`, and `v0.2.2` tags have no GitHub Release. Post-tag v0.2.2 public fresh install and marketplace upgrade passed, but its public legacy-role transition stopped before writing because the Plugin resource workdir/path could not be resolved; therefore v0.2.2 received no Release. For v0.2.3, test only this bounded sequence:
+The immutable `v0.2.0`, `v0.2.1`, `v0.2.2`, and `v0.2.3` tags have no GitHub Release. Post-tag v0.2.2 public fresh install and marketplace upgrade passed, but its public legacy-role transition stopped before writing because the Plugin resource workdir/path could not be resolved; therefore v0.2.2 received no Release. The annotated v0.2.3 tag is preserved without a Release because public gate D exposed ambiguous `current` wording for the v0.1 fixture: an `outdated` managed block with both master keys absent must receive the pair. The setup-lifecycle change in v0.2.4 only clarifies this mutually exclusive classification; the same release also folds observed command/harness failures and lessons from tag trials into the existing KISS engineering/evidence Rules.
 
-1. Complete a public fresh install and confirm the installed cache reports and loads `0.2.3` in a trusted new session.
-2. In an empty disposable project, run fresh setup and confirm all three current starter role files are created. Open another new session and actually spawn one discovered KISS role on a narrow harmless task. Then delete one starter, rerun setup and check in that same project, and confirm the role remains intentionally absent.
-3. In the disposable v0.1-managed fixture, retain the before bytes for every role file and run current setup. Require the managed block to become current and, when both master keys were absent, require the pair to be added together. Confirm every role file equals its before bytes by direct byte comparison.
-4. Exercise the documented pinned rollback, confirm ordinary upgrade remains pinned, and use the documented remove plus unpinned-add sequence to restore the current channel.
+Reuse the already-passed and unaffected v0.2.3 evidence for gates A/B/C—public fresh install, fresh setup plus role discovery, and intentional starter absence—without repeating those checks. For v0.2.4, run only the remaining bounded sequence:
+
+1. Rerun gate D in the disposable v0.1-managed fixture. Retain the before bytes for every role file and run current setup. Require the managed block to become current, require the master pair to be added when both keys were absent, preserve the existing public feature assignments, and confirm every role file equals its before bytes by direct byte comparison.
+2. Complete gate E: pin the v0.1.0 marketplace and confirm an ordinary upgrade remains pinned, then remove that fixed source, restore the unpinned current channel, and confirm it resolves to v0.2.4.
 
 These checks do not require role migration, role hashes, induced failure, or a repeated matrix. Only after the sequence passes may the maintainer create the GitHub Release. If a check fails, preserve the pushed tag, do not move it, and release a corrective patch version instead. Preserve the first decisive failure.
 

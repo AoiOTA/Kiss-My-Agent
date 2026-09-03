@@ -49,7 +49,7 @@ codex plugin add kiss-my-agent@kiss-my-agent
 codex plugin list
 ```
 
-v0.2.3 tag 发布后，列表中应看到 `kiss-my-agent@kiss-my-agent` 的状态为 `installed, enabled`，版本为 `0.2.3`；cache path 可以不同。如果 Plugin 命令、认证或 marketplace 访问失败，请检查客户端支持、login 状态、`git` 与 GitHub 网络。简单一次性任务安装后直接使用普通单对话。复杂项目若需要持久 workflow，请启动新会话。Plugin cache roles 不会自动加入 Host catalog。在已测试的 Codex 0.152.1 baseline 上，输入 `$` 并在 picker 中选择 `kiss-my-agent-setup (kiss-my-agent)`。Picker 会插入一个结构化 Skill reference；继续补充 setup 请求并提交 prompt 后，才会调用该 Skill。如果直接粘贴文字，运行 `$kiss-my-agent:kiss-my-agent-setup set up this project`。Host 提示时信任项目；随后另开新会话并运行 `$kiss-my-agent:kiss-my-agent-setup check this project`。
+v0.2.4 tag 发布后，列表中应看到 `kiss-my-agent@kiss-my-agent` 的状态为 `installed, enabled`，版本为 `0.2.4`；cache path 可以不同。如果 Plugin 命令、认证或 marketplace 访问失败，请检查客户端支持、login 状态、`git` 与 GitHub 网络。简单一次性任务安装后直接使用普通单对话。复杂项目若需要持久 workflow，请启动新会话。Plugin cache roles 不会自动加入 Host catalog。在已测试的 Codex 0.152.1 baseline 上，输入 `$` 并在 picker 中选择 `kiss-my-agent-setup (kiss-my-agent)`。Picker 会插入一个结构化 Skill reference；继续补充 setup 请求并提交 prompt 后，才会调用该 Skill。如果直接粘贴文字，运行 `$kiss-my-agent:kiss-my-agent-setup set up this project`。Host 提示时信任项目；随后另开新会话并运行 `$kiss-my-agent:kiss-my-agent-setup check this project`。
 
 <a id="after-setup"></a>
 ## Setup 后该怎么用？
@@ -76,7 +76,7 @@ v0.2.3 tag 发布后，列表中应看到 `kiss-my-agent@kiss-my-agent` 的状�
 <a id="configure"></a>
 ## 如何配置 Master 或初始 Agents？
 
-Bundled defaults 使用 `gpt-5.6-sol`：Master 为 `max`，`kiss_explorer` 与 `kiss_coder` 为 `high`，`kiss_reviewer` 为 `xhigh`。Host 与账号必须支持这些值。只有两个 Master keys 都缺失，且 managed block 缺失或被识别为 outdated 时，才成对添加 Master defaults。已有 keys 会保留，current block 下缺失的 companion 继续缺失，后续 setup 或 Plugin update 不会重置选择。
+Bundled defaults 使用 `gpt-5.6-sol`：Master 为 `max`，`kiss_explorer` 与 `kiss_coder` 为 `high`，`kiss_reviewer` 为 `xhigh`。Host 与账号必须支持这些值。Managed block 分类互斥：current block 绝不补缺失的 Master keys；block 缺失或被识别为 outdated 时，只有两个 keys 都缺失才补入这一对；其他情况都保留已有 assignments，并让每个缺失 key 继续缺失和继承。后续 setup 或 Plugin update 不会重置这些选择。
 
 Master 不是 role，role wizard 不能修改它。Project setup 编辑 `<project>/.codex/config.toml`；global setup 编辑 `$CODEX_HOME/config.toml`，未设置 `CODEX_HOME` 时编辑 `~/.codex/config.toml`。如果这些值不受支持导致 Master 无法启动，请用临时 CLI override 启动一次，修复持久 config 后另开新会话：
 
@@ -113,7 +113,7 @@ codex plugin marketplace upgrade kiss-my-agent
 codex plugin list
 ```
 
-在已验证的 Codex 0.152.1 baseline 上，Host 会在启动时自动刷新默认的 unpinned Git marketplace，并重新安装已启用的 non-curated Plugin。KISS My Agent 自身没有 updater，其他 Codex 版本的行为可能不同。v0.2.3 发布且上面命令完成后，应看到 `kiss-my-agent@kiss-my-agent` 为 `installed, enabled`，版本是 `0.2.3`。更新改变已安装 Plugin 后，请启动新会话。
+在已验证的 Codex 0.152.1 baseline 上，Host 会在启动时自动刷新默认的 unpinned Git marketplace，并重新安装已启用的 non-curated Plugin。KISS My Agent 自身没有 updater，其他 Codex 版本的行为可能不同。v0.2.4 发布且上面命令完成后，应看到 `kiss-my-agent@kiss-my-agent` 为 `installed, enabled`，版本是 `0.2.4`。更新改变已安装 Plugin 后，请启动新会话。
 
 自动 refresh 和显式 marketplace upgrade 都只更新 Plugin 包，不会修改 project/global config、instructions 或角色文件。v0.1-managed 项目更新后可以运行 setup，刷新 managed instruction block 并补充缺失的公开开关，但所有已有角色都直接保持不变。如需采用新版 model 或 effort，请使用 role wizard 或手工编辑角色 TOML。
 
@@ -132,7 +132,7 @@ codex plugin list
 <a id="existing-files"></a>
 ## 已经有 config、AGENTS 或角色文件怎么办？
 
-Setup 管理四项 settings，但不会逐项独立补齐。只有两个 Master keys 都缺失，且 managed block 缺失或被识别为 outdated 时，才成对添加 model/effort；任一 key 已存在，或者 current block 下缺少任一 key 时，已有状态与缺失 companion 都会保留。两个公开开关各自在缺失时添加。已有带 marker 或不带 marker 的 assignments、无关内容、显式 `false` 与所有已有角色都逐字节保留。遇到无效 TOML、不安全路径类型、重复 identity、ownership 冲突、project/global starter-role 冲突或适用的 `AGENTS.override.md` 时，会在写入前停止。
+Setup 管理四项 settings，但不会逐项独立补齐。Managed block 分类互斥：current block 绝不补缺失的 Master keys；block 缺失或被识别为 outdated 时，只有两个 keys 都缺失才补入这一对；其他情况都保留已有 assignments，并让每个缺失 key 继续缺失和继承。两个公开开关各自在缺失时添加。已有带 marker 或不带 marker 的 assignments、无关内容、显式 `false` 与所有已有角色都逐字节保留。遇到无效 TOML、不安全路径类型、重复 identity、ownership 冲突、project/global starter-role 冲突或适用的 `AGENTS.override.md` 时，会在写入前停止。
 
 请按报告中的原因和准确路径解决冲突，不覆盖用户工作，然后重跑同一个 setup 命令。完整策略见[安装](INSTALLATION.zh-CN.md#collision-policy)。
 

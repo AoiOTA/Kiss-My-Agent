@@ -47,10 +47,7 @@ Complete the full preflight before the first write or deletion.
 1. Resolve the selected base, config, roles, instructions, override, opposite-catalog, and action-applicable bundled-seed paths. Project setup requires an existing directory. Never turn a project request into global setup.
 2. Inspect path metadata. Reject a symlinked managed file or directory, a managed path with the wrong file type, or a path whose type cannot be established safely.
 3. Stop if `AGENTS.override.md` exists at the selected base. Do not write an ineffective lower-priority `AGENTS.md`.
-4. Read the complete current config, instructions, every role TOML in the selected catalog, and the opposite catalog. Keep exact before-content for any path that could change. Read bundled assets only as required by the selected action:
-   - `setup`: after classifying the managed block, read and identity-check a current seed only for a missing role that fresh setup may create. Do not read current seeds for existing roles or any known v0.1 seed.
-   - `check`: do not read current or known v0.1 role assets. Inspect role identity and catalog structure without version comparison.
-   - `remove`: read current and known v0.1 role seeds as exact bytes and verify each parsed identity matches its filename before comparing a corresponding existing role.
+4. Read the complete current config, instructions, every role TOML in the selected catalog, and the opposite catalog. Keep exact before-content for any path that could change.
 5. Parse TOML with the Host's available configuration understanding. If syntax, table shape, assignment ownership, encoding, or role identity is ambiguous, stop without writing instead of repairing by guesswork.
 6. Require every role TOML to have non-empty string `name`, `description`, and `developer_instructions` fields and a unique `name` in its catalog.
 7. Stop on any of these selected-scope conflicts:
@@ -58,8 +55,13 @@ Complete the full preflight before the first write or deletion.
    - another filename in the same catalog declares a bundled seed name;
    - the managed block has unequal, duplicate, reversed, or nested markers;
    - a managed config key occurs more than once or has the wrong type: `model` and `model_reasoning_effort` must be non-empty strings, while `features.multi_agent` and `agents.enabled` must be booleans.
-8. For `setup` and `check`, also stop when a bundled seed name appears in both project and global catalogs. Do not apply this cross-scope rejection to `remove`: removing one selected scope is the recovery path for that conflict, while every selected-scope path and identity check still applies.
-9. Immediately before each mutation, re-read every planned target: an already-written target must still equal this operation's exact after-content, while a pending target must still equal its preflight before-content. If any target differs, stop and restore only already-applied KISS changes whose after-content still matches exactly. Remove a directory created by this operation during rollback only when it is still empty.
+8. After the preceding marker-conflict check and before making any setup decision, classify the managed block as exactly one mutually exclusive state: `absent` when neither marker exists; `outdated` when one well-formed block exists but its complete delimited content differs from the current block above; or `current` when that content equals the current block exactly.
+9. Read bundled assets only as required by the selected action:
+   - `setup`: after classifying the managed block, read and identity-check a current seed only for a missing role that fresh setup may create. Do not read current seeds for existing roles or any known v0.1 seed.
+   - `check`: do not read current or known v0.1 role assets. Inspect role identity and catalog structure without version comparison.
+   - `remove`: read current and known v0.1 role seeds as exact bytes and verify each parsed identity matches its filename before comparing a corresponding existing role.
+10. For `setup` and `check`, also stop when a bundled seed name appears in both project and global catalogs. Do not apply this cross-scope rejection to `remove`: removing one selected scope is the recovery path for that conflict, while every selected-scope path and identity check still applies.
+11. Immediately before each mutation, re-read every planned target: an already-written target must still equal this operation's exact after-content, while a pending target must still equal its preflight before-content. If any target differs, stop and restore only already-applied KISS changes whose after-content still matches exactly. Remove a directory created by this operation during rollback only when it is still empty.
 
 ## Setup
 
@@ -67,7 +69,8 @@ Apply only the following changes:
 
 - Config:
   - Treat the master model/effort pair and both feature values as initial defaults, not enforcement. Setup never resets an existing value during setup or a later plugin update.
-  - Add the marked pair `model = "gpt-5.6-sol"` and `model_reasoning_effort = "max"` before the first TOML table only when both top-level keys are absent and the managed block was either absent or well-formed but outdated at preflight. If either key already exists, preserve it and leave the missing key absent as intentional inheritance. When the current managed block exists, one or both missing keys are intentional user changes and setup adds neither.
+  - When both top-level master keys are absent, add the marked pair `model = "gpt-5.6-sol"` and `model_reasoning_effort = "max"` before the first TOML table only when the block state is `absent` or `outdated`. When the block state is `current`, add neither because their absence records intentional user removal.
+  - When either top-level master key already exists, in every block state (`absent`, `outdated`, or `current`) preserve each existing master assignment and leave the other key absent as intentional inheritance.
   - If `features.multi_agent` or `agents.enabled` is absent, add the marked `true` assignment to its existing table or append a new table.
   - Preserve any existing value for all four managed config paths and its complete assignment line, whether marked or unmarked. Report a `false` feature value observed in the selected config as `disabled`; never silently replace an existing model or effort. The marker controls remove ownership only, not whether setup may change a value.
   - Preserve comments, unrelated keys, table order, encoding, and the file's newline style when the editing tool supports them. Stop if a safe minimal merge is not possible.
@@ -91,7 +94,7 @@ File success is static setup evidence only. It does not prove that the selected 
 
 `check` is read-only. Run the same path, TOML, marker, role-identity, and cross-scope conflict inspection without repairing anything. Do not read role seed assets, compare role content to seeds, or infer a role version. Report each correctly identified existing bundled role as `present user-owned`; report a missing bundled role as `intentionally absent` when a well-formed managed block exists.
 
-Classify the managed block separately as `current`, `outdated`, or `absent`. A block is `current` only when the complete delimited content equals the current block above. Define a setup trace as any KISS-marked config assignment, any KISS managed-block marker, or any role declaring a bundled seed identity.
+Use the same mutually exclusive `absent`, `outdated`, or `current` managed-block classification and report it separately. Define a setup trace as any KISS-marked config assignment, any KISS managed-block marker, or any role declaring a bundled seed identity.
 
 Report one of:
 

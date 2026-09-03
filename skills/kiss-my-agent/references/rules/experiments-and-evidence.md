@@ -8,6 +8,8 @@ State the research question, primary variable, controlled variables, core metric
 
 Choose the minimum valid run that can answer the research question, execute the real path, observe actual outputs and failures without masking their causes, and use that result to iterate or stop.
 
+When a behavior question does not require public distribution, use a mutable disposable candidate before creating an immutable release tag, and create the tag only after those pre-tag questions pass. After tagging, run only the shortest checks that genuinely depend on the public distribution or tag; reserve a patch release in this flow for a product defect first exposed by those public-only checks, while harness or environment failures are repaired in their owning path and the same tag is retested; do not use a tag as a disposable test fixture. This sequencing preserves rather than replaces real public-path validation.
+
 Classify outcomes by failed precondition, not desirability. Valid negative means the planned inputs, execution, observations, and evaluator were intact but the product outcome was adverse or neutral. Invalid means a required precondition or measurement path failed, so the product hypothesis was not tested. Preserve both records without converting one into the other.
 
 ## Discriminating the active evidence

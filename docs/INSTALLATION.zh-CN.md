@@ -7,7 +7,7 @@
 <a id="release-status"></a>
 ## 发布状态
 
-当前 release candidate metadata 指向 `v0.2.3`；此 source state 不声称对应 tag 或 GitHub Release 已经存在。Immutable `v0.2.0`、`v0.2.1` 与 `v0.2.2` tags 都没有 GitHub Release。v0.2.2 post-tag 的 public fresh install 与 marketplace upgrade 已通过，但 public legacy-role transition 因无法解析 Plugin resource workdir/path 而在写入前停止，因此没有创建 v0.2.2 Release。v0.2.3 从 setup 中移除角色迁移：角色一旦存在即归用户所有。已有 `v0.1.0` tag 与项目文件保持不变。
+当前 release candidate metadata 指向 `v0.2.4`；此 source state 不声称对应 tag 或 GitHub Release 已经存在。Immutable `v0.2.0`、`v0.2.1`、`v0.2.2` 与 `v0.2.3` tags 都没有 GitHub Release。v0.2.2 post-tag 的 public fresh install 与 marketplace upgrade 已通过，但 public legacy-role transition 因无法解析 Plugin resource workdir/path 而在写入前停止，因此没有创建 v0.2.2 Release。Annotated v0.2.3 tag 保留但没有 Release，因为 public gate D 暴露了 v0.1 fixture 中 `current` 措辞的双义：`outdated` managed block 在两个 Master keys 都缺失时必须补入这一对。v0.2.4 中的 setup-lifecycle 改动只澄清这一互斥分类；同一版本还把已观察的 command/harness failures 与 tag 试错经验收敛进现有 KISS engineering/evidence Rules。User-owned role 行为以及已有 `v0.1.0` tag 与项目文件保持不变。
 
 <a id="requirements"></a>
 ## 用户环境要求
@@ -34,7 +34,7 @@ codex plugin add kiss-my-agent@kiss-my-agent
 codex plugin list
 ```
 
-v0.2.3 tag 发布后，列表中应看到 Plugin ID `kiss-my-agent@kiss-my-agent`、状态 `installed, enabled`、版本 `0.2.3`；cache path 可以不同。安装后启动新的已认证 Codex 会话。已经运行的会话不保证发现刚安装的 Plugin 或 Skill。
+v0.2.4 tag 发布后，列表中应看到 Plugin ID `kiss-my-agent@kiss-my-agent`、状态 `installed, enabled`、版本 `0.2.4`；cache path 可以不同。安装后启动新的已认证 Codex 会话。已经运行的会话不保证发现刚安装的 Plugin 或 Skill。
 
 <a id="first-use"></a>
 ## 第一次使用
@@ -60,7 +60,7 @@ Setup 完成后直接正常使用 Codex。项目 instructions 要求 Master 调�
 
 项目 setup 只管理明确选择的目标：
 
-- `.codex/config.toml`：管理四项 settings——成对的初始 Master defaults `model = "gpt-5.6-sol"` 与 `model_reasoning_effort = "max"`，以及两个公开启用开关。只有两个 Master keys 都缺失，且 managed block 缺失或被识别为 outdated 时，才添加这一对。任一 key 已存在，或者 current block 下缺少任一 key 时，setup 会保留当前状态并让缺失 companion 继续缺失。两个 feature switches 各自在缺失时添加。
+- `.codex/config.toml`：管理四项 settings——成对的初始 Master defaults `model = "gpt-5.6-sol"` 与 `model_reasoning_effort = "max"`，以及两个公开启用开关。Managed block 分类互斥：current block 绝不补缺失的 Master keys；block 缺失或被识别为 outdated 时，只有两个 keys 都缺失才补入这一对；其他情况都保留已有 assignments，并让每个缺失 key 继续缺失和继承。两个 feature switches 各自在缺失时添加。
 - `.codex/agents/`：fresh setup 会创建每个缺失的可编辑 starter role；`kiss_explorer` 与 `kiss_coder` 使用 `gpt-5.6-sol` / `high`，`kiss_reviewer` 使用 `gpt-5.6-sol` / `xhigh`。任何已经存在的角色都归用户所有并逐字节保持不变。Setup 后缺失的 starter 是合法且有意缺失的 catalog entry，不会重建。
 - `AGENTS.md`：追加一个有界的 KISS managed block，并保留原有 instructions。
 
@@ -105,8 +105,9 @@ $kiss-my-agent:kiss-my-agent-setup configure global agents
 
 | 已有状态 | 必须采取的行为 |
 | --- | --- |
-| 两个 Master keys 都缺失，且 managed block 缺失或被识别为 outdated | 成对添加带 marker 的 model/effort。 |
-| 任一 Master key 已存在，或 current setup 后缺少任一 key | 保留已有 assignment，让缺失 companion 继续缺失；绝不逐 key 补齐该 pair。 |
+| Managed block 为 current，无论哪些 Master keys 存在 | 保留已有 assignments，让每个缺失 key 继续缺失和继承。 |
+| Managed block 缺失或被识别为 outdated，且两个 Master keys 都缺失 | 成对添加带 marker 的 model/effort。 |
+| Managed block 缺失或被识别为 outdated，且任一 Master key 已存在 | 保留已有 assignments，让缺失 companion 继续缺失和继承；绝不逐 key 补齐该 pair。 |
 | 任一公开开关缺失 | 只添加该项带 marker 的 `true` assignment。 |
 | 公开开关已有值，无论带不带 marker | 完整保留，包括 `false`。 |
 | 无关 config keys 或 AGENTS 内容 | 保留。 |
@@ -130,7 +131,7 @@ codex plugin marketplace upgrade kiss-my-agent
 codex plugin list
 ```
 
-KISS My Agent 自身没有 updater。在已测试的 Codex 0.152.1 baseline 上，Host 可在启动时刷新 unpinned Git marketplace，并重新安装已启用的 non-curated Plugin；其他版本可能不同。v0.2.3 发布且上面命令完成后，应确认 `kiss-my-agent@kiss-my-agent` 为 `installed, enabled`，版本是 `0.2.3`。更新改变已安装 Plugin 后，应启动新会话。
+KISS My Agent 自身没有 updater。在已测试的 Codex 0.152.1 baseline 上，Host 可在启动时刷新 unpinned Git marketplace，并重新安装已启用的 non-curated Plugin；其他版本可能不同。v0.2.4 发布且上面命令完成后，应确认 `kiss-my-agent@kiss-my-agent` 为 `installed, enabled`，版本是 `0.2.4`。更新改变已安装 Plugin 后，应启动新会话。
 
 Host refresh 只更新 Plugin 包，不会修改 project/global config、AGENTS instructions 或角色文件。v0.1-managed 项目升级后，可以运行 `$kiss-my-agent:kiss-my-agent-setup set up this project` 来刷新 managed instruction block 并补充缺失的公开开关，但所有已有角色文件都直接保持不变。Setup 永不拿已有角色与历史 bundled seeds 比较、判定其版本或迁移它。若要采用新版 model 或 effort，请使用 existing-role wizard 或手工编辑角色 TOML。
 
@@ -139,7 +140,7 @@ Host refresh 只更新 Plugin 包，不会修改 project/global config、AGENTS 
 ```bash
 codex plugin remove kiss-my-agent@kiss-my-agent
 codex plugin marketplace remove kiss-my-agent
-codex plugin marketplace add AoiOTA/Kiss-My-Agent@v0.2.3
+codex plugin marketplace add AoiOTA/Kiss-My-Agent@v0.2.4
 codex plugin add kiss-my-agent@kiss-my-agent
 ```
 

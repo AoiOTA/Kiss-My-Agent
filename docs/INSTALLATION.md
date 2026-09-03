@@ -7,7 +7,7 @@
 <a id="release-status"></a>
 ## Release status
 
-The release candidate metadata points to `v0.2.3`; this source state does not claim that the tag or GitHub Release already exists. The immutable `v0.2.0`, `v0.2.1`, and `v0.2.2` tags have no GitHub Release. Post-tag v0.2.2 public fresh install and marketplace upgrade passed, but the public legacy-role transition stopped before writing because the Plugin resource workdir/path could not be resolved, so no v0.2.2 Release was created. v0.2.3 removes role migration from setup: roles are user-owned as soon as they exist. The existing `v0.1.0` tag and project files remain untouched.
+The release candidate metadata points to `v0.2.4`; this source state does not claim that the tag or GitHub Release already exists. The immutable `v0.2.0`, `v0.2.1`, `v0.2.2`, and `v0.2.3` tags have no GitHub Release. Post-tag v0.2.2 public fresh install and marketplace upgrade passed, but the public legacy-role transition stopped before writing because the Plugin resource workdir/path could not be resolved, so no v0.2.2 Release was created. The annotated v0.2.3 tag is preserved without a Release because public gate D exposed ambiguous `current` wording for the v0.1 fixture: an `outdated` managed block with both master keys absent must receive the pair. The setup-lifecycle change in v0.2.4 only clarifies this mutually exclusive classification; the same release also folds observed command/harness failures and lessons from tag trials into the existing KISS engineering/evidence Rules. User-owned role behavior and the existing `v0.1.0` tag and project files remain unchanged.
 
 <a id="requirements"></a>
 ## User requirements
@@ -34,7 +34,7 @@ codex plugin add kiss-my-agent@kiss-my-agent
 codex plugin list
 ```
 
-After the v0.2.3 tag is published, expect Plugin ID `kiss-my-agent@kiss-my-agent`, status `installed, enabled`, and version `0.2.3`. Cache paths may differ. Start a new authenticated Codex session after installation. A session that was already running is not guaranteed to discover a newly installed Plugin or Skill.
+After the v0.2.4 tag is published, expect Plugin ID `kiss-my-agent@kiss-my-agent`, status `installed, enabled`, and version `0.2.4`. Cache paths may differ. Start a new authenticated Codex session after installation. A session that was already running is not guaranteed to discover a newly installed Plugin or Skill.
 
 <a id="first-use"></a>
 ## First use
@@ -60,7 +60,7 @@ When you need live discovery evidence, run `/skills` in that fresh session and c
 
 Project setup manages only the selected target:
 
-- `.codex/config.toml`: manages four settings—the paired initial master defaults `model = "gpt-5.6-sol"` and `model_reasoning_effort = "max"`, plus the two public enablement switches. It adds the master pair only when both keys are absent and the managed block is absent or recognized as outdated. If either key exists, or either is absent under a current block, setup preserves the current state and leaves any missing companion absent. Each missing feature switch is added independently.
+- `.codex/config.toml`: manages four settings—the paired initial master defaults `model = "gpt-5.6-sol"` and `model_reasoning_effort = "max"`, plus the two public enablement switches. The managed-block classifications are mutually exclusive: a current block never receives missing master keys; an absent or recognized-outdated block receives the pair only when both keys are absent; otherwise existing assignments are preserved and each missing key remains absent for inheritance. Each missing feature switch is added independently.
 - `.codex/agents/`: during fresh setup, installs any missing editable starter role with `gpt-5.6-sol` / `high` for `kiss_explorer` and `kiss_coder`, and `gpt-5.6-sol` / `xhigh` for `kiss_reviewer`. Every role that already exists is user-owned and remains byte-for-byte unchanged. After setup, an absent starter is a valid intentionally absent catalog entry and is not recreated.
 - `AGENTS.md`: appends one bounded KISS managed block while preserving existing instructions.
 
@@ -105,8 +105,9 @@ It manages `config.toml`, `agents/`, and the KISS block in `AGENTS.md` under `$C
 
 | Existing state | Required behavior |
 | --- | --- |
-| Both master keys absent and the managed block absent or recognized as outdated | Add the marked model/effort pair together. |
-| Either master key already exists, or either is absent after current setup | Preserve existing assignments and leave any missing companion absent; never fill the pair one key at a time. |
+| Managed block current, regardless of which master keys are present | Preserve existing assignments and leave every missing key absent for inheritance. |
+| Managed block absent or recognized as outdated, and both master keys absent | Add the marked model/effort pair together. |
+| Managed block absent or recognized as outdated, and either master key exists | Preserve existing assignments and leave any missing companion absent for inheritance; never fill the pair one key at a time. |
 | Either public switch absent | Add only that missing marked `true` assignment. |
 | Existing public switch, marked or unmarked | Preserve its complete assignment, including `false`. |
 | Unrelated config keys or AGENTS content | Preserve them. |
@@ -130,7 +131,7 @@ codex plugin marketplace upgrade kiss-my-agent
 codex plugin list
 ```
 
-KISS My Agent has no updater of its own. On the tested Codex 0.152.1 baseline, the Host can refresh an unpinned Git marketplace at startup and reinstall an enabled non-curated Plugin; other versions may differ. After v0.2.3 is published and the commands above complete, verify that `kiss-my-agent@kiss-my-agent` is `installed, enabled` at version `0.2.3`. Start a new session after an update changes the installed Plugin.
+KISS My Agent has no updater of its own. On the tested Codex 0.152.1 baseline, the Host can refresh an unpinned Git marketplace at startup and reinstall an enabled non-curated Plugin; other versions may differ. After v0.2.4 is published and the commands above complete, verify that `kiss-my-agent@kiss-my-agent` is `installed, enabled` at version `0.2.4`. Start a new session after an update changes the installed Plugin.
 
 Host refresh updates only the Plugin package. It does not modify project or global config, AGENTS instructions, or role files. For a v0.1-managed project, you may run `$kiss-my-agent:kiss-my-agent-setup set up this project` after upgrading to refresh the managed instruction block and add missing public switches, but every existing role file remains directly unchanged. Setup never compares existing roles with bundled historical seeds, assigns them a version, or migrates them. To adopt a newer model or effort, use the existing-role wizard or edit the role TOML manually.
 
@@ -139,7 +140,7 @@ If you require marketplace movement to happen only after an explicit action, rep
 ```bash
 codex plugin remove kiss-my-agent@kiss-my-agent
 codex plugin marketplace remove kiss-my-agent
-codex plugin marketplace add AoiOTA/Kiss-My-Agent@v0.2.3
+codex plugin marketplace add AoiOTA/Kiss-My-Agent@v0.2.4
 codex plugin add kiss-my-agent@kiss-my-agent
 ```
 
