@@ -7,12 +7,12 @@
 <a id="release-status"></a>
 ## 发布状态
 
-当前 release candidate metadata 指向 `v0.2.4`；此 source state 不声称对应 tag 或 GitHub Release 已经存在。Immutable `v0.2.0`、`v0.2.1`、`v0.2.2` 与 `v0.2.3` tags 都没有 GitHub Release。v0.2.2 post-tag 的 public fresh install 与 marketplace upgrade 已通过，但 public legacy-role transition 因无法解析 Plugin resource workdir/path 而在写入前停止，因此没有创建 v0.2.2 Release。Annotated v0.2.3 tag 保留但没有 Release，因为 public gate D 暴露了 v0.1 fixture 中 `current` 措辞的双义：`outdated` managed block 在两个 Master keys 都缺失时必须补入这一对。v0.2.4 中的 setup-lifecycle 改动只澄清这一互斥分类；同一版本还把已观察的 command/harness failures 与 tag 试错经验收敛进现有 KISS engineering/evidence Rules。User-owned role 行为以及已有 `v0.1.0` tag 与项目文件保持不变。
+[GitHub 最新 Release](https://github.com/AoiOTA/Kiss-My-Agent/releases/latest) 是当前支持的 release。当前安装产物以它为准，发布证据与历史见 [HANDOFF](HANDOFF.md)。
 
 <a id="requirements"></a>
 ## 用户环境要求
 
-已测试基线是已认证且支持 Plugin 的 Codex CLI 0.152.1。安装和更新还需要 `PATH` 中可用的 `git` executable、GitHub 网络访问，以及账号支持 bundled default model `gpt-5.6-sol`。更早 Codex 版本未验证。项目 setup、检查、移除和 Agent 配置使用 Codex 自带的文件工具。用户不需要 Python、Node.js、Docker 或包管理器。
+已测试基线是已认证且支持 Plugin 的 Codex CLI 0.152.1 和 0.153.0。安装和更新还需要 `PATH` 中可用的 `git` executable、GitHub 网络访问，以及账号支持 bundled default model `gpt-5.6-sol`。其他 Codex 版本未验证。项目 setup、检查、移除和 Agent 配置使用 Codex 自带的文件工具。用户不需要 Python、Node.js、Docker 或包管理器。
 
 Python 3.11 或更高版本只供贡献者运行仓库测试和文档站点使用，不是 Plugin 运行时依赖。
 
@@ -31,10 +31,10 @@ codex plugin --help
 ```bash
 codex plugin marketplace add AoiOTA/Kiss-My-Agent
 codex plugin add kiss-my-agent@kiss-my-agent
-codex plugin list
+codex plugin list --marketplace kiss-my-agent
 ```
 
-v0.2.4 tag 发布后，列表中应看到 Plugin ID `kiss-my-agent@kiss-my-agent`、状态 `installed, enabled`、版本 `0.2.4`；cache path 可以不同。安装后启动新的已认证 Codex 会话。已经运行的会话不保证发现刚安装的 Plugin 或 Skill。
+列表中应看到 Plugin ID `kiss-my-agent@kiss-my-agent`、状态 `installed, enabled`，且版本与当前支持的 release 一致；cache path 可以不同。安装后启动新的已认证 Codex 会话。已经运行的会话不保证发现刚安装的 Plugin 或 Skill。
 
 <a id="first-use"></a>
 ## 第一次使用
@@ -128,10 +128,10 @@ Setup 停止时，请按报告中的原因和准确路径解决冲突，不覆�
 
 ```bash
 codex plugin marketplace upgrade kiss-my-agent
-codex plugin list
+codex plugin list --marketplace kiss-my-agent
 ```
 
-KISS My Agent 自身没有 updater。在已测试的 Codex 0.152.1 baseline 上，Host 可在启动时刷新 unpinned Git marketplace，并重新安装已启用的 non-curated Plugin；其他版本可能不同。v0.2.4 发布且上面命令完成后，应确认 `kiss-my-agent@kiss-my-agent` 为 `installed, enabled`，版本是 `0.2.4`。更新改变已安装 Plugin 后，应启动新会话。
+KISS My Agent 自身没有 updater。在已验证的 Codex 0.152.1 baseline 上，Host 可在启动时刷新 unpinned Git marketplace，并重新安装已启用的 non-curated Plugin；其他版本可能不同。上面命令完成后，应确认 `kiss-my-agent@kiss-my-agent` 为 `installed, enabled`，且版本与当前支持的 release 一致。更新改变已安装 Plugin 后，应启动新会话。
 
 Host refresh 只更新 Plugin 包，不会修改 project/global config、AGENTS instructions 或角色文件。v0.1-managed 项目升级后，可以运行 `$kiss-my-agent:kiss-my-agent-setup set up this project` 来刷新 managed instruction block 并补充缺失的公开开关，但所有已有角色文件都直接保持不变。Setup 永不拿已有角色与历史 bundled seeds 比较、判定其版本或迁移它。若要采用新版 model 或 effort，请使用 existing-role wizard 或手工编辑角色 TOML。
 
@@ -140,11 +140,11 @@ Host refresh 只更新 Plugin 包，不会修改 project/global config、AGENTS 
 ```bash
 codex plugin remove kiss-my-agent@kiss-my-agent
 codex plugin marketplace remove kiss-my-agent
-codex plugin marketplace add AoiOTA/Kiss-My-Agent@v0.2.4
+codex plugin marketplace add AoiOTA/Kiss-My-Agent@vX.Y.Z
 codex plugin add kiss-my-agent@kiss-my-agent
 ```
 
-代价是不再自动跟随 marketplace：在替换固定 source 之前，`marketplace upgrade` 无法跟随未来 release。若要返回上一个不可变 release，可从固定的 marketplace tag 重新安装：
+把 `vX.Y.Z` 替换为 [Releases 页面](https://github.com/AoiOTA/Kiss-My-Agent/releases)中需要的 release。代价是不再自动跟随 marketplace：在替换固定 source 之前，`marketplace upgrade` 无法跟随未来 release。若要返回上一个不可变 release，可从固定的 marketplace tag 重新安装：
 
 ```bash
 codex plugin remove kiss-my-agent@kiss-my-agent

@@ -36,7 +36,7 @@ Codex 倾向产出“看起来完整、稳健、成功”的答案。用户又�
 <a id="install"></a>
 ## 如何安装？
 
-已测试基线是已认证且支持 Plugin 的 Codex CLI 0.152.1。还需要 `git`、GitHub 网络访问和账号支持 bundled default model `gpt-5.6-sol`。更早 Codex 版本未验证。请先检查客户端：
+已测试基线是已认证且支持 Plugin 的 Codex CLI 0.152.1 和 0.153.0。还需要 `git`、GitHub 网络访问和账号支持 bundled default model `gpt-5.6-sol`。其他 Codex 版本未验证。请先检查客户端：
 
 ```bash
 codex --version
@@ -46,10 +46,10 @@ codex plugin --help
 ```bash
 codex plugin marketplace add AoiOTA/Kiss-My-Agent
 codex plugin add kiss-my-agent@kiss-my-agent
-codex plugin list
+codex plugin list --marketplace kiss-my-agent
 ```
 
-v0.2.4 tag 发布后，列表中应看到 `kiss-my-agent@kiss-my-agent` 的状态为 `installed, enabled`，版本为 `0.2.4`；cache path 可以不同。如果 Plugin 命令、认证或 marketplace 访问失败，请检查客户端支持、login 状态、`git` 与 GitHub 网络。简单一次性任务安装后直接使用普通单对话。复杂项目若需要持久 workflow，请启动新会话。Plugin cache roles 不会自动加入 Host catalog。在已测试的 Codex 0.152.1 baseline 上，输入 `$` 并在 picker 中选择 `kiss-my-agent-setup (kiss-my-agent)`。Picker 会插入一个结构化 Skill reference；继续补充 setup 请求并提交 prompt 后，才会调用该 Skill。如果直接粘贴文字，运行 `$kiss-my-agent:kiss-my-agent-setup set up this project`。Host 提示时信任项目；随后另开新会话并运行 `$kiss-my-agent:kiss-my-agent-setup check this project`。
+列表中应看到 `kiss-my-agent@kiss-my-agent` 的状态为 `installed, enabled`，且版本与当前支持的 release 一致；cache path 可以不同。如果 Plugin 命令、认证或 marketplace 访问失败，请检查客户端支持、login 状态、`git` 与 GitHub 网络。简单一次性任务安装后直接使用普通单对话。复杂项目若需要持久 workflow，请启动新会话。Plugin cache roles 不会自动加入 Host catalog。在已测试的 Codex 0.152.1 baseline 上，输入 `$` 并在 picker 中选择 `kiss-my-agent-setup (kiss-my-agent)`。Picker 会插入一个结构化 Skill reference；继续补充 setup 请求并提交 prompt 后，才会调用该 Skill。如果直接粘贴文字，运行 `$kiss-my-agent:kiss-my-agent-setup set up this project`。Host 提示时信任项目；随后另开新会话并运行 `$kiss-my-agent:kiss-my-agent-setup check this project`。
 
 <a id="after-setup"></a>
 ## Setup 后该怎么用？
@@ -57,6 +57,11 @@ v0.2.4 tag 发布后，列表中应看到 `kiss-my-agent@kiss-my-agent` 的状�
 直接正常使用 Codex，不需要每次任务前先调用 KISS。项目 `AGENTS.md` instructions 要求 Master 负责调度、决策和汇总，被委派的角色分别负责调查、实现与审查。默认由 Master 直接分配，同一角色可有多个实例，每个共享资源由一个人或 Agent 负责。合格的大型独立子系统可有一个临时 lead，但不建立更深或永久层级。
 
 如果 delegation 被禁用、不可用或没有合适角色，instructions 要求 Master 报告 staffing issue，让你选择修复 staffing 或明确把本任务切换为普通单对话。只有后者才授权直接执行。
+
+<a id="agent-reuse"></a>
+## 什么时候复用 Agent，什么时候使用 fresh Agent？
+
+同一任务、同一 owner、同一 scope 的连续工作复用原 Agent。新任务或新角色、独立 review，或者已加载的 Plugin、instructions 或 configuration 发生变化时，使用 fresh Agent。并行 Agent 上限表示可用容量，不是目标团队规模。KISS My Agent 不管理 Host 的 context window 或 compaction settings。
 
 <a id="plugin-vs-skills"></a>
 ## 这是 Plugin 还是只有一个 Skill？
@@ -110,10 +115,10 @@ Contributor interface `skills/kiss-my-agent-setup/scripts/setup.py` 已在 v0.2 
 
 ```bash
 codex plugin marketplace upgrade kiss-my-agent
-codex plugin list
+codex plugin list --marketplace kiss-my-agent
 ```
 
-在已验证的 Codex 0.152.1 baseline 上，Host 会在启动时自动刷新默认的 unpinned Git marketplace，并重新安装已启用的 non-curated Plugin。KISS My Agent 自身没有 updater，其他 Codex 版本的行为可能不同。v0.2.4 发布且上面命令完成后，应看到 `kiss-my-agent@kiss-my-agent` 为 `installed, enabled`，版本是 `0.2.4`。更新改变已安装 Plugin 后，请启动新会话。
+在已验证的 Codex 0.152.1 baseline 上，Host 会在启动时自动刷新默认的 unpinned Git marketplace，并重新安装已启用的 non-curated Plugin。KISS My Agent 自身没有 updater，其他版本的行为可能不同。上面命令完成后，应看到 `kiss-my-agent@kiss-my-agent` 为 `installed, enabled`，且版本与当前支持的 release 一致。更新改变已安装 Plugin 后，请启动新会话。
 
 自动 refresh 和显式 marketplace upgrade 都只更新 Plugin 包，不会修改 project/global config、instructions 或角色文件。v0.1-managed 项目更新后可以运行 setup，刷新 managed instruction block 并补充缺失的公开开关，但所有已有角色都直接保持不变。如需采用新版 model 或 effort，请使用 role wizard 或手工编辑角色 TOML。
 
