@@ -22,7 +22,7 @@ enabled = true
 
 The first two values select `gpt-5.6-sol` with `max` effort for the master. The switches enable the Host's multi-agent capability and custom-Agent discovery when this trusted project layer is active and no higher-priority layer overrides them. They do not select permissions, context, concurrency, trust, providers, authentication, or telemetry.
 
-These are first-setup defaults, not enforcement. Setup adds the master model and effort together only when both keys are absent during first setup or exact v0.1 migration. If either key exists, the existing value is preserved and a missing companion remains absent for inheritance. Deleting one or both keys after current setup is also an intentional user change, so later setup or Plugin updates do not restore them. Existing feature values are likewise preserved whether marked or unmarked, including an explicit `false`. Local file preservation is not a claim about the final runtime value, and static check reports each master setting as explicit or `inherit`; it does not resolve all configuration layers or prove that the Host/account supports a model or effort. Start a new session so unsupported settings surface as real load or spawn failures.
+These are initial defaults, not enforcement; a recognized outdated block may also receive the pair when both keys are absent. Setup adds the master model and effort together only when both keys are absent and the managed block is absent or recognized as outdated. If either key exists, or either is absent under a current block, the current state is preserved and a missing companion remains absent for inheritance. Deleting one or both keys after current setup is also an intentional user change, so later setup or Plugin updates do not restore them. Existing feature values are likewise preserved whether marked or unmarked, including an explicit `false`. Local file preservation is not a claim about the final runtime value, and static check reports each master setting as explicit or `inherit`; it does not resolve all configuration layers or prove that the Host/account supports a model or effort. Start a new session so unsupported settings surface as real load or spawn failures.
 
 <a id="zero-configuration"></a>
 ## Default roles set model and effort
@@ -35,7 +35,7 @@ First setup installs three editable seeds:
 | `kiss_coder` | Bounded implementation and state changes | `gpt-5.6-sol` | `high` | `workspace-write` |
 | `kiss_reviewer` | Independent read-only review | `gpt-5.6-sol` | `xhigh` | `read-only` |
 
-The current seeds explicitly set the model and effort shown above. These are editable first-setup defaults: after a user changes a role, setup preserves it. Only a role whose complete bytes still equal a known v0.1 seed is automatically migrated to the current seed.
+The current seeds explicitly set the model and effort shown above. They are editable fresh-setup defaults. A fresh setup creates only missing starters; every role that already exists is user-owned and setup never overwrites, migrates, or version-classifies it. Once setup exists, a missing starter remains intentionally absent. Plugin cache seeds are package resources and do not automatically become Host-discoverable roles.
 
 <a id="three-owners"></a>
 ## Three owners
@@ -142,8 +142,8 @@ Project scope manages `<target>/.codex/config.toml`, `<target>/.codex/agents/`, 
 - Preserve unrelated config, roles, instructions, comments, and explicit `false` values.
 - Stop before writing on malformed TOML, unsafe path types, duplicate identities, filename/identity conflicts, or an applicable `AGENTS.override.md`.
 - Project/global duplicate seed names prevent setup and check. They do not prevent an explicit remove from one selected scope, because remove is the recovery path.
-- Existing correctly identified roles are user-owned and preserved. The sole automatic role migration is an exact byte match to a known v0.1 seed, which setup replaces with its current seed. Any difference, including comments or whitespace, is preserved as a user modification. A later setup does not restore a deliberately deleted seed.
-- Remove deletes only marked config assignments, the managed AGENTS block, and bundled roles whose bytes exactly match either the current seed or its known v0.1 seed.
+- Every existing role is user-owned and preserved byte-for-byte. Setup never compares it with historical seeds, assigns it a version, or migrates it. A later setup does not restore a deliberately deleted starter.
+- Explicit remove deletes marked config assignments, the managed AGENTS block, and bundled roles whose bytes exactly match a current or known v0.1 seed. Other role files remain user-owned.
 
 <a id="disable"></a>
 ## Disable for one launch

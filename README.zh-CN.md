@@ -12,7 +12,7 @@
 
 [![许可证：MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Validate](https://github.com/AoiOTA/Kiss-My-Agent/actions/workflows/validate.yml/badge.svg)](https://github.com/AoiOTA/Kiss-My-Agent/actions/workflows/validate.yml)
-![版本：v0.2.2](https://img.shields.io/badge/release-v0.2.2-blue.svg)
+![版本：v0.2.3](https://img.shields.io/badge/release-v0.2.3-blue.svg)
 ![宿主：Codex 优先](https://img.shields.io/badge/host-Codex--first-blue.svg)
 
 </div>
@@ -109,7 +109,7 @@ $kiss-my-agent:kiss-my-agent-setup check this project
 - `.codex/agents/`：可编辑的员工角色文件
 - `AGENTS.md`：带标记的 KISS instructions 区块
 
-它会保留已有用户配置，默认不需要选择。只有目标位置或冲突不明确时才会询问。如果 setup 停止，请按报告中的原因和准确路径处理，不要覆盖文件；详见[安装](docs/INSTALLATION.zh-CN.md)。
+它会保留已有用户配置，默认不需要选择。Fresh setup 会创建每个缺失的 starter role；任何已经存在的角色都归用户所有，永不覆盖。Setup 后删除的角色会继续保持缺失。只有目标位置或冲突不明确时才会询问。如果 setup 停止，请按报告中的原因和准确路径处理，不要覆盖文件；详见[安装](docs/INSTALLATION.zh-CN.md)。
 
 Plugin 没有后台服务；真正加载配置和启动 Agents 的是 Codex Host。
 
@@ -166,9 +166,9 @@ codex plugin marketplace upgrade kiss-my-agent
 codex plugin list
 ```
 
-应看到 `kiss-my-agent@kiss-my-agent`、状态 `installed, enabled`，版本与本 README 顶部的当前 release badge 一致。更新后启动新会话。v0.1-managed 项目还要再运行一次 project setup，才能更新未修改的 KISS 文件。
+应看到 `kiss-my-agent@kiss-my-agent`、状态 `installed, enabled`，版本与本 README 顶部的当前 release badge 一致。更新后启动新会话。Host refresh 只更新 Plugin 包，不会修改 project/global 配置、instructions 或角色文件。
 
-KISS My Agent 自身没有 updater。Codex 可能在启动时刷新未固定版本的 Git marketplace。固定版本、回退和 v0.1 迁移细节见[安装](docs/INSTALLATION.zh-CN.md#update)。
+KISS My Agent 自身没有 updater。Codex 可能在启动时刷新未固定版本的 Git marketplace。已有角色不会被自动更新或判定版本；如需采用新版 model 或 effort，请使用 role wizard 或手工编辑其 TOML。固定版本与回退细节见[安装](docs/INSTALLATION.zh-CN.md#update)。
 
 <a id="limitations"></a>
 ## 局限

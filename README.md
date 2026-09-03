@@ -12,7 +12,7 @@ Reduce Codex overengineering and overdefense. Build a runnable, verifiable resea
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Validate](https://github.com/AoiOTA/Kiss-My-Agent/actions/workflows/validate.yml/badge.svg)](https://github.com/AoiOTA/Kiss-My-Agent/actions/workflows/validate.yml)
-![Release: v0.2.2](https://img.shields.io/badge/release-v0.2.2-blue.svg)
+![Release: v0.2.3](https://img.shields.io/badge/release-v0.2.3-blue.svg)
 ![Host: Codex-first](https://img.shields.io/badge/host-Codex--first-blue.svg)
 
 </div>
@@ -109,7 +109,7 @@ Default setup manages three project locations:
 - `.codex/agents/`: editable employee-role files
 - `AGENTS.md`: the marked KISS instructions block
 
-It preserves existing user configuration and needs no choices by default. It asks only when the target or a conflict is unclear. If setup stops, follow its reported reason and exact path instead of overwriting files; see [Installation](docs/INSTALLATION.md).
+It preserves existing user configuration and needs no choices by default. On a fresh setup it creates each missing starter role, while every role that already exists is user-owned and is never overwritten. A role removed after setup stays absent. Setup asks only when the target or a conflict is unclear. If setup stops, follow its reported reason and exact path instead of overwriting files; see [Installation](docs/INSTALLATION.md).
 
 The Plugin has no background service; the Codex Host loads the configuration and starts the requested Agents.
 
@@ -166,9 +166,9 @@ codex plugin marketplace upgrade kiss-my-agent
 codex plugin list
 ```
 
-Look for `kiss-my-agent@kiss-my-agent`, status `installed, enabled`, and a version matching the current release badge at the top of this README. Start a new session after an update. A v0.1-managed project also needs the project setup command once more to update its unchanged KISS files.
+Look for `kiss-my-agent@kiss-my-agent`, status `installed, enabled`, and a version matching the current release badge at the top of this README. Start a new session after an update. Host refresh updates only the Plugin package; it does not change project or global configuration, instructions, or role files.
 
-KISS My Agent has no updater of its own. Codex may refresh an unpinned Git marketplace at startup. Pinning, rollback, and v0.1 migration details are in [Installation](docs/INSTALLATION.md#update).
+KISS My Agent has no updater of its own. Codex may refresh an unpinned Git marketplace at startup. Existing roles are never automatically updated or version-classified; use the role wizard or edit their TOML manually when you want newer model or effort choices. Pinning and rollback details are in [Installation](docs/INSTALLATION.md#update).
 
 <a id="limitations"></a>
 ## Limitations

@@ -22,7 +22,7 @@ enabled = true
 
 前两个值为 master 选择 `gpt-5.6-sol` 和 `max` 思考强度。当这个可信 project layer 生效且没有更高优先级层覆盖时，两个开关会启用 Host multi-agent 能力和自定义 Agent 发现。它们不选择权限、上下文、并发、trust、provider、认证或 telemetry。
 
-这些只是首次 setup 的默认值，不是强制策略。只有首次 setup 或精确 v0.1 migration 时两个 key 都缺失，setup 才会同时添加 master model 与 effort。任一 key 已存在时，已有值会保留，缺少的 companion 继续缺失并继承；current setup 后删除一项或两项也属于用户有意修改，后续 setup 或 Plugin update 不会恢复。已有 feature 值无论 marked 或 unmarked 也会保留，其中包括显式 `false`。这种本地文件保留不代表最终 runtime 值；static check 会把每个 master setting 报告为 explicit 或 `inherit`，不会解析全部配置层，也不会证明 Host/account 支持某个模型或 effort。请启动新会话，让不支持的设置以真实 load 或 spawn failure 暴露。
+这些只是初始默认值，不是强制策略；recognized outdated block 在两个 keys 都缺失时也可补入这一对。只有两个 key 都缺失，且 managed block 缺失或被识别为 outdated 时，setup 才会同时添加 master model 与 effort。任一 key 已存在，或者 current block 下缺少任一 key 时，当前状态会保留，缺少的 companion 继续缺失并继承；current setup 后删除一项或两项也属于用户有意修改，后续 setup 或 Plugin update 不会恢复。已有 feature 值无论 marked 或 unmarked 也会保留，其中包括显式 `false`。这种本地文件保留不代表最终 runtime 值；static check 会把每个 master setting 报告为 explicit 或 `inherit`，不会解析全部配置层，也不会证明 Host/account 支持某个模型或 effort。请启动新会话，让不支持的设置以真实 load 或 spawn failure 暴露。
 
 <a id="zero-configuration"></a>
 ## 默认角色设置模型与思考强度
@@ -35,7 +35,7 @@ enabled = true
 | `kiss_coder` | 有界实现与状态修改 | `gpt-5.6-sol` | `high` | `workspace-write` |
 | `kiss_reviewer` | 独立只读审查 | `gpt-5.6-sol` | `xhigh` | `read-only` |
 
-Current seeds 显式设置上表中的 model 与 effort。这些是可编辑的首次 setup 默认值：用户修改角色后，setup 会保留它。只有完整字节仍与已知 v0.1 seed 一致的角色才会自动迁移到 current seed。
+Current seeds 显式设置上表中的 model 与 effort，是可编辑的 fresh-setup 默认值。Fresh setup 只创建缺失 starter；任何已经存在的角色都归用户所有，setup 永不覆盖、迁移或判定其版本。Setup 已存在后，缺失 starter 会保持 intentionally absent。Plugin cache seeds 只是 package resources，不会自动成为 Host 可发现角色。
 
 <a id="three-owners"></a>
 ## 三个 Owner
@@ -142,8 +142,8 @@ $kiss-my-agent:kiss-my-agent-setup remove global setup
 - 保留无关 config、角色、instructions、comments 和显式 `false`。
 - TOML 损坏、路径类型不安全、identity 重复、文件名/identity 冲突或存在适用的 `AGENTS.override.md` 时，在写入前停止。
 - project/global seed 名称重复会阻止 setup 和 check，但不会阻止从一个明确 scope 执行 remove，因为 remove 是解除该冲突的出口。
-- 已有且 identity 正确的角色归用户所有并会被保留。唯一的自动角色迁移是：setup 发现文件字节完全匹配已知 v0.1 seed 时，将其替换为 current seed。任何差异，包括 comments 或 whitespace，都按用户修改保留。后续 setup 不会恢复用户有意删除的 seed。
-- Remove 只删除带 marker 的 config assignments、managed AGENTS block，以及字节完全匹配 current seed 或对应已知 v0.1 seed 的 bundled roles。
+- 每个已有角色都归用户所有并逐字节保留。Setup 永不拿它与历史 seeds 比较、判定版本或迁移它。后续 setup 不会恢复用户有意删除的 starter。
+- 显式 remove 会删除带 marker 的 config assignments、managed AGENTS block，以及字节完全匹配 current 或 known v0.1 seed 的 bundled roles；其他角色文件仍归用户所有。
 
 <a id="disable"></a>
 ## 单次启动禁用

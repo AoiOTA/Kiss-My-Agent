@@ -1,12 +1,13 @@
 # KISS My Agent default model, effort, and enablement example.
 #
-# This file is inert at examples/config.example.toml. On first setup or exact
-# v0.1 migration, setup adds the master model/effort only when both are absent;
-# either existing key leaves its missing companion inherited. Feature defaults
-# are added independently when absent. Every existing value is preserved,
-# marked or unmarked. These are defaults, not enforcement. This inert example
-# and a static setup check do not resolve the final runtime value across Codex
-# configuration layers or prove Host/account model support.
+# This file is inert at examples/config.example.toml. Setup adds the master
+# model/effort pair only when both keys are absent and the managed block is
+# absent or well-formed outdated. Under a current block, missing master keys are
+# intentional and remain inherited. Feature defaults are added independently
+# when absent. Every existing value is preserved, marked or unmarked. These are
+# defaults, not enforcement. This inert example and a static setup check do not
+# resolve the final runtime value across Codex configuration layers or prove
+# Host/account model support.
 #
 # Standalone roles are discovered from <scope>/agents/*.toml. Do not register
 # individual role files here. The current bundled roles set gpt-5.6-sol with

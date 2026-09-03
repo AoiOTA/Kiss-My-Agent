@@ -53,7 +53,7 @@ Run setup scenarios only in disposable projects and an explicitly isolated Codex
 Required scenarios cover:
 
 - pristine project setup, repeated setup, check, and remove;
-- paired master defaults added only when both keys are absent during first setup or exact v0.1 migration, with one existing key leaving its companion absent;
+- paired master defaults added only when both keys are absent and the managed block is absent or recognized as outdated, with one existing key or a current block leaving any companion absent;
 - each missing feature switch added independently, while marked and unmarked values for all four paths, unrelated config, comments, newline style, AGENTS content, and existing roles are preserved;
 - intentional `false` values and deliberately deleted seed roles;
 - malformed TOML, unsafe path types, `AGENTS.override.md`, duplicate names, filename/identity mismatch, and project/global conflicts;
@@ -61,10 +61,10 @@ Required scenarios cover:
 - remove deleting only the four marked config assignments and current/v0.1 exact role seeds, while preserving unmarked config and modified roles;
 - configuring one selected role while all other fields and files remain unchanged;
 - restoring inheritance by removing only the selected optional key;
-- applying `gpt-5.6-sol` / `max` as the paired first-setup master default and `gpt-5.6-sol` / `high`, `high`, `xhigh` to newly created or exact-v0.1 seed roles, while preserving later user choices;
+- applying `gpt-5.6-sol` / `max` as the paired initial master default and `gpt-5.6-sol` / `high`, `high`, `xhigh` only to missing roles during fresh setup, while preserving every existing role;
 - refusal to write `danger-full-access` without its separate confirmation;
-- recognition of a project created by v0.1.0 markers as `outdated`, followed by a setup refresh that updates the managed block and exact unmodified v0.1 seeds;
-- preservation of a user-modified or ambiguously owned v0.1 role during that refresh, followed by a valid check.
+- recognition of a project created by v0.1.0 markers as `outdated`, followed by a setup refresh that may update the managed block and config but leaves all role files directly unchanged;
+- a missing starter under a current or outdated managed block reported as intentionally absent rather than recreated, outdated, or incomplete.
 
 A process or machine crash during model-driven file edits is outside transactional proof. Report it directly rather than claiming atomic recovery.
 
@@ -114,18 +114,25 @@ Confirm that the configured defaults resolve to `gpt-5.6-sol` with role efforts 
 Test a department lead only for a large independent disposable subsystem whose direct aggregation would pollute master context. Confirm there is at most one temporary intermediate layer, workers do not delegate, the assignment ends with the task, and every shared resource retains one operator. Do not manufacture hierarchy merely to exercise it.
 
 <a id="upgrade-smoke"></a>
-## Public upgrade Smoke
+## Public release Smoke
 
-Before the release pull request, test only the staged local candidate: fresh candidate installation, fresh-session discovery, narrow role Smokes, and the README newcomer Pilot. Those results are candidate evidence, not public install or upgrade evidence.
+Before tagging, run the dependency-free local core checks and require the complete native pull-request CI for the exact candidate commit. Those results are candidate evidence, not public install or live Host evidence.
 
-After the pull request is merged and the exact commit has been tagged and pushed as `v0.2.2`, use an isolated public installation to prove the supported transition:
+After the pull request is merged and the exact commit has been tagged and pushed as `v0.2.3`, use isolated public installs to run the bounded release checks:
 
 ```bash
 codex plugin marketplace upgrade kiss-my-agent
 codex plugin list
 ```
 
-The immutable `v0.2.0` tag was preserved without a GitHub Release after its post-tag test exposed raw unqualified Skill invocation. The immutable `v0.2.1` tag was also preserved without a GitHub Release because public exact-v0.1 role migration again generated a same-path Delete+Add; guarded rollback restored zero net change. Test a public v0.2.2 fresh install first. Then start from an installed v0.1.0, refresh the marketplace, confirm that the installed cache reports 0.2.2, and open a new session. Verify a v0.2 interface such as `configure agents`, run setup against a v0.1-managed disposable project, and confirm that each eligible exact-v0.1 role uses one Host-native byte-preserving copy from the current seed to the target—never a patch, same-path Delete+Add, or text re-encoding. Confirm modified model/effort choices and other edited roles remain unchanged. Exercise the documented pinned-tag rollback last; confirm an ordinary upgrade remains on that pinned channel, then use the documented remove plus unpinned-add sequence to restore the current channel. Only after all three public paths pass may the maintainer create the GitHub Release. If any fails, preserve the pushed tag, do not move it, and release a corrective patch version instead. Preserve the first decisive failure.
+The immutable `v0.2.0`, `v0.2.1`, and `v0.2.2` tags have no GitHub Release. Post-tag v0.2.2 public fresh install and marketplace upgrade passed, but its public legacy-role transition stopped before writing because the Plugin resource workdir/path could not be resolved; therefore v0.2.2 received no Release. For v0.2.3, test only this bounded sequence:
+
+1. Complete a public fresh install and confirm the installed cache reports and loads `0.2.3` in a trusted new session.
+2. In an empty disposable project, run fresh setup and confirm all three current starter role files are created. Open another new session and actually spawn one discovered KISS role on a narrow harmless task. Then delete one starter, rerun setup and check in that same project, and confirm the role remains intentionally absent.
+3. In the disposable v0.1-managed fixture, retain the before bytes for every role file and run current setup. Require the managed block to become current and, when both master keys were absent, require the pair to be added together. Confirm every role file equals its before bytes by direct byte comparison.
+4. Exercise the documented pinned rollback, confirm ordinary upgrade remains pinned, and use the documented remove plus unpinned-add sequence to restore the current channel.
+
+These checks do not require role migration, role hashes, induced failure, or a repeated matrix. Only after the sequence passes may the maintainer create the GitHub Release. If a check fails, preserve the pushed tag, do not move it, and release a corrective patch version instead. Preserve the first decisive failure.
 
 <a id="dogfooding"></a>
 ## Dogfooding during development

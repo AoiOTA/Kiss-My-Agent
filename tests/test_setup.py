@@ -16,13 +16,6 @@ V010_ASSETS = SETUP_SKILL.parent / "assets"
 BEGIN_MARKER = "<!-- BEGIN KISS MY AGENT MANAGED BLOCK -->"
 END_MARKER = "<!-- END KISS MY AGENT MANAGED BLOCK -->"
 CONFIG_MARKER = "# KISS My Agent managed"
-V010_MANAGED_BLOCK = f"""{BEGIN_MARKER}
-## KISS My Agent
-
-People own the goal, architecture, acceptance criteria, non-goals, and stop boundary. Multi-agent work is available by default, but an explicit user instruction or effective configuration that disables it takes precedence. Select dynamically only from the current Host-exposed role catalog; `kiss_explorer`, `kiss_coder`, and `kiss_reviewer` are initial seeds that users may remove, rename, or replace, not a fixed team or workflow. Keep one operator for each shared resource, preserve unrelated changes, prefer the smallest sufficient change, propagate internal failures, and state evidence only at the level actually reached.
-{END_MARKER}"""
-
-
 def fenced_blocks(text: str, language: str) -> list[str]:
     pattern = re.compile(rf"```{re.escape(language)}\n(.*?)\n```", re.DOTALL)
     return pattern.findall(text)
@@ -67,39 +60,25 @@ class SetupContractTests(unittest.TestCase):
             "never reconstruct cache, marketplace, plugin, or version path components",
             self.skill,
         )
-        self.assertIn("lifecycle filesystem operations serially", self.skill)
+        self.assertIn("Run lifecycle mutations serially", self.skill)
         self.assertIn("one simple direct file operation per tool call", self.skill)
-        self.assertIn(
-            "exactly one such operation in each outer tool or orchestration call",
-            self.skill,
-        )
-        self.assertIn("do not batch or parallelize them", self.skill)
-        self.assertIn("do not generate compound shell commands", self.skill)
+        self.assertIn("Do not batch mutations", self.skill)
+        self.assertIn("generate compound shell commands", self.skill)
         self.assertIn("suppress diagnostics", self.skill)
-        self.assertIn("one planned target per edit call", self.skill)
-        self.assertIn("exactly one edit operation for that path", self.skill)
-        self.assertIn("update an existing file in place", self.skill)
-        self.assertIn(
-            "never combine add, delete, or update operations for the same path",
-            self.skill,
-        )
-        self.assertIn("byte-preserving migration and rollback copies", self.skill)
-        self.assertIn("operands safely quoted for the active shell", self.skill)
-        self.assertIn("exact-current rollback guard independently", self.skill)
-        self.assertIn("Inspect and interpret each tool or subprocess status", self.skill)
-        self.assertIn("tool or subprocess failure", self.skill)
-        self.assertIn("unexpected nonzero status", self.skill)
+        self.assertIn("one planned target", self.skill)
+        self.assertIn("Inspect every tool or subprocess status", self.skill)
+        self.assertIn("unexpected failure", self.skill)
         self.assertIn("stops forward work", self.skill)
-        self.assertIn("If no target has been mutated, return immediately", self.skill)
-        self.assertIn("selected reference's guarded rollback or cleanup", self.skill)
-        self.assertIn("original failure plus any rollback failure", self.skill)
+        self.assertIn("If nothing changed, return immediately", self.skill)
+        self.assertIn("exact-after-content guarded rollback or cleanup", self.skill)
+        self.assertIn("preserve the original failure", self.skill)
+        self.assertIn("report any rollback failure too", self.skill)
         self.assertIn("expected absence or no-match is not a failure", self.skill)
-        self.assertIn("explicitly interpret and report it", self.skill)
+        self.assertIn("report it explicitly", self.skill)
 
-    def test_lifecycle_marks_v010_block_outdated_and_adds_wait_semantics(self) -> None:
+    def test_lifecycle_publishes_one_current_managed_block(self) -> None:
         markdown_blocks = fenced_blocks(self.lifecycle, "markdown")
         self.assertEqual(1, len(markdown_blocks))
-        self.assertNotEqual(V010_MANAGED_BLOCK, markdown_blocks[0])
         self.assertTrue(markdown_blocks[0].startswith(BEGIN_MARKER))
         self.assertTrue(markdown_blocks[0].endswith(END_MARKER))
         self.assertIn("wait window ending without an update", markdown_blocks[0])
@@ -199,7 +178,7 @@ class SetupContractTests(unittest.TestCase):
         self.assertIn("executive-only workflow cannot staff delegated work", self.lifecycle)
         self.assertIn("Static setup cannot observe a higher-precedence `false`", self.lifecycle)
 
-    def test_v010_conflict_recovery_and_concurrency_invariants_are_retained(self) -> None:
+    def test_setup_ownership_and_concurrency_contract(self) -> None:
         self.assertIn("Do not apply this cross-scope rejection to `remove`", self.lifecycle)
         self.assertIn("state a separate decision", self.lifecycle)
         self.assertIn("master model/effort pair", self.lifecycle)
@@ -212,40 +191,30 @@ class SetupContractTests(unittest.TestCase):
         self.assertIn("directory created by this operation", self.lifecycle)
         self.assertIn("whether marked or unmarked", self.lifecycle)
         self.assertIn("marker controls remove ownership only", self.lifecycle)
-        self.assertIn("first-setup defaults, not enforcement", self.lifecycle)
+        self.assertIn("initial defaults, not enforcement", self.lifecycle)
         self.assertIn("all four managed config paths", self.lifecycle)
         self.assertIn("only when both top-level keys are absent", self.lifecycle)
-        self.assertIn("managed block was absent at preflight", self.lifecycle)
-        self.assertIn("exactly matched the known v0.1 managed block", self.lifecycle)
+        self.assertIn("either absent or well-formed but outdated at preflight", self.lifecycle)
         self.assertIn("leave the missing key absent as intentional inheritance", self.lifecycle)
         self.assertIn("one or both missing keys are intentional user changes", self.lifecycle)
         self.assertIn("four managed config assignment lines", self.lifecycle)
-        self.assertIn(
-            "preflight bytes and its immediately-before-copy re-read both equal the corresponding known v0.1 seed",
-            self.lifecycle,
-        )
-        self.assertIn("difference from both the current and known v0.1 exact seeds", self.lifecycle)
+        self.assertIn("create each missing bundled role from its exact current plugin seed", self.lifecycle)
+        self.assertIn("Preserve every existing correctly identified role byte-for-byte", self.lifecycle)
+        self.assertIn("`user-owned/preserved`", self.lifecycle)
+        self.assertIn("never modify, migrate, version-check, or replace an existing role", self.lifecycle)
+        self.assertIn("Use the existing `configure agents` wizard", self.lifecycle)
         self.assertIn("either the current bundled seed or the corresponding known v0.1 seed", self.lifecycle)
 
-    def test_v010_native_copy_source_contract(self) -> None:
-        """These assertions verify published instructions, not Host behavior."""
-        self.assertIn("Host-appropriate native byte-preserving file-copy facility", self.lifecycle)
-        self.assertIn("stop in preflight before any mutation", self.lifecycle)
-        self.assertIn("POSIX `cp -- 'SOURCE' 'TARGET'`", self.lifecycle)
+    def test_role_assets_are_read_only_by_the_actions_that_consume_them(self) -> None:
         self.assertIn(
-            "PowerShell `Copy-Item -LiteralPath 'SOURCE' -Destination 'TARGET' -ErrorAction Stop`",
+            "`setup`: after classifying the managed block, read and identity-check a current seed only for a missing role",
             self.lifecycle,
         )
-        self.assertNotIn("-Force", self.lifecycle)
-        for forbidden_text_cmdlet in ("`Get-Content`", "`Set-Content`", "`Out-File`"):
-            self.assertIn(forbidden_text_cmdlet, self.lifecycle)
-        self.assertIn("overwrite the target without a permission or attribute override", self.lifecycle)
-        self.assertIn("partial bytes from the failed copy", self.lifecycle)
-        self.assertIn("requires manual recovery", self.lifecycle)
-        self.assertIn("do not classify differing bytes as a concurrent change solely", self.lifecycle)
-        self.assertIn("handle every already-migrated role independently", self.lifecycle)
-        self.assertIn("only when it still equals the current bundled seed", self.lifecycle)
-        self.assertIn("does not skip the guarded rollback attempt", self.lifecycle)
+        self.assertIn("Do not read current seeds for existing roles or any known v0.1 seed", self.lifecycle)
+        self.assertIn("`check`: do not read current or known v0.1 role assets", self.lifecycle)
+        self.assertIn("`remove`: read current and known v0.1 role seeds as exact bytes", self.lifecycle)
+        self.assertIn("Do not read role seed assets, compare role content to seeds", self.lifecycle)
+        self.assertNotRegex(self.skill + self.lifecycle, r"(?i)native.{0,40}(?:copy|migration)")
 
     def test_codex_home_and_outdated_state_rules_are_explicit(self) -> None:
         self.assertIn("non-empty `CODEX_HOME`", self.lifecycle)
@@ -270,10 +239,6 @@ class SetupContractTests(unittest.TestCase):
             self.assertTrue(asset.is_file(), asset)
             with asset.open("rb") as stream:
                 self.assertEqual(role_name, tomllib.load(stream)["name"])
-        self.assertIn("](assets/v0.1-managed-block.md)", self.lifecycle)
-        managed_block_asset = V010_ASSETS / "v0.1-managed-block.md"
-        self.assertTrue(managed_block_asset.is_file())
-
     def test_v010_managed_project_fixture_matches_current_compatibility_contract(self) -> None:
         config_text = (V010_FIXTURE / ".codex" / "config.toml").read_text(
             encoding="utf-8"
@@ -287,40 +252,24 @@ class SetupContractTests(unittest.TestCase):
         self.assertIn("Keep this user-owned text.", instructions)
         start = instructions.index(BEGIN_MARKER)
         end = instructions.index(END_MARKER, start) + len(END_MARKER)
-        self.assertEqual(V010_MANAGED_BLOCK, instructions[start:end])
+        current_block = fenced_blocks(self.lifecycle, "markdown")[0]
+        self.assertNotEqual(current_block, instructions[start:end])
 
         fixture_roles = V010_FIXTURE / ".codex" / "agents"
         asset_roles = V010_ASSETS / "v0.1-agents"
-        expected_efforts = {
-            "kiss_explorer": "high",
-            "kiss_coder": "high",
-            "kiss_reviewer": "xhigh",
-        }
         for source in sorted(ROLE_DIRECTORY.glob("*.toml")):
             fixture_bytes = (fixture_roles / source.name).read_bytes()
             asset_bytes = (asset_roles / source.name).read_bytes()
             self.assertEqual(fixture_bytes, asset_bytes, source.name)
-            with source.open("rb") as stream:
-                current = tomllib.load(stream)
             with (fixture_roles / source.name).open("rb") as stream:
                 v010 = tomllib.load(stream)
+            self.assertEqual(source.stem, v010["name"])
             self.assertNotIn("model", v010)
             self.assertNotIn("model_reasoning_effort", v010)
-            self.assertEqual("gpt-5.6-sol", current["model"])
-            self.assertEqual(expected_efforts[current["name"]], current["model_reasoning_effort"])
-            self.assertEqual(
-                v010,
-                {
-                    key: value
-                    for key, value in current.items()
-                    if key not in {"model", "model_reasoning_effort"}
-                },
-            )
 
-        managed_block_asset = (V010_ASSETS / "v0.1-managed-block.md").read_text(
-            encoding="utf-8"
-        )
-        self.assertEqual(V010_MANAGED_BLOCK, managed_block_asset.rstrip("\n"))
+        self.assertIn("well-formed but outdated at preflight", self.lifecycle)
+        self.assertIn("replace only its interior and markers with the current block", self.lifecycle)
+        self.assertIn("Preserve every existing correctly identified role byte-for-byte", self.lifecycle)
 
 
 if __name__ == "__main__":
