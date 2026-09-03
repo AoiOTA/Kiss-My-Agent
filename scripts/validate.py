@@ -557,22 +557,28 @@ def validate_collaboration_interfaces(root: Path) -> None:
     contributing = (root / "CONTRIBUTING.md").read_text(encoding="utf-8")
     for token in (
         "python3 scripts/validate.py",
-        "tests.test_setup",
-        "python scripts/test_all.py",
+        "py -3 scripts/validate.py",
+        "python3 -m unittest tests.test_setup -v",
+        "py -3 -m unittest tests.test_setup -v",
+        "python3 scripts/test_all.py",
+        "py -3 scripts/test_all.py",
         "Dogfooding KISS My Agent",
         "Squash and merge",
-        "v0.2.4 Release Process",
+        "## Release Process",
     ):
         if token not in contributing:
             fail(f"contributor interface missing: {token}")
 
-    release_sequence = (
-        "git pull --ff-only origin main\n"
-        "python3 scripts/test_all.py\n"
-        "git tag -a v0.2.4"
+    release_commands = (
+        "git pull --ff-only origin main",
+        "python3 scripts/test_all.py",
+        "git tag -a vX.Y.Z",
+        "git push origin vX.Y.Z",
+        "gh release create vX.Y.Z",
     )
-    if release_sequence not in contributing:
-        fail("v0.2.4 release sequence is incomplete or out of order")
+    positions = tuple(contributing.find(command) for command in release_commands)
+    if any(position < 0 for position in positions) or positions != tuple(sorted(positions)):
+        fail("generic release sequence is incomplete or out of order")
 
     security = (root / "SECURITY.md").read_text(encoding="utf-8")
     if "supports only its latest formal GitHub Release" not in security:
@@ -818,6 +824,17 @@ def validate_document_interfaces(root: Path) -> None:
     ):
         if interface_name not in installation:
             fail(f"installation interface missing: {interface_name}")
+    filtered_plugin_list = "codex plugin list --marketplace kiss-my-agent"
+    for relative in (
+        "README.md",
+        "README.zh-CN.md",
+        "docs/INSTALLATION.md",
+        "docs/INSTALLATION.zh-CN.md",
+        "docs/FAQ.md",
+        "docs/FAQ.zh-CN.md",
+    ):
+        if filtered_plugin_list not in (root / relative).read_text(encoding="utf-8"):
+            fail(f"filtered plugin-list interface missing: {relative}")
     configuration = (root / "docs/CONFIGURATION.md").read_text(encoding="utf-8")
     for config_key in (
         "features.multi_agent",

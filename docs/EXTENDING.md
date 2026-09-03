@@ -58,8 +58,8 @@ When changing an English developer document, update its Simplified Chinese compa
 Plugin/Skill-only changes can run the dependency-free local core checks. Pull-request CI owns the complete cross-platform and site suite:
 
 ```bash
-python scripts/validate.py
-python -m unittest tests.test_setup -v
+python3 scripts/validate.py
+python3 -m unittest tests.test_setup -v
 ```
 
 Inspect rendered Markdown when navigation, tables, badges, Mermaid, or assets change. Use a trusted new Codex session for discovery changes; old sessions are not guaranteed to hot-load.

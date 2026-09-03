@@ -196,44 +196,64 @@ Coordinator wait window 在没有新消息时返回，不代表子 Agent 超时�
 <a id="pull-requests"></a>
 ## Pull Requests
 
-向 canonical `main` 创建 pull request，并完整填写仓库模板。说明用户可见结果、当前 consumer、修改的 owner、显式非目标、精确验证命令、证据层级与局限。需要先建 issue 时必须关联它。
+向 canonical `main` 创建 pull request。每个 pull request 只须填写模板中的 **Outcome**、**Change summary**、**Validation** 与 **Limitations**。需要先建 issue 时必须关联它。只有改动影响 public interface、新增 mechanism、准备 release，或关联 issue 明确要求时，才补充 current consumer、smallest-change rationale 与显式非目标。
 
 Pull request 要聚焦且便于审查。解决重大 review findings 时不要顺带做宽泛清理。绿色 checks 必须属于当前 pull-request commit。Maintainer 使用 **Squash and merge** 合并已接受的改动，并可删除已合并分支；贡献者不需要只为制造一个 commit 而重写原本清晰的本地 commit history。
 
 测试通过不能证明模型行为、可用性、发布或 release 成功。直接说明所有未测试表面。
 
 <a id="release-process"></a>
-## v0.2.4 发布流程
+## 发布流程
 
-本节仅供 maintainer 使用。`v0.1.0`、`v0.2.0`、`v0.2.1`、`v0.2.2` 与 `v0.2.3` tags 不可变，绝不能移动或重建。`v0.2.0`、`v0.2.1`、`v0.2.2` 与 `v0.2.3` tags 都没有 GitHub Release。v0.2.2 post-tag 的 public fresh install 与 marketplace upgrade 已通过，但 public legacy-role transition 因无法解析 Plugin resource workdir/path 而在写入前停止，因此没有创建 v0.2.2 Release。Annotated v0.2.3 tag 保留但没有 Release，因为 public gate D 暴露了 v0.1 fixture 中 `current` 措辞的双义：`outdated` managed block 在两个 Master keys 都缺失时必须补入这一对。v0.2.4 中的 setup-lifecycle 改动只澄清这一互斥分类；同一版本还把已观察的 command/harness failures 与 tag 试错经验收敛进现有 KISS engineering/evidence Rules。User-owned role 行为保持不变。
+本节仅供 maintainer 使用。下面示例中的每个 `vX.Y.Z` 都要替换为本次唯一选定的 release tag，每个 `X.Y.Z` 都要替换为对应 manifest version。任何已推送 tag 都不可变：绝不移动、删除或重建。
 
-1. 使用 [Issue #8](https://github.com/AoiOTA/Kiss-My-Agent/issues/8) 跟踪 v0.2.4，并写明验收标准、兼容性约束和非目标。
-2. 创建 release pull request 前，运行适用且不需要第三方依赖的本地 core checks。要求该精确 candidate commit 的完整测试套件以及 Ubuntu、macOS、Windows 原生 pull-request CI 全绿。这些只属于 candidate 结果；公开 tag 存在前，不得声称 public install 或真实 Host 证据。
-3. 通过聚焦 pull request 合入实现。将 Plugin manifest version 与 marketplace ref 对齐为 `0.2.4` / `v0.2.4`，并同步中英文文档。
-4. Pull request squash-merge 后，验证精确的 `origin/main` commit，创建不可变的 annotated tag 并推送。此时还不能创建 GitHub Release：
+1. 创建有界 release issue，写明验收标准、兼容性约束和显式非目标。
+2. 创建 tag 前，在一次性 candidate 中完成行为修改。运行适用的本地检查、完整套件，以及该精确 candidate commit 的 Ubuntu、macOS、Windows 原生 pull-request CI。Candidate 证据不能证明 public install 或真实 Host 行为。
+3. 合入聚焦 pull request。将 Plugin manifest version 与 marketplace ref 对齐为 `X.Y.Z` / `vX.Y.Z`，同步中英文文档，并验证精确的 merged `origin/main` commit。
 
-```bash
-git fetch origin
-git switch main
-git pull --ff-only origin main
-python3 scripts/test_all.py
-git tag -a v0.2.4 -m "KISS My Agent v0.2.4"
-git push origin v0.2.4
-```
+   ```bash
+   git fetch origin
+   git switch main
+   git pull --ff-only origin main
+   ```
 
-5. 针对已推送的公开 tag，复用 v0.2.3 已通过且不受影响的 gates A/B/C 证据——public fresh install、fresh setup 加 role discovery，以及 intentional starter absence——不重复这些检查。只重跑 gate D：在一次性 v0.1-managed fixture 中保留每个角色文件的 before bytes，运行 current setup，要求 managed block 变为 current，在两个 Master keys 原本都缺失时成对补齐，保留已有 public feature assignments，并通过 direct byte comparison 确认每个角色文件都与 before bytes 一致。随后完成 gate E：固定 v0.1.0 marketplace，确认普通 upgrade 仍停留在固定版本，移除该 fixed source，恢复 unpinned current channel，并确认它解析为 v0.2.4。不要求角色迁移、角色 hash、诱导失败或重复矩阵。
+4. 对该 commit 运行完整 deterministic 入口。Linux 或 macOS：
 
-```bash
-codex plugin marketplace upgrade kiss-my-agent
-codex plugin list
-```
+   ```bash
+   python3 scripts/test_all.py
+   ```
 
-6. 只有完整 public 顺序通过后，才能创建 GitHub Release：
+   Windows 原生 PowerShell：
 
-```bash
-gh release create v0.2.4 --verify-tag --title "KISS My Agent v0.2.4" --generate-notes
-```
+   ```powershell
+   py -3 scripts/test_all.py
+   ```
 
-7. 验证公开 Release 页面与 archives，并通过后续 pull request 在 canonical handoff 中记录精确 commit、CI runs、有界 public 顺序和剩余限制。
+5. 创建并推送不可变的 annotated tag。此时还不能创建 GitHub Release：
 
-如果 post-tag public check 失败，保留该 tag，不创建误导性的 v0.2.4 Release，并以新的 patch version 发布修复。如果已经发布的 Release 后来发现缺陷，同样保留 tag 并发布新的 patch version。绝不 force-push `main`、移动任何已推送 tag、压掉失败检查，或把 invalid run 重新标记为成功。
+   ```bash
+   git tag -a vX.Y.Z -m "KISS My Agent vX.Y.Z"
+   git push origin vX.Y.Z
+   ```
+
+6. 只运行必须经过已推送公开分发表面的检查。Source 与覆盖行为未改变时可以复用旧证据，但必须说明是复用；创建 tag 后不要重复 candidate checks。只验证 release 验收标准要求的公开 archive、marketplace install 或 upgrade、fresh-session discovery 或其他 public-only 行为。
+
+   ```bash
+   codex plugin marketplace upgrade kiss-my-agent
+   codex plugin list --marketplace kiss-my-agent
+   ```
+
+7. 行动前先分类第一个决定性的 post-tag failure：
+   - Tagged 产品源码中的缺陷：保留 tag，不为它创建 Release；修复 source 后使用下一个 patch version。
+   - Harness、command construction 或 environment failure：修复该 owner，并针对同一个 tag 只补取缺失证据。
+   - Evaluator error 或其他 invalid run：修正 evaluation，只重跑无效观察；它不是产品负面证据，也不触发 patch version。
+   - GitHub Release 发布后才发现的产品缺陷：保留已发布 tag，以新的 patch version 发布修复。
+8. 只有必需的公开检查通过后，才能把创建 GitHub Release 作为最后一个发布步骤：
+
+   ```bash
+   gh release create vX.Y.Z --verify-tag --title "KISS My Agent vX.Y.Z" --generate-notes
+   ```
+
+9. 验证公开 Release 页面与 archives，再在 canonical handoff 中记录精确 commit、CI links、有界公开检查、复用证据和剩余限制。
+
+绝不 force-push `main`、移动已推送 tag、压掉失败检查、把 invalid run 重新标记为成功，或因 harness/environment failure 创建新 patch tag。

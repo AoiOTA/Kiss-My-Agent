@@ -2,40 +2,28 @@
 
 What user-visible or maintainer-visible result does this change deliver?
 
-## Related issue
-
-Link the issue when the change affects a public interface, setup scope, role schema, Skill routing, permanent rule, or release behavior.
-
-## Current consumer and scope
-
-Name the present consumer, changed owner, and explicit non-goals. Explain why no smaller change is sufficient.
+Link the issue only when the change affects a public interface, setup scope, role schema, Skill routing, permanent rule, or release behavior. Small scoped corrections do not require one.
 
 ## Change summary
 
 - Summarize the files and behavior changed.
+- If this adds or retains a mechanism, name its current consumer, explain why a smaller change is insufficient, and state what adjacent machinery was not added. Otherwise omit this item.
 
 ## Validation
 
 List exact checks and evidence level. Plugin/Skill-only local checks need no third-party package:
 
 ```bash
-python scripts/validate.py
-python -m unittest tests.test_setup -v
+python3 scripts/validate.py
+python3 -m unittest tests.test_setup -v
 ```
 
-Pull-request CI owns the complete `python scripts/test_all.py` run and site build. Do not mark CI, live Codex discovery, role Smoke, upgrade Smoke, or a newcomer Pilot as complete until that exact evidence exists.
+```powershell
+py -3 scripts/validate.py
+py -3 -m unittest tests.test_setup -v
+```
 
-## Documentation and installation impact
-
-- [ ] English and Chinese README structure remains synchronized when either changed.
-- [ ] Existing installation destinations are preserved or migration impact is explicit.
-- [ ] No existing `AGENTS.md`, role, or user configuration is overwritten by instructions.
-- [ ] New relative links resolve locally.
-- [ ] User runtime requirements and contributor-only dependencies remain clearly separated.
-
-## Complexity boundary
-
-Which mechanism is retained, what pays its rent, and what adjacent machinery was deliberately not added?
+Pull-request CI owns the complete test suite and site build. Do not mark CI, live Codex discovery, role Smoke, upgrade Smoke, or a newcomer Pilot as complete until that exact evidence exists.
 
 ## Limitations
 

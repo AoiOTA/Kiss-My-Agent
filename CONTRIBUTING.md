@@ -196,44 +196,64 @@ If delegation is disabled or unavailable, or no suitable role exists, report the
 <a id="pull-requests"></a>
 ## Pull Requests
 
-Open a pull request to canonical `main` and complete the repository template. Describe the user-visible outcome, current consumer, changed owner, explicit non-goals, exact validation commands, evidence level, and limitations. Link the issue when one was required.
+Open a pull request to canonical `main`. Every pull request must provide only the template's **Outcome**, **Change summary**, **Validation**, and **Limitations** fields. Link an issue when one was required. Add the current consumer, smallest-change rationale, and explicit non-goals only when the change affects a public interface, adds a mechanism, prepares a release, or the linked issue requires them.
 
 Keep the pull request focused and reviewable. Resolve material review findings without broad cleanup. Green checks must belong to the current pull-request commit. Maintainers merge accepted changes with **Squash and merge** and may delete the merged branch; contributors do not need to rewrite a clear local commit history solely to create one commit.
 
 A passing test is not proof of model behavior, usability, publication, or release success. State every untested surface directly.
 
 <a id="release-process"></a>
-## v0.2.4 Release Process
+## Release Process
 
-This section is maintainer-only. The `v0.1.0`, `v0.2.0`, `v0.2.1`, `v0.2.2`, and `v0.2.3` tags are immutable and must never be moved or recreated. The `v0.2.0`, `v0.2.1`, `v0.2.2`, and `v0.2.3` tags have no GitHub Release. Post-tag v0.2.2 public fresh install and marketplace upgrade passed, but the public legacy-role transition stopped before writing because the Plugin resource workdir/path could not be resolved, so no v0.2.2 Release was created. The annotated v0.2.3 tag is preserved without a Release because public gate D exposed ambiguous `current` wording for the v0.1 fixture: an `outdated` managed block with both master keys absent must receive the pair. The setup-lifecycle change in v0.2.4 only clarifies this mutually exclusive classification; the same release also folds observed command/harness failures and lessons from tag trials into the existing KISS engineering/evidence Rules. User-owned role behavior remains unchanged.
+This section is maintainer-only. In the examples, replace every `vX.Y.Z` with the one selected release tag and every `X.Y.Z` with the matching manifest version. Every pushed tag is immutable: never move, delete, or recreate it.
 
-1. Track v0.2.4 in [Issue #8](https://github.com/AoiOTA/Kiss-My-Agent/issues/8) with acceptance criteria, compatibility constraints, and non-goals.
-2. Before opening the release pull request, run the applicable dependency-free local core checks. Require the complete test suite and green native Ubuntu, macOS, and Windows pull-request CI for the exact candidate commit. These are candidate results; do not claim public install or live Host evidence before a public tag exists.
-3. Land implementation through a focused pull request. Align the Plugin manifest version and marketplace ref at `0.2.4` / `v0.2.4`, and synchronize English and Chinese documentation.
-4. After the pull request is squash-merged, verify the exact `origin/main` commit, create an immutable annotated tag, and push it. Do not create the GitHub Release yet:
+1. Open a bounded release issue with acceptance criteria, compatibility constraints, and explicit non-goals.
+2. Complete behavior work in a disposable candidate before tagging. Run the applicable local checks, the complete suite, and native Ubuntu, macOS, and Windows pull-request CI for the exact candidate commit. Candidate evidence does not prove public installation or live Host behavior.
+3. Land the focused pull request. Align the Plugin manifest version and marketplace ref at `X.Y.Z` / `vX.Y.Z`, synchronize English and Chinese documentation, and verify the exact merged `origin/main` commit.
 
-```bash
-git fetch origin
-git switch main
-git pull --ff-only origin main
-python3 scripts/test_all.py
-git tag -a v0.2.4 -m "KISS My Agent v0.2.4"
-git push origin v0.2.4
-```
+   ```bash
+   git fetch origin
+   git switch main
+   git pull --ff-only origin main
+   ```
 
-5. Against that pushed public tag, reuse the already-passed and unaffected v0.2.3 evidence for gates A/B/C—public fresh install, fresh setup plus role discovery, and intentional starter absence—without repeating those checks. Rerun only gate D in the disposable v0.1-managed fixture: retain the before bytes for every role file, run current setup, require the managed block to become current and the master pair to be added together when both keys were absent, preserve the existing public feature assignments, and confirm every role file equals its before bytes by direct byte comparison. Then complete gate E: pin the v0.1.0 marketplace, confirm an ordinary upgrade remains pinned, remove that fixed source, restore the unpinned current channel, and confirm it resolves to v0.2.4. Do not require role migration, role hashes, induced failure, or a repeated matrix.
+4. Run the complete deterministic entrypoint for that commit. On Linux or macOS:
 
-```bash
-codex plugin marketplace upgrade kiss-my-agent
-codex plugin list
-```
+   ```bash
+   python3 scripts/test_all.py
+   ```
 
-6. Only after the complete public sequence passes, create the GitHub Release:
+   On Windows native PowerShell:
 
-```bash
-gh release create v0.2.4 --verify-tag --title "KISS My Agent v0.2.4" --generate-notes
-```
+   ```powershell
+   py -3 scripts/test_all.py
+   ```
 
-7. Verify the public Release page and archives, and record the exact commit, CI runs, bounded public sequence, and residual limits in the canonical handoff through a follow-up pull request.
+5. Create and push the immutable annotated tag. Do not create the GitHub Release yet:
 
-If a post-tag public check fails, preserve the tag, do not create a misleading v0.2.4 Release, and publish the correction under a new patch version. If a published Release is later found defective, preserve its tag and publish a new patch version. Never force-push `main`, move any pushed tag, suppress a failing check, or relabel an invalid run as success.
+   ```bash
+   git tag -a vX.Y.Z -m "KISS My Agent vX.Y.Z"
+   git push origin vX.Y.Z
+   ```
+
+6. Run only checks that require the pushed public distribution surface. Reuse prior evidence when its source and covered behavior are unchanged, say that it was reused, and do not repeat candidate checks after tagging. Verify only the public archive, marketplace install or upgrade, fresh-session discovery, or other public-only behavior required by the release acceptance criteria.
+
+   ```bash
+   codex plugin marketplace upgrade kiss-my-agent
+   codex plugin list --marketplace kiss-my-agent
+   ```
+
+7. Classify the first decisive post-tag failure before acting:
+   - A defect in the tagged product source: preserve the tag, do not create a Release for it, fix the source, and use the next patch version.
+   - A harness, command-construction, or environment failure: fix that owner and obtain only the missing evidence against the same tag.
+   - An evaluator error or another invalid run: correct the evaluation and rerun only the invalid observation; it is not product-negative evidence and does not trigger a patch version.
+   - A product defect found after a GitHub Release is published: preserve the released tag and publish the correction as a new patch version.
+8. Only after the required public checks pass, create the GitHub Release as the last publication step:
+
+   ```bash
+   gh release create vX.Y.Z --verify-tag --title "KISS My Agent vX.Y.Z" --generate-notes
+   ```
+
+9. Verify the public Release page and archives, then record the exact commit, CI links, bounded public checks, reused evidence, and residual limits in the canonical handoff.
+
+Never force-push `main`, move a pushed tag, suppress a failing check, relabel an invalid run as success, or create a new patch tag for a harness or environment failure.
