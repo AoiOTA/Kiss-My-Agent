@@ -58,13 +58,11 @@ class SetupContractTests(unittest.TestCase):
 
     def test_entrypoint_declares_static_runtime_execution_contract(self) -> None:
         """Static source assertions do not prove Host runtime behavior."""
-        self.assertIn("exact loaded `SKILL.md` directory", self.skill)
         self.assertIn(
-            "single base for sibling `setup-lifecycle.md` and `configure-agents.md`",
+            "exact loaded `SKILL.md` directory as the tool workdir",
             self.skill,
         )
-        self.assertIn("every relative link they contain", self.skill)
-        self.assertIn("preserve linked relative-path text", self.skill)
+        self.assertIn("linked relative-path text as its path operand", self.skill)
         self.assertIn(
             "never reconstruct cache, marketplace, plugin, or version path components",
             self.skill,
@@ -203,10 +201,11 @@ class SetupContractTests(unittest.TestCase):
 
     def test_v010_conflict_recovery_and_concurrency_invariants_are_retained(self) -> None:
         self.assertIn("Do not apply this cross-scope rejection to `remove`", self.lifecycle)
-        self.assertIn(
-            "Before the first setup write, classify Config, Instructions, and every Role from the preflight state, then state the complete proposed change set and any directories to create.",
-            self.lifecycle,
-        )
+        self.assertIn("state a separate decision", self.lifecycle)
+        self.assertIn("master model/effort pair", self.lifecycle)
+        self.assertIn("each feature switch", self.lifecycle)
+        self.assertIn("the Instructions target", self.lifecycle)
+        self.assertIn("every Role", self.lifecycle)
         self.assertIn("re-read every planned target", self.lifecycle)
         self.assertIn("already-written target", self.lifecycle)
         self.assertIn("pending target", self.lifecycle)

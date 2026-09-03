@@ -78,7 +78,7 @@ Apply only the following changes:
   - Preserve an existing current seed and every other correctly identified role byte-for-byte. Any difference from both the current and known v0.1 exact seeds is a user modification, including comments, whitespace, or runtime settings.
   - When the managed block already existed, treat missing initial seeds as intentionally removed and do not recreate them.
 
-Before the first setup write, classify Config, Instructions, and every Role from the preflight state, then state the complete proposed change set and any directories to create.
+Before the first setup write, state a separate decision for the master model/effort pair, each feature switch, the Instructions target, every Role, and any directory to create.
 
 Use the smallest file edit available for every non-migration target. After all writes, re-read and validate every affected file and the complete role catalog. If validation fails, restore only files still equal to this operation's after-content. Preserve a concurrent user change and report that rollback could not safely replace it.
 
