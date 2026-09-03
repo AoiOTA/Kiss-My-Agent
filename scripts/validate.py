@@ -567,7 +567,7 @@ def validate_collaboration_interfaces(root: Path) -> None:
         "python scripts/test_all.py",
         "Dogfooding KISS My Agent",
         "Squash and merge",
-        "v0.2.1 Release Process",
+        "v0.2.2 Release Process",
     ):
         if token not in contributing:
             fail(f"contributor interface missing: {token}")
@@ -575,10 +575,10 @@ def validate_collaboration_interfaces(root: Path) -> None:
     release_sequence = (
         "git pull --ff-only origin main\n"
         "python3 scripts/test_all.py\n"
-        "git tag -a v0.2.1"
+        "git tag -a v0.2.2"
     )
     if release_sequence not in contributing:
-        fail("v0.2.1 release sequence is incomplete or out of order")
+        fail("v0.2.2 release sequence is incomplete or out of order")
 
     security = (root / "SECURITY.md").read_text(encoding="utf-8")
     if "supports only its latest formal GitHub Release" not in security:
