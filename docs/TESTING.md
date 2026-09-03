@@ -56,8 +56,8 @@ Required scenarios cover:
 - mutually exclusive managed-block classification: a current block never receives missing master keys; an absent or recognized-outdated block receives the pair only when both keys are absent; otherwise existing assignments are preserved and each missing key remains absent for inheritance;
 - each missing feature switch added independently, while marked and unmarked values for all four paths, unrelated config, comments, newline style, AGENTS content, and existing roles are preserved;
 - intentional `false` values and deliberately deleted seed roles;
-- malformed TOML, unsafe path types, `AGENTS.override.md`, duplicate names, filename/identity mismatch, and project/global conflicts;
-- remove as the recovery path for a cross-scope seed-name conflict;
+- malformed managed config or exact bundled-role TOML, unsafe managed path types, `AGENTS.override.md`, and an exact bundled filename/identity mismatch; an invalid unselected custom role remains outside KISS ownership and does not block setup, check, remove, or a configuration request that selected another role;
+- different observable definitions for the same bundled role filename in project and global scopes: project setup/check inspects only the project target and leaves the global role unchanged, while a fresh project session demonstrates the Host's project-over-global precedence without KISS rejecting or reconciling the duplicate;
 - remove deleting only the four marked config assignments and current/v0.1 exact role seeds, while preserving unmarked config and modified roles;
 - configuring one selected role while all other fields and files remain unchanged;
 - restoring inheritance by removing only the selected optional key;

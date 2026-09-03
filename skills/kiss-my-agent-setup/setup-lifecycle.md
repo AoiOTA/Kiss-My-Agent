@@ -4,10 +4,10 @@ Use this reference only for an explicit `setup`, `check`, or `remove` action. Th
 
 ## Scope map
 
-| Scope | Base | Config | Roles | Instructions | Opposite role catalog |
+| Scope | Base | Config | Roles directory | Bundled role targets | Instructions |
 | --- | --- | --- | --- | --- | --- |
-| Project | Explicit target project | `<target>/.codex/config.toml` | `<target>/.codex/agents/*.toml` | `<target>/AGENTS.md` | `$CODEX_HOME/agents/*.toml` |
-| Global | Explicit Codex home | `$CODEX_HOME/config.toml` | `$CODEX_HOME/agents/*.toml` | `$CODEX_HOME/AGENTS.md` | Current project `.codex/agents/*.toml`, when a project is active |
+| Project | Explicit target project | `<target>/.codex/config.toml` | `<target>/.codex/agents` | `<roles>/{kiss_explorer,kiss_coder,kiss_reviewer}.toml` | `<target>/AGENTS.md` |
+| Global | Explicit Codex home | `$CODEX_HOME/config.toml` | `$CODEX_HOME/agents` | `<roles>/{kiss_explorer,kiss_coder,kiss_reviewer}.toml` | `$CODEX_HOME/AGENTS.md` |
 
 Resolve `$CODEX_HOME` from a non-empty `CODEX_HOME` environment value; otherwise use the current user's `~/.codex`. Resolve and report the absolute path before inspection. Never repurpose or rewrite the environment value.
 
@@ -44,24 +44,22 @@ People own the goal, architecture, acceptance criteria, non-goals, and stop boun
 
 Complete the full preflight before the first write or deletion.
 
-1. Resolve the selected base, config, roles, instructions, override, opposite-catalog, and action-applicable bundled-seed paths. Project setup requires an existing directory. Never turn a project request into global setup.
-2. Inspect path metadata. Reject a symlinked managed file or directory, a managed path with the wrong file type, or a path whose type cannot be established safely.
+1. Resolve the selected base, config, roles directory, instructions, override, three exact bundled role targets, and action-applicable bundled-seed paths. Project setup requires an existing directory. Never turn a project request into global setup.
+2. Inspect metadata for those selected paths. Reject a symlinked managed file or directory, a managed path with the wrong file type, or a path whose type cannot be established safely.
 3. Stop if `AGENTS.override.md` exists at the selected base. Do not write an ineffective lower-priority `AGENTS.md`.
-4. Read the complete current config, instructions, every role TOML in the selected catalog, and the opposite catalog. Keep exact before-content for any path that could change.
-5. Parse TOML with the Host's available configuration understanding. If syntax, table shape, assignment ownership, encoding, or role identity is ambiguous, stop without writing instead of repairing by guesswork.
-6. Require every role TOML to have non-empty string `name`, `description`, and `developer_instructions` fields and a unique `name` in its catalog.
+4. Read the complete current config and instructions plus each existing exact bundled role target. Keep exact before-content for any path that could change. Do not inspect other role files or another scope's roles; the Host owns role precedence and any broader catalog warnings.
+5. Parse the selected config and each existing exact bundled role target with the Host's available configuration understanding. If syntax, table shape, assignment ownership, encoding, or bundled role identity is ambiguous, stop without writing instead of repairing by guesswork.
+6. Require each existing exact bundled role target to have non-empty string `name`, `description`, and `developer_instructions` fields, and require its `name` to equal the target filename without `.toml`.
 7. Stop on any of these selected-scope conflicts:
-   - a bundled filename exists with a different `name`;
-   - another filename in the same catalog declares a bundled seed name;
+   - an exact bundled role target has the wrong type, invalid TOML, missing required identity fields, or a `name` different from its filename;
    - the managed block has unequal, duplicate, reversed, or nested markers;
    - a managed config key occurs more than once or has the wrong type: `model` and `model_reasoning_effort` must be non-empty strings, while `features.multi_agent` and `agents.enabled` must be booleans.
 8. After the preceding marker-conflict check and before making any setup decision, classify the managed block as exactly one mutually exclusive state: `absent` when neither marker exists; `outdated` when one well-formed block exists but its complete delimited content differs from the current block above; or `current` when that content equals the current block exactly.
 9. Read bundled assets only as required by the selected action:
    - `setup`: after classifying the managed block, read and identity-check a current seed only for a missing role that fresh setup may create. Do not read current seeds for existing roles or any known v0.1 seed.
-   - `check`: do not read current or known v0.1 role assets. Inspect role identity and catalog structure without version comparison.
+   - `check`: do not read current or known v0.1 role assets. Inspect only the existing exact bundled role targets without version comparison.
    - `remove`: read current and known v0.1 role seeds as exact bytes and verify each parsed identity matches its filename before comparing a corresponding existing role.
-10. For `setup` and `check`, also stop when a bundled seed name appears in both project and global catalogs. Do not apply this cross-scope rejection to `remove`: removing one selected scope is the recovery path for that conflict, while every selected-scope path and identity check still applies.
-11. Immediately before each mutation, re-read every planned target: an already-written target must still equal this operation's exact after-content, while a pending target must still equal its preflight before-content. If any target differs, stop and restore only already-applied KISS changes whose after-content still matches exactly. Remove a directory created by this operation during rollback only when it is still empty.
+10. Immediately before each mutation, re-read every planned target: an already-written target must still equal this operation's exact after-content, while a pending target must still equal its preflight before-content. If any target differs, stop and restore only already-applied KISS changes whose after-content still matches exactly. Remove a directory created by this operation during rollback only when it is still empty.
 
 ## Setup
 
@@ -84,7 +82,7 @@ Apply only the following changes:
 
 Before the first setup write, state a separate decision for the master model/effort pair, each feature switch, the Instructions target, every Role, and any directory to create.
 
-Use the smallest file edit available. After all writes, re-read and validate every affected file and the complete role catalog. If validation fails, preserve the original failure and restore only files still equal to this operation's exact after-content. Preserve a concurrent user change and report that rollback could not safely replace it; report rollback failures without hiding the original cause.
+Use the smallest file edit available. After all writes, re-read and validate every affected file and each exact bundled role target relevant to the action. If validation fails, preserve the original failure and restore only files still equal to this operation's exact after-content. Preserve a concurrent user change and report that rollback could not safely replace it; report rollback failures without hiding the original cause.
 
 Report `configured` plus `disabled` when applicable, the explicit scope, paths created or changed, preserved roles, and any intentionally absent seeds. A `disabled` report must explain that the executive-only workflow cannot staff delegated work and the master will not silently take it over; ask the user to choose between enabling delegation or suitable roles and explicitly switching the current task to ordinary single-conversation execution. Static setup cannot observe a higher-precedence `false`; if a real new session exposes disabled or unavailable delegation, apply the same staffing rule and choice.
 
@@ -92,19 +90,19 @@ File success is static setup evidence only. It does not prove that the selected 
 
 ## Check
 
-`check` is read-only. Run the same path, TOML, marker, role-identity, and cross-scope conflict inspection without repairing anything. Do not read role seed assets, compare role content to seeds, or infer a role version. Report each correctly identified existing bundled role as `present user-owned`; report a missing bundled role as `intentionally absent` when a well-formed managed block exists.
+`check` is read-only. Run the same selected-path, TOML, marker, and exact bundled-target identity inspection without repairing anything. Do not read role seed assets, compare role content to seeds, infer a role version, or inspect unselected role files. Report each correctly identified existing bundled role as `present user-owned`; report a missing bundled role as `intentionally absent` when a well-formed managed block exists.
 
-Use the same mutually exclusive `absent`, `outdated`, or `current` managed-block classification and report it separately. Define a setup trace as any KISS-marked config assignment, any KISS managed-block marker, or any role declaring a bundled seed identity.
+Use the same mutually exclusive `absent`, `outdated`, or `current` managed-block classification and report it separately. Define a setup trace as any KISS-marked config assignment, any KISS managed-block marker, or any exact bundled role target with the matching identity.
 
 Report one of:
 
-- `structurally-valid`: both required boolean keys exist, every explicit top-level master setting has a valid type, the managed block is current, and role catalogs have no relevant conflict. Either master key may be intentionally absent for inheritance after setup. Initial seeds may also be intentionally absent after a prior setup.
+- `structurally-valid`: both required boolean keys exist, every explicit top-level master setting has a valid type, the managed block is current, and each existing exact bundled role target is valid. Either master key may be intentionally absent for inheritance after setup. Initial seeds may also be intentionally absent after a prior setup.
 - `disabled`: the structure is valid but at least one feature value observed in the selected config is explicitly `false`.
 - `absent`: no setup trace exists.
 - `incomplete`: a setup trace exists but required config or managed-block structure is partial, a required boolean value is missing, or the managed block is well-formed but `outdated`. Role contents and missing roles do not make setup incomplete when identity and catalog structure are valid.
 - `conflict`: syntax, ownership, path type, markers, or role identity prevents a safe conclusion.
 
-List the exact inspected paths, each master setting as its explicit value or `inherit`, and the observed feature values. Never claim project trust, active discovery, model or effort support, permissions, plugin publication, or role behavior from `check`.
+List the exact inspected paths, each master setting as its explicit value or `inherit`, and the observed feature values. Report only the selected paths' structure; do not claim that the complete Host role catalog is valid. Never claim project trust, active discovery, model or effort support, permissions, plugin publication, or role behavior from `check`.
 
 ## Remove
 

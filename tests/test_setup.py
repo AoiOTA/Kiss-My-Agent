@@ -151,6 +151,13 @@ class SetupContractTests(unittest.TestCase):
         self.assertIn("show it before mutation", self.configure)
         self.assertIn("separate explicit confirmation", self.configure)
         self.assertIn("danger-full-access", self.configure)
+        self.assertIn("Immediately before mutating each selected file", self.configure)
+        self.assertIn("still equal its preview base", self.configure)
+        self.assertIn("If a pending target differs", self.configure)
+        self.assertIn("stop forward work", self.configure)
+        self.assertIn("already-written files", self.configure)
+        self.assertIn("exact after-content", self.configure)
+        self.assertIn("preserve the original failure", self.configure)
         self.assertIn("start a new Codex session", self.configure)
 
     def test_configure_resolves_its_scope_without_lifecycle_reference(self) -> None:
@@ -163,6 +170,16 @@ class SetupContractTests(unittest.TestCase):
         self.assertIn("multiple roots or no unique root", self.configure)
         self.assertIn("do not write before that choice", self.configure)
         self.assertIn("absolute role-directory path", self.configure)
+
+    def test_configure_inspects_only_selected_role_targets(self) -> None:
+        self.assertIn("resolve only those targets", self.configure)
+        self.assertIn("direct `.toml` child", self.configure)
+        self.assertIn("Reject traversal", self.configure)
+        self.assertIn("Do not list, read, or parse unselected role files", self.configure)
+        self.assertIn("list only the direct `.toml` paths", self.configure)
+        self.assertIn("without reading or parsing their contents", self.configure)
+        self.assertIn("read and parse only those files", self.configure)
+        self.assertIn("unselected role does not block this operation", self.configure)
 
     def test_check_statuses_and_evidence_boundary_are_explicit(self) -> None:
         for status in (
@@ -179,7 +196,19 @@ class SetupContractTests(unittest.TestCase):
         self.assertIn("Static setup cannot observe a higher-precedence `false`", self.lifecycle)
 
     def test_setup_ownership_and_concurrency_contract(self) -> None:
-        self.assertIn("Do not apply this cross-scope rejection to `remove`", self.lifecycle)
+        self.assertIn("three exact bundled role targets", self.lifecycle)
+        self.assertIn("Do not inspect other role files or another scope's roles", self.lifecycle)
+        self.assertIn("Host owns role precedence", self.lifecycle)
+        self.assertIn("name` to equal the target filename", self.lifecycle)
+        self.assertIn("each exact bundled role target relevant to the action", self.lifecycle)
+        self.assertIn("do not claim that the complete Host role catalog is valid", self.lifecycle)
+        self.assertIn("any exact bundled role target with the matching identity", self.lifecycle)
+        self.assertNotIn("Opposite role catalog", self.lifecycle)
+        self.assertNotIn("opposite-catalog", self.lifecycle)
+        self.assertNotIn("cross-scope rejection", self.lifecycle)
+        self.assertNotIn("every role TOML", self.lifecycle)
+        self.assertNotIn("complete role catalog", self.lifecycle)
+        self.assertNotIn("another filename in the same catalog", self.lifecycle)
         self.assertIn("state a separate decision", self.lifecycle)
         self.assertIn("master model/effort pair", self.lifecycle)
         self.assertIn("each feature switch", self.lifecycle)

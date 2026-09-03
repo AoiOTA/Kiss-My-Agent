@@ -137,7 +137,9 @@ codex plugin list --marketplace kiss-my-agent
 <a id="existing-files"></a>
 ## 已经有 config、AGENTS 或角色文件怎么办？
 
-Setup 管理四项 settings，但不会逐项独立补齐。Managed block 分类互斥：current block 绝不补缺失的 Master keys；block 缺失或被识别为 outdated 时，只有两个 keys 都缺失才补入这一对；其他情况都保留已有 assignments，并让每个缺失 key 继续缺失和继承。两个公开开关各自在缺失时添加。已有带 marker 或不带 marker 的 assignments、无关内容、显式 `false` 与所有已有角色都逐字节保留。遇到无效 TOML、不安全路径类型、重复 identity、ownership 冲突、project/global starter-role 冲突或适用的 `AGENTS.override.md` 时，会在写入前停止。
+Setup 管理四项 settings，但不会逐项独立补齐。Managed block 分类互斥：current block 绝不补缺失的 Master keys；block 缺失或被识别为 outdated 时，只有两个 keys 都缺失才补入这一对；其他情况都保留已有 assignments，并让每个缺失 key 继续缺失和继承。两个公开开关各自在缺失时添加。已有带 marker 或不带 marker 的 assignments、无关内容、显式 `false` 与所有已有角色都逐字节保留。
+
+Setup、check 与 remove 只检查所选 scope 中 KISS 管理的 config、AGENTS paths，以及准确的 `kiss_explorer.toml`、`kiss_coder.toml` 和 `kiss_reviewer.toml` targets。不安全或无效的 managed target、bundled identity 不匹配、ownership conflict 或适用的 `AGENTS.override.md` 会在写入前停止。其他角色文件和另一 scope 不会被解析或协调：catalog warning 和 project-over-global precedence 由 Host 负责。配置角色时，已经点名的请求只解析点名目标；未点名的请求先列出 paths，随后只解析用户选中的角色。无效的未选角色不会阻塞操作。
 
 请按报告中的原因和准确路径解决冲突，不覆盖用户工作，然后重跑同一个 setup 命令。完整策略见[安装](INSTALLATION.zh-CN.md#collision-policy)。
 

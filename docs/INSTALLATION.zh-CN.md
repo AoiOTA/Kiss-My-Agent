@@ -61,7 +61,7 @@ Setup 完成后直接正常使用 Codex。项目 instructions 要求 Master 调�
 项目 setup 只管理明确选择的目标：
 
 - `.codex/config.toml`：管理四项 settings——成对的初始 Master defaults `model = "gpt-5.6-sol"` 与 `model_reasoning_effort = "max"`，以及两个公开启用开关。Managed block 分类互斥：current block 绝不补缺失的 Master keys；block 缺失或被识别为 outdated 时，只有两个 keys 都缺失才补入这一对；其他情况都保留已有 assignments，并让每个缺失 key 继续缺失和继承。两个 feature switches 各自在缺失时添加。
-- `.codex/agents/`：fresh setup 会创建每个缺失的可编辑 starter role；`kiss_explorer` 与 `kiss_coder` 使用 `gpt-5.6-sol` / `high`，`kiss_reviewer` 使用 `gpt-5.6-sol` / `xhigh`。任何已经存在的角色都归用户所有并逐字节保持不变。Setup 后缺失的 starter 是合法且有意缺失的 catalog entry，不会重建。
+- `.codex/agents/`：fresh setup 会创建每个缺失的可编辑 starter role；`kiss_explorer` 与 `kiss_coder` 使用 `gpt-5.6-sol` / `high`，`kiss_reviewer` 使用 `gpt-5.6-sol` / `xhigh`。Setup 只检查这三个准确目标路径，不检查完整角色目录或另一 scope。任何已经存在的角色都归用户所有并逐字节保持不变。Setup 后缺失的 starter 是合法且有意缺失的 catalog entry，不会重建。
 - `AGENTS.md`：追加一个有界的 KISS managed block，并保留原有 instructions。
 
 这些只是首次默认值，不是锁定。Host 与账号必须支持所选 model/effort。目标中已有的值会保留，后续 setup 或 Plugin update 不会重置。Plugin cache 中的角色文件只是 package resources，不会自动进入 Host role catalog，因此仍需 fresh setup。Master settings 位于 `config.toml`；role settings 位于 standalone role TOML。Managed instructions 让 Master 只负责战略、架构与验收决策、调度、冲突解决、证据判断和汇总，把调查、实现和审查交给相应角色。
@@ -85,7 +85,7 @@ codex --config 'model="HOST_SUPPORTED_MODEL_ID"' --config 'model_reasoning_effor
 $kiss-my-agent:kiss-my-agent-setup configure agents for this project
 ```
 
-向导只编辑已有 role TOML，并在写入前预览准确改动。它不会修改 Master config，也不会创建、删除或重命名角色。也可以直接编辑 `.codex/agents/*.toml`；详见[配置](CONFIGURATION.zh-CN.md)。
+向导只编辑已有 role TOML，并在写入前预览准确改动。请求已经点名角色时，只解析这些文件；没有点名时，先只列出 direct role paths 而不解析，等待用户选择后再只解析选中的文件。未选角色无效不会阻塞配置；更广泛的 catalog warning 和 precedence 由 Host 负责。向导不会修改 Master config，也不会创建、删除或重命名角色。也可以直接编辑 `.codex/agents/*.toml`；详见[配置](CONFIGURATION.zh-CN.md)。
 
 <a id="global-setup"></a>
 ## 可选的全局 setup
@@ -112,12 +112,13 @@ $kiss-my-agent:kiss-my-agent-setup configure global agents
 | 公开开关已有值，无论带不带 marker | 完整保留，包括 `false`。 |
 | 无关 config keys 或 AGENTS 内容 | 保留。 |
 | Fresh setup 时 starter role 缺失 | 从当前 bundled seed 创建。 |
-| 任何 role file 已存在 | 视为 user-owned 并逐字节保留；不得推断或迁移角色版本。 |
-| 文件名/identity 不匹配、重复 identity 或 project/global seed-name 冲突 | 写入前停止。 |
+| 任何准确 bundled target 已存在 | 视为 user-owned 并逐字节保留；不得推断或迁移角色版本。 |
+| 准确 bundled target 的类型不安全、TOML 无效、缺失 identity fields 或 `name` 与文件名不同 | 写入前停止。 |
+| 无关角色或另一 scope 的角色损坏或声明同一 identity | 保持不变；更广泛的 catalog warning 和 project-over-global precedence 由 Host 负责。 |
 | 已有有效 managed block | 只更新该 block；把缺失 starter 报告为 intentionally absent，不恢复它们。 |
 | markers 损坏、TOML 无效、路径类型不安全或存在适用的 `AGENTS.override.md` | 停止且不得声称成功。 |
 
-Setup 在首次写入前准备全部改动，写入后验证文件；失败时只在安全的情况下回滚仍与本次 after-content 完全一致的自有修改。Agent 原生文件操作不能保证从进程或机器崩溃中恢复，因此所有歧义状态都会 fail closed。
+Setup、check 与 remove 只检查所选 scope 中由 KISS 管理的 config、AGENTS paths 和三个准确 bundled role targets；不验证完整 role catalog，也不协调 project/global roles。Setup 在首次写入前准备全部改动，写入后验证文件；失败时只在安全的情况下回滚仍与本次 after-content 完全一致的自有修改。Agent 原生文件操作不能保证从进程或机器崩溃中恢复，因此 managed target 中的歧义状态都会 fail closed。
 
 Setup 停止时，请按报告中的原因和准确路径解决冲突，不覆盖用户工作，然后重跑同一命令。观察到 `false` 开关时报告 `disabled`。如果真实新会话无法委派或没有合适角色，项目 instructions 要求 Master 报告 staffing issue 并等待用户选择，而不是把持久 workflow 解释成 Master 可直接执行。
 
