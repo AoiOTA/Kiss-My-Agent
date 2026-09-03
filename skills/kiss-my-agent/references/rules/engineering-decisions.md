@@ -49,6 +49,8 @@ Agent uncertainty and rule vocabulary are not product requirements. Words such a
 
 ## Failure ownership
 
+When repeated failures come from agent-authored commands or test or release assembly rather than the product path, first reduce the execution surface: use fewer commands with one purpose each, make the working directory explicit, reuse already resolved paths, and confirm required dependencies only where they are used. Remove self-created conditions instead of widening preflight, wrappers, or gates to repair the assembly; preserve the original cause and classify the failure as product, harness, or environment before changing the owning path.
+
 Internal bugs, impossible states, corrupted required input, and invariant violations propagate with their original causes. Broad catch-and-continue, success sentinels, stale substitution, and relabeling internal failure as optional degradation are forbidden. A top-level lifecycle owner may catch to stop safely, clean owned resources, add context, or produce an explicit failed result, but it must rethrow, return an error, or exit nonzero; cleanup must not hide the primary failure.
 
 Optional external capability may degrade only when the failure class is specific and expected, the remaining product behavior is correct without it, and the degraded reason is visible. Observe asynchronous work and subprocess completion at an owner boundary.

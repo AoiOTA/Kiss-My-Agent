@@ -460,9 +460,6 @@ def validate_setup_interface(root: Path) -> None:
         "initial defaults, not enforcement",
         "all four managed config paths",
         "four managed config assignment lines",
-        "only when both top-level keys are absent",
-        "leave the missing key absent as intentional inheritance",
-        "one or both missing keys are intentional user changes",
         "explicit value or `inherit`",
         "Never silently substitute a fallback model or effort",
         "either the current bundled seed or the corresponding known v0.1 seed",
@@ -564,7 +561,7 @@ def validate_collaboration_interfaces(root: Path) -> None:
         "python scripts/test_all.py",
         "Dogfooding KISS My Agent",
         "Squash and merge",
-        "v0.2.3 Release Process",
+        "v0.2.4 Release Process",
     ):
         if token not in contributing:
             fail(f"contributor interface missing: {token}")
@@ -572,10 +569,10 @@ def validate_collaboration_interfaces(root: Path) -> None:
     release_sequence = (
         "git pull --ff-only origin main\n"
         "python3 scripts/test_all.py\n"
-        "git tag -a v0.2.3"
+        "git tag -a v0.2.4"
     )
     if release_sequence not in contributing:
-        fail("v0.2.3 release sequence is incomplete or out of order")
+        fail("v0.2.4 release sequence is incomplete or out of order")
 
     security = (root / "SECURITY.md").read_text(encoding="utf-8")
     if "supports only its latest formal GitHub Release" not in security:

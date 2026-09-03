@@ -2,8 +2,9 @@
 #
 # This file is inert at examples/config.example.toml. Setup adds the master
 # model/effort pair only when both keys are absent and the managed block is
-# absent or well-formed outdated. Under a current block, missing master keys are
-# intentional and remain inherited. Feature defaults are added independently
+# absent or well-formed outdated. These categories are mutually exclusive: a
+# current block never receives missing master keys, and any missing key remains
+# inherited when either key already exists. Feature defaults are added independently
 # when absent. Every existing value is preserved, marked or unmarked. These are
 # defaults, not enforcement. This inert example and a static setup check do not
 # resolve the final runtime value across Codex configuration layers or prove

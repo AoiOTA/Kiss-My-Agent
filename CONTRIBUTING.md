@@ -203,13 +203,13 @@ Keep the pull request focused and reviewable. Resolve material review findings w
 A passing test is not proof of model behavior, usability, publication, or release success. State every untested surface directly.
 
 <a id="release-process"></a>
-## v0.2.3 Release Process
+## v0.2.4 Release Process
 
-This section is maintainer-only. The `v0.1.0`, `v0.2.0`, `v0.2.1`, and `v0.2.2` tags are immutable and must never be moved or recreated. The `v0.2.0`, `v0.2.1`, and `v0.2.2` tags have no GitHub Release. Post-tag v0.2.2 public fresh install and marketplace upgrade passed, but the public legacy-role transition stopped before writing because the Plugin resource workdir/path could not be resolved, so no v0.2.2 Release was created. v0.2.3 adopts user-owned roles: fresh setup creates missing current starters, while every existing role remains directly unchanged.
+This section is maintainer-only. The `v0.1.0`, `v0.2.0`, `v0.2.1`, `v0.2.2`, and `v0.2.3` tags are immutable and must never be moved or recreated. The `v0.2.0`, `v0.2.1`, `v0.2.2`, and `v0.2.3` tags have no GitHub Release. Post-tag v0.2.2 public fresh install and marketplace upgrade passed, but the public legacy-role transition stopped before writing because the Plugin resource workdir/path could not be resolved, so no v0.2.2 Release was created. The annotated v0.2.3 tag is preserved without a Release because public gate D exposed ambiguous `current` wording for the v0.1 fixture: an `outdated` managed block with both master keys absent must receive the pair. The setup-lifecycle change in v0.2.4 only clarifies this mutually exclusive classification; the same release also folds observed command/harness failures and lessons from tag trials into the existing KISS engineering/evidence Rules. User-owned role behavior remains unchanged.
 
-1. Track v0.2.3 in [Issue #8](https://github.com/AoiOTA/Kiss-My-Agent/issues/8) with acceptance criteria, compatibility constraints, and non-goals.
+1. Track v0.2.4 in [Issue #8](https://github.com/AoiOTA/Kiss-My-Agent/issues/8) with acceptance criteria, compatibility constraints, and non-goals.
 2. Before opening the release pull request, run the applicable dependency-free local core checks. Require the complete test suite and green native Ubuntu, macOS, and Windows pull-request CI for the exact candidate commit. These are candidate results; do not claim public install or live Host evidence before a public tag exists.
-3. Land implementation through a focused pull request. Align the Plugin manifest version and marketplace ref at `0.2.3` / `v0.2.3`, and synchronize English and Chinese documentation.
+3. Land implementation through a focused pull request. Align the Plugin manifest version and marketplace ref at `0.2.4` / `v0.2.4`, and synchronize English and Chinese documentation.
 4. After the pull request is squash-merged, verify the exact `origin/main` commit, create an immutable annotated tag, and push it. Do not create the GitHub Release yet:
 
 ```bash
@@ -217,11 +217,11 @@ git fetch origin
 git switch main
 git pull --ff-only origin main
 python3 scripts/test_all.py
-git tag -a v0.2.3 -m "KISS My Agent v0.2.3"
-git push origin v0.2.3
+git tag -a v0.2.4 -m "KISS My Agent v0.2.4"
+git push origin v0.2.4
 ```
 
-5. Against that pushed public tag, run only the bounded public release sequence: complete a fresh install and confirm the installed cache reports and loads `0.2.3`; in an empty disposable project run fresh setup and confirm all three current starter role files are created, start another trusted new session and actually spawn one discovered KISS role on a narrow harmless task, then delete one starter and rerun setup and check in that same project to confirm it remains intentionally absent; in the disposable v0.1-managed fixture retain the before bytes for every role file, run current setup, require the managed block to become current and the master pair to be added together when both keys were absent, and confirm every role file equals its before bytes by direct byte comparison; then exercise the documented pinned rollback, confirm ordinary upgrade remains pinned, and restore the current channel with the documented marketplace remove plus unpinned-add sequence. Do not require role migration, role hashes, induced failure, or a repeated matrix.
+5. Against that pushed public tag, reuse the already-passed and unaffected v0.2.3 evidence for gates A/B/C—public fresh install, fresh setup plus role discovery, and intentional starter absence—without repeating those checks. Rerun only gate D in the disposable v0.1-managed fixture: retain the before bytes for every role file, run current setup, require the managed block to become current and the master pair to be added together when both keys were absent, preserve the existing public feature assignments, and confirm every role file equals its before bytes by direct byte comparison. Then complete gate E: pin the v0.1.0 marketplace, confirm an ordinary upgrade remains pinned, remove that fixed source, restore the unpinned current channel, and confirm it resolves to v0.2.4. Do not require role migration, role hashes, induced failure, or a repeated matrix.
 
 ```bash
 codex plugin marketplace upgrade kiss-my-agent
@@ -231,9 +231,9 @@ codex plugin list
 6. Only after the complete public sequence passes, create the GitHub Release:
 
 ```bash
-gh release create v0.2.3 --verify-tag --title "KISS My Agent v0.2.3" --generate-notes
+gh release create v0.2.4 --verify-tag --title "KISS My Agent v0.2.4" --generate-notes
 ```
 
 7. Verify the public Release page and archives, and record the exact commit, CI runs, bounded public sequence, and residual limits in the canonical handoff through a follow-up pull request.
 
-If a post-tag public check fails, preserve the tag, do not create a misleading v0.2.3 Release, and publish the correction under a new patch version. If a published Release is later found defective, preserve its tag and publish a new patch version. Never force-push `main`, move any pushed tag, suppress a failing check, or relabel an invalid run as success.
+If a post-tag public check fails, preserve the tag, do not create a misleading v0.2.4 Release, and publish the correction under a new patch version. If a published Release is later found defective, preserve its tag and publish a new patch version. Never force-push `main`, move any pushed tag, suppress a failing check, or relabel an invalid run as success.

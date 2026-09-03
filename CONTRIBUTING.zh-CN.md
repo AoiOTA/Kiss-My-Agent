@@ -203,13 +203,13 @@ Pull request 要聚焦且便于审查。解决重大 review findings 时不要�
 测试通过不能证明模型行为、可用性、发布或 release 成功。直接说明所有未测试表面。
 
 <a id="release-process"></a>
-## v0.2.3 发布流程
+## v0.2.4 发布流程
 
-本节仅供 maintainer 使用。`v0.1.0`、`v0.2.0`、`v0.2.1` 与 `v0.2.2` tags 不可变，绝不能移动或重建。`v0.2.0`、`v0.2.1` 与 `v0.2.2` tags 都没有 GitHub Release。v0.2.2 post-tag 的 public fresh install 与 marketplace upgrade 已通过，但 public legacy-role transition 因无法解析 Plugin resource workdir/path 而在写入前停止，因此没有创建 v0.2.2 Release。v0.2.3 采用 user-owned roles：fresh setup 创建缺失的 current starters，所有已有角色直接保持不变。
+本节仅供 maintainer 使用。`v0.1.0`、`v0.2.0`、`v0.2.1`、`v0.2.2` 与 `v0.2.3` tags 不可变，绝不能移动或重建。`v0.2.0`、`v0.2.1`、`v0.2.2` 与 `v0.2.3` tags 都没有 GitHub Release。v0.2.2 post-tag 的 public fresh install 与 marketplace upgrade 已通过，但 public legacy-role transition 因无法解析 Plugin resource workdir/path 而在写入前停止，因此没有创建 v0.2.2 Release。Annotated v0.2.3 tag 保留但没有 Release，因为 public gate D 暴露了 v0.1 fixture 中 `current` 措辞的双义：`outdated` managed block 在两个 Master keys 都缺失时必须补入这一对。v0.2.4 中的 setup-lifecycle 改动只澄清这一互斥分类；同一版本还把已观察的 command/harness failures 与 tag 试错经验收敛进现有 KISS engineering/evidence Rules。User-owned role 行为保持不变。
 
-1. 使用 [Issue #8](https://github.com/AoiOTA/Kiss-My-Agent/issues/8) 跟踪 v0.2.3，并写明验收标准、兼容性约束和非目标。
+1. 使用 [Issue #8](https://github.com/AoiOTA/Kiss-My-Agent/issues/8) 跟踪 v0.2.4，并写明验收标准、兼容性约束和非目标。
 2. 创建 release pull request 前，运行适用且不需要第三方依赖的本地 core checks。要求该精确 candidate commit 的完整测试套件以及 Ubuntu、macOS、Windows 原生 pull-request CI 全绿。这些只属于 candidate 结果；公开 tag 存在前，不得声称 public install 或真实 Host 证据。
-3. 通过聚焦 pull request 合入实现。将 Plugin manifest version 与 marketplace ref 对齐为 `0.2.3` / `v0.2.3`，并同步中英文文档。
+3. 通过聚焦 pull request 合入实现。将 Plugin manifest version 与 marketplace ref 对齐为 `0.2.4` / `v0.2.4`，并同步中英文文档。
 4. Pull request squash-merge 后，验证精确的 `origin/main` commit，创建不可变的 annotated tag 并推送。此时还不能创建 GitHub Release：
 
 ```bash
@@ -217,11 +217,11 @@ git fetch origin
 git switch main
 git pull --ff-only origin main
 python3 scripts/test_all.py
-git tag -a v0.2.3 -m "KISS My Agent v0.2.3"
-git push origin v0.2.3
+git tag -a v0.2.4 -m "KISS My Agent v0.2.4"
+git push origin v0.2.4
 ```
 
-5. 针对已推送的公开 tag，只运行有界的 public release 顺序：完成 fresh install 并确认 installed cache 报告并加载 `0.2.3`；在空的一次性项目中运行 fresh setup 并确认三份 current starter role files 全部创建，再启动一个可信新会话，让一个已发现的 KISS role 实际执行窄范围无害任务，随后删除一份 starter，在同一项目中重跑 setup 与 check，并确认它保持 intentionally absent；在一次性 v0.1-managed fixture 中保留每个角色文件的 before bytes，运行 current setup，要求 managed block 变为 current，并在两个 Master keys 原本都缺失时成对补齐，再通过 direct byte comparison 确认每个角色文件都与 before bytes 一致；随后执行文档中的 pinned rollback，确认普通 upgrade 仍保持 pinned，再用文档中的 marketplace remove 加 unpinned-add 顺序恢复 current channel。不要求角色迁移、角色 hash、诱导失败或重复矩阵。
+5. 针对已推送的公开 tag，复用 v0.2.3 已通过且不受影响的 gates A/B/C 证据——public fresh install、fresh setup 加 role discovery，以及 intentional starter absence——不重复这些检查。只重跑 gate D：在一次性 v0.1-managed fixture 中保留每个角色文件的 before bytes，运行 current setup，要求 managed block 变为 current，在两个 Master keys 原本都缺失时成对补齐，保留已有 public feature assignments，并通过 direct byte comparison 确认每个角色文件都与 before bytes 一致。随后完成 gate E：固定 v0.1.0 marketplace，确认普通 upgrade 仍停留在固定版本，移除该 fixed source，恢复 unpinned current channel，并确认它解析为 v0.2.4。不要求角色迁移、角色 hash、诱导失败或重复矩阵。
 
 ```bash
 codex plugin marketplace upgrade kiss-my-agent
@@ -231,9 +231,9 @@ codex plugin list
 6. 只有完整 public 顺序通过后，才能创建 GitHub Release：
 
 ```bash
-gh release create v0.2.3 --verify-tag --title "KISS My Agent v0.2.3" --generate-notes
+gh release create v0.2.4 --verify-tag --title "KISS My Agent v0.2.4" --generate-notes
 ```
 
 7. 验证公开 Release 页面与 archives，并通过后续 pull request 在 canonical handoff 中记录精确 commit、CI runs、有界 public 顺序和剩余限制。
 
-如果 post-tag public check 失败，保留该 tag，不创建误导性的 v0.2.3 Release，并以新的 patch version 发布修复。如果已经发布的 Release 后来发现缺陷，同样保留 tag 并发布新的 patch version。绝不 force-push `main`、移动任何已推送 tag、压掉失败检查，或把 invalid run 重新标记为成功。
+如果 post-tag public check 失败，保留该 tag，不创建误导性的 v0.2.4 Release，并以新的 patch version 发布修复。如果已经发布的 Release 后来发现缺陷，同样保留 tag 并发布新的 patch version。绝不 force-push `main`、移动任何已推送 tag、压掉失败检查，或把 invalid run 重新标记为成功。

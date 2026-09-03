@@ -53,7 +53,7 @@ Setup 场景只能在一次性项目和明确隔离的 Codex home 中运行。�
 必测场景包括：
 
 - 空项目 setup、重复 setup、check 与 remove；
-- 只有两个 Master keys 都缺失，且 managed block 缺失或被识别为 outdated 时才成对添加 defaults；任一 key 已存在或 current block 已存在时，缺失 companion 保持缺失；
+- managed block 分类互斥：current block 绝不补缺失的 Master keys；block 缺失或被识别为 outdated 时，只有两个 keys 都缺失才补入这一对；其他情况都保留已有 assignments，并让每个缺失 key 继续缺失和继承；
 - 两个 feature switches 各自在缺失时添加，同时保留四个 paths 的 marked/unmarked values、无关 config、comments、换行风格、AGENTS 内容和已有角色；
 - 有意设置的 `false` 与有意删除的 seed roles；
 - 损坏 TOML、不安全路径类型、`AGENTS.override.md`、重复名称、文件名/identity 不匹配和 project/global 冲突；
@@ -118,19 +118,19 @@ $plugin-creator update this existing KISS My Agent plugin for local development.
 
 创建 tag 前，运行不需要第三方依赖的本地 core checks，并要求该精确 candidate commit 的完整原生 pull-request CI 通过。这些只属于 candidate 证据，不是公开 install 或真实 Host 证据。
 
-Pull request 合并且精确 commit 已创建并推送 `v0.2.3` tag 后，使用隔离的公开安装执行有界 release checks：
+Pull request 合并且精确 commit 已创建并推送 `v0.2.4` tag 后，使用隔离的公开安装执行有界 release checks：
 
 ```bash
 codex plugin marketplace upgrade kiss-my-agent
 codex plugin list
 ```
 
-Immutable `v0.2.0`、`v0.2.1` 与 `v0.2.2` tags 都没有 GitHub Release。v0.2.2 post-tag 的 public fresh install 与 marketplace upgrade 已通过，但 public legacy-role transition 因无法解析 Plugin resource workdir/path 而在写入前停止，因此没有创建 v0.2.2 Release。v0.2.3 只测试下面的有界顺序：
+Immutable `v0.2.0`、`v0.2.1`、`v0.2.2` 与 `v0.2.3` tags 都没有 GitHub Release。v0.2.2 post-tag 的 public fresh install 与 marketplace upgrade 已通过，但 public legacy-role transition 因无法解析 Plugin resource workdir/path 而在写入前停止，因此没有创建 v0.2.2 Release。Annotated v0.2.3 tag 保留但没有 Release，因为 public gate D 暴露了 v0.1 fixture 中 `current` 措辞的双义：`outdated` managed block 在两个 Master keys 都缺失时必须补入这一对。v0.2.4 中的 setup-lifecycle 改动只澄清这一互斥分类；同一版本还把已观察的 command/harness failures 与 tag 试错经验收敛进现有 KISS engineering/evidence Rules。
 
-1. 完成 public fresh install，并在可信新会话中确认 installed cache 报告并加载 `0.2.3`。
-2. 在空的一次性项目中运行 fresh setup，并确认三份 current starter role files 全部创建。再打开一个新会话，让一个已发现的 KISS role 实际执行窄范围无害任务。随后删除一份 starter，在同一项目中重跑 setup 与 check，并确认该角色保持 intentionally absent。
-3. 在一次性 v0.1-managed fixture 中保留每个角色文件的 before bytes，再运行 current setup。要求 managed block 变为 current；两个 Master keys 原本都缺失时，要求成对补齐。通过 direct byte comparison 确认每个角色文件都与 before bytes 一致。
-4. 执行文档中的 pinned rollback，确认普通 upgrade 仍保持 pinned，再用文档中的 marketplace remove 加 unpinned-add 顺序恢复 current channel。
+复用 v0.2.3 已通过且不受影响的 gates A/B/C 证据——public fresh install、fresh setup 加 role discovery，以及 intentional starter absence——不重复这些检查。v0.2.4 只执行剩余的有界顺序：
+
+1. 重跑 gate D。在一次性 v0.1-managed fixture 中保留每个角色文件的 before bytes，再运行 current setup。要求 managed block 变为 current，在两个 Master keys 原本都缺失时补入这一对，保留已有 public feature assignments，并通过 direct byte comparison 确认每个角色文件都与 before bytes 一致。
+2. 完成 gate E：固定 v0.1.0 marketplace 并确认普通 upgrade 仍停留在固定版本，随后移除该 fixed source，恢复 unpinned current channel，并确认它解析为 v0.2.4。
 
 这些检查不要求角色迁移、角色 hash、诱导失败或重复矩阵。只有全部通过后，maintainer 才能创建 GitHub Release。任一步失败时都保留已推送 tag，不得移动它，并改用新的 patch version 发布修复。保留第一个决定性错误。
 

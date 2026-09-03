@@ -193,10 +193,14 @@ class SetupContractTests(unittest.TestCase):
         self.assertIn("marker controls remove ownership only", self.lifecycle)
         self.assertIn("initial defaults, not enforcement", self.lifecycle)
         self.assertIn("all four managed config paths", self.lifecycle)
-        self.assertIn("only when both top-level keys are absent", self.lifecycle)
-        self.assertIn("either absent or well-formed but outdated at preflight", self.lifecycle)
-        self.assertIn("leave the missing key absent as intentional inheritance", self.lifecycle)
-        self.assertIn("one or both missing keys are intentional user changes", self.lifecycle)
+        self.assertIn("exactly one mutually exclusive state", self.lifecycle)
+        self.assertIn("When both top-level master keys are absent", self.lifecycle)
+        self.assertIn("block state is `absent` or `outdated`", self.lifecycle)
+        self.assertIn("block state is `current`, add neither", self.lifecycle)
+        self.assertIn("absence records intentional user removal", self.lifecycle)
+        self.assertIn("When either top-level master key already exists", self.lifecycle)
+        self.assertIn("in every block state", self.lifecycle)
+        self.assertIn("leave the other key absent as intentional inheritance", self.lifecycle)
         self.assertIn("four managed config assignment lines", self.lifecycle)
         self.assertIn("create each missing bundled role from its exact current plugin seed", self.lifecycle)
         self.assertIn("Preserve every existing correctly identified role byte-for-byte", self.lifecycle)
@@ -206,6 +210,10 @@ class SetupContractTests(unittest.TestCase):
         self.assertIn("either the current bundled seed or the corresponding known v0.1 seed", self.lifecycle)
 
     def test_role_assets_are_read_only_by_the_actions_that_consume_them(self) -> None:
+        self.assertLess(
+            self.lifecycle.index("exactly one mutually exclusive state"),
+            self.lifecycle.index("`setup`: after classifying the managed block"),
+        )
         self.assertIn(
             "`setup`: after classifying the managed block, read and identity-check a current seed only for a missing role",
             self.lifecycle,
@@ -219,7 +227,7 @@ class SetupContractTests(unittest.TestCase):
     def test_codex_home_and_outdated_state_rules_are_explicit(self) -> None:
         self.assertIn("non-empty `CODEX_HOME`", self.lifecycle)
         self.assertIn("current user's `~/.codex`", self.lifecycle)
-        self.assertIn("`current`, `outdated`, or `absent`", self.lifecycle)
+        self.assertIn("`absent`, `outdated`, or `current`", self.lifecycle)
         self.assertIn("Define a setup trace", self.lifecycle)
         self.assertIn("managed block is well-formed but `outdated`", self.lifecycle)
         self.assertIn("explicit value or `inherit`", self.lifecycle)
@@ -267,7 +275,7 @@ class SetupContractTests(unittest.TestCase):
             self.assertNotIn("model", v010)
             self.assertNotIn("model_reasoning_effort", v010)
 
-        self.assertIn("well-formed but outdated at preflight", self.lifecycle)
+        self.assertIn("block state is `absent` or `outdated`", self.lifecycle)
         self.assertIn("replace only its interior and markers with the current block", self.lifecycle)
         self.assertIn("Preserve every existing correctly identified role byte-for-byte", self.lifecycle)
 

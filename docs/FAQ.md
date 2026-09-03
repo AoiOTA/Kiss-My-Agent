@@ -49,7 +49,7 @@ codex plugin add kiss-my-agent@kiss-my-agent
 codex plugin list
 ```
 
-After the v0.2.3 tag is published, the list should show `kiss-my-agent@kiss-my-agent` as `installed, enabled` at version `0.2.3`; cache paths may differ. If Plugin commands, authentication, or marketplace access fail, check client support, login state, `git`, and GitHub network access. For a simple one-off task, stop after installation and use an ordinary single conversation. For a complex project that needs the persistent workflow, start a new session. Plugin cache roles are not automatically added to the Host catalog. On the tested Codex 0.152.1 baseline, type `$` and select `kiss-my-agent-setup (kiss-my-agent)` in the picker. The picker inserts a structured Skill reference; add the setup request and submit the prompt to invoke it. If you paste raw text, run `$kiss-my-agent:kiss-my-agent-setup set up this project`. Trust the project through the Host when prompted, then start another new session and run `$kiss-my-agent:kiss-my-agent-setup check this project`.
+After the v0.2.4 tag is published, the list should show `kiss-my-agent@kiss-my-agent` as `installed, enabled` at version `0.2.4`; cache paths may differ. If Plugin commands, authentication, or marketplace access fail, check client support, login state, `git`, and GitHub network access. For a simple one-off task, stop after installation and use an ordinary single conversation. For a complex project that needs the persistent workflow, start a new session. Plugin cache roles are not automatically added to the Host catalog. On the tested Codex 0.152.1 baseline, type `$` and select `kiss-my-agent-setup (kiss-my-agent)` in the picker. The picker inserts a structured Skill reference; add the setup request and submit the prompt to invoke it. If you paste raw text, run `$kiss-my-agent:kiss-my-agent-setup set up this project`. Trust the project through the Host when prompted, then start another new session and run `$kiss-my-agent:kiss-my-agent-setup check this project`.
 
 <a id="after-setup"></a>
 ## What do I do after setup?
@@ -76,7 +76,7 @@ Use it for one consequential, non-obvious decision—for example, whether to kee
 <a id="configure"></a>
 ## How do I configure the master or initial Agents?
 
-The bundled defaults use `gpt-5.6-sol`: the master uses `max`, `kiss_explorer` and `kiss_coder` use `high`, and `kiss_reviewer` uses `xhigh`. The Host and account must support these values. The master pair is added together only when both keys are absent and the managed block is absent or recognized as outdated. Existing keys are preserved, a missing companion under a current block remains absent, and later setup or Plugin updates do not reset choices.
+The bundled defaults use `gpt-5.6-sol`: the master uses `max`, `kiss_explorer` and `kiss_coder` use `high`, and `kiss_reviewer` uses `xhigh`. The Host and account must support these values. The managed-block classifications are mutually exclusive: a current block never receives missing master keys; an absent or recognized-outdated block receives the pair only when both keys are absent; otherwise existing assignments are preserved and each missing key remains absent for inheritance. Later setup or Plugin updates do not reset these choices.
 
 The master is not a role and cannot be changed by the role wizard. For project setup, edit `<project>/.codex/config.toml`. For global setup, edit `$CODEX_HOME/config.toml`, or `~/.codex/config.toml` when `CODEX_HOME` is unset. If the master cannot start because those values are unsupported, use one temporary CLI override, repair the persistent config, and start another new session:
 
@@ -113,7 +113,7 @@ codex plugin marketplace upgrade kiss-my-agent
 codex plugin list
 ```
 
-On the verified Codex 0.152.1 baseline, the Host automatically refreshes a default unpinned Git marketplace at startup and reinstalls an enabled non-curated Plugin. KISS My Agent contains no updater of its own, and other Codex versions may behave differently. After v0.2.3 is published and the commands above complete, expect `kiss-my-agent@kiss-my-agent` to be `installed, enabled` at version `0.2.3`. Start a new session after an update changes the installed Plugin.
+On the verified Codex 0.152.1 baseline, the Host automatically refreshes a default unpinned Git marketplace at startup and reinstalls an enabled non-curated Plugin. KISS My Agent contains no updater of its own, and other Codex versions may behave differently. After v0.2.4 is published and the commands above complete, expect `kiss-my-agent@kiss-my-agent` to be `installed, enabled` at version `0.2.4`. Start a new session after an update changes the installed Plugin.
 
 Automatic refresh and explicit marketplace upgrade update only the Plugin package. They do not change project or global config, instructions, or role files. A v0.1-managed project may run setup after updating to refresh its managed instruction block and add missing public switches, but every existing role stays directly unchanged. Use the role wizard or edit role TOML manually to adopt newer model or effort choices.
 
@@ -132,7 +132,7 @@ No. They are editable standalone starter-role files, not a closed list or mandat
 <a id="existing-files"></a>
 ## What if I already have config, AGENTS, or role files?
 
-Setup manages four settings but does not fill all four independently. It adds the master model/effort pair only when both keys are absent and the managed block is absent or recognized as outdated; if either key exists, or either is absent under a current block, both existing state and any missing companion are preserved. Each missing public switch is added independently. Existing marked or unmarked assignments, unrelated content, explicit `false` values, and every existing role remain byte-for-byte. Setup stops before writing on invalid TOML, unsafe path types, duplicate identities, ownership conflicts, project/global starter-role conflicts, or an applicable `AGENTS.override.md`.
+Setup manages four settings but does not fill all four independently. The managed-block classifications are mutually exclusive: a current block never receives missing master keys; an absent or recognized-outdated block receives the pair only when both keys are absent; otherwise existing assignments are preserved and each missing key remains absent for inheritance. Each missing public switch is added independently. Existing marked or unmarked assignments, unrelated content, explicit `false` values, and every existing role remain byte-for-byte. Setup stops before writing on invalid TOML, unsafe path types, duplicate identities, ownership conflicts, project/global starter-role conflicts, or an applicable `AGENTS.override.md`.
 
 Use the reported reason and exact path to resolve the conflict without overwriting user work, then rerun the same setup command. See [Installation](INSTALLATION.md#collision-policy) for the complete policy.
 
