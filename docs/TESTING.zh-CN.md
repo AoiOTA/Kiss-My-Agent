@@ -37,8 +37,8 @@ $kiss-my-agent:kiss-my-agent-setup configure agents for this project
 只修改 Plugin/Skill 的贡献者需要 Python 3.11 或更高版本，但不需要第三方包。运行本地核心检查：
 
 ```bash
-python scripts/validate.py
-python -m unittest tests.test_setup -v
+python3 scripts/validate.py
+python3 -m unittest tests.test_setup -v
 ```
 
 这些改动不要求本地构建站点。Pull request CI 会安装 `requirements-site.txt` 并运行 `python scripts/test_all.py`，执行静态验证、全部单元测试和临时目录中的文档构建。它不得留下 tracked 文件改动。Linux/macOS 与原生 Windows CI 使用同一个完整入口；shell wrappers 只检查各自平台的原生启动行为。
@@ -81,7 +81,7 @@ $plugin-creator update this existing KISS My Agent plugin for local development.
 
 参见 OpenAI 官方的 [Plugin Creator 与 local marketplace 指南](https://developers.openai.com/plugins/build/plugins#package-with-plugin-creator)和[marketplace add/upgrade 命令](https://developers.openai.com/plugins/build/plugins#add-a-marketplace-from-the-cli)。
 
-不得给 canonical release manifest 添加 cachebuster、手工编辑已配置 marketplace，也不得把 Git-backed v0.1.0 cache 当作工作树改动的证据。记录实际加载的 Plugin 版本和候选版本独有行为。
+不得给 canonical release manifest 添加 cachebuster、手工编辑已配置 marketplace，也不得把 Git-backed release cache 当作工作树改动的证据。记录实际加载的 Plugin 版本和候选版本独有行为。
 
 <a id="fresh-session"></a>
 ## 可信新会话
@@ -118,21 +118,23 @@ $plugin-creator update this existing KISS My Agent plugin for local development.
 
 创建 tag 前，运行不需要第三方依赖的本地 core checks，并要求该精确 candidate commit 的完整原生 pull-request CI 通过。这些只属于 candidate 证据，不是公开 install 或真实 Host 证据。
 
-Pull request 合并且精确 commit 已创建并推送 `v0.2.4` tag 后，使用隔离的公开安装执行有界 release checks：
+Pull request 合并且精确 commit 已创建并推送 `vX.Y.Z` tag 后，只使用隔离的公开安装执行必须经过公开分发表面的有界检查。把每条命令中的 `vX.Y.Z` 替换为本次 release 唯一选定的版本：
 
 ```bash
 codex plugin marketplace upgrade kiss-my-agent
-codex plugin list
+codex plugin list --marketplace kiss-my-agent
 ```
 
-Immutable `v0.2.0`、`v0.2.1`、`v0.2.2` 与 `v0.2.3` tags 都没有 GitHub Release。v0.2.2 post-tag 的 public fresh install 与 marketplace upgrade 已通过，但 public legacy-role transition 因无法解析 Plugin resource workdir/path 而在写入前停止，因此没有创建 v0.2.2 Release。Annotated v0.2.3 tag 保留但没有 Release，因为 public gate D 暴露了 v0.1 fixture 中 `current` 措辞的双义：`outdated` managed block 在两个 Master keys 都缺失时必须补入这一对。v0.2.4 中的 setup-lifecycle 改动只澄清这一互斥分类；同一版本还把已观察的 command/harness failures 与 tag 试错经验收敛进现有 KISS engineering/evidence Rules。
+只有覆盖的 source 与行为没有变化时才能复用旧证据，并明确说明这是复用而不是重跑。创建 tag 后不要重复 candidate checks；只验证 release 验收标准要求的公开 archive、marketplace install 或 upgrade、fresh-session discovery 或其他 public-only 行为。除非改动行为确实需要，否则不要增加角色迁移、hash、诱导失败或重复矩阵。
 
-复用 v0.2.3 已通过且不受影响的 gates A/B/C 证据——public fresh install、fresh setup 加 role discovery，以及 intentional starter absence——不重复这些检查。v0.2.4 只执行剩余的有界顺序：
+行动前先分类第一个决定性的 post-tag failure：
 
-1. 重跑 gate D。在一次性 v0.1-managed fixture 中保留每个角色文件的 before bytes，再运行 current setup。要求 managed block 变为 current，在两个 Master keys 原本都缺失时补入这一对，保留已有 public feature assignments，并通过 direct byte comparison 确认每个角色文件都与 before bytes 一致。
-2. 完成 gate E：固定 v0.1.0 marketplace 并确认普通 upgrade 仍停留在固定版本，随后移除该 fixed source，恢复 unpinned current channel，并确认它解析为 v0.2.4。
+- Tagged 产品源码中的缺陷：保留 tag，不为它创建 GitHub Release；修复 source 后使用下一个 patch version。
+- Harness、command construction 或 environment failure：修复该 owner，并针对同一个 tag 只补取缺失证据。
+- Evaluator error 或其他 invalid run：修正 evaluation，只重跑无效观察；它不是产品负面证据，也不触发 patch version。
+- GitHub Release 发布后才发现的产品缺陷：保留已发布 tag，以新的 patch version 发布修复。
 
-这些检查不要求角色迁移、角色 hash、诱导失败或重复矩阵。只有全部通过后，maintainer 才能创建 GitHub Release。任一步失败时都保留已推送 tag，不得移动它，并改用新的 patch version 发布修复。保留第一个决定性错误。
+只有必需的公开检查通过后，maintainer 才能创建 GitHub Release。保留所有已推送 tag 与第一个决定性错误。
 
 <a id="dogfooding"></a>
 ## 开发过程中的 Dogfooding

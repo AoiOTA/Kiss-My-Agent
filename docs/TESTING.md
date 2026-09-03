@@ -37,8 +37,8 @@ These operations use Codex file tools and require no Python, Node.js, Docker, or
 Plugin/Skill-only contributors need Python 3.11 or newer but no third-party package. Run the local core checks:
 
 ```bash
-python scripts/validate.py
-python -m unittest tests.test_setup -v
+python3 scripts/validate.py
+python3 -m unittest tests.test_setup -v
 ```
 
 Local site construction is not required for those changes. Pull-request CI installs `requirements-site.txt` and runs `python scripts/test_all.py`, which performs static validation, all unit tests, and a documentation build in a temporary output directory. It must leave tracked files unchanged. Linux/macOS and native Windows CI run the same complete entrypoint; shell wrappers remain narrow checks of their native launch behavior.
@@ -81,7 +81,7 @@ $plugin-creator update this existing KISS My Agent plugin for local development.
 
 See the official OpenAI [Plugin Creator and local marketplace guidance](https://developers.openai.com/plugins/build/plugins#package-with-plugin-creator) and [marketplace add/upgrade commands](https://developers.openai.com/plugins/build/plugins#add-a-marketplace-from-the-cli).
 
-Do not add a cachebuster to the canonical release manifest, hand-edit a configured marketplace, or treat the Git-backed v0.1.0 cache as evidence for working-tree changes. Record the loaded Plugin version and a behavior unique to the candidate.
+Do not add a cachebuster to the canonical release manifest, hand-edit a configured marketplace, or treat a Git-backed release cache as evidence for working-tree changes. Record the loaded Plugin version and a behavior unique to the candidate.
 
 <a id="fresh-session"></a>
 ## Trusted fresh session
@@ -118,21 +118,23 @@ Test a department lead only for a large independent disposable subsystem whose d
 
 Before tagging, run the dependency-free local core checks and require the complete native pull-request CI for the exact candidate commit. Those results are candidate evidence, not public install or live Host evidence.
 
-After the pull request is merged and the exact commit has been tagged and pushed as `v0.2.4`, use isolated public installs to run the bounded release checks:
+After the pull request is merged and the exact commit has been tagged and pushed as `vX.Y.Z`, use isolated public installs to run only the bounded checks that require a public distribution surface. Replace `vX.Y.Z` in every command with the one release version selected for this release:
 
 ```bash
 codex plugin marketplace upgrade kiss-my-agent
-codex plugin list
+codex plugin list --marketplace kiss-my-agent
 ```
 
-The immutable `v0.2.0`, `v0.2.1`, `v0.2.2`, and `v0.2.3` tags have no GitHub Release. Post-tag v0.2.2 public fresh install and marketplace upgrade passed, but its public legacy-role transition stopped before writing because the Plugin resource workdir/path could not be resolved; therefore v0.2.2 received no Release. The annotated v0.2.3 tag is preserved without a Release because public gate D exposed ambiguous `current` wording for the v0.1 fixture: an `outdated` managed block with both master keys absent must receive the pair. The setup-lifecycle change in v0.2.4 only clarifies this mutually exclusive classification; the same release also folds observed command/harness failures and lessons from tag trials into the existing KISS engineering/evidence Rules.
+Reuse prior evidence only when the source and behavior it covers are unchanged; state explicitly that the result was reused rather than rerun. Do not repeat candidate checks after tagging. Verify only the public archive, marketplace install or upgrade, fresh-session discovery, or other public-only behavior required by the release acceptance criteria. Do not add role migration, hashes, induced failures, or a repeated matrix unless the changed behavior requires them.
 
-Reuse the already-passed and unaffected v0.2.3 evidence for gates A/B/C—public fresh install, fresh setup plus role discovery, and intentional starter absence—without repeating those checks. For v0.2.4, run only the remaining bounded sequence:
+Classify the first decisive post-tag failure before acting:
 
-1. Rerun gate D in the disposable v0.1-managed fixture. Retain the before bytes for every role file and run current setup. Require the managed block to become current, require the master pair to be added when both keys were absent, preserve the existing public feature assignments, and confirm every role file equals its before bytes by direct byte comparison.
-2. Complete gate E: pin the v0.1.0 marketplace and confirm an ordinary upgrade remains pinned, then remove that fixed source, restore the unpinned current channel, and confirm it resolves to v0.2.4.
+- A defect in the tagged product source: preserve the tag, do not create a GitHub Release for it, fix the source, and use the next patch version.
+- A harness, command-construction, or environment failure: fix that owner and obtain only the missing evidence against the same tag.
+- An evaluator error or another invalid run: correct the evaluation and rerun only the invalid observation; it is not product-negative evidence and does not trigger a patch version.
+- A product defect found after the GitHub Release is published: preserve the released tag and publish the correction as a new patch version.
 
-These checks do not require role migration, role hashes, induced failure, or a repeated matrix. Only after the sequence passes may the maintainer create the GitHub Release. If a check fails, preserve the pushed tag, do not move it, and release a corrective patch version instead. Preserve the first decisive failure.
+Only after the required public checks pass may the maintainer create the GitHub Release. Preserve every pushed tag and the first decisive failure.
 
 <a id="dogfooding"></a>
 ## Dogfooding during development

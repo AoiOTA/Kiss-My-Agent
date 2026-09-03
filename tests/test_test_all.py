@@ -149,6 +149,22 @@ class GitStateTests(unittest.TestCase):
         self.assertEqual(self.state(), before)
 
 
+class TestSuiteEntryPointTests(unittest.TestCase):
+    def test_missing_dependency_installs_through_the_active_environment(self) -> None:
+        stderr = io.StringIO()
+        with (
+            mock.patch.object(test_all.importlib.util, "find_spec", return_value=None),
+            contextlib.redirect_stderr(stderr),
+        ):
+            self.assertEqual(test_all.main(), 1)
+
+        message = stderr.getvalue()
+        self.assertIn("create and activate an isolated environment", message)
+        self.assertIn("python -m pip install -r requirements-site.txt", message)
+        self.assertNotIn("python3 -m pip", message)
+        self.assertNotIn("py -3 -m pip", message)
+
+
 class ValidationTests(unittest.TestCase):
     def test_trailing_space_and_tab_are_reported_from_collected_text(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

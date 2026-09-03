@@ -58,8 +58,8 @@ Case 保持以下精确章节顺序：
 只修改 Plugin/Skill 时可以运行不需要第三方包的本地核心检查。Pull request CI 负责完整跨平台和站点套件：
 
 ```bash
-python scripts/validate.py
-python -m unittest tests.test_setup -v
+python3 scripts/validate.py
+python3 -m unittest tests.test_setup -v
 ```
 
 导航、tables、badges、Mermaid 或 assets 改变时检查渲染 Markdown。发现行为改变时使用可信新 Codex 会话；旧会话不保证热加载。

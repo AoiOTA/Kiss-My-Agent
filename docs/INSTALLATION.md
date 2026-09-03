@@ -185,11 +185,11 @@ $kiss-my-agent:kiss-my-agent-setup remove global setup
 Plugin/Skill-only contributors can run the dependency-free local core checks with Python 3.11+:
 
 ```bash
-python scripts/validate.py
-python -m unittest tests.test_setup -v
+python3 scripts/validate.py
+python3 -m unittest tests.test_setup -v
 ```
 
-They do not need to install the Markdown package or build the site locally. That dependency exists only to render the documentation site; pull-request CI installs its pinned version and runs `python scripts/test_all.py`, including the isolated site build. See [Contributing](../CONTRIBUTING.md) for platform-specific details. None of these tools are used by Plugin consumers.
+They do not need to install the Markdown package or build the site locally. That dependency exists only to render the documentation site; pull-request CI installs its pinned version and runs `python scripts/test_all.py` in its activated environment, including the isolated site build. See [Contributing](../CONTRIBUTING.md) for platform-specific details. None of these tools are used by Plugin consumers.
 
 The v0.1 contributor CLI `skills/kiss-my-agent-setup/scripts/setup.py` was removed in v0.2. This is a breaking contributor-interface change, not a missing user runtime dependency. Migrate setup, check, remove, and Agent configuration to the conversational `kiss-my-agent-setup` Skill, invoking it as `$kiss-my-agent:kiss-my-agent-setup` when you paste raw text. Its Agent-native engineering run demonstrates observed file-tool behavior; repository validation demonstrates deterministic source contracts, so neither is a substitute for the other.
 

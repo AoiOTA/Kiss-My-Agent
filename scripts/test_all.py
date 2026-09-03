@@ -75,7 +75,8 @@ def main() -> int:
     if importlib.util.find_spec("markdown") is None:
         print(
             "test suite failed: the contributor documentation dependency is missing; "
-            "activate an isolated environment and run "
+            "create and activate an isolated environment using the platform-specific "
+            "steps in CONTRIBUTING.md, then install through that active environment: "
             "`python -m pip install -r requirements-site.txt`",
             file=sys.stderr,
         )
