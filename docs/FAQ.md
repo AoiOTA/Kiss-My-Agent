@@ -36,7 +36,7 @@ It is aimed primarily at Codex users building research MVPs, validating algorith
 <a id="install"></a>
 ## How do I install it?
 
-The tested baseline is authenticated, Plugin-capable Codex CLI 0.152.1. You also need `git`, GitHub network access, and account support for the bundled default model `gpt-5.6-sol`. Earlier Codex versions are not verified. Check the client first:
+The tested baselines are authenticated, Plugin-capable Codex CLI 0.152.1 and 0.153.0. You also need `git`, GitHub network access, and account support for the bundled default model `gpt-5.6-sol`. Other Codex versions are not verified. Check the client first:
 
 ```bash
 codex --version
@@ -46,10 +46,10 @@ codex plugin --help
 ```bash
 codex plugin marketplace add AoiOTA/Kiss-My-Agent
 codex plugin add kiss-my-agent@kiss-my-agent
-codex plugin list
+codex plugin list --marketplace kiss-my-agent
 ```
 
-After the v0.2.4 tag is published, the list should show `kiss-my-agent@kiss-my-agent` as `installed, enabled` at version `0.2.4`; cache paths may differ. If Plugin commands, authentication, or marketplace access fail, check client support, login state, `git`, and GitHub network access. For a simple one-off task, stop after installation and use an ordinary single conversation. For a complex project that needs the persistent workflow, start a new session. Plugin cache roles are not automatically added to the Host catalog. On the tested Codex 0.152.1 baseline, type `$` and select `kiss-my-agent-setup (kiss-my-agent)` in the picker. The picker inserts a structured Skill reference; add the setup request and submit the prompt to invoke it. If you paste raw text, run `$kiss-my-agent:kiss-my-agent-setup set up this project`. Trust the project through the Host when prompted, then start another new session and run `$kiss-my-agent:kiss-my-agent-setup check this project`.
+The list should show `kiss-my-agent@kiss-my-agent` as `installed, enabled` at the current supported release; cache paths may differ. If Plugin commands, authentication, or marketplace access fail, check client support, login state, `git`, and GitHub network access. For a simple one-off task, stop after installation and use an ordinary single conversation. For a complex project that needs the persistent workflow, start a new session. Plugin cache roles are not automatically added to the Host catalog. On the tested Codex 0.152.1 baseline, type `$` and select `kiss-my-agent-setup (kiss-my-agent)` in the picker. The picker inserts a structured Skill reference; add the setup request and submit the prompt to invoke it. If you paste raw text, run `$kiss-my-agent:kiss-my-agent-setup set up this project`. Trust the project through the Host when prompted, then start another new session and run `$kiss-my-agent:kiss-my-agent-setup check this project`.
 
 <a id="after-setup"></a>
 ## What do I do after setup?
@@ -57,6 +57,11 @@ After the v0.2.4 tag is published, the list should show `kiss-my-agent@kiss-my-a
 Use Codex normally. You do not have to invoke KISS before every task. The project `AGENTS.md` instructions direct the master to coordinate, decide, and summarize while delegated roles own investigation, implementation, and review. They call for direct assignment by default, allow multiple instances of one role, and keep one person or Agent responsible for each shared resource. A qualifying large independent subsystem may have one temporary lead, but no deeper or permanent hierarchy.
 
 If delegation is disabled or unavailable, or no suitable role exists, the instructions require the master to report the staffing issue and ask you to repair staffing or explicitly switch this task to ordinary single-conversation execution. Only that explicit switch authorizes direct work.
+
+<a id="agent-reuse"></a>
+## When should I reuse an Agent or start a fresh one?
+
+Reuse an Agent for consecutive work on the same task, owner, and scope. Start a fresh Agent for a new task or role, an independent review, or after the loaded Plugin, instructions, or configuration changes. A parallel-Agent limit is available capacity, not a target team size. KISS My Agent does not manage the Host's context window or compaction settings.
 
 <a id="plugin-vs-skills"></a>
 ## Is this a Plugin or just a Skill?
@@ -110,10 +115,10 @@ The first command updates now. The second command only verifies the result:
 
 ```bash
 codex plugin marketplace upgrade kiss-my-agent
-codex plugin list
+codex plugin list --marketplace kiss-my-agent
 ```
 
-On the verified Codex 0.152.1 baseline, the Host automatically refreshes a default unpinned Git marketplace at startup and reinstalls an enabled non-curated Plugin. KISS My Agent contains no updater of its own, and other Codex versions may behave differently. After v0.2.4 is published and the commands above complete, expect `kiss-my-agent@kiss-my-agent` to be `installed, enabled` at version `0.2.4`. Start a new session after an update changes the installed Plugin.
+On the verified Codex 0.152.1 baseline, the Host automatically refreshes a default unpinned Git marketplace at startup and reinstalls an enabled non-curated Plugin. KISS My Agent contains no updater of its own, and other versions may behave differently. After the commands above complete, expect `kiss-my-agent@kiss-my-agent` to be `installed, enabled` at the current supported release. Start a new session after an update changes the installed Plugin.
 
 Automatic refresh and explicit marketplace upgrade update only the Plugin package. They do not change project or global config, instructions, or role files. A v0.1-managed project may run setup after updating to refresh its managed instruction block and add missing public switches, but every existing role stays directly unchanged. Use the role wizard or edit role TOML manually to adopt newer model or effort choices.
 

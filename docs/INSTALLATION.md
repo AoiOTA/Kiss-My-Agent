@@ -7,12 +7,12 @@
 <a id="release-status"></a>
 ## Release status
 
-The release candidate metadata points to `v0.2.4`; this source state does not claim that the tag or GitHub Release already exists. The immutable `v0.2.0`, `v0.2.1`, `v0.2.2`, and `v0.2.3` tags have no GitHub Release. Post-tag v0.2.2 public fresh install and marketplace upgrade passed, but the public legacy-role transition stopped before writing because the Plugin resource workdir/path could not be resolved, so no v0.2.2 Release was created. The annotated v0.2.3 tag is preserved without a Release because public gate D exposed ambiguous `current` wording for the v0.1 fixture: an `outdated` managed block with both master keys absent must receive the pair. The setup-lifecycle change in v0.2.4 only clarifies this mutually exclusive classification; the same release also folds observed command/harness failures and lessons from tag trials into the existing KISS engineering/evidence Rules. User-owned role behavior and the existing `v0.1.0` tag and project files remain unchanged.
+The [latest GitHub Release](https://github.com/AoiOTA/Kiss-My-Agent/releases/latest) is the current supported release. Use it for current installation artifacts and [HANDOFF](HANDOFF.md) for release evidence and history.
 
 <a id="requirements"></a>
 ## User requirements
 
-The tested baseline is authenticated, Plugin-capable Codex CLI 0.152.1. Installation and updates also require a usable `git` executable on `PATH`, GitHub network access, and account support for the bundled default model `gpt-5.6-sol`. Earlier Codex versions are not verified. Project setup, checks, removal, and Agent configuration use Codex's own file tools. Users do not need Python, Node.js, Docker, or a package manager.
+The tested baselines are authenticated, Plugin-capable Codex CLI 0.152.1 and 0.153.0. Installation and updates also require a usable `git` executable on `PATH`, GitHub network access, and account support for the bundled default model `gpt-5.6-sol`. Other Codex versions are not verified. Project setup, checks, removal, and Agent configuration use Codex's own file tools. Users do not need Python, Node.js, Docker, or a package manager.
 
 Python 3.11 or newer is a contributor-only requirement for repository tests and the documentation site. It is not a Plugin runtime dependency.
 
@@ -31,10 +31,10 @@ If `codex plugin --help` is unavailable, update to a Plugin-capable client. If a
 ```bash
 codex plugin marketplace add AoiOTA/Kiss-My-Agent
 codex plugin add kiss-my-agent@kiss-my-agent
-codex plugin list
+codex plugin list --marketplace kiss-my-agent
 ```
 
-After the v0.2.4 tag is published, expect Plugin ID `kiss-my-agent@kiss-my-agent`, status `installed, enabled`, and version `0.2.4`. Cache paths may differ. Start a new authenticated Codex session after installation. A session that was already running is not guaranteed to discover a newly installed Plugin or Skill.
+Expect Plugin ID `kiss-my-agent@kiss-my-agent`, status `installed, enabled`, and a version matching the current supported release. Cache paths may differ. Start a new authenticated Codex session after installation. A session that was already running is not guaranteed to discover a newly installed Plugin or Skill.
 
 <a id="first-use"></a>
 ## First use
@@ -128,10 +128,10 @@ The first command immediately requests a marketplace and installed-Plugin update
 
 ```bash
 codex plugin marketplace upgrade kiss-my-agent
-codex plugin list
+codex plugin list --marketplace kiss-my-agent
 ```
 
-KISS My Agent has no updater of its own. On the tested Codex 0.152.1 baseline, the Host can refresh an unpinned Git marketplace at startup and reinstall an enabled non-curated Plugin; other versions may differ. After v0.2.4 is published and the commands above complete, verify that `kiss-my-agent@kiss-my-agent` is `installed, enabled` at version `0.2.4`. Start a new session after an update changes the installed Plugin.
+KISS My Agent has no updater of its own. On the verified Codex 0.152.1 baseline, the Host can refresh an unpinned Git marketplace at startup and reinstall an enabled non-curated Plugin; other versions may differ. After the commands above complete, verify that `kiss-my-agent@kiss-my-agent` is `installed, enabled` at the current supported release. Start a new session after an update changes the installed Plugin.
 
 Host refresh updates only the Plugin package. It does not modify project or global config, AGENTS instructions, or role files. For a v0.1-managed project, you may run `$kiss-my-agent:kiss-my-agent-setup set up this project` after upgrading to refresh the managed instruction block and add missing public switches, but every existing role file remains directly unchanged. Setup never compares existing roles with bundled historical seeds, assigns them a version, or migrates them. To adopt a newer model or effort, use the existing-role wizard or edit the role TOML manually.
 
@@ -140,11 +140,11 @@ If you require marketplace movement to happen only after an explicit action, rep
 ```bash
 codex plugin remove kiss-my-agent@kiss-my-agent
 codex plugin marketplace remove kiss-my-agent
-codex plugin marketplace add AoiOTA/Kiss-My-Agent@v0.2.4
+codex plugin marketplace add AoiOTA/Kiss-My-Agent@vX.Y.Z
 codex plugin add kiss-my-agent@kiss-my-agent
 ```
 
-This trades automatic marketplace following for reproducibility: `marketplace upgrade` cannot follow a future release until you replace the pinned source. To return to the previous immutable release, reinstall from its pinned marketplace tag:
+Replace `vX.Y.Z` with the release you need, as listed on the [Releases page](https://github.com/AoiOTA/Kiss-My-Agent/releases). This trades automatic marketplace following for reproducibility: `marketplace upgrade` cannot follow a future release until you replace the pinned source. To return to the previous immutable release, reinstall from its pinned marketplace tag:
 
 ```bash
 codex plugin remove kiss-my-agent@kiss-my-agent

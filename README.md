@@ -67,7 +67,7 @@ KISS does not promise to get the first attempt right. It aims to produce trustwo
 <a id="quick-start"></a>
 ## Quick Start
 
-Tested with authenticated, Plugin-capable Codex CLI 0.152.1. You need `git`, GitHub network access, and account access to `gpt-5.6-sol`; earlier Codex versions are not verified. Normal users do not need Python, Node.js, Docker, or another language runtime.
+Tested with authenticated, Plugin-capable Codex CLI 0.152.1 and 0.153.0. You need `git`, GitHub network access, and account access to `gpt-5.6-sol`; other Codex versions are not verified. Normal users do not need Python, Node.js, Docker, or another language runtime.
 
 Confirm that this Codex build supports Plugins:
 
@@ -163,7 +163,7 @@ The first command updates immediately. The second only verifies the installed re
 
 ```bash
 codex plugin marketplace upgrade kiss-my-agent
-codex plugin list
+codex plugin list --marketplace kiss-my-agent
 ```
 
 Look for `kiss-my-agent@kiss-my-agent`, status `installed, enabled`, and a version matching the current release badge at the top of this README. Start a new session after an update. Host refresh updates only the Plugin package; it does not change project or global configuration, instructions, or role files.
@@ -173,7 +173,7 @@ KISS My Agent has no updater of its own. Codex may refresh an unpinned Git marke
 <a id="limitations"></a>
 ## Limitations
 
-- Tested on Codex CLI 0.152.1; earlier versions and non-Codex hosts are not verified.
+- Tested on Codex CLI 0.152.1 and 0.153.0; other versions and non-Codex hosts are not verified.
 - Instructions improve the working context but cannot guarantee model compliance, correctness, or acceptance.
 - Successful delegation or passing tests do not prove the user's product or research goal.
 - The current release has no MCP service, standalone UI, telemetry, evaluation platform, or LTS promise.

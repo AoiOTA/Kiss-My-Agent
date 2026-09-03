@@ -67,7 +67,7 @@ KISS 不保证第一次就做对；它追求的是更快得到可信结果，再
 <a id="quick-start"></a>
 ## 快速开始
 
-已在完成认证且支持 Plugin 的 Codex CLI 0.152.1 上测试。还需要 `git`、GitHub 网络访问，以及账号能够使用 `gpt-5.6-sol`；更早 Codex 版本未验证。普通用户不需要 Python、Node.js、Docker 或其他语言运行时。
+已在完成认证且支持 Plugin 的 Codex CLI 0.152.1 和 0.153.0 上测试。还需要 `git`、GitHub 网络访问，以及账号能够使用 `gpt-5.6-sol`；其他 Codex 版本未验证。普通用户不需要 Python、Node.js、Docker 或其他语言运行时。
 
 确认当前 Codex build 支持 Plugins：
 
@@ -163,7 +163,7 @@ Role wizard 只修改已有角色的 model、reasoning effort 和 permission mod
 
 ```bash
 codex plugin marketplace upgrade kiss-my-agent
-codex plugin list
+codex plugin list --marketplace kiss-my-agent
 ```
 
 应看到 `kiss-my-agent@kiss-my-agent`、状态 `installed, enabled`，版本与本 README 顶部的当前 release badge 一致。更新后启动新会话。Host refresh 只更新 Plugin 包，不会修改 project/global 配置、instructions 或角色文件。
@@ -173,7 +173,7 @@ KISS My Agent 自身没有 updater。Codex 可能在启动时刷新未固定版�
 <a id="limitations"></a>
 ## 局限
 
-- 已在 Codex CLI 0.152.1 上测试；更早版本和其他 Host 未验证。
+- 已在 Codex CLI 0.152.1 和 0.153.0 上测试；其他版本和其他 Host 未验证。
 - Instructions 可以改善工作上下文，但不能保证模型服从、结果正确或通过验收。
 - 成功委派或测试通过，不能证明用户的产品目标或科研目标已经实现。
 - 当前 release 没有 MCP 服务、独立 UI、遥测、评测平台或 LTS 承诺。
