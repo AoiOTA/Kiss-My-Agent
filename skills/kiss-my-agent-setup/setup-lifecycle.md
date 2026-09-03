@@ -13,7 +13,7 @@ Resolve `$CODEX_HOME` from a non-empty `CODEX_HOME` environment value; otherwise
 
 For an explicit "this project" request, use the Host's current project root or sole active workspace root. Do not substitute the current shell child directory, the Plugin source directory, or a different workspace root. When the Host exposes multiple roots or no unique project root, ask the user to select an absolute target and do not write before that choice.
 
-The current bundled seed sources are the plugin's [kiss_explorer](../../.codex/agents/kiss_explorer.toml), [kiss_coder](../../.codex/agents/kiss_coder.toml), and [kiss_reviewer](../../.codex/agents/kiss_reviewer.toml) files. The Skill-owned known v0.1 snapshots are the seed files [kiss_explorer](assets/v0.1-agents/kiss_explorer.toml), [kiss_coder](assets/v0.1-agents/kiss_coder.toml), and [kiss_reviewer](assets/v0.1-agents/kiss_reviewer.toml), plus the exact [managed block](assets/v0.1-managed-block.md). Read both seed generations as exact bytes and verify each parsed identity matches its filename before comparison; compare the managed block as complete delimited text. The v0.1 files are runtime migration inputs, never current output templates. The Skill remains plugin-owned; never copy the plugin `skills/` tree into a target.
+The current bundled seed sources are the plugin's [kiss_explorer](../../.codex/agents/kiss_explorer.toml), [kiss_coder](../../.codex/agents/kiss_coder.toml), and [kiss_reviewer](../../.codex/agents/kiss_reviewer.toml) files. The Skill-owned known v0.1 snapshots are the role seeds [kiss_explorer](assets/v0.1-agents/kiss_explorer.toml), [kiss_coder](assets/v0.1-agents/kiss_coder.toml), and [kiss_reviewer](assets/v0.1-agents/kiss_reviewer.toml). Current seeds are fresh-setup output templates and remove comparison inputs; known v0.1 seeds are remove-only comparison inputs. The Skill remains plugin-owned; never copy the plugin `skills/` tree into a target.
 
 ## Managed content
 
@@ -44,10 +44,13 @@ People own the goal, architecture, acceptance criteria, non-goals, and stop boun
 
 Complete the full preflight before the first write or deletion.
 
-1. Resolve the selected base, config, roles, instructions, override, bundled seed, and opposite-catalog paths. Project setup requires an existing directory. Never turn a project request into global setup.
+1. Resolve the selected base, config, roles, instructions, override, opposite-catalog, and action-applicable bundled-seed paths. Project setup requires an existing directory. Never turn a project request into global setup.
 2. Inspect path metadata. Reject a symlinked managed file or directory, a managed path with the wrong file type, or a path whose type cannot be established safely.
 3. Stop if `AGENTS.override.md` exists at the selected base. Do not write an ineffective lower-priority `AGENTS.md`.
-4. Read the complete current config, instructions, every role TOML in the selected catalog, every current bundled seed, every known v0.1 seed, and the opposite catalog. Keep exact before-content for any path that could change.
+4. Read the complete current config, instructions, every role TOML in the selected catalog, and the opposite catalog. Keep exact before-content for any path that could change. Read bundled assets only as required by the selected action:
+   - `setup`: after classifying the managed block, read and identity-check a current seed only for a missing role that fresh setup may create. Do not read current seeds for existing roles or any known v0.1 seed.
+   - `check`: do not read current or known v0.1 role assets. Inspect role identity and catalog structure without version comparison.
+   - `remove`: read current and known v0.1 role seeds as exact bytes and verify each parsed identity matches its filename before comparing a corresponding existing role.
 5. Parse TOML with the Host's available configuration understanding. If syntax, table shape, assignment ownership, encoding, or role identity is ambiguous, stop without writing instead of repairing by guesswork.
 6. Require every role TOML to have non-empty string `name`, `description`, and `developer_instructions` fields and a unique `name` in its catalog.
 7. Stop on any of these selected-scope conflicts:
@@ -56,16 +59,15 @@ Complete the full preflight before the first write or deletion.
    - the managed block has unequal, duplicate, reversed, or nested markers;
    - a managed config key occurs more than once or has the wrong type: `model` and `model_reasoning_effort` must be non-empty strings, while `features.multi_agent` and `agents.enabled` must be booleans.
 8. For `setup` and `check`, also stop when a bundled seed name appears in both project and global catalogs. Do not apply this cross-scope rejection to `remove`: removing one selected scope is the recovery path for that conflict, while every selected-scope path and identity check still applies.
-9. For `setup` with any planned v0.1 role migration, require during preflight a Host-appropriate native byte-preserving file-copy facility that can copy one resolved source directly over one resolved existing target, safely quote both operands for the active shell, and overwrite the target without a permission or attribute override. POSIX `cp -- 'SOURCE' 'TARGET'` and PowerShell `Copy-Item -LiteralPath 'SOURCE' -Destination 'TARGET' -ErrorAction Stop` are examples, not the only permitted implementations. PowerShell text cmdlets such as `Get-Content`, `Set-Content`, and `Out-File` are not byte-copy facilities and must not be used for migration or rollback. If no suitable native byte-preserving copy facility exists, or either resolved operand cannot be quoted safely, stop in preflight before any mutation.
-10. Immediately before each write, re-read every planned target: an already-written target must still equal this operation's exact after-content, while a pending target must still equal its preflight before-content. If any target differs, stop and restore only already-applied KISS changes whose after-content still matches exactly. Remove a directory created by this operation during rollback only when it is still empty.
+9. Immediately before each mutation, re-read every planned target: an already-written target must still equal this operation's exact after-content, while a pending target must still equal its preflight before-content. If any target differs, stop and restore only already-applied KISS changes whose after-content still matches exactly. Remove a directory created by this operation during rollback only when it is still empty.
 
 ## Setup
 
 Apply only the following changes:
 
 - Config:
-  - Treat the master model/effort pair and both feature values as first-setup defaults, not enforcement. Setup never resets an existing value during setup or a later plugin update.
-  - Add the marked pair `model = "gpt-5.6-sol"` and `model_reasoning_effort = "max"` before the first TOML table only when both top-level keys are absent and either the managed block was absent at preflight or it exactly matched the known v0.1 managed block. If either key already exists, preserve it and leave the missing key absent as intentional inheritance. When a current managed block exists, one or both missing keys are intentional user changes and setup adds neither.
+  - Treat the master model/effort pair and both feature values as initial defaults, not enforcement. Setup never resets an existing value during setup or a later plugin update.
+  - Add the marked pair `model = "gpt-5.6-sol"` and `model_reasoning_effort = "max"` before the first TOML table only when both top-level keys are absent and the managed block was either absent or well-formed but outdated at preflight. If either key already exists, preserve it and leave the missing key absent as intentional inheritance. When the current managed block exists, one or both missing keys are intentional user changes and setup adds neither.
   - If `features.multi_agent` or `agents.enabled` is absent, add the marked `true` assignment to its existing table or append a new table.
   - Preserve any existing value for all four managed config paths and its complete assignment line, whether marked or unmarked. Report a `false` feature value observed in the selected config as `disabled`; never silently replace an existing model or effort. The marker controls remove ownership only, not whether setup may change a value.
   - Preserve comments, unrelated keys, table order, encoding, and the file's newline style when the editing tool supports them. Stop if a safe minimal merge is not possible.
@@ -73,18 +75,13 @@ Apply only the following changes:
   - With no managed markers, append one managed block without replacing existing instructions.
   - With one valid managed block, replace only its interior and markers with the current block above.
 - Roles:
-  - When the managed block did not exist at preflight, create each missing bundled seed from its exact plugin source.
-  - Migrate an existing correctly identified role only when its preflight bytes and its immediately-before-copy re-read both equal the corresponding known v0.1 seed. Invoke exactly one Host-appropriate native byte-preserving file-copy operation, with the resolved operands safely quoted for the active shell, from the current bundled seed directly over the existing target. Do not patch the target, delete and add it, decode and re-encode its contents, or override its permissions or attributes. Immediately after the copy, re-read the target as exact bytes and require equality with the current bundled seed before continuing. This is the v0.1-to-current migration path.
-  - Preserve an existing current seed and every other correctly identified role byte-for-byte. Any difference from both the current and known v0.1 exact seeds is a user modification, including comments, whitespace, or runtime settings.
-  - When the managed block already existed, treat missing initial seeds as intentionally removed and do not recreate them.
+  - When the managed block was absent at preflight, create each missing bundled role from its exact current plugin seed. This is fresh setup.
+  - Preserve every existing correctly identified role byte-for-byte and report it as `user-owned/preserved`, whether it equals a current seed, a known older seed, or neither. Setup and Plugin updates never modify, migrate, version-check, or replace an existing role. Use the existing `configure agents` wizard when the user wants different role model or effort settings.
+  - When any well-formed managed block already existed, whether current or outdated, treat missing initial seeds as intentionally absent and do not recreate them.
 
 Before the first setup write, state a separate decision for the master model/effort pair, each feature switch, the Instructions target, every Role, and any directory to create.
 
-Use the smallest file edit available for every non-migration target. After all writes, re-read and validate every affected file and the complete role catalog. If validation fails, restore only files still equal to this operation's after-content. Preserve a concurrent user change and report that rollback could not safely replace it.
-
-If a migration or rollback native copy operation fails, keep its original error as the primary reported cause and stop forward work. Re-read that target as exact bytes when it is safe to do so, but do not classify differing bytes as a concurrent change solely because the copy failed and do not overwrite bytes whose provenance is unknown. Explicitly report that the target may contain partial bytes from the failed copy and requires manual recovery. A failed migration is not a successfully migrated role.
-
-On any later failure after one or more successful role migrations, keep the original failure as the primary reported cause and handle every already-migrated role independently. For each such role, re-read its target as exact bytes and roll back that role only when it still equals the current bundled seed: invoke exactly one native byte-preserving file-copy operation from the corresponding known v0.1 asset directly over the target, then re-read and require exact equality with that v0.1 asset. If the target already equals the v0.1 asset, leave it unchanged. If it equals neither identity, or either identity cannot be established safely, preserve it and report a possible concurrent or otherwise unknown state. A rollback failure for one role does not skip the guarded rollback attempt for another already-migrated role; report every rollback failure without displacing the original failure. Never patch, delete and add, text-decode and re-encode, or override permissions or attributes during rollback.
+Use the smallest file edit available. After all writes, re-read and validate every affected file and the complete role catalog. If validation fails, preserve the original failure and restore only files still equal to this operation's exact after-content. Preserve a concurrent user change and report that rollback could not safely replace it; report rollback failures without hiding the original cause.
 
 Report `configured` plus `disabled` when applicable, the explicit scope, paths created or changed, preserved roles, and any intentionally absent seeds. A `disabled` report must explain that the executive-only workflow cannot staff delegated work and the master will not silently take it over; ask the user to choose between enabling delegation or suitable roles and explicitly switching the current task to ordinary single-conversation execution. Static setup cannot observe a higher-precedence `false`; if a real new session exposes disabled or unavailable delegation, apply the same staffing rule and choice.
 
@@ -92,16 +89,16 @@ File success is static setup evidence only. It does not prove that the selected 
 
 ## Check
 
-`check` is read-only. Run the same path, TOML, marker, role-identity, and cross-scope conflict inspection without repairing anything.
+`check` is read-only. Run the same path, TOML, marker, role-identity, and cross-scope conflict inspection without repairing anything. Do not read role seed assets, compare role content to seeds, or infer a role version. Report each correctly identified existing bundled role as `present user-owned`; report a missing bundled role as `intentionally absent` when a well-formed managed block exists.
 
 Classify the managed block separately as `current`, `outdated`, or `absent`. A block is `current` only when the complete delimited content equals the current block above. Define a setup trace as any KISS-marked config assignment, any KISS managed-block marker, or any role declaring a bundled seed identity.
 
 Report one of:
 
-- `structurally-valid`: both required boolean keys exist, every explicit top-level master setting has a valid type, the managed block is valid, and role catalogs have no relevant conflict. Either master key may be intentionally absent for inheritance after setup. Initial seeds may also be intentionally absent after a prior setup.
+- `structurally-valid`: both required boolean keys exist, every explicit top-level master setting has a valid type, the managed block is current, and role catalogs have no relevant conflict. Either master key may be intentionally absent for inheritance after setup. Initial seeds may also be intentionally absent after a prior setup.
 - `disabled`: the structure is valid but at least one feature value observed in the selected config is explicitly `false`.
 - `absent`: no setup trace exists.
-- `incomplete`: a setup trace exists but required structure is partial, a required value is missing, or the managed block is well-formed but `outdated`.
+- `incomplete`: a setup trace exists but required config or managed-block structure is partial, a required boolean value is missing, or the managed block is well-formed but `outdated`. Role contents and missing roles do not make setup incomplete when identity and catalog structure are valid.
 - `conflict`: syntax, ownership, path type, markers, or role identity prevents a safe conclusion.
 
 List the exact inspected paths, each master setting as its explicit value or `inherit`, and the observed feature values. Never claim project trust, active discovery, model or effort support, permissions, plugin publication, or role behavior from `check`.

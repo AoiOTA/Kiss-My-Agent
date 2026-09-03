@@ -48,7 +48,7 @@ Case 保持以下精确章节顺序：
 <a id="update-runtime-docs"></a>
 ## 更新 Runtime 与文档
 
-修改公开开关、standalone role discovery 或 setup scope 时，保持 `.codex/config.toml`、`.codex/agents/`、plugin metadata、Agent 原生 setup references、Configuration、Installation、Testing、两份 README 与带注释示例一致。`.codex/config.toml` 拥有四个 paths：成对的首次 setup Master defaults `gpt-5.6-sol` / `max` 与两个公开启用开关；它绝不枚举角色文件。可编辑 seeds 显式默认使用 `gpt-5.6-sol`：explorer 和 coder 为 `high`，reviewer 为 `xhigh`。它们不是封闭 catalog，用户修改过的角色仍归用户所有。没有当前 consumer 时，不新增模型 fallback、权限 fallback、preset matrices 或 compatibility wrappers。
+修改公开开关、standalone role discovery 或 setup scope 时，保持 `.codex/config.toml`、`.codex/agents/`、plugin metadata、Agent 原生 setup references、Configuration、Installation、Testing、两份 README 与带注释示例一致。`.codex/config.toml` 拥有四个 paths：成对的初始 Master defaults `gpt-5.6-sol` / `max` 与两个公开启用开关；它绝不枚举角色文件。可编辑的 fresh-setup seeds 显式默认使用 `gpt-5.6-sol`：explorer 和 coder 为 `high`，reviewer 为 `xhigh`。Plugin cache seeds 不会自动进入 Host catalog。它们不是封闭 catalog：fresh setup 创建缺失 starters，任何已经存在的角色都归用户所有，因此 setup 与 Plugin updates 永不覆盖、迁移或判定其版本。新版 model 或 effort 应通过 existing-role wizard 或手工 TOML edits 采用。没有当前 consumer 时，不新增模型 fallback、权限 fallback、preset matrices 或 compatibility wrappers。
 
 修改英文开发者文档时，同步更新简体中文配套文件，保持相同显式 anchor IDs、章节顺序和 fenced command blocks。面向 Codex 的 AGENTS、Skill、Rules、Cases、角色 TOML、`LICENSE` 和 `CODE_OF_CONDUCT.md` 保持英文。
 

@@ -7,7 +7,7 @@
 <a id="release-status"></a>
 ## Release status
 
-The current Git-backed marketplace entry pins the Plugin source to `v0.2.2`. A successful remote install is publication evidence for that tag; source inspection and static validation alone are not remote-install or live-discovery evidence. The immutable `v0.2.0` tag was preserved without a GitHub Release after its post-tag test exposed raw unqualified Skill invocation. The immutable `v0.2.1` tag was also preserved without a GitHub Release because public exact-v0.1 role migration again generated a same-path Delete+Add; guarded rollback restored zero net change. The existing `v0.1.0` tag and project files remain untouched.
+The release candidate metadata points to `v0.2.3`; this source state does not claim that the tag or GitHub Release already exists. The immutable `v0.2.0`, `v0.2.1`, and `v0.2.2` tags have no GitHub Release. Post-tag v0.2.2 public fresh install and marketplace upgrade passed, but the public legacy-role transition stopped before writing because the Plugin resource workdir/path could not be resolved, so no v0.2.2 Release was created. v0.2.3 removes role migration from setup: roles are user-owned as soon as they exist. The existing `v0.1.0` tag and project files remain untouched.
 
 <a id="requirements"></a>
 ## User requirements
@@ -34,7 +34,7 @@ codex plugin add kiss-my-agent@kiss-my-agent
 codex plugin list
 ```
 
-In the list, expect Plugin ID `kiss-my-agent@kiss-my-agent`, status `installed, enabled`, and version `0.2.2`. Cache paths may differ. Start a new authenticated Codex session after installation. A session that was already running is not guaranteed to discover a newly installed Plugin or Skill.
+After the v0.2.3 tag is published, expect Plugin ID `kiss-my-agent@kiss-my-agent`, status `installed, enabled`, and version `0.2.3`. Cache paths may differ. Start a new authenticated Codex session after installation. A session that was already running is not guaranteed to discover a newly installed Plugin or Skill.
 
 <a id="first-use"></a>
 ## First use
@@ -60,11 +60,11 @@ When you need live discovery evidence, run `/skills` in that fresh session and c
 
 Project setup manages only the selected target:
 
-- `.codex/config.toml`: manages four settings—the paired first-setup master defaults `model = "gpt-5.6-sol"` and `model_reasoning_effort = "max"`, plus the two public enablement switches. It adds the master pair only when both keys are absent during first setup or exact v0.1 migration; if either key exists, setup preserves it and leaves the missing companion absent. Each missing feature switch is added independently.
-- `.codex/agents/`: installs editable starter roles with `gpt-5.6-sol` / `high` for `kiss_explorer` and `kiss_coder`, and `gpt-5.6-sol` / `xhigh` for `kiss_reviewer`; a later setup may replace only an exact, unmodified bundled v0.1 starter with its v0.2 version.
+- `.codex/config.toml`: manages four settings—the paired initial master defaults `model = "gpt-5.6-sol"` and `model_reasoning_effort = "max"`, plus the two public enablement switches. It adds the master pair only when both keys are absent and the managed block is absent or recognized as outdated. If either key exists, or either is absent under a current block, setup preserves the current state and leaves any missing companion absent. Each missing feature switch is added independently.
+- `.codex/agents/`: during fresh setup, installs any missing editable starter role with `gpt-5.6-sol` / `high` for `kiss_explorer` and `kiss_coder`, and `gpt-5.6-sol` / `xhigh` for `kiss_reviewer`. Every role that already exists is user-owned and remains byte-for-byte unchanged. After setup, an absent starter is a valid intentionally absent catalog entry and is not recreated.
 - `AGENTS.md`: appends one bounded KISS managed block while preserving existing instructions.
 
-These are initial defaults, not locks. The Host and account must support the selected model and effort. Existing target values are preserved, and later setup or Plugin updates do not reset them. Master settings live in `config.toml`; role settings live in standalone role TOML files. The managed instructions keep the master on strategy, architecture and acceptance decisions, orchestration, conflict resolution, evidence interpretation, and synthesis, with investigation, implementation, and review assigned to roles.
+These are initial defaults, not locks. The Host and account must support the selected model and effort. Existing target values are preserved, and later setup or Plugin updates do not reset them. Plugin cache role files are package resources; they do not automatically enter the Host role catalog, so fresh setup is still required. Master settings live in `config.toml`; role settings live in standalone role TOML files. The managed instructions keep the master on strategy, architecture and acceptance decisions, orchestration, conflict resolution, evidence interpretation, and synthesis, with investigation, implementation, and review assigned to roles.
 
 The managed instructions call for flat coordination by default: direct assignment to current roles, including multiple instances of the same role, while every shared file or slow resource keeps one writer/operator. Only a large independent subsystem whose direct aggregation would pollute master context may receive one temporary bounded department lead. Its workers cannot delegate again, and the assignment ends with the task; no deeper or permanent hierarchy is created.
 
@@ -105,18 +105,18 @@ It manages `config.toml`, `agents/`, and the KISS block in `AGENTS.md` under `$C
 
 | Existing state | Required behavior |
 | --- | --- |
-| Both master keys absent during first setup or exact v0.1 migration | Add the marked model/effort pair together. |
+| Both master keys absent and the managed block absent or recognized as outdated | Add the marked model/effort pair together. |
 | Either master key already exists, or either is absent after current setup | Preserve existing assignments and leave any missing companion absent; never fill the pair one key at a time. |
 | Either public switch absent | Add only that missing marked `true` assignment. |
 | Existing public switch, marked or unmarked | Preserve its complete assignment, including `false`. |
 | Unrelated config keys or AGENTS content | Preserve them. |
-| Exact, unmodified bundled v0.1 seed with the expected `name` | Upgrade it to the current bundled seed. |
-| Existing seed with user edits or ambiguous ownership | Preserve it and report it; do not overwrite it as an upgrade. |
+| Starter role missing during fresh setup | Create it from the current bundled seed. |
+| Any role file already exists | Treat it as user-owned and preserve it byte-for-byte; do not infer or migrate a role version. |
 | Filename/identity mismatch, duplicate identity, or project/global seed-name conflict | Stop before writing. |
-| Valid existing managed block | Update only that block; do not restore deliberately deleted roles. |
+| Valid existing managed block | Update only that block; report missing starters as intentionally absent and do not restore them. |
 | Malformed markers, invalid TOML, unsafe path type, or applicable `AGENTS.override.md` | Stop without claiming success. |
 
-Setup prepares all changes before the first write, verifies files afterward, and rolls back only its own unchanged after-content when a failure permits safe rollback. Each successfully migrated role is handled independently and is copied back only while its target still exactly matches the current bundled seed. Agent-native file operations cannot promise recovery from a process or machine crash, so all ambiguous states fail closed.
+Setup prepares all changes before the first write, verifies files afterward, and rolls back only its own unchanged after-content when a failure permits safe rollback. Agent-native file operations cannot promise recovery from a process or machine crash, so all ambiguous states fail closed.
 
 When setup stops, use its reported reason and exact path to resolve the conflict without overwriting user work, then rerun the same command. An observed `false` switch is reported as `disabled`. If a real new session cannot delegate or has no suitable role, the project instructions require the master to report the staffing issue and wait for the user's choice instead of treating the persistent workflow as permission to work directly.
 
@@ -130,16 +130,16 @@ codex plugin marketplace upgrade kiss-my-agent
 codex plugin list
 ```
 
-KISS My Agent has no updater of its own. On the tested Codex 0.152.1 baseline, the Host can refresh an unpinned Git marketplace at startup and reinstall an enabled non-curated Plugin; other versions may differ. After the commands above, verify that `kiss-my-agent@kiss-my-agent` is `installed, enabled` at version `0.2.2`. Start a new session after an update changes the installed Plugin.
+KISS My Agent has no updater of its own. On the tested Codex 0.152.1 baseline, the Host can refresh an unpinned Git marketplace at startup and reinstall an enabled non-curated Plugin; other versions may differ. After v0.2.3 is published and the commands above complete, verify that `kiss-my-agent@kiss-my-agent` is `installed, enabled` at version `0.2.3`. Start a new session after an update changes the installed Plugin.
 
-Updating the Plugin does not migrate project-owned files. For a v0.1-managed project, start a new session and run `$kiss-my-agent:kiss-my-agent-setup set up this project` once after upgrading. Setup replaces the old KISS instruction block and upgrades only exact, unmodified bundled v0.1 starter roles. Each eligible role uses one Host-native byte-preserving copy from the current bundled seed to the target—never a patch, same-path Delete+Add, or text re-encoding. Existing config values and modified or ambiguously owned roles remain preserved. If later work fails, each successfully migrated role is rolled back independently only when its target still exactly matches the copied current seed; a target already equal to v0.1 is left unchanged. If the native migration copy itself fails, setup keeps that original copy error as the primary cause and re-reads the target. A target matching neither the v0.1 nor current seed may contain partial bytes from the failed copy: setup preserves that unknown target, does not attribute it only to a concurrent change or overwrite it, and requires manual recovery.
+Host refresh updates only the Plugin package. It does not modify project or global config, AGENTS instructions, or role files. For a v0.1-managed project, you may run `$kiss-my-agent:kiss-my-agent-setup set up this project` after upgrading to refresh the managed instruction block and add missing public switches, but every existing role file remains directly unchanged. Setup never compares existing roles with bundled historical seeds, assigns them a version, or migrates them. To adopt a newer model or effort, use the existing-role wizard or edit the role TOML manually.
 
 If you require marketplace movement to happen only after an explicit action, replace the unpinned Git marketplace with a tag-pinned source:
 
 ```bash
 codex plugin remove kiss-my-agent@kiss-my-agent
 codex plugin marketplace remove kiss-my-agent
-codex plugin marketplace add AoiOTA/Kiss-My-Agent@v0.2.2
+codex plugin marketplace add AoiOTA/Kiss-My-Agent@v0.2.3
 codex plugin add kiss-my-agent@kiss-my-agent
 ```
 
@@ -161,7 +161,7 @@ codex plugin marketplace add AoiOTA/Kiss-My-Agent
 codex plugin add kiss-my-agent@kiss-my-agent
 ```
 
-Start a new session after rollback or channel restoration. Existing project files remain user-owned and are not automatically downgraded or reset.
+Start a new session after rollback or channel restoration. Existing project and global files remain user-owned and are not automatically upgraded, downgraded, or reset.
 
 <a id="check-and-remove"></a>
 ## Check or remove setup
@@ -176,7 +176,7 @@ $kiss-my-agent:kiss-my-agent-setup check global setup
 $kiss-my-agent:kiss-my-agent-setup remove global setup
 ```
 
-`check` inspects managed filesystem state only. `remove` removes only KISS-marked assignments for the master model/effort and two public switches, the managed AGENTS block, and role files that exactly match either a current or known v0.1 bundled seed in the chosen scope. Unmarked config, modified roles, and ambiguously owned roles are preserved and reported. Removing setup does not uninstall the Plugin.
+`check` inspects managed filesystem state only. An existing role is reported as user-owned; a starter missing after setup is reported as intentionally absent, not outdated or incomplete. Explicit `remove` deletes only KISS-marked assignments for the master model/effort and two public switches, the managed AGENTS block, and bundled roles whose bytes exactly match a current or known v0.1 seed in the chosen scope. Other role files remain user-owned. Removing setup does not uninstall the Plugin.
 
 <a id="contributor-tools"></a>
 ## Contributor tools

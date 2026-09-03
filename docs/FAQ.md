@@ -49,7 +49,7 @@ codex plugin add kiss-my-agent@kiss-my-agent
 codex plugin list
 ```
 
-The list should show `kiss-my-agent@kiss-my-agent` as `installed, enabled` at version `0.2.2`; cache paths may differ. If Plugin commands, authentication, or marketplace access fail, check client support, login state, `git`, and GitHub network access. For a simple one-off task, stop after installation and use an ordinary single conversation. For a complex project that needs the persistent workflow, start a new session. On the tested Codex 0.152.1 baseline, type `$` and select `kiss-my-agent-setup (kiss-my-agent)` in the picker. The picker inserts a structured Skill reference; add the setup request and submit the prompt to invoke it. If you paste raw text, run `$kiss-my-agent:kiss-my-agent-setup set up this project`. Trust the project through the Host when prompted, then start another new session and run `$kiss-my-agent:kiss-my-agent-setup check this project`.
+After the v0.2.3 tag is published, the list should show `kiss-my-agent@kiss-my-agent` as `installed, enabled` at version `0.2.3`; cache paths may differ. If Plugin commands, authentication, or marketplace access fail, check client support, login state, `git`, and GitHub network access. For a simple one-off task, stop after installation and use an ordinary single conversation. For a complex project that needs the persistent workflow, start a new session. Plugin cache roles are not automatically added to the Host catalog. On the tested Codex 0.152.1 baseline, type `$` and select `kiss-my-agent-setup (kiss-my-agent)` in the picker. The picker inserts a structured Skill reference; add the setup request and submit the prompt to invoke it. If you paste raw text, run `$kiss-my-agent:kiss-my-agent-setup set up this project`. Trust the project through the Host when prompted, then start another new session and run `$kiss-my-agent:kiss-my-agent-setup check this project`.
 
 <a id="after-setup"></a>
 ## What do I do after setup?
@@ -76,7 +76,7 @@ Use it for one consequential, non-obvious decision—for example, whether to kee
 <a id="configure"></a>
 ## How do I configure the master or initial Agents?
 
-The bundled defaults use `gpt-5.6-sol`: the master uses `max`, `kiss_explorer` and `kiss_coder` use `high`, and `kiss_reviewer` uses `xhigh`. The Host and account must support these values. The master pair is added together only when both keys are absent during first setup or exact v0.1 migration. Existing keys are preserved, a missing companion remains absent, and later setup or Plugin updates do not reset choices.
+The bundled defaults use `gpt-5.6-sol`: the master uses `max`, `kiss_explorer` and `kiss_coder` use `high`, and `kiss_reviewer` uses `xhigh`. The Host and account must support these values. The master pair is added together only when both keys are absent and the managed block is absent or recognized as outdated. Existing keys are preserved, a missing companion under a current block remains absent, and later setup or Plugin updates do not reset choices.
 
 The master is not a role and cannot be changed by the role wizard. For project setup, edit `<project>/.codex/config.toml`. For global setup, edit `$CODEX_HOME/config.toml`, or `~/.codex/config.toml` when `CODEX_HOME` is unset. If the master cannot start because those values are unsupported, use one temporary CLI override, repair the persistent config, and start another new session:
 
@@ -113,9 +113,9 @@ codex plugin marketplace upgrade kiss-my-agent
 codex plugin list
 ```
 
-On the verified Codex 0.152.1 baseline, the Host automatically refreshes a default unpinned Git marketplace at startup and reinstalls an enabled non-curated Plugin. KISS My Agent contains no updater of its own, and other Codex versions may behave differently. After the commands above, expect `kiss-my-agent@kiss-my-agent` to be `installed, enabled` at version `0.2.2`. Start a new session after an update changes the installed Plugin.
+On the verified Codex 0.152.1 baseline, the Host automatically refreshes a default unpinned Git marketplace at startup and reinstalls an enabled non-curated Plugin. KISS My Agent contains no updater of its own, and other Codex versions may behave differently. After v0.2.3 is published and the commands above complete, expect `kiss-my-agent@kiss-my-agent` to be `installed, enabled` at version `0.2.3`. Start a new session after an update changes the installed Plugin.
 
-Updating the Plugin alone does not migrate project files. For a v0.1-managed project, start a new session and run project setup once after the update. It refreshes the KISS instruction block and upgrades only exact, unmodified bundled v0.1 starter roles; modified or ambiguously owned roles and existing config values remain preserved.
+Automatic refresh and explicit marketplace upgrade update only the Plugin package. They do not change project or global config, instructions, or role files. A v0.1-managed project may run setup after updating to refresh its managed instruction block and add missing public switches, but every existing role stays directly unchanged. Use the role wizard or edit role TOML manually to adopt newer model or effort choices.
 
 See [Installation](INSTALLATION.md#update) for explicit-only marketplace pinning, rollback, and the commands that restore the current unpinned channel.
 
@@ -127,19 +127,19 @@ No. Project scope changes only the selected project. Global setup must be explic
 <a id="roles"></a>
 ## Are the three roles fixed?
 
-No. They are editable standalone starter-role files, not a closed list or mandatory team. The `name` field is the identity; the filename is a convention. Multiple instances of one role may run. The default shape is direct master assignment; only a qualifying large independent subsystem may receive one temporary lead layer. Users may add, edit, rename, or remove roles deliberately. Later setup and check operations do not recreate a deliberately removed starter. Setup may upgrade an existing role only when it still exactly matches an unmodified bundled v0.1 starter; user-modified roles remain untouched.
+No. They are editable standalone starter-role files, not a closed list or mandatory team. The `name` field is the identity; the filename is a convention. Multiple instances of one role may run. The default shape is direct master assignment; only a qualifying large independent subsystem may receive one temporary lead layer. Fresh setup creates each missing current starter. Every role already present is immediately user-owned, and setup never overwrites, migrates, or version-classifies it. Once setup exists, a missing starter is a valid intentionally absent catalog entry and is not recreated.
 
 <a id="existing-files"></a>
 ## What if I already have config, AGENTS, or role files?
 
-Setup manages four settings but does not fill all four independently. It adds the master model/effort pair only when both keys are absent during first setup or exact v0.1 migration; if either exists, both existing state and any missing companion are preserved. Each missing public switch is added independently. Existing marked or unmarked assignments, unrelated content, and explicit `false` values remain byte-for-byte. Setup stops before writing on invalid TOML, unsafe path types, duplicate identities, ownership conflicts, project/global starter-role conflicts, or an applicable `AGENTS.override.md`.
+Setup manages four settings but does not fill all four independently. It adds the master model/effort pair only when both keys are absent and the managed block is absent or recognized as outdated; if either key exists, or either is absent under a current block, both existing state and any missing companion are preserved. Each missing public switch is added independently. Existing marked or unmarked assignments, unrelated content, explicit `false` values, and every existing role remain byte-for-byte. Setup stops before writing on invalid TOML, unsafe path types, duplicate identities, ownership conflicts, project/global starter-role conflicts, or an applicable `AGENTS.override.md`.
 
 Use the reported reason and exact path to resolve the conflict without overwriting user work, then rerun the same setup command. See [Installation](INSTALLATION.md#collision-policy) for the complete policy.
 
 <a id="remove"></a>
 ## What does remove delete?
 
-Only the four KISS-marked config assignments, the delimited managed AGENTS block, and role files that exactly match a current or known v0.1 bundled seed in the explicitly selected scope. Unmarked config, modified roles, and ambiguously owned roles remain. Removing setup does not uninstall the Plugin.
+Only the four KISS-marked config assignments, the delimited managed AGENTS block, and role files that exactly match a current or known v0.1 bundled seed in the explicitly selected scope. Other role files and unmarked config remain. Removing setup does not uninstall the Plugin.
 
 <a id="verification"></a>
 ## How do I confirm it works?

@@ -53,7 +53,7 @@ Setup 场景只能在一次性项目和明确隔离的 Codex home 中运行。�
 必测场景包括：
 
 - 空项目 setup、重复 setup、check 与 remove；
-- 只有首次 setup 或精确 v0.1 migration 且两个 Master keys 都缺失时才成对添加 defaults；任一 key 已存在时 companion 保持缺失；
+- 只有两个 Master keys 都缺失，且 managed block 缺失或被识别为 outdated 时才成对添加 defaults；任一 key 已存在或 current block 已存在时，缺失 companion 保持缺失；
 - 两个 feature switches 各自在缺失时添加，同时保留四个 paths 的 marked/unmarked values、无关 config、comments、换行风格、AGENTS 内容和已有角色；
 - 有意设置的 `false` 与有意删除的 seed roles；
 - 损坏 TOML、不安全路径类型、`AGENTS.override.md`、重复名称、文件名/identity 不匹配和 project/global 冲突；
@@ -61,10 +61,10 @@ Setup 场景只能在一次性项目和明确隔离的 Codex home 中运行。�
 - remove 只删除四个 marked config assignments 和 current/v0.1 exact role seeds，并保留 unmarked config 与已修改角色；
 - 只配置一个选中角色，其他字段和文件保持不变；
 - 恢复继承时只删除选中的可选 key；
-- 为 Master 应用成对的首次 setup default `gpt-5.6-sol` / `max`，为新建或精确 v0.1 roles 应用 `gpt-5.6-sol` / `high`、`high`、`xhigh`，并保留后续用户选择；
+- 为 Master 应用成对的初始 default `gpt-5.6-sol` / `max`，只在 fresh setup 时为缺失 roles 应用 `gpt-5.6-sol` / `high`、`high`、`xhigh`，并保留所有已有角色；
 - 未单独确认时拒绝写入 `danger-full-access`；
-- 把 v0.1.0 markers 创建的项目识别为 `outdated`，随后通过 setup 刷新 managed block 和完全一致、未经修改的 v0.1 seeds；
-- 该刷新保留用户修改过或 owner 不清的 v0.1 role，随后通过有效 check。
+- 把 v0.1.0 markers 创建的项目识别为 `outdated`，随后通过 setup 刷新可能更新的 managed block 与 config，同时所有角色文件直接保持不变；
+- current 或 outdated managed block 下缺失的 starter 报告为 intentionally absent，而不是重建、outdated 或 incomplete。
 
 模型驱动文件编辑期间的进程或机器崩溃不在事务证明范围内。应直接报告，而不能声称原子恢复。
 
@@ -114,18 +114,25 @@ $plugin-creator update this existing KISS My Agent plugin for local development.
 只有大型独立的一次性子系统的直接汇总会污染 Master context 时，才测试 department lead。确认最多一层临时中间管理、workers 不继续委派、assignment 随任务结束而消失，并且每个共享资源保持一个 operator。不要为了测试而制造层级。
 
 <a id="upgrade-smoke"></a>
-## 公开升级 Smoke
+## 公开 Release Smoke
 
-在 release pull request 前，只测试暂存的本地 candidate：candidate fresh install、fresh-session discovery、窄 role Smokes 与 README 新用户 Pilot。这些只属于 candidate 证据，不是公开 install 或 upgrade 证据。
+创建 tag 前，运行不需要第三方依赖的本地 core checks，并要求该精确 candidate commit 的完整原生 pull-request CI 通过。这些只属于 candidate 证据，不是公开 install 或真实 Host 证据。
 
-Pull request 合并且精确 commit 已创建并推送 `v0.2.2` tag 后，使用隔离的公开安装证明支持的迁移：
+Pull request 合并且精确 commit 已创建并推送 `v0.2.3` tag 后，使用隔离的公开安装执行有界 release checks：
 
 ```bash
 codex plugin marketplace upgrade kiss-my-agent
 codex plugin list
 ```
 
-`v0.2.0` immutable tag 的 post-tag 测试暴露了 raw unqualified Skill invocation，因此该 tag 保留，但没有创建 GitHub Release。`v0.2.1` immutable tag 也保留且没有创建 GitHub Release，因为 public exact-v0.1 role migration 再次生成了 same-path Delete+Add；guarded rollback 恢复了 zero net change。先测试 public v0.2.2 fresh install。然后从已安装 v0.1.0 开始刷新 marketplace，确认 installed cache 报告 0.2.2，再打开新会话。验证 `configure agents` 等 v0.2 接口，对 v0.1-managed 一次性项目运行 setup，并确认每个 eligible exact-v0.1 role 只执行一次 Host-native byte-preserving copy，从 current seed 复制到 target；不使用 patch、same-path Delete+Add 或 text re-encoding。确认修改过的 model/effort 选择和其他已编辑角色保持不变。最后执行文档中的固定 tag 回退；确认普通 upgrade 仍停留在该 pinned channel，再用文档中的 marketplace remove 加 unpinned-add 流程恢复 current channel。只有这三条公开路径全部通过后，maintainer 才能创建 GitHub Release。任一步失败时都保留已推送 tag，不得移动它，并改为发布修复后的 patch version。保留第一个决定性错误。
+Immutable `v0.2.0`、`v0.2.1` 与 `v0.2.2` tags 都没有 GitHub Release。v0.2.2 post-tag 的 public fresh install 与 marketplace upgrade 已通过，但 public legacy-role transition 因无法解析 Plugin resource workdir/path 而在写入前停止，因此没有创建 v0.2.2 Release。v0.2.3 只测试下面的有界顺序：
+
+1. 完成 public fresh install，并在可信新会话中确认 installed cache 报告并加载 `0.2.3`。
+2. 在空的一次性项目中运行 fresh setup，并确认三份 current starter role files 全部创建。再打开一个新会话，让一个已发现的 KISS role 实际执行窄范围无害任务。随后删除一份 starter，在同一项目中重跑 setup 与 check，并确认该角色保持 intentionally absent。
+3. 在一次性 v0.1-managed fixture 中保留每个角色文件的 before bytes，再运行 current setup。要求 managed block 变为 current；两个 Master keys 原本都缺失时，要求成对补齐。通过 direct byte comparison 确认每个角色文件都与 before bytes 一致。
+4. 执行文档中的 pinned rollback，确认普通 upgrade 仍保持 pinned，再用文档中的 marketplace remove 加 unpinned-add 顺序恢复 current channel。
+
+这些检查不要求角色迁移、角色 hash、诱导失败或重复矩阵。只有全部通过后，maintainer 才能创建 GitHub Release。任一步失败时都保留已推送 tag，不得移动它，并改用新的 patch version 发布修复。保留第一个决定性错误。
 
 <a id="dogfooding"></a>
 ## 开发过程中的 Dogfooding

@@ -164,7 +164,6 @@ def require_files(root: Path) -> None:
         "skills/kiss-my-agent-setup/assets/v0.1-agents/kiss_explorer.toml",
         "skills/kiss-my-agent-setup/assets/v0.1-agents/kiss_coder.toml",
         "skills/kiss-my-agent-setup/assets/v0.1-agents/kiss_reviewer.toml",
-        "skills/kiss-my-agent-setup/assets/v0.1-managed-block.md",
         "skills/kiss-my-agent-setup/setup-lifecycle.md",
         "skills/kiss-my-agent-setup/configure-agents.md",
         "assets/kiss-my-agent-hero.png",
@@ -458,8 +457,7 @@ def validate_setup_interface(root: Path) -> None:
         "ordinary single-conversation execution",
         "executive-only workflow cannot staff delegated work",
         "Static setup cannot observe a higher-precedence `false`",
-        "known v0.1 seed",
-        "first-setup defaults, not enforcement",
+        "initial defaults, not enforcement",
         "all four managed config paths",
         "four managed config assignment lines",
         "only when both top-level keys are absent",
@@ -467,7 +465,6 @@ def validate_setup_interface(root: Path) -> None:
         "one or both missing keys are intentional user changes",
         "explicit value or `inherit`",
         "Never silently substitute a fallback model or effort",
-        "Any difference from both the current and known v0.1 exact seeds",
         "either the current bundled seed or the corresponding known v0.1 seed",
     ):
         if token not in lifecycle:
@@ -567,7 +564,7 @@ def validate_collaboration_interfaces(root: Path) -> None:
         "python scripts/test_all.py",
         "Dogfooding KISS My Agent",
         "Squash and merge",
-        "v0.2.2 Release Process",
+        "v0.2.3 Release Process",
     ):
         if token not in contributing:
             fail(f"contributor interface missing: {token}")
@@ -575,10 +572,10 @@ def validate_collaboration_interfaces(root: Path) -> None:
     release_sequence = (
         "git pull --ff-only origin main\n"
         "python3 scripts/test_all.py\n"
-        "git tag -a v0.2.2"
+        "git tag -a v0.2.3"
     )
     if release_sequence not in contributing:
-        fail("v0.2.2 release sequence is incomplete or out of order")
+        fail("v0.2.3 release sequence is incomplete or out of order")
 
     security = (root / "SECURITY.md").read_text(encoding="utf-8")
     if "supports only its latest formal GitHub Release" not in security:
@@ -840,8 +837,7 @@ def validate_document_interfaces(root: Path) -> None:
         "`kiss_explorer` | Read-only investigation | `gpt-5.6-sol` | `high`",
         "`kiss_coder` | Bounded implementation and state changes | `gpt-5.6-sol` | `high`",
         "`kiss_reviewer` | Independent read-only review | `gpt-5.6-sol` | `xhigh`",
-        "first-setup defaults, not enforcement",
-        "known v0.1 seed",
+        "initial defaults, not enforcement",
         "parent turn's live sandbox and approval overrides",
         "ordinary single-conversation execution",
         "Coordination is flat by default",
@@ -867,39 +863,17 @@ def validate_fixtures(root: Path) -> int:
             fail(f"effective-instruction fixture marker missing: {marker}")
     v010_fixture = root / "tests/fixtures/v0.1-managed-project"
     v010_assets = root / "skills/kiss-my-agent-setup/assets"
-    for role_name, contract in DEFAULT_ROLE_CONTRACTS.items():
-        current = load_toml(root / f".codex/agents/{role_name}.toml")
+    for role_name in DEFAULT_ROLE_NAMES:
         legacy_path = v010_fixture / f".codex/agents/{role_name}.toml"
         asset_path = v010_assets / f"v0.1-agents/{role_name}.toml"
         if asset_path.read_bytes() != legacy_path.read_bytes():
-            fail(f"Skill-owned v0.1 seed differs from project fixture: {role_name}")
+            fail(f"Skill-owned v0.1 remove seed differs from project fixture: {role_name}")
         legacy = load_toml(legacy_path)
         asset = load_toml(asset_path)
         if asset.get("name") != role_name:
-            fail(f"Skill-owned v0.1 seed identity differs from filename: {role_name}")
+            fail(f"Skill-owned v0.1 remove seed identity differs from filename: {role_name}")
         if "model_reasoning_effort" in legacy or "model" in legacy:
             fail(f"v0.1 role fixture contains a current model setting: {role_name}")
-        current_without_runtime_defaults = {
-            key: value
-            for key, value in current.items()
-            if key not in {"model", "model_reasoning_effort"}
-        }
-        if legacy != current_without_runtime_defaults:
-            fail(f"current role differs from v0.1 beyond seed model/effort: {role_name}")
-        if current.get("model") != contract["model"]:
-            fail(f"current role has unexpected model: {role_name}")
-        if current.get("model_reasoning_effort") != contract["model_reasoning_effort"]:
-            fail(f"current role has unexpected reasoning effort: {role_name}")
-    fixture_instructions = (v010_fixture / "AGENTS.md").read_text(encoding="utf-8")
-    begin = "<!-- BEGIN KISS MY AGENT MANAGED BLOCK -->"
-    end = "<!-- END KISS MY AGENT MANAGED BLOCK -->"
-    block_start = fixture_instructions.index(begin)
-    block_end = fixture_instructions.index(end, block_start) + len(end)
-    asset_block = (v010_assets / "v0.1-managed-block.md").read_text(
-        encoding="utf-8"
-    ).rstrip("\n")
-    if asset_block != fixture_instructions[block_start:block_end]:
-        fail("Skill-owned v0.1 managed block differs from project fixture")
     effective_chain = [
         root / "AGENTS.md",
         fixture / "AGENTS.md",
