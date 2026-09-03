@@ -203,6 +203,10 @@ class SetupContractTests(unittest.TestCase):
 
     def test_v010_conflict_recovery_and_concurrency_invariants_are_retained(self) -> None:
         self.assertIn("Do not apply this cross-scope rejection to `remove`", self.lifecycle)
+        self.assertIn(
+            "Before the first setup write, classify Config, Instructions, and every Role from the preflight state, then state the complete proposed change set and any directories to create.",
+            self.lifecycle,
+        )
         self.assertIn("re-read every planned target", self.lifecycle)
         self.assertIn("already-written target", self.lifecycle)
         self.assertIn("pending target", self.lifecycle)
