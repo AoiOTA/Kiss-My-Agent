@@ -203,13 +203,13 @@ Keep the pull request focused and reviewable. Resolve material review findings w
 A passing test is not proof of model behavior, usability, publication, or release success. State every untested surface directly.
 
 <a id="release-process"></a>
-## v0.2.1 Release Process
+## v0.2.2 Release Process
 
-This section is maintainer-only. The `v0.1.0` and `v0.2.0` tags are immutable and must never be moved or recreated. The `v0.2.0` tag was preserved without a GitHub Release after a post-tag invocation test exposed the raw-command defect corrected in v0.2.1.
+This section is maintainer-only. The `v0.1.0`, `v0.2.0`, and `v0.2.1` tags are immutable and must never be moved or recreated. The `v0.2.0` tag was preserved without a GitHub Release after its post-tag test exposed raw unqualified Skill invocation. The `v0.2.1` tag, which corrected that invocation path, was likewise preserved without a GitHub Release because public exact-v0.1 role migration again generated a same-path Delete+Add; guarded rollback restored zero net change.
 
-1. Track v0.2.1 in an issue with acceptance criteria, compatibility constraints, and non-goals.
+1. Track v0.2.2 in an issue with acceptance criteria, compatibility constraints, and non-goals.
 2. Before opening the release pull request, run the applicable dependency-free core checks, install only the staged local candidate, and complete fresh-session Skill discovery, harmless role Smokes, and the README-only new-user Pilot. Plugin/Skill-only work may leave the documentation-site build to pull-request CI. These are candidate results; do not claim public install or upgrade evidence before a public tag exists.
-3. Land implementation through a focused pull request. Align the Plugin manifest version and marketplace ref at `0.2.1` / `v0.2.1`, synchronize English and Chinese documentation, and require the complete test suite plus green native Ubuntu, macOS, and Windows pull-request CI.
+3. Land implementation through a focused pull request. Align the Plugin manifest version and marketplace ref at `0.2.2` / `v0.2.2`, synchronize English and Chinese documentation, and require the complete test suite plus green native Ubuntu, macOS, and Windows pull-request CI.
 4. After the pull request is squash-merged, verify the exact `origin/main` commit, create an immutable annotated tag, and push it. Do not create the GitHub Release yet:
 
 ```bash
@@ -217,11 +217,11 @@ git fetch origin
 git switch main
 git pull --ff-only origin main
 python3 scripts/test_all.py
-git tag -a v0.2.1 -m "KISS My Agent v0.2.1"
-git push origin v0.2.1
+git tag -a v0.2.2 -m "KISS My Agent v0.2.2"
+git push origin v0.2.2
 ```
 
-5. Against that pushed public tag, test a public fresh install, the isolated `v0.1.0` to `v0.2.1` marketplace upgrade, and the documented pinned-tag rollback. Confirm the installed cache reports and loads v0.2.1 in a trusted new session; confirm the Host/account supports the bundled `gpt-5.6-sol` defaults; then verify the v0.1-managed project transition, including upgrade of exact unmodified seeds and preservation of existing model/effort choices and other modified roles. Confirm ordinary upgrade remains on the rollback pin, then restore the current channel with the documented marketplace remove plus unpinned-add sequence:
+5. Against that pushed public tag, test a public fresh install, the isolated `v0.1.0` to `v0.2.2` marketplace upgrade, and the documented pinned-tag rollback. Confirm the installed cache reports and loads v0.2.2 in a trusted new session; confirm the Host/account supports the bundled `gpt-5.6-sol` defaults; then verify the v0.1-managed project transition. Each eligible exact-v0.1 role must use one Host-native byte-preserving copy from the current seed to the target, with no patch, same-path Delete+Add, or text re-encoding; modified roles must remain preserved. Confirm ordinary upgrade remains on the rollback pin, then restore the current channel with the documented marketplace remove plus unpinned-add sequence:
 
 ```bash
 codex plugin marketplace upgrade kiss-my-agent
@@ -231,9 +231,9 @@ codex plugin list
 6. Only after all three public paths pass, create the GitHub Release:
 
 ```bash
-gh release create v0.2.1 --verify-tag --title "KISS My Agent v0.2.1" --generate-notes
+gh release create v0.2.2 --verify-tag --title "KISS My Agent v0.2.2" --generate-notes
 ```
 
 7. Verify the public Release page and archives, verify both deployed Pages languages over HTTPS, and record the exact commit, CI runs, public install/upgrade/rollback results, live Smokes, Pilot result, and residual limits in the canonical handoff through a follow-up pull request.
 
-If a post-tag public install, upgrade, or rollback check fails, preserve the tag, do not create a misleading v0.2.1 Release, and publish the correction under a new patch version. If a published Release is later found defective, preserve its tag and publish a new patch version. Never force-push `main`, move any pushed tag, suppress a failing check, or relabel an invalid run as success.
+If a post-tag public install, upgrade, or rollback check fails, preserve the tag, do not create a misleading v0.2.2 Release, and publish the correction under a new patch version. If a published Release is later found defective, preserve its tag and publish a new patch version. Never force-push `main`, move any pushed tag, suppress a failing check, or relabel an invalid run as success.

@@ -49,7 +49,7 @@ codex plugin add kiss-my-agent@kiss-my-agent
 codex plugin list
 ```
 
-列表中应看到 `kiss-my-agent@kiss-my-agent` 的状态为 `installed, enabled`，版本为 `0.2.1`；cache path 可以不同。如果 Plugin 命令、认证或 marketplace 访问失败，请检查客户端支持、login 状态、`git` 与 GitHub 网络。简单一次性任务安装后直接使用普通单对话。复杂项目若需要持久 workflow，请启动新会话。在已测试的 Codex 0.152.1 baseline 上，输入 `$` 并在 picker 中选择 `kiss-my-agent-setup (kiss-my-agent)`。Picker 会插入一个结构化 Skill reference；继续补充 setup 请求并提交 prompt 后，才会调用该 Skill。如果直接粘贴文字，运行 `$kiss-my-agent:kiss-my-agent-setup set up this project`。Host 提示时信任项目；随后另开新会话并运行 `$kiss-my-agent:kiss-my-agent-setup check this project`。
+列表中应看到 `kiss-my-agent@kiss-my-agent` 的状态为 `installed, enabled`，版本为 `0.2.2`；cache path 可以不同。如果 Plugin 命令、认证或 marketplace 访问失败，请检查客户端支持、login 状态、`git` 与 GitHub 网络。简单一次性任务安装后直接使用普通单对话。复杂项目若需要持久 workflow，请启动新会话。在已测试的 Codex 0.152.1 baseline 上，输入 `$` 并在 picker 中选择 `kiss-my-agent-setup (kiss-my-agent)`。Picker 会插入一个结构化 Skill reference；继续补充 setup 请求并提交 prompt 后，才会调用该 Skill。如果直接粘贴文字，运行 `$kiss-my-agent:kiss-my-agent-setup set up this project`。Host 提示时信任项目；随后另开新会话并运行 `$kiss-my-agent:kiss-my-agent-setup check this project`。
 
 <a id="after-setup"></a>
 ## Setup 后该怎么用？
@@ -113,7 +113,7 @@ codex plugin marketplace upgrade kiss-my-agent
 codex plugin list
 ```
 
-在已验证的 Codex 0.152.1 baseline 上，Host 会在启动时自动刷新默认的 unpinned Git marketplace，并重新安装已启用的 non-curated Plugin。KISS My Agent 自身没有 updater，其他 Codex 版本的行为可能不同。执行上面命令后，应看到 `kiss-my-agent@kiss-my-agent` 为 `installed, enabled`，版本是 `0.2.1`。更新改变已安装 Plugin 后，请启动新会话。
+在已验证的 Codex 0.152.1 baseline 上，Host 会在启动时自动刷新默认的 unpinned Git marketplace，并重新安装已启用的 non-curated Plugin。KISS My Agent 自身没有 updater，其他 Codex 版本的行为可能不同。执行上面命令后，应看到 `kiss-my-agent@kiss-my-agent` 为 `installed, enabled`，版本是 `0.2.2`。更新改变已安装 Plugin 后，请启动新会话。
 
 只更新 Plugin 不会迁移项目文件。v0.1-managed 项目更新后，请启动新会话并再运行一次 project setup。它会刷新 KISS instruction block，并且只升级仍与 bundled v0.1 starter roles 完全一致、未经修改的角色文件；修改过或 owner 不清的角色以及已有 config values 都会保留。
 

@@ -7,7 +7,7 @@
 <a id="release-status"></a>
 ## 发布状态
 
-当前 Git-backed marketplace 条目把 Plugin source 固定到 `v0.2.1`。成功的远程安装是该 tag 的发布证据；源码检查和静态验证本身不是远程安装或真实发现证据。Post-tag 调用测试暴露了本次修复的 raw-command 缺陷，因此 immutable `v0.2.0` tag 保留，但没有创建 GitHub Release。已有 `v0.1.0` tag 与项目文件保持不变。
+当前 Git-backed marketplace 条目把 Plugin source 固定到 `v0.2.2`。成功的远程安装是该 tag 的发布证据；源码检查和静态验证本身不是远程安装或真实发现证据。Immutable `v0.2.0` tag 的 post-tag 测试暴露了 raw unqualified Skill invocation，因此该 tag 保留，但没有创建 GitHub Release。Immutable `v0.2.1` tag 也保留且没有创建 GitHub Release，因为 public exact-v0.1 role migration 再次生成了 same-path Delete+Add；guarded rollback 恢复了 zero net change。已有 `v0.1.0` tag 与项目文件保持不变。
 
 <a id="requirements"></a>
 ## 用户环境要求
@@ -34,7 +34,7 @@ codex plugin add kiss-my-agent@kiss-my-agent
 codex plugin list
 ```
 
-列表中应看到 Plugin ID `kiss-my-agent@kiss-my-agent`、状态 `installed, enabled`、版本 `0.2.1`；cache path 可以不同。安装后启动新的已认证 Codex 会话。已经运行的会话不保证发现刚安装的 Plugin 或 Skill。
+列表中应看到 Plugin ID `kiss-my-agent@kiss-my-agent`、状态 `installed, enabled`、版本 `0.2.2`；cache path 可以不同。安装后启动新的已认证 Codex 会话。已经运行的会话不保证发现刚安装的 Plugin 或 Skill。
 
 <a id="first-use"></a>
 ## 第一次使用
@@ -116,7 +116,7 @@ $kiss-my-agent:kiss-my-agent-setup configure global agents
 | 已有有效 managed block | 只更新该 block；不恢复用户有意删除的角色。 |
 | markers 损坏、TOML 无效、路径类型不安全或存在适用的 `AGENTS.override.md` | 停止且不得声称成功。 |
 
-Setup 在首次写入前准备全部改动，写入后验证文件；失败时只在安全的情况下回滚仍与本次 after-content 完全一致的自有修改。Agent 原生文件操作不能保证从进程或机器崩溃中恢复，因此所有歧义状态都会 fail closed。
+Setup 在首次写入前准备全部改动，写入后验证文件；失败时只在安全的情况下回滚仍与本次 after-content 完全一致的自有修改。每个成功迁移的角色都独立处理，只有 target 仍与 current bundled seed 完全一致时才会复制回去。Agent 原生文件操作不能保证从进程或机器崩溃中恢复，因此所有歧义状态都会 fail closed。
 
 Setup 停止时，请按报告中的原因和准确路径解决冲突，不覆盖用户工作，然后重跑同一命令。观察到 `false` 开关时报告 `disabled`。如果真实新会话无法委派或没有合适角色，项目 instructions 要求 Master 报告 staffing issue 并等待用户选择，而不是把持久 workflow 解释成 Master 可直接执行。
 
@@ -130,16 +130,16 @@ codex plugin marketplace upgrade kiss-my-agent
 codex plugin list
 ```
 
-KISS My Agent 自身没有 updater。在已测试的 Codex 0.152.1 baseline 上，Host 可在启动时刷新 unpinned Git marketplace，并重新安装已启用的 non-curated Plugin；其他版本可能不同。执行上面命令后，应确认 `kiss-my-agent@kiss-my-agent` 为 `installed, enabled`，版本是 `0.2.1`。更新改变已安装 Plugin 后，应启动新会话。
+KISS My Agent 自身没有 updater。在已测试的 Codex 0.152.1 baseline 上，Host 可在启动时刷新 unpinned Git marketplace，并重新安装已启用的 non-curated Plugin；其他版本可能不同。执行上面命令后，应确认 `kiss-my-agent@kiss-my-agent` 为 `installed, enabled`，版本是 `0.2.2`。更新改变已安装 Plugin 后，应启动新会话。
 
-更新 Plugin 不会迁移项目拥有的文件。v0.1-managed 项目升级后，还要启动新会话并运行一次 `$kiss-my-agent:kiss-my-agent-setup set up this project`。Setup 会替换旧 KISS instruction block，并且只升级仍与 bundled v0.1 starter roles 完全一致、未经修改的角色文件。已有 config values 以及修改过或 owner 不清的角色都会保留。
+更新 Plugin 不会迁移项目拥有的文件。v0.1-managed 项目升级后，还要启动新会话并运行一次 `$kiss-my-agent:kiss-my-agent-setup set up this project`。Setup 会替换旧 KISS instruction block，并且只升级仍与 bundled v0.1 starter roles 完全一致、未经修改的角色文件。每个 eligible role 只执行一次 Host-native byte-preserving copy，从 current bundled seed 复制到 target；不使用 patch、same-path Delete+Add 或 text re-encoding。已有 config values 以及修改过或 owner 不清的角色都会保留。如果后续工作失败，每个成功迁移的角色只有在其 target 仍与已复制的 current seed 完全一致时才会独立回滚；已等于 v0.1 的 target 保持不变。如果 native migration copy 本身失败，setup 会保留该原始 copy error 作为主要原因，并重新读取 target。与 v0.1 和 current seed 都不一致的 target 可能包含失败 copy 遗留的部分字节；setup 会保留这个未知 target，不会只把它归因于 concurrent change，也不会覆盖它，并要求人工恢复。
 
 如果要求 marketplace 只能在显式操作后移动，请把未固定的 Git marketplace 换成固定 tag 的 source：
 
 ```bash
 codex plugin remove kiss-my-agent@kiss-my-agent
 codex plugin marketplace remove kiss-my-agent
-codex plugin marketplace add AoiOTA/Kiss-My-Agent@v0.2.1
+codex plugin marketplace add AoiOTA/Kiss-My-Agent@v0.2.2
 codex plugin add kiss-my-agent@kiss-my-agent
 ```
 

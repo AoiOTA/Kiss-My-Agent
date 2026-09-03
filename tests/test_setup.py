@@ -58,13 +58,11 @@ class SetupContractTests(unittest.TestCase):
 
     def test_entrypoint_declares_static_runtime_execution_contract(self) -> None:
         """Static source assertions do not prove Host runtime behavior."""
-        self.assertIn("exact loaded `SKILL.md` directory", self.skill)
         self.assertIn(
-            "single base for sibling `setup-lifecycle.md` and `configure-agents.md`",
+            "exact loaded `SKILL.md` directory as the tool workdir",
             self.skill,
         )
-        self.assertIn("every relative link they contain", self.skill)
-        self.assertIn("preserve linked relative-path text", self.skill)
+        self.assertIn("linked relative-path text as its path operand", self.skill)
         self.assertIn(
             "never reconstruct cache, marketplace, plugin, or version path components",
             self.skill,
@@ -85,6 +83,9 @@ class SetupContractTests(unittest.TestCase):
             "never combine add, delete, or update operations for the same path",
             self.skill,
         )
+        self.assertIn("byte-preserving migration and rollback copies", self.skill)
+        self.assertIn("operands safely quoted for the active shell", self.skill)
+        self.assertIn("exact-current rollback guard independently", self.skill)
         self.assertIn("Inspect and interpret each tool or subprocess status", self.skill)
         self.assertIn("tool or subprocess failure", self.skill)
         self.assertIn("unexpected nonzero status", self.skill)
@@ -200,6 +201,11 @@ class SetupContractTests(unittest.TestCase):
 
     def test_v010_conflict_recovery_and_concurrency_invariants_are_retained(self) -> None:
         self.assertIn("Do not apply this cross-scope rejection to `remove`", self.lifecycle)
+        self.assertIn("state a separate decision", self.lifecycle)
+        self.assertIn("master model/effort pair", self.lifecycle)
+        self.assertIn("each feature switch", self.lifecycle)
+        self.assertIn("the Instructions target", self.lifecycle)
+        self.assertIn("every Role", self.lifecycle)
         self.assertIn("re-read every planned target", self.lifecycle)
         self.assertIn("already-written target", self.lifecycle)
         self.assertIn("pending target", self.lifecycle)
@@ -214,9 +220,32 @@ class SetupContractTests(unittest.TestCase):
         self.assertIn("leave the missing key absent as intentional inheritance", self.lifecycle)
         self.assertIn("one or both missing keys are intentional user changes", self.lifecycle)
         self.assertIn("four managed config assignment lines", self.lifecycle)
-        self.assertIn("complete bytes equal the corresponding known v0.1 seed", self.lifecycle)
+        self.assertIn(
+            "preflight bytes and its immediately-before-copy re-read both equal the corresponding known v0.1 seed",
+            self.lifecycle,
+        )
         self.assertIn("difference from both the current and known v0.1 exact seeds", self.lifecycle)
         self.assertIn("either the current bundled seed or the corresponding known v0.1 seed", self.lifecycle)
+
+    def test_v010_native_copy_source_contract(self) -> None:
+        """These assertions verify published instructions, not Host behavior."""
+        self.assertIn("Host-appropriate native byte-preserving file-copy facility", self.lifecycle)
+        self.assertIn("stop in preflight before any mutation", self.lifecycle)
+        self.assertIn("POSIX `cp -- 'SOURCE' 'TARGET'`", self.lifecycle)
+        self.assertIn(
+            "PowerShell `Copy-Item -LiteralPath 'SOURCE' -Destination 'TARGET' -ErrorAction Stop`",
+            self.lifecycle,
+        )
+        self.assertNotIn("-Force", self.lifecycle)
+        for forbidden_text_cmdlet in ("`Get-Content`", "`Set-Content`", "`Out-File`"):
+            self.assertIn(forbidden_text_cmdlet, self.lifecycle)
+        self.assertIn("overwrite the target without a permission or attribute override", self.lifecycle)
+        self.assertIn("partial bytes from the failed copy", self.lifecycle)
+        self.assertIn("requires manual recovery", self.lifecycle)
+        self.assertIn("do not classify differing bytes as a concurrent change solely", self.lifecycle)
+        self.assertIn("handle every already-migrated role independently", self.lifecycle)
+        self.assertIn("only when it still equals the current bundled seed", self.lifecycle)
+        self.assertIn("does not skip the guarded rollback attempt", self.lifecycle)
 
     def test_codex_home_and_outdated_state_rules_are_explicit(self) -> None:
         self.assertIn("non-empty `CODEX_HOME`", self.lifecycle)

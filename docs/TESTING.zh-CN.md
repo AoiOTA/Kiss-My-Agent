@@ -118,14 +118,14 @@ $plugin-creator update this existing KISS My Agent plugin for local development.
 
 在 release pull request 前，只测试暂存的本地 candidate：candidate fresh install、fresh-session discovery、窄 role Smokes 与 README 新用户 Pilot。这些只属于 candidate 证据，不是公开 install 或 upgrade 证据。
 
-Pull request 合并且精确 commit 已创建并推送 `v0.2.1` tag 后，使用隔离的公开安装证明支持的迁移：
+Pull request 合并且精确 commit 已创建并推送 `v0.2.2` tag 后，使用隔离的公开安装证明支持的迁移：
 
 ```bash
 codex plugin marketplace upgrade kiss-my-agent
 codex plugin list
 ```
 
-`v0.2.0` immutable tag 的 post-tag 调用测试暴露了本次在 v0.2.1 修复的 raw-command 缺陷，因此该 tag 保留，但没有创建 GitHub Release。先测试 public v0.2.1 fresh install。然后从已安装 v0.1.0 开始刷新 marketplace，确认 installed cache 报告 0.2.1，再打开新会话。验证 `configure agents` 等 v0.2 接口，对 v0.1-managed 一次性项目运行 setup，并确认完全一致、未经修改的 v0.1 seeds 会升级，修改过的 model/effort 选择和其他已编辑角色会保留。最后执行文档中的固定 tag 回退；确认普通 upgrade 仍停留在该 pinned channel，再用文档中的 marketplace remove 加 unpinned-add 流程恢复 current channel。只有这三条公开路径全部通过后，maintainer 才能创建 GitHub Release。任一步失败时都保留已推送 tag，不得移动它，并改为发布修复后的 patch version。保留第一个决定性错误。
+`v0.2.0` immutable tag 的 post-tag 测试暴露了 raw unqualified Skill invocation，因此该 tag 保留，但没有创建 GitHub Release。`v0.2.1` immutable tag 也保留且没有创建 GitHub Release，因为 public exact-v0.1 role migration 再次生成了 same-path Delete+Add；guarded rollback 恢复了 zero net change。先测试 public v0.2.2 fresh install。然后从已安装 v0.1.0 开始刷新 marketplace，确认 installed cache 报告 0.2.2，再打开新会话。验证 `configure agents` 等 v0.2 接口，对 v0.1-managed 一次性项目运行 setup，并确认每个 eligible exact-v0.1 role 只执行一次 Host-native byte-preserving copy，从 current seed 复制到 target；不使用 patch、same-path Delete+Add 或 text re-encoding。确认修改过的 model/effort 选择和其他已编辑角色保持不变。最后执行文档中的固定 tag 回退；确认普通 upgrade 仍停留在该 pinned channel，再用文档中的 marketplace remove 加 unpinned-add 流程恢复 current channel。只有这三条公开路径全部通过后，maintainer 才能创建 GitHub Release。任一步失败时都保留已推送 tag，不得移动它，并改为发布修复后的 patch version。保留第一个决定性错误。
 
 <a id="dogfooding"></a>
 ## 开发过程中的 Dogfooding

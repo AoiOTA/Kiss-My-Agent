@@ -118,14 +118,14 @@ Test a department lead only for a large independent disposable subsystem whose d
 
 Before the release pull request, test only the staged local candidate: fresh candidate installation, fresh-session discovery, narrow role Smokes, and the README newcomer Pilot. Those results are candidate evidence, not public install or upgrade evidence.
 
-After the pull request is merged and the exact commit has been tagged and pushed as `v0.2.1`, use an isolated public installation to prove the supported transition:
+After the pull request is merged and the exact commit has been tagged and pushed as `v0.2.2`, use an isolated public installation to prove the supported transition:
 
 ```bash
 codex plugin marketplace upgrade kiss-my-agent
 codex plugin list
 ```
 
-The immutable `v0.2.0` tag was preserved without a GitHub Release after its post-tag invocation test exposed the raw-command defect corrected in v0.2.1. Test a public v0.2.1 fresh install first. Then start from an installed v0.1.0, refresh the marketplace, confirm that the installed cache reports 0.2.1, and open a new session. Verify a v0.2 interface such as `configure agents`, run setup against a v0.1-managed disposable project, and confirm that exact unmodified v0.1 seeds upgrade while modified model/effort choices and other edited roles remain. Exercise the documented pinned-tag rollback last; confirm an ordinary upgrade remains on that pinned channel, then use the documented remove plus unpinned-add sequence to restore the current channel. Only after all three public paths pass may the maintainer create the GitHub Release. If any fails, preserve the pushed tag, do not move it, and release a corrective patch version instead. Preserve the first decisive failure.
+The immutable `v0.2.0` tag was preserved without a GitHub Release after its post-tag test exposed raw unqualified Skill invocation. The immutable `v0.2.1` tag was also preserved without a GitHub Release because public exact-v0.1 role migration again generated a same-path Delete+Add; guarded rollback restored zero net change. Test a public v0.2.2 fresh install first. Then start from an installed v0.1.0, refresh the marketplace, confirm that the installed cache reports 0.2.2, and open a new session. Verify a v0.2 interface such as `configure agents`, run setup against a v0.1-managed disposable project, and confirm that each eligible exact-v0.1 role uses one Host-native byte-preserving copy from the current seed to the target—never a patch, same-path Delete+Add, or text re-encoding. Confirm modified model/effort choices and other edited roles remain unchanged. Exercise the documented pinned-tag rollback last; confirm an ordinary upgrade remains on that pinned channel, then use the documented remove plus unpinned-add sequence to restore the current channel. Only after all three public paths pass may the maintainer create the GitHub Release. If any fails, preserve the pushed tag, do not move it, and release a corrective patch version instead. Preserve the first decisive failure.
 
 <a id="dogfooding"></a>
 ## Dogfooding during development

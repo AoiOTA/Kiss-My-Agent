@@ -7,7 +7,7 @@
 <a id="release-status"></a>
 ## Release status
 
-The current Git-backed marketplace entry pins the Plugin source to `v0.2.1`. A successful remote install is publication evidence for that tag; source inspection and static validation alone are not remote-install or live-discovery evidence. The immutable `v0.2.0` tag was preserved without a GitHub Release after a post-tag invocation test exposed the raw-command defect corrected here. Existing `v0.1.0` tags and project files remain untouched.
+The current Git-backed marketplace entry pins the Plugin source to `v0.2.2`. A successful remote install is publication evidence for that tag; source inspection and static validation alone are not remote-install or live-discovery evidence. The immutable `v0.2.0` tag was preserved without a GitHub Release after its post-tag test exposed raw unqualified Skill invocation. The immutable `v0.2.1` tag was also preserved without a GitHub Release because public exact-v0.1 role migration again generated a same-path Delete+Add; guarded rollback restored zero net change. The existing `v0.1.0` tag and project files remain untouched.
 
 <a id="requirements"></a>
 ## User requirements
@@ -34,7 +34,7 @@ codex plugin add kiss-my-agent@kiss-my-agent
 codex plugin list
 ```
 
-In the list, expect Plugin ID `kiss-my-agent@kiss-my-agent`, status `installed, enabled`, and version `0.2.1`. Cache paths may differ. Start a new authenticated Codex session after installation. A session that was already running is not guaranteed to discover a newly installed Plugin or Skill.
+In the list, expect Plugin ID `kiss-my-agent@kiss-my-agent`, status `installed, enabled`, and version `0.2.2`. Cache paths may differ. Start a new authenticated Codex session after installation. A session that was already running is not guaranteed to discover a newly installed Plugin or Skill.
 
 <a id="first-use"></a>
 ## First use
@@ -116,7 +116,7 @@ It manages `config.toml`, `agents/`, and the KISS block in `AGENTS.md` under `$C
 | Valid existing managed block | Update only that block; do not restore deliberately deleted roles. |
 | Malformed markers, invalid TOML, unsafe path type, or applicable `AGENTS.override.md` | Stop without claiming success. |
 
-Setup prepares all changes before the first write, verifies files afterward, and rolls back only its own unchanged after-content when a failure permits safe rollback. Agent-native file operations cannot promise recovery from a process or machine crash, so all ambiguous states fail closed.
+Setup prepares all changes before the first write, verifies files afterward, and rolls back only its own unchanged after-content when a failure permits safe rollback. Each successfully migrated role is handled independently and is copied back only while its target still exactly matches the current bundled seed. Agent-native file operations cannot promise recovery from a process or machine crash, so all ambiguous states fail closed.
 
 When setup stops, use its reported reason and exact path to resolve the conflict without overwriting user work, then rerun the same command. An observed `false` switch is reported as `disabled`. If a real new session cannot delegate or has no suitable role, the project instructions require the master to report the staffing issue and wait for the user's choice instead of treating the persistent workflow as permission to work directly.
 
@@ -130,16 +130,16 @@ codex plugin marketplace upgrade kiss-my-agent
 codex plugin list
 ```
 
-KISS My Agent has no updater of its own. On the tested Codex 0.152.1 baseline, the Host can refresh an unpinned Git marketplace at startup and reinstall an enabled non-curated Plugin; other versions may differ. After the commands above, verify that `kiss-my-agent@kiss-my-agent` is `installed, enabled` at version `0.2.1`. Start a new session after an update changes the installed Plugin.
+KISS My Agent has no updater of its own. On the tested Codex 0.152.1 baseline, the Host can refresh an unpinned Git marketplace at startup and reinstall an enabled non-curated Plugin; other versions may differ. After the commands above, verify that `kiss-my-agent@kiss-my-agent` is `installed, enabled` at version `0.2.2`. Start a new session after an update changes the installed Plugin.
 
-Updating the Plugin does not migrate project-owned files. For a v0.1-managed project, start a new session and run `$kiss-my-agent:kiss-my-agent-setup set up this project` once after upgrading. Setup replaces the old KISS instruction block and upgrades only exact, unmodified bundled v0.1 starter roles. Existing config values and modified or ambiguously owned roles remain preserved.
+Updating the Plugin does not migrate project-owned files. For a v0.1-managed project, start a new session and run `$kiss-my-agent:kiss-my-agent-setup set up this project` once after upgrading. Setup replaces the old KISS instruction block and upgrades only exact, unmodified bundled v0.1 starter roles. Each eligible role uses one Host-native byte-preserving copy from the current bundled seed to the target—never a patch, same-path Delete+Add, or text re-encoding. Existing config values and modified or ambiguously owned roles remain preserved. If later work fails, each successfully migrated role is rolled back independently only when its target still exactly matches the copied current seed; a target already equal to v0.1 is left unchanged. If the native migration copy itself fails, setup keeps that original copy error as the primary cause and re-reads the target. A target matching neither the v0.1 nor current seed may contain partial bytes from the failed copy: setup preserves that unknown target, does not attribute it only to a concurrent change or overwrite it, and requires manual recovery.
 
 If you require marketplace movement to happen only after an explicit action, replace the unpinned Git marketplace with a tag-pinned source:
 
 ```bash
 codex plugin remove kiss-my-agent@kiss-my-agent
 codex plugin marketplace remove kiss-my-agent
-codex plugin marketplace add AoiOTA/Kiss-My-Agent@v0.2.1
+codex plugin marketplace add AoiOTA/Kiss-My-Agent@v0.2.2
 codex plugin add kiss-my-agent@kiss-my-agent
 ```
 
