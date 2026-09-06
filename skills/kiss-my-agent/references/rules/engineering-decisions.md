@@ -4,7 +4,7 @@ This rule expands the permanent boundaries for decisions that are genuinely ambi
 
 ## Size, ownership, and delegation
 
-Estimate work by uncertainty, coupling, consequence, and verification cost, not line count. The master may directly handle bounded work. Delegate only separable investigation, implementation, or independent review whose expected information or risk benefit exceeds coordination cost; give each delegate the smallest sufficient goal, paths, owner, invariants, evidence, resources, and stop condition.
+Estimate work by uncertainty, coupling, consequence, and verification cost, not line count. The master owns orchestration, architecture and acceptance decisions, conflict resolution, evidence interpretation, and final synthesis; it must delegate delegable bulk exploration, implementation, validation, and review. Choose task partitioning, roles, agent count, and serial or parallel work to keep coordination proportionate, not to waive delegation. The master may directly perform the orchestration judgments and result integration needed for those responsibilities; give each delegate the smallest sufficient goal, paths, owner, invariants, evidence, resources, and stop condition.
 
 Trace the active owner, producer, and current consumer before choosing the modification surface. Keep a single-caller need local. Extract or share only at a real interface boundary or when another present consumer makes duplication materially worse. A supported conclusion that no change is needed is complete work.
 

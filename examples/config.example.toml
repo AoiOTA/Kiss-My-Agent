@@ -1,17 +1,17 @@
-# KISS My Agent enablement example.
-#
-# This file is inert at examples/config.example.toml. Setup adds each missing
-# public switch independently and preserves every existing value, marked or
-# unmarked. KISS My Agent does not set the master model or effort; choose them
-# through the Host, conversation, or another Codex configuration layer.
-#
-# Standalone roles are discovered from <scope>/agents/*.toml. Do not register
-# individual role files here. Current bundled roles omit model and set medium
-# effort for explorer, coder, and reviewer. KISS My Agent does not set context
-# or concurrency defaults.
+# Inert example: setup fills each missing field in the selected scope.
+# Existing user values are preserved; exact managed legacy Sol/max is updated.
+# Existing roles are user-owned; configure selected roles explicitly.
+# New role seeds use gpt-6-astra / medium. Start a new trusted task after setup.
+# This does not set permissions, concurrency or context-window thresholds.
+
+model = "gpt-6-astra" # KISS My Agent managed
+model_reasoning_effort = "high" # KISS My Agent managed
 
 [features]
-multi_agent = true
+multi_agent = true # KISS My Agent managed
+
+[features.context_management]
+experimental_mode = true # KISS My Agent managed
 
 [agents]
-enabled = true
+enabled = true # KISS My Agent managed

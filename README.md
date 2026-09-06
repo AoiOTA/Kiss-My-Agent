@@ -105,7 +105,7 @@ $kiss-my-agent:kiss-my-agent-setup check this project
 
 Default setup manages three project locations:
 
-- `.codex/config.toml`: the two multi-Agent switches
+- `.codex/config.toml`: fills missing Astra/high, multi-agent and experimental-context defaults; preserves user values and updates only the exact legacy pair described in [Configuration](docs/CONFIGURATION.md).
 - `.codex/agents/`: editable employee-role files
 - `AGENTS.md`: the marked KISS instructions block
 
@@ -121,28 +121,30 @@ The **Master** is the main Codex Agent in the conversation you are using now—t
 | Who | Job | Default |
 | --- | --- | --- |
 | You / Owner | Set the goal, architecture, acceptance criteria, non-goals, and stop point | Human decision |
-| Master | Plan, assign work, resolve conflicts, judge evidence, and summarize | Host/conversation selection |
-| `kiss_explorer` | Investigate and report facts without editing | no KISS model pin / `medium` |
-| `kiss_coder` | Implement the assigned change and run its checks | no KISS model pin / `medium` |
-| `kiss_reviewer` | Independently inspect the result without editing | no KISS model pin / `medium` |
+| Master | Plan, assign work, resolve conflicts, judge evidence, and summarize | `gpt-6-astra` / `high` default |
+| `kiss_explorer` | Investigate and report facts without editing | `gpt-6-astra` / `medium` |
+| `kiss_coder` | Implement the assigned change and run its checks | `gpt-6-astra` / `medium` |
+| `kiss_reviewer` | Independently inspect the result without editing | `gpt-6-astra` / `medium` |
 
-KISS does not pin the Master's model or effort. Its starter roles also have no KISS role-level model pin and set only `medium` effort. The Master normally assigns directly, may use multiple instances of a role, keeps one Agent responsible for each shared item, and may give one temporary lead to a large independent subsystem.
+Setup fills missing master fields with `gpt-6-astra` / `high`; current seed roles explicitly use `gpt-6-astra` / `medium`. Existing explicit user choices are preserved. The role wizard changes selected roles only. Static checks do not prove effective Host settings; verify them in a new task. The Master normally assigns directly, may use multiple instances of a role, keeps one Agent responsible for each shared item, and may give one temporary lead to a large independent subsystem.
 
 The same instructions require the Master to report when delegation is unavailable instead of silently doing the employees' work. You then choose whether to repair the team or explicitly continue this task as a normal single conversation.
 
 The company comparison only explains responsibilities; it is not a fixed workflow or game system.
 
+Setup defaults missing `features.context_management.experimental_mode` to `true`, preserving explicit false. On Ubuntu 24.04 with the ChatGPT Pro client, no API key is needed. After updating the Plugin, run setup in the original scope, explicitly configure selected existing roles, then start a new trusted Astra task to verify loading.
+
 <a id="configure-agents"></a>
 ## Only Read This If You Want Different Model Settings
 
-Choose the Master's model and effort through the Host or conversation. For a complex KISS task, if your account and Host offer it, you can start with **GPT-6 Astra / High**. This is a recommendation, not a KISS default or requirement.
+Setup fills missing master fields with `gpt-6-astra` / `high`; current seed roles explicitly use `gpt-6-astra` / `medium`. Existing explicit user choices are preserved. The role wizard changes selected roles only. Static checks do not prove effective Host settings; verify them in a new task.
 
-For child Agents, Codex resolves an explicit spawn setting first, then the corresponding `[agents]` default, then the parent; an explicit role-file value is the final override. The current starter roles omit `model`, so they do not apply that final model override.
+For child Agents, Codex resolves an explicit spawn setting first, then the corresponding `[agents]` default, then the parent; an explicit role-file value is the final override. The current starter roles explicitly set Astra / medium as that final override.
 
-Plugin updates and setup preserve every existing role. To remove KISS role-level model pins and set `medium` effort in all three existing KISS roles, use this exact qualified prompt:
+Plugin updates and setup preserve every existing role. To explicitly set `gpt-6-astra` and `medium` effort in all three existing KISS roles, use this exact qualified prompt:
 
 ```text
-$kiss-my-agent:kiss-my-agent-setup configure agents in this project: for kiss_explorer, kiss_coder, and kiss_reviewer, set model to inherit and model_reasoning_effort to medium
+$kiss-my-agent:kiss-my-agent-setup configure agents in this project: for kiss_explorer, kiss_coder, and kiss_reviewer, set model to gpt-6-astra and model_reasoning_effort to medium
 ```
 
 Configure existing employee roles through Codex:

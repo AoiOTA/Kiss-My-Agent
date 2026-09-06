@@ -34,7 +34,7 @@ For global scope, resolve the Codex home from a non-empty `CODEX_HOME` environme
 
 For each selected role, offer `keep current`, `inherit`, or `set explicitly`:
 
-When multiple roles are selected, the user may apply one shared choice to all of them. In particular, `model = inherit` removes each selected role's `model` key and an explicit `model_reasoning_effort = medium` sets that effort for each selected role; preview every affected file separately before writing.
+When multiple roles are selected, the user may apply one shared choice to all of them. For the Astra defaults, explicitly choosing `model = gpt-6-astra` and `model_reasoning_effort = medium` updates only those fields in each selected role; `model = inherit` instead removes each selected role's `model` key; preview every affected file separately before writing.
 
 - `model`
   - `inherit` removes the key. Codex first resolves an explicit spawn model, then `agents.default_subagent_model`, then the parent's model.
