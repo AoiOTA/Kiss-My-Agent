@@ -57,10 +57,10 @@ py -3 --version
 - 保持人对目标、架构、验收标准、非目标和停止边界的所有权。
 - 保持 `kiss-my-agent` 精确路由且 non-catch-all。只有反复出现的方法才新增 Rule，只有有用的具体对照才新增 Case。
 - 没有已批准的当前 consumer 时，不扩张 setup、workflow、release、compatibility、telemetry、scoring 或 evaluation machinery。
-- 保持三个 owner：`config.toml` 中四个 config paths（成对的 Master model/effort defaults 加两个独立补默认的公开开关）、standalone role TOML discovery，以及 AGENTS 中的动态调度。Marker 只控制 remove ownership，不授权重置已有值。Config 不得枚举角色文件。
+- 保持三个 owner：`config.toml` 中的两个公开开关、standalone role TOML discovery，以及 AGENTS 中的动态调度。KISS 不拥有也不设置 Master model/effort。Marker 只控制 remove ownership，不授权重置已有值。Config 不得枚举角色文件。
 - 把提供的角色视为可编辑的 fresh-setup seeds，而不是封闭 catalog；角色 `name` 是身份，文件名只是约定。角色一旦存在即归用户所有，setup 或 Plugin update 永不覆盖、迁移或判定其版本。
 - 让 Master 只负责调度、决策与汇总。默认扁平 direct fan-out，允许同一角色多个实例，并为每个共享资源保留一个 writer/operator。合格的大型独立子系统可使用一个临时有界 lead，其 workers 不再委派；绝不增加更深或永久层级。
-- 区分 Master settings 与 role settings。可编辑的 bundled defaults 为：Master 在 scope config 中使用 `gpt-5.6-sol` / `max`，explorer/coder roles 使用 `gpt-5.6-sol` / `high`，reviewer 使用 `gpt-5.6-sol` / `xhigh`。保留已有选择；后续 setup 和 update 不得重置，role wizard 也不得编辑 Master config。
+- 区分由 Host/对话选择的 Master settings 与 role settings。当前 starter roles 省略 `model` 并设置 `model_reasoning_effort = "medium"`；显式 spawn 设置先于 `[agents]` defaults 与 parent 解析，随后任何 role-level 值成为最终 override。每个已有角色都作为 user-owned 保留；后续 setup 和 update 不得迁移，role wizard 也不得编辑 Master config。
 - 保留用户和其他 Agent 的无关改动。范围外 refactor、生成产物和格式化不得进入 diff。
 - 每份英文开发者文档与简体中文配套文件必须同步：语言切换、显式 anchor IDs、章节顺序和 fenced command blocks。
 - 面向 Codex 的 AGENTS、Skills、Rules、Cases、角色 TOML、`LICENSE` 与 `CODE_OF_CONDUCT.md` 只保留英文。

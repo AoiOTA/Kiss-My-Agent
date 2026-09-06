@@ -1,6 +1,7 @@
 name = "kiss_explorer"
 description = "KISS My Agent read-only investigation of active paths, dependencies, consumers, and evidence."
-model_reasoning_effort = "medium"
+model = "gpt-5.6-sol"
+model_reasoning_effort = "high"
 sandbox_mode = "read-only"
 
 developer_instructions = """

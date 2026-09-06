@@ -53,15 +53,17 @@ Setup 场景只能在一次性项目和明确隔离的 Codex home 中运行。�
 必测场景包括：
 
 - 空项目 setup、重复 setup、check 与 remove；
-- managed block 分类互斥：current block 绝不补缺失的 Master keys；block 缺失或被识别为 outdated 时，只有两个 keys 都缺失才补入这一对；其他情况都保留已有 assignments，并让每个缺失 key 继续缺失和继承；
-- 两个 feature switches 各自在缺失时添加，同时保留四个 paths 的 marked/unmarked values、无关 config、comments、换行风格、AGENTS 内容和已有角色；
+- 不创建或补齐 Master model/effort，`check` 也不使用它们判断 structural validity；
+- 两个 feature switches 各自在缺失时添加，同时保留两个 switch paths 的 marked/unmarked values、无关 config、comments、换行风格、AGENTS 内容和已有角色；
+- 只有两个旧顶层 `gpt-5.6-sol` / `max` lines 都准确出现一次并带准确 KISS marker 时才成对迁移，随后重复 setup 必须 no-op；
+- 四类 near miss 都保留并给出手工删除提示：缺少 companion、pair 未标记、值已修改，以及用户自选 custom pair；duplicate 或 invalid assignments 仍属于 conflicts；
 - 有意设置的 `false` 与有意删除的 seed roles；
 - 损坏的 managed config 或准确 bundled-role TOML、不安全的 managed path type、`AGENTS.override.md`，以及准确 bundled filename/identity mismatch；无效的未选 custom role 不属于 KISS ownership，不会阻塞 setup、check、remove，也不会阻塞已经选择其他角色的配置请求；
 - project 与 global scope 中同一个 bundled role filename 使用不同的可观察定义：project setup/check 只检查 project target 并保持 global role 不变；fresh project session 证明 Host 使用 project-over-global precedence，KISS 不拒绝也不协调这个 duplicate；
-- remove 只删除四个 marked config assignments 和 current/v0.1 exact role seeds，并保留 unmarked config 与已修改角色；
+- remove 只删除两个当前 marked switches、任何准确的旧 marked Master pair，以及 current/v0.2.5/v0.1 exact role seeds，并保留 unmarked config 与已修改角色；
 - 只配置一个选中角色，其他字段和文件保持不变；
 - 恢复继承时只删除选中的可选 key；
-- 为 Master 应用成对的初始 default `gpt-5.6-sol` / `max`，只在 fresh setup 时为缺失 roles 应用 `gpt-5.6-sol` / `high`、`high`、`xhigh`，并保留所有已有角色；
+- 把 Master model 与 effort 留给 Host/对话；fresh setup 创建缺失 roles 时省略 `model` 并设置 `model_reasoning_effort = "medium"`，同时保留所有已有角色；
 - 未单独确认时拒绝写入 `danger-full-access`；
 - 把 v0.1.0 markers 创建的项目识别为 `outdated`，随后通过 setup 刷新可能更新的 managed block 与 config，同时所有角色文件直接保持不变；
 - current 或 outdated managed block 下缺失的 starter 报告为 intentionally absent，而不是重建、outdated 或 incomplete。
@@ -109,7 +111,7 @@ $plugin-creator update this existing KISS My Agent plugin for local development.
 2. `kiss_coder`：只拥有一个隔离的一次性文件，仅在不存在时创建，验证后只删除该文件。
 3. `kiss_reviewer`：检查给定 diff，报告带准确位置的实质 findings，不编辑文件。
 
-确认配置的 defaults 解析为 `gpt-5.6-sol`，三个角色的 effort 依次为 `high`、`high`、`xhigh`，Master 使用成对的 `gpt-5.6-sol` / `max` config defaults。如果 Host 或账号不支持某个配置值，应报告 failed precondition，不能降低预期标准。前后都检查工作树和选定 fixtures。一次成功调用只支持角色发现和观察到的窄行为。
+确认 current starter roles 没有 KISS 角色级 `model` pin，并使用 `medium` effort。子 Agent 的有效模型依次从显式 spawn setting、`[agents].default_subagent_model`、parent 解析，再应用任何 role-level override。对于无 KISS model pin 的 candidate，不重复完整三角色行为矩阵：通过 Host 选择 Master（账号与 Host 提供时选择 Astra / High），确认两轮最小消息都保持该选择，随后只 spawn 一个 Explorer。只有显式 spawn model 与 `agents.default_subagent_model` 都没有设置时，才确认 child 从 parent/Astra 选择解析 model，并应用 role 的 `medium` effort。前后都检查工作树和选定 fixtures。一次成功调用只支持角色发现和观察到的窄行为。
 
 只有大型独立的一次性子系统的直接汇总会污染 Master context 时，才测试 department lead。确认最多一层临时中间管理、workers 不继续委派、assignment 随任务结束而消失，并且每个共享资源保持一个 operator。不要为了测试而制造层级。
 
@@ -158,7 +160,7 @@ Coordinator wait 调用在没有新消息时返回，不能证明子 Agent 超�
 - 用白话复述 `目标/假设 → 最小可运行验证 → 真实结果 → 迭代或停止`，并区分低成本、可恢复的试错与绕过认证或权限、跨越不可逆高风险边界；
 - 它是否适合自己的工作；
 - company model：Owner 保留目标、架构、验收标准和停止点；Master / CEO 负责调度、决策与汇总；`kiss_explorer`、`kiss_coder`、`kiss_reviewer` 分别负责只读调查、有界实现和独立只读审查；
-- defaults 可编辑，Master 通常使用扁平直接委派，而不是固定 workflow 或深层组织；
+- KISS 把 Master model/effort 留给 Host 或对话，starter roles 没有 model pin 并使用 `medium` effort，而且 Master 通常使用扁平直接委派，而不是固定 workflow 或深层组织；
 - 安装、第一次使用、Agent 配置和更新入口。
 
 条件允许时，让对方在一次性项目中完成 setup，且不安装 Python。只记录匿名的通过/失败观察和阻塞性困惑。修订后复用同一清单，不得移动标准。

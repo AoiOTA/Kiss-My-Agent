@@ -34,6 +34,8 @@ For global scope, resolve the Codex home from a non-empty `CODEX_HOME` environme
 
 For each selected role, offer `keep current`, `inherit`, or `set explicitly`:
 
+When multiple roles are selected, the user may apply one shared choice to all of them. In particular, `model = inherit` removes each selected role's `model` key and an explicit `model_reasoning_effort = medium` sets that effort for each selected role; preview every affected file separately before writing.
+
 - `model`
   - `inherit` removes the key. Codex first resolves an explicit spawn model, then `agents.default_subagent_model`, then the parent's model.
   - An explicit value must be the exact model identifier chosen by the user from the current Host. Do not maintain a hard-coded model catalog or claim availability that the current Host did not expose.

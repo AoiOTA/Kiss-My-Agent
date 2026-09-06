@@ -13,22 +13,30 @@ Resolve `$CODEX_HOME` from a non-empty `CODEX_HOME` environment value; otherwise
 
 For an explicit "this project" request, use the Host's current project root or sole active workspace root. Do not substitute the current shell child directory, the Plugin source directory, or a different workspace root. When the Host exposes multiple roots or no unique project root, ask the user to select an absolute target and do not write before that choice.
 
-The current bundled seed sources are the plugin's [kiss_explorer](../../.codex/agents/kiss_explorer.toml), [kiss_coder](../../.codex/agents/kiss_coder.toml), and [kiss_reviewer](../../.codex/agents/kiss_reviewer.toml) files. The Skill-owned known v0.1 snapshots are the role seeds [kiss_explorer](assets/v0.1-agents/kiss_explorer.toml), [kiss_coder](assets/v0.1-agents/kiss_coder.toml), and [kiss_reviewer](assets/v0.1-agents/kiss_reviewer.toml). Current seeds are fresh-setup output templates and remove comparison inputs; known v0.1 seeds are remove-only comparison inputs. The Skill remains plugin-owned; never copy the plugin `skills/` tree into a target.
+The current bundled seed sources are the plugin's [kiss_explorer](../../.codex/agents/kiss_explorer.toml), [kiss_coder](../../.codex/agents/kiss_coder.toml), and [kiss_reviewer](../../.codex/agents/kiss_reviewer.toml) files. The Skill-owned remove-only snapshots are the v0.2.5 role seeds [kiss_explorer](assets/v0.2.5-agents/kiss_explorer.toml), [kiss_coder](assets/v0.2.5-agents/kiss_coder.toml), and [kiss_reviewer](assets/v0.2.5-agents/kiss_reviewer.toml), plus the v0.1 role seeds [kiss_explorer](assets/v0.1-agents/kiss_explorer.toml), [kiss_coder](assets/v0.1-agents/kiss_coder.toml), and [kiss_reviewer](assets/v0.1-agents/kiss_reviewer.toml). Current seeds are fresh-setup output templates and remove comparison inputs. Historical snapshots are exact-byte remove comparison inputs only: setup, check, and configure must not read them, compare against them, infer a version from them, or migrate an existing role. The Skill remains plugin-owned; never copy the plugin `skills/` tree into a target.
 
 ## Managed content
 
-Only the following config assignments are owned, and only when the same line includes the marker `# KISS My Agent managed`:
+Only the following current config assignments are owned, and only when the same line includes the marker `# KISS My Agent managed`:
 
 ```toml
-model = "gpt-5.6-sol" # KISS My Agent managed
-model_reasoning_effort = "max" # KISS My Agent managed
-
 [features]
 multi_agent = true # KISS My Agent managed
 
 [agents]
 enabled = true # KISS My Agent managed
 ```
+
+KISS does not own, create, complete, or enforce the top-level `model` or `model_reasoning_effort` settings. The Host resolves the master's model and effort from its active configuration layers and conversation selection.
+
+For compatibility with v0.2.5 setup output, recognize this legacy pair only when both top-level assignments occur exactly once, their parsed values are exactly `gpt-5.6-sol` and `max`, and each complete assignment line includes the exact marker `# KISS My Agent managed`:
+
+```text
+model = "gpt-5.6-sol" # KISS My Agent managed
+model_reasoning_effort = "max" # KISS My Agent managed
+```
+
+Setup removes that exact legacy pair together. A missing member, an unmarked line, or a changed value is user-owned and remains untouched; report the explicit values and explain that removing the desired top-level keys manually restores Host inheritance. Duplicate assignments, ambiguous ownership, or invalid TOML remain a conflict. Remove also recognizes and deletes the complete exact legacy pair, but never deletes an unmarked or changed master setting.
 
 The owned instructions block is exactly delimited by these markers:
 
@@ -53,12 +61,13 @@ Complete the full preflight before the first write or deletion.
 7. Stop on any of these selected-scope conflicts:
    - an exact bundled role target has the wrong type, invalid TOML, missing required identity fields, or a `name` different from its filename;
    - the managed block has unequal, duplicate, reversed, or nested markers;
-   - a managed config key occurs more than once or has the wrong type: `model` and `model_reasoning_effort` must be non-empty strings, while `features.multi_agent` and `agents.enabled` must be booleans.
+   - either current managed config key occurs more than once or has the wrong type: `features.multi_agent` and `agents.enabled` must be booleans;
+   - a top-level `model` or `model_reasoning_effort` assignment is duplicated or has ambiguous ownership. Any other syntactically valid value is preserved as Host configuration without KISS schema or availability validation.
 8. After the preceding marker-conflict check and before making any setup decision, classify the managed block as exactly one mutually exclusive state: `absent` when neither marker exists; `outdated` when one well-formed block exists but its complete delimited content differs from the current block above; or `current` when that content equals the current block exactly.
 9. Read bundled assets only as required by the selected action:
-   - `setup`: after classifying the managed block, read and identity-check a current seed only for a missing role that fresh setup may create. Do not read current seeds for existing roles or any known v0.1 seed.
-   - `check`: do not read current or known v0.1 role assets. Inspect only the existing exact bundled role targets without version comparison.
-   - `remove`: read current and known v0.1 role seeds as exact bytes and verify each parsed identity matches its filename before comparing a corresponding existing role.
+   - `setup`: after classifying the managed block, read and identity-check a current seed only for a missing role that fresh setup may create. Do not read current seeds for existing roles or any historical snapshot.
+   - `check`: do not read current seeds or historical role snapshots. Inspect only the existing exact bundled role targets without version comparison.
+   - `remove`: read the current, v0.2.5, and v0.1 role seeds as exact bytes and verify each parsed identity matches its filename before comparing a corresponding existing role.
 10. Immediately before each mutation, re-read every planned target: an already-written target must still equal this operation's exact after-content, while a pending target must still equal its preflight before-content. If any target differs, stop and restore only already-applied KISS changes whose after-content still matches exactly. Remove a directory created by this operation during rollback only when it is still empty.
 
 ## Setup
@@ -66,11 +75,11 @@ Complete the full preflight before the first write or deletion.
 Apply only the following changes:
 
 - Config:
-  - Treat the master model/effort pair and both feature values as initial defaults, not enforcement. Setup never resets an existing value during setup or a later plugin update.
-  - When both top-level master keys are absent, add the marked pair `model = "gpt-5.6-sol"` and `model_reasoning_effort = "max"` before the first TOML table only when the block state is `absent` or `outdated`. When the block state is `current`, add neither because their absence records intentional user removal.
-  - When either top-level master key already exists, in every block state (`absent`, `outdated`, or `current`) preserve each existing master assignment and leave the other key absent as intentional inheritance.
+  - Never add, complete, reset, or require a particular master `model` or `model_reasoning_effort` value for setup completion. The Host owns those settings.
+  - Remove the exact marked legacy Sol/max pair together only when preflight classified both top-level assignments as that pair. This one-time cleanup is independent of managed-block state; after removal, a repeated setup leaves both keys absent and makes no model/effort edit.
+  - Preserve a partial, unmarked, or changed master setting exactly. Report each explicit value or `inherit`, and explain that the user may manually remove the desired top-level keys to restore Host inheritance.
   - If `features.multi_agent` or `agents.enabled` is absent, add the marked `true` assignment to its existing table or append a new table.
-  - Preserve any existing value for all four managed config paths and its complete assignment line, whether marked or unmarked. Report a `false` feature value observed in the selected config as `disabled`; never silently replace an existing model or effort. The marker controls remove ownership only, not whether setup may change a value.
+  - Preserve any existing value for both current managed config paths and its complete assignment line, whether marked or unmarked. Report a `false` feature value observed in the selected config as `disabled`. The marker controls remove ownership only, not whether setup may change a value.
   - Preserve comments, unrelated keys, table order, encoding, and the file's newline style when the editing tool supports them. Stop if a safe minimal merge is not possible.
 - Instructions:
   - With no managed markers, append one managed block without replacing existing instructions.
@@ -80,13 +89,13 @@ Apply only the following changes:
   - Preserve every existing correctly identified role byte-for-byte and report it as `user-owned/preserved`, whether it equals a current seed, a known older seed, or neither. Setup and Plugin updates never modify, migrate, version-check, or replace an existing role. Use the existing `configure agents` wizard when the user wants different role model or effort settings.
   - When any well-formed managed block already existed, whether current or outdated, treat missing initial seeds as intentionally absent and do not recreate them.
 
-Before the first setup write, state a separate decision for the master model/effort pair, each feature switch, the Instructions target, every Role, and any directory to create.
+Before the first setup write, state a separate decision for the legacy master pair or preserved Host settings, each feature switch, the Instructions target, every Role, and any directory to create.
 
 Use the smallest file edit available. After all writes, re-read and validate every affected file and each exact bundled role target relevant to the action. If validation fails, preserve the original failure and restore only files still equal to this operation's exact after-content. Preserve a concurrent user change and report that rollback could not safely replace it; report rollback failures without hiding the original cause.
 
 Report `configured` plus `disabled` when applicable, the explicit scope, paths created or changed, preserved roles, and any intentionally absent seeds. A `disabled` report must explain that the executive-only workflow cannot staff delegated work and the master will not silently take it over; ask the user to choose between enabling delegation or suitable roles and explicitly switching the current task to ordinary single-conversation execution. Static setup cannot observe a higher-precedence `false`; if a real new session exposes disabled or unavailable delegation, apply the same staffing rule and choice.
 
-File success is static setup evidence only. It does not prove that the selected Host/account supports the configured model or efforts. Before restarting, the user may directly edit the selected config or role TOML. If the master cannot start, offer the highest-precedence one-launch recovery command `codex --config 'model="HOST_SUPPORTED_MODEL_ID"' --config 'model_reasoning_effort="HOST_SUPPORTED_EFFORT"'`; after that session starts, edit the persistent config or role TOML and start another new session. Never silently substitute a fallback model or effort.
+File success is static setup evidence only. It does not prove the runtime-effective Host configuration, conversation selection, role discovery, model, or effort. KISS does not change the user's global config. Before restarting, the user may directly edit the selected config or role TOML. If the master cannot start, offer the highest-precedence one-launch recovery command `codex --config 'model="HOST_SUPPORTED_MODEL_ID"' --config 'model_reasoning_effort="HOST_SUPPORTED_EFFORT"'`; after that session starts, edit the owning persistent Host configuration and start another new session. Never silently substitute a fallback model or effort.
 
 ## Check
 
@@ -96,21 +105,21 @@ Use the same mutually exclusive `absent`, `outdated`, or `current` managed-block
 
 Report one of:
 
-- `structurally-valid`: both required boolean keys exist, every explicit top-level master setting has a valid type, the managed block is current, and each existing exact bundled role target is valid. Either master key may be intentionally absent for inheritance after setup. Initial seeds may also be intentionally absent after a prior setup.
+- `structurally-valid`: both required boolean keys exist, the managed block is current, and each existing exact bundled role target is valid. Master model/effort presence, absence, or value does not affect completion after safe TOML and ownership classification; the Host resolves those settings. Initial seeds may also be intentionally absent after a prior setup.
 - `disabled`: the structure is valid but at least one feature value observed in the selected config is explicitly `false`.
 - `absent`: no setup trace exists.
 - `incomplete`: a setup trace exists but required config or managed-block structure is partial, a required boolean value is missing, or the managed block is well-formed but `outdated`. Role contents and missing roles do not make setup incomplete when identity and catalog structure are valid.
 - `conflict`: syntax, ownership, path type, markers, or role identity prevents a safe conclusion.
 
-List the exact inspected paths, each master setting as its explicit value or `inherit`, and the observed feature values. Report only the selected paths' structure; do not claim that the complete Host role catalog is valid. Never claim project trust, active discovery, model or effort support, permissions, plugin publication, or role behavior from `check`.
+List the exact inspected paths, each master setting as its explicit value or `inherit`, whether an exact legacy pair is eligible for setup cleanup, and the observed feature values. For preserved partial, unmarked, or changed master settings, explain that manual removal of the desired top-level keys restores Host inheritance. Report only the selected paths' structure; do not claim that the complete Host role catalog is valid. Never claim project trust, active discovery, runtime-effective Host layers, model or effort support, permissions, plugin publication, or role behavior from `check`.
 
 ## Remove
 
 After preflight, prepare all removals before changing anything:
 
-- Remove only the four managed config assignment lines that contain the exact KISS marker. Preserve unmarked values even when they equal the defaults. Do not remove now-empty tables unless their ownership is unambiguous and they were created by this operation, which normal remove cannot establish.
+- Remove only the two current managed feature assignment lines that contain the exact KISS marker. Also remove the complete exact legacy master pair when both marked lines satisfy its compatibility classification. Preserve partial, unmarked, or changed master settings. Do not remove now-empty tables unless their ownership is unambiguous and they were created by this operation, which normal remove cannot establish.
 - Remove exactly one valid managed instructions block and its adjacent separator newline; preserve all other instructions.
-- Delete a bundled role only when its complete bytes equal either the current bundled seed or the corresponding known v0.1 seed. Preserve every other changed or differently identified role and report it.
+- Delete a bundled role only when its complete bytes equal the current bundled seed or the corresponding exact v0.2.5 or v0.1 remove-only snapshot. Preserve every other changed or differently identified role and report it.
 - Track directories created by this action. Leave pre-existing directories in place; remove an action-created directory during rollback only when it is still empty.
 
 Re-read all targets after removal. On failure, use the same exact-content rollback rule as setup. Report `removed`, preserved modified roles, and remaining unowned configuration. A later `check` should normally report `absent`; the plugin itself remains installed until the user removes it separately.
