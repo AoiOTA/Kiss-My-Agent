@@ -53,17 +53,17 @@ Run setup scenarios only in disposable projects and an explicitly isolated Codex
 Required scenarios cover:
 
 - pristine project setup, repeated setup, check, and remove;
-- no master model or effort created, filled, or used by `check` to decide structural validity;
+- missing master fields filled independently with Astra/high, preserved explicit fields, and missing experimental context filled with true; `check` validates presence and types;
 - each missing feature switch added independently, while marked and unmarked values for both switch paths, unrelated config, comments, newline style, AGENTS content, and existing roles are preserved;
 - exact paired migration of legacy top-level `gpt-5.6-sol` / `max` lines only when both occur once with the exact KISS marker, followed by a no-op repeated setup;
-- preservation plus a manual-removal hint for four near misses: a missing companion, an unmarked pair, a modified value, and a user-chosen custom pair; duplicate or invalid assignments remain conflicts;
+- preservation of existing fields plus independent filling of missing fields for four near misses: a missing companion, an unmarked pair, a modified value, and a user-chosen custom pair; duplicate or invalid assignments remain conflicts;
 - intentional `false` values and deliberately deleted seed roles;
 - malformed managed config or exact bundled-role TOML, unsafe managed path types, `AGENTS.override.md`, and an exact bundled filename/identity mismatch; an invalid unselected custom role remains outside KISS ownership and does not block setup, check, remove, or a configuration request that selected another role;
 - different observable definitions for the same bundled role filename in project and global scopes: project setup/check inspects only the project target and leaves the global role unchanged, while a fresh project session demonstrates the Host's project-over-global precedence without KISS rejecting or reconciling the duplicate;
-- remove deleting only the two current marked switches, any exact legacy marked master pair, and current/v0.2.5/v0.1 exact role seeds, while preserving unmarked config and modified roles;
+- remove deleting only exact current defaults with their KISS markers, any exact legacy marked master pair, and current/v0.2.6/v0.2.5/v0.1 exact role seeds, while preserving unmarked config and modified roles;
 - configuring one selected role while all other fields and files remain unchanged;
 - restoring inheritance by removing only the selected optional key;
-- leaving the master model and effort to the Host/conversation, while fresh setup creates missing roles without `model` and with `model_reasoning_effort = "medium"`, preserving every existing role;
+- fresh setup creates missing roles with `model = "gpt-6-astra"` and `model_reasoning_effort = "medium"`, preserving every existing role;
 - refusal to write `danger-full-access` without its separate confirmation;
 - recognition of a project created by v0.1.0 markers as `outdated`, followed by a setup refresh that may update the managed block and config but leaves all role files directly unchanged;
 - a missing starter under a current or outdated managed block reported as intentionally absent rather than recreated, outdated, or incomplete.
@@ -111,7 +111,7 @@ Keep the master on coordination, decisions, and synthesis: it assigns but does n
 2. `kiss_coder`: own one isolated disposable file, create it only when absent, verify it, and remove only that file.
 3. `kiss_reviewer`: inspect a supplied diff and report material findings with exact locations without editing.
 
-Confirm that current starter roles contain no KISS role-level `model` pin and use `medium` effort. The effective child model resolves from an explicit spawn setting, then `[agents].default_subagent_model`, then the parent, before any role-level override is applied. For a no-KISS-model-pin candidate, do not repeat the complete three-role behavior matrix: select the master through the Host (Astra / High when the account and Host offer it), verify two minimal turns retain that selection, then spawn only one Explorer. When neither an explicit spawn model nor `agents.default_subagent_model` is set, confirm that child resolves its model from the parent/Astra selection and applies the role's `medium` effort. Check the working tree and selected fixtures before and after. A successful call supports only discovery and the narrow behavior observed.
+In a new trusted client task, confirm the effective master uses Astra/high, all three current roles use Astra/medium, and experimental context management is loaded. Use observable Host configuration or diagnostics, not Agent self-description alone; report unavailable evidence explicitly. Run the bounded three-role Smoke above once, checking the working tree and selected fixtures before and after. Static config, actual loading and observed behavior support different claims; this is not a long-context or model-performance benchmark.
 
 Test a department lead only for a large independent disposable subsystem whose direct aggregation would pollute master context. Confirm there is at most one temporary intermediate layer, workers do not delegate, the assignment ends with the task, and every shared resource retains one operator. Do not manufacture hierarchy merely to exercise it.
 
@@ -160,7 +160,7 @@ Give only the final rendered landing page to a new user who has never encountere
 - in plain language, the loop `goal/assumption → smallest runnable validation → real result → iterate or stop`, and the difference between a low-cost reversible trial and bypassing authentication or permissions or crossing an irreversible high-risk boundary;
 - whether it fits their work;
 - the company model: the Owner retains the goal, architecture, acceptance criteria, and stop point; the Master / CEO owns orchestration, decisions, and synthesis; `kiss_explorer`, `kiss_coder`, and `kiss_reviewer` own read-only investigation, bounded implementation, and independent read-only review, respectively;
-- that KISS leaves the Master model/effort to the Host or conversation, starter roles have no model pin and use `medium` effort, and the Master normally delegates directly in a flat structure rather than through a fixed workflow or deep organization;
+- that KISS supplies missing Astra/high Master defaults, starter roles use Astra/medium, and the Master normally delegates directly in a flat structure rather than through a fixed workflow or deep organization;
 - the install, first-use, Agent configuration, and update paths.
 
 When practical, have them complete setup in a disposable project without installing Python. Record only anonymous pass/fail observations and blocking confusion. Revise and replay the same checklist instead of moving the criteria.

@@ -1,5 +1,11 @@
+model = "gpt-6-astra"
+model_reasoning_effort = "high"
+
 [features]
 multi_agent = true
+
+[features.context_management]
+experimental_mode = true
 
 [agents]
 enabled = true

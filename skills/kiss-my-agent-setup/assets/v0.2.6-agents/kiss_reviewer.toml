@@ -1,6 +1,5 @@
 name = "kiss_reviewer"
 description = "KISS My Agent independent read-only review of behavior, interfaces, failures, complexity, and evidence."
-model = "gpt-6-astra"
 model_reasoning_effort = "medium"
 sandbox_mode = "read-only"
 

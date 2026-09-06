@@ -7,41 +7,47 @@
 <a id="default-configuration"></a>
 ## 默认配置
 
-仓库跟踪的项目 config 只包含两个公开开关：
+默认配置如下：
 
 ```toml
+model = "gpt-6-astra" # KISS My Agent managed
+model_reasoning_effort = "high" # KISS My Agent managed
+
 [features]
-multi_agent = true
+multi_agent = true # KISS My Agent managed
+
+[features.context_management]
+experimental_mode = true # KISS My Agent managed
 
 [agents]
-enabled = true
+enabled = true # KISS My Agent managed
 ```
 
-当这个可信 project layer 生效且没有更高优先级层覆盖时，两个开关会启用 Host multi-agent 能力和自定义 Agent 发现。它们不选择 Master model 或 effort、权限、上下文、并发、trust、provider、认证或 telemetry。KISS 把 Master model 与 effort 留给 Host、对话和其他 Codex 配置层。
+这些默认值在所选可信配置层生效且没有更高优先级覆盖时，选择 Astra/high、启用多代理、自定义 Agent 发现及实验上下文管理；不改变权限、并发、trust、provider、认证或 telemetry。
 
-每个缺失开关都会独立获得带 marker 的 `true` 默认值；setup 会保留所有 marked 或 unmarked 的已有值，其中包括显式 `false`。为保持兼容，只有两个顶层旧 Master keys 都准确出现一次、值分别为 `gpt-5.6-sol` 与 `max`，且每行都有准确的 `# KISS My Agent managed` marker 时，setup 才成对删除它们。未标记、已修改、缺少 companion 或用户自选 custom pair 都继续归用户所有；duplicate assignment、无效 TOML 或 ownership 歧义属于 conflict，不是迁移候选。Static check 不再用 Master model 或 effort 判断 setup 是否 structurally valid；KISS 也不会为选择 Master 而修改用户的全局配置。
+Setup 独立为每个缺失的 Master 字段补入 `gpt-6-astra` / `high`，为每个缺失功能字段补入带 marker 的 `true`，包括 `features.context_management.experimental_mode`。已有显式值（包括 `false`）保留。只有完整的顶层 `gpt-5.6-sol` / `max` pair、每个 key 准确出现一次且每行带准确的 `# KISS My Agent managed` marker 时，才成对更新为 Astra/high。已修改、未标记或不完整 pair 的已有字段继续归用户所有，只补真正缺失的字段。重复 assignment、无效 TOML 与 ownership 歧义属于 conflict。Setup 只修改选定的 project 或 global scope。
 
 <a id="zero-configuration"></a>
-## 默认角色没有 KISS model pin，并设置思考强度
+## 默认角色使用 Astra / medium
 
 首次 setup 会安装三个可编辑 seeds：
 
 | 角色 | 职责 | 模型 | 思考强度 | Seed sandbox 默认值 |
 | --- | --- | --- | --- | --- |
-| `kiss_explorer` | 只读调查 | 无 KISS 角色级 model pin | `medium` | `read-only` |
-| `kiss_coder` | 有界实现与状态修改 | 无 KISS 角色级 model pin | `medium` | `workspace-write` |
-| `kiss_reviewer` | 独立只读审查 | 无 KISS 角色级 model pin | `medium` | `read-only` |
+| `kiss_explorer` | 只读调查 | `gpt-6-astra` | `medium` | `read-only` |
+| `kiss_coder` | 有界实现与状态修改 | `gpt-6-astra` | `medium` | `workspace-write` |
+| `kiss_reviewer` | 独立只读审查 | `gpt-6-astra` | `medium` | `read-only` |
 
-Current seeds 省略 `model`，只显式设置上表中的 effort。它们是可编辑的 fresh-setup 默认值。Fresh setup 只创建缺失 starter；任何已经存在的角色都归用户所有，setup 或 Plugin update 永不覆盖、迁移或判定其版本。Setup 已存在后，缺失 starter 会保持 intentionally absent。Plugin cache seeds 只是 package resources，不会自动成为 Host 可发现角色。
+Current seeds 显式设置 `model = "gpt-6-astra"` 和上表中的 effort。它们是可编辑的 fresh-setup 默认值。Fresh setup 只创建缺失 starter；任何已经存在的角色都归用户所有，setup 或 Plugin update 永不覆盖、迁移或判定其版本。Setup 已存在后，缺失 starter 会保持 intentionally absent。Plugin cache seeds 只是 package resources，不会自动成为 Host 可发现角色。
 
 <a id="three-owners"></a>
 ## 三个 Owner
 
 | Owner | 表面 | 职责 |
 | --- | --- | --- |
-| 启用 | `.codex/config.toml` | 两个公开开关；Master model 与 effort 由 Host/对话选择。 |
+| 启用 | `.codex/config.toml` | 多代理开关与缺失的 Astra/high、实验上下文默认值。 |
 | 发现 | `.codex/agents/*.toml` | Host 发现的 standalone role definitions。 |
-| 委派 | `AGENTS.md` | 判断 delegation 是否值得，并让 master 专注协调与决策的动态指导。 |
+| 委派 | `AGENTS.md` | 要求批量工作委派，动态划分任务，让 master 专注协调与决策。 |
 
 三个层次不能互相替代。角色文件不会启用 multi-agent tools，启用开关不会创建角色 catalog，instructions 也不会授予 runtime 权限。Catalog 保持开放，master 只从实际存在的角色中动态选择；KISS My Agent 不要求固定团队人数或 workflow。每种 explorer、coder 或 reviewer 角色都可有多个实例。组织默认扁平，由 master 直接 fan-out 到当前角色。只有独立子系统需要大量并行、且直接汇总会污染 master context 时，master 才可临时把一个现有 Agent 指定为有界的部门主管。主管可在自身 scope 内调度同类或相关角色实例并向 master 汇总，但其 workers 不再继续委派。Assignment 随任务结束而消失，因此最多一层中间管理，不允许深层嵌套、固定部门、新 seed、固定人数或 organization schema。每个共享文件或资源仍只有一个 writer/operator。可委派的批量探索、实现、验证与审查交给子代理，master 专注调度、架构与验收决策、冲突解决、证据解释和最终汇总。
 
@@ -72,10 +78,10 @@ $kiss-my-agent:kiss-my-agent-setup configure agents for this project
 $kiss-my-agent:kiss-my-agent-setup configure global agents
 ```
 
-要移除三个已有 KISS roles 中的 KISS 角色级 model pin 并设置 `medium` effort，请使用下面准确的项目限定 prompt：
+要显式把三个已有 KISS roles 设置为 `gpt-6-astra` / `medium`，请使用下面准确的项目限定 prompt：
 
 ```text
-$kiss-my-agent:kiss-my-agent-setup configure agents in this project: for kiss_explorer, kiss_coder, and kiss_reviewer, set model to inherit and model_reasoning_effort to medium
+$kiss-my-agent:kiss-my-agent-setup configure agents in this project: for kiss_explorer, kiss_coder, and kiss_reviewer, set model to gpt-6-astra and model_reasoning_effort to medium
 ```
 
 请求已经点名一个或多个角色时，向导只解析这些 targets；没有点名时，先只列出 direct role paths 而不解析内容，等待用户选择一个或多个角色后，再只解析选中的文件。向导为 `model`、`model_reasoning_effort` 与 `sandbox_mode` 提供 `keep`、`inherit` 或显式值，写入前展示准确 diff；设置 `danger-full-access` 时必须单独确认。无效的未选角色不会阻塞操作，其 catalog warnings 由 Host 负责。
@@ -112,7 +118,7 @@ Codex 会先为每个 model 或 effort 字段依次解析显式 spawn 值、`age
 
 其他省略的 session 设置继承 parent。子代理继承 parent 当前的 sandbox policy；Codex 在 spawn 时还会重新应用 parent turn 的实时 sandbox 与 approval overrides，即使 role 文件写了不同默认值。管理员要求还可进一步限制权限；角色文件不是权限授权。应在新会话中验证实际行为。
 
-KISS setup 与 static check 无法证明 Host 各配置层最终生效的 model 或 effort。Master 应在 Host 或对话中选择；对于复杂 KISS 任务，如果账号与 Host 提供该选项，可以从 **GPT-6 Astra / High** 开始。这是建议，不是 bundled default 或强制要求。若另行配置的 Master 值导致无法启动，可用最高优先级 CLI override 启动一次恢复会话：
+Setup 为缺失的 Master 字段补入 `gpt-6-astra` / `high`；当前 seed roles 显式使用 `gpt-6-astra` / `medium`。已有用户显式选择保持不变。Role wizard 只修改选定角色。静态检查不能证明 Host 有效配置，应在新任务中验证。 如果配置的模型阻止启动，可用 Host 支持的模型 override 启动一次恢复会话：
 
 ```bash
 codex --config 'model="HOST_SUPPORTED_MODEL_ID"' --config 'model_reasoning_effort="HOST_SUPPORTED_EFFORT"'
@@ -147,7 +153,7 @@ $kiss-my-agent:kiss-my-agent-setup remove global setup
 - 所选 managed path 的类型不安全、所选 config 或准确 bundled target 的 TOML 无效、准确 bundled target 缺少 identity fields 或 `name` 与文件名不同、managed ownership 不明确，或存在适用的 `AGENTS.override.md` 时，在写入前停止。
 - 其他文件中的 duplicate identities 与 project/global duplicate role names 不会阻塞 KISS setup 或 check。Catalog warnings 和 project-over-global precedence 由 Host 负责；KISS 不会协调这些冲突。
 - 每个已有角色都归用户所有并逐字节保留。Setup 永不拿它与历史 seeds 比较、判定版本或迁移它。后续 setup 不会恢复用户有意删除的 starter。
-- 显式 remove 会删除当前带 marker 的 switches 与任何准确的旧 marked Master pair、managed AGENTS block，以及字节完全匹配 current、known v0.2.5 或 known v0.1 seed 的 bundled roles；其他角色文件仍归用户所有。
+- 显式 remove 会删除带准确 marker 且值精确匹配的当前默认配置 与任何准确的旧 marked Master pair、managed AGENTS block，以及字节完全匹配 current、known v0.2.6、known v0.2.5 或 known v0.1 seed 的 bundled roles；其他角色文件仍归用户所有。 Remove 保留上下文子表及其他用户字段；只删除精确默认值和准确 marker 同时匹配的配置。
 
 <a id="disable"></a>
 ## 单次启动禁用

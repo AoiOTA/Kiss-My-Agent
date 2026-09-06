@@ -7,41 +7,47 @@
 <a id="default-configuration"></a>
 ## Default configuration
 
-The tracked project config contains only two public switches:
+The default configuration is:
 
 ```toml
+model = "gpt-6-astra" # KISS My Agent managed
+model_reasoning_effort = "high" # KISS My Agent managed
+
 [features]
-multi_agent = true
+multi_agent = true # KISS My Agent managed
+
+[features.context_management]
+experimental_mode = true # KISS My Agent managed
 
 [agents]
-enabled = true
+enabled = true # KISS My Agent managed
 ```
 
-The switches enable the Host's multi-agent capability and custom-Agent discovery when this trusted project layer is active and no higher-priority layer overrides them. They do not select the master model or effort, permissions, context, concurrency, trust, providers, authentication, or telemetry. KISS leaves the master model and effort to the Host, conversation, and other Codex configuration layers.
+These defaults select Astra/high, multi-agent capability, custom-Agent discovery and experimental context management when the selected trusted layer is active and no higher-priority layer overrides it. They do not change permissions, concurrency, trust, providers, authentication or telemetry.
 
-Each missing switch receives a marked `true` default independently; setup preserves every existing value, marked or unmarked, including explicit `false`. For compatibility, setup removes a legacy master pair only when both top-level keys occur exactly once, equal `gpt-5.6-sol` and `max`, and each line has the exact `# KISS My Agent managed` marker. An unmarked, modified, missing-companion, or user-chosen custom pair remains user-owned; a duplicate assignment, invalid TOML, or ambiguous ownership is a conflict rather than a migration candidate. Static check does not use master model or effort to decide whether setup is structurally valid, and KISS never changes the user's global configuration just to choose the master.
+Setup independently fills each missing master field with `gpt-6-astra` / `high` and each missing feature with marked `true`, including `features.context_management.experimental_mode`. Existing explicit values, including `false`, are preserved. Only a complete top-level `gpt-5.6-sol` / `max` pair, with each key occurring exactly once and each line carrying the exact `# KISS My Agent managed` marker, is updated together to Astra/high. Modified, unmarked or incomplete pairs remain user-owned; only truly missing fields are filled. Duplicate assignments, invalid TOML and ambiguous ownership are conflicts. Setup changes only the selected project or global scope.
 
 <a id="zero-configuration"></a>
-## Default roles have no KISS model pin and set effort
+## Default roles use Astra / medium
 
 First setup installs three editable seeds:
 
 | Role | Responsibility | Model | Reasoning effort | Seed sandbox default |
 | --- | --- | --- | --- | --- |
-| `kiss_explorer` | Read-only investigation | no KISS role-level model pin | `medium` | `read-only` |
-| `kiss_coder` | Bounded implementation and state changes | no KISS role-level model pin | `medium` | `workspace-write` |
-| `kiss_reviewer` | Independent read-only review | no KISS role-level model pin | `medium` | `read-only` |
+| `kiss_explorer` | Read-only investigation | `gpt-6-astra` | `medium` | `read-only` |
+| `kiss_coder` | Bounded implementation and state changes | `gpt-6-astra` | `medium` | `workspace-write` |
+| `kiss_reviewer` | Independent read-only review | `gpt-6-astra` | `medium` | `read-only` |
 
-The current seeds omit `model` and explicitly set only the effort shown above. They are editable fresh-setup defaults. A fresh setup creates only missing starters; every role that already exists is user-owned and setup or a Plugin update never overwrites, migrates, or version-classifies it. Once setup exists, a missing starter remains intentionally absent. Plugin cache seeds are package resources and do not automatically become Host-discoverable roles.
+The current seeds explicitly set `model = "gpt-6-astra"` and the effort shown above. They are editable fresh-setup defaults. A fresh setup creates only missing starters; every role that already exists is user-owned and setup or a Plugin update never overwrites, migrates, or version-classifies it. Once setup exists, a missing starter remains intentionally absent. Plugin cache seeds are package resources and do not automatically become Host-discoverable roles.
 
 <a id="three-owners"></a>
 ## Three owners
 
 | Owner | Surface | Responsibility |
 | --- | --- | --- |
-| Enablement | `.codex/config.toml` | The two public switches; master model and effort stay with the Host/conversation. |
+| Enablement | `.codex/config.toml` | Multi-agent switches and missing Astra/high and experimental-context defaults. |
 | Discovery | `.codex/agents/*.toml` | Standalone role definitions discovered by the Host. |
-| Delegation | `AGENTS.md` | Dynamic guidance for deciding whether delegation is worthwhile and keeping the master on coordination and decisions. |
+| Delegation | `AGENTS.md` | Required delegation of bulk work, with dynamic task division and the master on coordination and decisions. |
 
 The layers do not replace one another. A role file does not enable multi-agent tools, an enablement switch does not create a role catalog, and instructions do not grant runtime permissions. The catalog remains open and the master chooses dynamically from roles that actually exist; KISS My Agent does not require a fixed team size or workflow. Multiple instances of each explorer, coder, or reviewer role may run. Coordination is flat by default, with the master directly fanning out to current roles. Only when an independent subsystem needs substantial parallel work and direct aggregation would pollute the master's context may it temporarily give one existing Agent a bounded department-lead assignment. That lead may delegate within its scope to same-role or related-role instances and synthesize results for the master, but its workers do not delegate again. The assignment ends with the task, so there is at most one intermediate management layer and no deep nesting, fixed department, additional seed, headcount, or organization schema. Every shared file or resource still has one writer or operator. Delegable bulk exploration, implementation, validation, and review stay with subagents so the master can coordinate, resolve architecture and acceptance questions or conflicts, interpret evidence, and synthesize the final result.
 
@@ -72,10 +78,10 @@ $kiss-my-agent:kiss-my-agent-setup configure agents for this project
 $kiss-my-agent:kiss-my-agent-setup configure global agents
 ```
 
-To remove KISS role-level model pins and set `medium` effort in the three existing KISS roles, use this exact qualified project prompt:
+To explicitly set `gpt-6-astra` and `medium` effort in the three existing KISS roles, use this exact qualified project prompt:
 
 ```text
-$kiss-my-agent:kiss-my-agent-setup configure agents in this project: for kiss_explorer, kiss_coder, and kiss_reviewer, set model to inherit and model_reasoning_effort to medium
+$kiss-my-agent:kiss-my-agent-setup configure agents in this project: for kiss_explorer, kiss_coder, and kiss_reviewer, set model to gpt-6-astra and model_reasoning_effort to medium
 ```
 
 If the request names one or more roles, the wizard resolves and parses only those targets. Otherwise it lists direct role paths without parsing their contents, waits for the user to select one or more, and then parses only the selected files. It offers `keep`, `inherit`, or an explicit value for `model`, `model_reasoning_effort`, and `sandbox_mode`, shows the exact diff before writing, and requires a separate confirmation for `danger-full-access`. Invalid unselected roles do not block the operation; their catalog warnings remain the Host's responsibility.
@@ -112,7 +118,7 @@ Codex first resolves each model or effort field from an explicit spawn value, th
 
 Other omitted session settings inherit from the parent. A child inherits the parent's current sandbox policy, and Codex reapplies the parent turn's live sandbox and approval overrides when spawning it, even if the role file contains different defaults. Administrator requirements can constrain permissions further; a role file is not a permission grant. Validate effective behavior in a new session.
 
-KISS setup and static check cannot prove the effective model or effort across Host configuration layers. Choose the master in the Host or conversation; for a complex KISS task, if the account and Host offer it, you can start with **GPT-6 Astra / High**. This is a recommendation, not a bundled default or requirement. If a separately configured master value prevents startup, use the highest-precedence CLI override for one recovery session:
+Setup fills missing master fields with `gpt-6-astra` / `high`; current seed roles explicitly use `gpt-6-astra` / `medium`. Existing explicit user choices are preserved. The role wizard changes selected roles only. Static checks do not prove effective Host settings; verify them in a new task. If the configured model prevents startup, use a Host-supported model override for one recovery session:
 
 ```bash
 codex --config 'model="HOST_SUPPORTED_MODEL_ID"' --config 'model_reasoning_effort="HOST_SUPPORTED_EFFORT"'
@@ -147,7 +153,7 @@ Project scope manages `<target>/.codex/config.toml`, the exact `<target>/.codex/
 - Stop before writing when a selected managed path has an unsafe type, the selected config or an exact bundled target has invalid TOML, an exact bundled target has missing identity fields or a `name` different from its filename, managed ownership is ambiguous, or an applicable `AGENTS.override.md` exists.
 - Duplicate identities in other files and project/global duplicate role names do not block KISS setup or check. The Host owns catalog warnings and project-over-global precedence; KISS does not reconcile them.
 - Every existing role is user-owned and preserved byte-for-byte. Setup never compares it with historical seeds, assigns it a version, or migrates it. A later setup does not restore a deliberately deleted starter.
-- Explicit remove deletes the current marked switches and any exact legacy marked master pair, the managed AGENTS block, and bundled roles whose bytes exactly match a current, known v0.2.5, or known v0.1 seed. Other role files remain user-owned.
+- Explicit remove deletes exact current defaults with their KISS markers and any exact legacy marked master pair, the managed AGENTS block, and bundled roles whose bytes exactly match a current, known v0.2.6, known v0.2.5, or known v0.1 seed. Other role files remain user-owned. Remove preserves the context table and other user fields; a current config field is removed only when both its exact default value and marker match.
 
 <a id="disable"></a>
 ## Disable for one launch

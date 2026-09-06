@@ -206,13 +206,19 @@ def validate_retired_paths(root: Path) -> None:
 def validate_repository_config(root: Path) -> None:
     config_path = root / ".codex/config.toml"
     config = load_toml(config_path)
-    if set(config) != {"features", "agents"}:
-        fail(".codex/config.toml must contain only the features and agents tables")
+    if set(config) != {"model", "model_reasoning_effort", "features", "agents"}:
+        fail(".codex/config.toml must contain only master defaults and the features and agents tables")
+    if config["model"] != "gpt-6-astra" or config["model_reasoning_effort"] != "high":
+        fail(".codex/config.toml must default the master to Astra/high")
     features = config["features"]
-    if not isinstance(features, dict) or set(features) != {"multi_agent"}:
-        fail(".codex/config.toml features table must contain only multi_agent")
+    if not isinstance(features, dict) or set(features) != {"multi_agent", "context_management"}:
+        fail(".codex/config.toml features table must contain only multi_agent and context_management")
     if features["multi_agent"] is not True:
         fail(".codex/config.toml must set features.multi_agent = true")
+    context = features["context_management"]
+    if (not isinstance(context, dict) or set(context) != {"experimental_mode"}
+            or context["experimental_mode"] is not True):
+        fail(".codex/config.toml must enable experimental context management")
     agents = config["agents"]
     if not isinstance(agents, dict) or set(agents) != {"enabled"}:
         fail(".codex/config.toml agents table must contain only enabled; role files are discovered")
@@ -271,8 +277,8 @@ def validate_roles(root: Path) -> None:
                 f"default role {role_name} must set sandbox_mode = "
                 f"{contract['sandbox_mode']!r}"
             )
-        if "model" in data:
-            fail(f"default role {role_name} must inherit model without a role-level pin")
+        if data.get("model") != "gpt-6-astra":
+            fail(f"default role {role_name} must set model = gpt-6-astra")
         if data.get("model_reasoning_effort") != contract["model_reasoning_effort"]:
             fail(
                 f"default role {role_name} must set model_reasoning_effort = "
@@ -448,14 +454,14 @@ def validate_setup_interface(root: Path) -> None:
         "ordinary single-conversation execution",
         "executive-only workflow cannot staff delegated work",
         "Static setup cannot observe a higher-precedence `false`",
-        "The Host resolves the master's model and effort",
+        "The Host still resolves the runtime-effective model and effort",
         "recognize this legacy pair only when both top-level assignments occur exactly once",
         "their parsed values are exactly `gpt-5.6-sol` and `max`",
-        "Setup removes that exact legacy pair together",
-        "A missing member, an unmarked line, or a changed value is user-owned",
-        "two current managed feature assignment lines",
+        "Setup updates that exact legacy pair together",
+        "A missing member, an unmarked line, or a changed value makes the existing master settings user-owned",
+        "Remove each current default assignment independently",
         "every existing correctly identified role byte-for-byte",
-        "corresponding exact v0.2.5 or v0.1 remove-only snapshot",
+        "corresponding exact v0.2.6, v0.2.5, or v0.1 remove-only snapshot",
         "Historical snapshots are exact-byte remove comparison inputs only",
         "setup, check, and configure must not read them",
         "explicit value or `inherit`",
@@ -598,14 +604,17 @@ def validate_example_config(root: Path) -> None:
         or not config["default_permissions"].strip()
     ):
         fail("invalid example config default_permissions")
-    if "model" in config or "model_reasoning_effort" in config:
-        fail("example config must leave the master model and effort to Host resolution")
+    if config.get("model") != "gpt-6-astra" or config.get("model_reasoning_effort") != "high":
+        fail("example config must default the master to Astra/high")
     features = config.get("features")
     agents = config.get("agents")
     if not isinstance(features, dict) or features.get("multi_agent") is not True:
         fail("example config must enable features.multi_agent")
     if not isinstance(agents, dict) or agents.get("enabled") is not True:
         fail("example config must enable agents.enabled")
+    context = features.get("context_management")
+    if not isinstance(context, dict) or context.get("experimental_mode") is not True:
+        fail("example config must enable experimental context management")
     workspace_write = config.get("sandbox_workspace_write")
     if workspace_write is not None:
         if not isinstance(workspace_write, dict):
@@ -841,11 +850,11 @@ def validate_document_interfaces(root: Path) -> None:
         if config_key not in configuration:
             fail(f"configuration key guidance missing: {config_key}")
     for token in (
-        "The tracked project config contains only two public switches",
-        "KISS leaves the master model and effort to the Host",
-        "`kiss_explorer` | Read-only investigation | no KISS role-level model pin | `medium`",
-        "`kiss_coder` | Bounded implementation and state changes | no KISS role-level model pin | `medium`",
-        "`kiss_reviewer` | Independent read-only review | no KISS role-level model pin | `medium`",
+        "features.context_management.experimental_mode",
+        "gpt-6-astra",
+        "`kiss_explorer` | Read-only investigation | `gpt-6-astra` | `medium`",
+        "`kiss_coder` | Bounded implementation and state changes | `gpt-6-astra` | `medium`",
+        "`kiss_reviewer` | Independent read-only review | `gpt-6-astra` | `medium`",
         "every role that already exists is user-owned",
         "parent turn's live sandbox and approval overrides",
         "ordinary single-conversation execution",
@@ -853,15 +862,14 @@ def validate_document_interfaces(root: Path) -> None:
         "at most one intermediate management layer",
         "bounded department-lead assignment",
         "Every shared file or resource still has one writer or operator",
-        "highest-precedence CLI override",
+        "codex --config",
         "never silently substitutes a fallback model or effort",
         "Codex first resolves each model or effort field from an explicit spawn value",
         "agents.default_subagent_model",
         "then the parent",
         "final role override",
-        "if the account and Host offer it, you can start with **GPT-6 Astra / High**",
-        "This is a recommendation, not a bundled default or requirement",
-        "$kiss-my-agent:kiss-my-agent-setup configure agents in this project: for kiss_explorer, kiss_coder, and kiss_reviewer, set model to inherit and model_reasoning_effort to medium",
+        "high",
+        "$kiss-my-agent:kiss-my-agent-setup configure agents in this project: for kiss_explorer, kiss_coder, and kiss_reviewer, set model to gpt-6-astra and model_reasoning_effort to medium",
     ):
         if token not in configuration:
             fail(f"configuration behavior guidance missing: {token}")
@@ -870,47 +878,27 @@ def validate_document_interfaces(root: Path) -> None:
         encoding="utf-8"
     )
     for token in (
-        "`kiss_explorer` | 只读调查 | 无 KISS 角色级 model pin | `medium`",
-        "`kiss_coder` | 有界实现与状态修改 | 无 KISS 角色级 model pin | `medium`",
-        "`kiss_reviewer` | 独立只读审查 | 无 KISS 角色级 model pin | `medium`",
+        "`kiss_explorer` | 只读调查 | `gpt-6-astra` | `medium`",
+        "`kiss_coder` | 有界实现与状态修改 | `gpt-6-astra` | `medium`",
+        "`kiss_reviewer` | 独立只读审查 | `gpt-6-astra` | `medium`",
     ):
         if token not in configuration_zh:
             fail(f"Chinese role model-pin guidance missing: {token}")
 
     stable_model_docs = {
-        "README.md": (
-            "KISS does not pin the Master's model or effort",
-            "no KISS role-level model pin",
-            "if your account and Host offer it, you can start with **GPT-6 Astra / High**",
-            "This is a recommendation, not a KISS default or requirement",
-        ),
-        "README.zh-CN.md": (
-            "KISS 不固定 Master 的模型或 effort",
-            "无 KISS 角色级 model pin",
-            "如果账号与 Host 提供该选项，可以从 **GPT-6 Astra / High** 开始",
-            "这是建议，不是 KISS 默认值或强制要求",
-        ),
-        "docs/FAQ.md": (
-            "KISS does not set the master's model or effort",
-            "Current starter roles omit `model` and set `model_reasoning_effort = \"medium\"`",
-            "not a bundled default or requirement",
-        ),
-        "docs/FAQ.zh-CN.md": (
-            "KISS 不设置 Master model 或 effort",
-            "Current starter roles 省略 `model` 并设置 `model_reasoning_effort = \"medium\"`",
-            "不是 bundled default 或强制要求",
-        ),
+        relative: ("gpt-6-astra", "medium", "features.context_management.experimental_mode")
+        for relative in ("README.md", "README.zh-CN.md", "docs/FAQ.md", "docs/FAQ.zh-CN.md")
     }
     migration_prompt = (
         "$kiss-my-agent:kiss-my-agent-setup configure agents in this project: "
-        "for kiss_explorer, kiss_coder, and kiss_reviewer, set model to inherit "
+        "for kiss_explorer, kiss_coder, and kiss_reviewer, set model to gpt-6-astra "
         "and model_reasoning_effort to medium"
     )
     for relative, tokens in stable_model_docs.items():
         text = (root / relative).read_text(encoding="utf-8")
         for token in (*tokens, migration_prompt):
             if token not in text:
-                fail(f"model inheritance guidance missing from {relative}: {token}")
+                fail(f"model default and upgrade guidance missing from {relative}: {token}")
 
 
 def validate_fixtures(root: Path) -> int:
@@ -940,6 +928,15 @@ def validate_fixtures(root: Path) -> int:
         if "model_reasoning_effort" in legacy or "model" in legacy:
             fail(f"v0.1 role fixture contains a current model setting: {role_name}")
 
+        v026_relative = f"assets/v0.2.6-agents/{role_name}.toml"
+        v026_path = role_assets / f"v0.2.6-agents/{role_name}.toml"
+        v026 = load_toml(v026_path)
+        current = load_toml(root / f".codex/agents/{role_name}.toml")
+        if current.pop("model", None) != "gpt-6-astra" or current != v026:
+            fail(f"current role must preserve v0.2.6 fields except Astra model: {role_name}")
+        if v026_relative not in lifecycle:
+            fail(f"setup lifecycle must reference v0.2.6 remove snapshot: {role_name}")
+
         v025_relative = f"assets/v0.2.5-agents/{role_name}.toml"
         v025_path = role_assets / f"v0.2.5-agents/{role_name}.toml"
         v025 = load_toml(v025_path)
@@ -951,8 +948,9 @@ def validate_fixtures(root: Path) -> int:
         "skills/kiss-my-agent-setup/SKILL.md",
         "skills/kiss-my-agent-setup/configure-agents.md",
     ):
-        if "assets/v0.2.5-agents" in (root / relative).read_text(encoding="utf-8"):
-            fail(f"v0.2.5 remove snapshots must not be consumed by {relative}")
+        if any(f"assets/{version}-agents" in (root / relative).read_text(encoding="utf-8")
+               for version in ("v0.2.6", "v0.2.5")):
+            fail(f"historical remove snapshots must not be consumed by {relative}")
     effective_chain = [
         root / "AGENTS.md",
         fixture / "AGENTS.md",

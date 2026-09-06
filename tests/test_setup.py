@@ -109,24 +109,48 @@ class SetupContractTests(unittest.TestCase):
         toml_blocks = fenced_blocks(self.lifecycle, "toml")
         self.assertEqual(1, len(toml_blocks))
         config = tomllib.loads(toml_blocks[0])
-        self.assertNotIn("model", config)
-        self.assertNotIn("model_reasoning_effort", config)
+        self.assertEqual("gpt-6-astra", config["model"])
+        self.assertEqual("high", config["model_reasoning_effort"])
         self.assertIs(config["features"]["multi_agent"], True)
         self.assertIs(config["agents"]["enabled"], True)
-        self.assertEqual(2, toml_blocks[0].count(CONFIG_MARKER))
+        self.assertIs(config["features"]["context_management"]["experimental_mode"], True)
+        self.assertEqual(5, toml_blocks[0].count(CONFIG_MARKER))
 
         with PROJECT_CONFIG.open("rb") as stream:
             repository_config = tomllib.load(stream)
         self.assertEqual(
-            {"features": {"multi_agent": True}, "agents": {"enabled": True}},
+            config,
             repository_config,
         )
 
+    def test_context_opt_out_and_default_ownership_are_distinct(self) -> None:
+        for token in (
+            "all three required boolean keys exist",
+            "A context value of `false` alone does not produce this status",
+            "configured `true`, user-disabled `false`, or missing",
+            "missing is incomplete when a setup trace exists",
+            "Preserve the context table and all unrelated keys and comments",
+            "current Astra or high field with its own marker remains independently removable",
+            "Preserve changed or unmarked values and partial legacy settings",
+            "fresh setup and upgrades, independently of managed-block state",
+        ):
+            self.assertIn(token, self.lifecycle)
+
+    def test_delegation_repair_preserves_master_orchestration(self) -> None:
+        sources = (
+            (REPOSITORY / "AGENTS.md").read_text(encoding="utf-8"),
+            fenced_blocks(self.lifecycle, "markdown")[0],
+        )
+        for text in sources:
+            self.assertIn("must delegate delegable bulk exploration", text)
+            self.assertIn("task partitioning", text)
+            self.assertNotIn("whether to delegate", text)
+
     def test_seed_roles_remain_valid_and_unique(self) -> None:
         expected_settings = {
-            "kiss_explorer": ("", "medium", "read-only"),
-            "kiss_coder": ("", "medium", "workspace-write"),
-            "kiss_reviewer": ("", "medium", "read-only"),
+            "kiss_explorer": ("gpt-6-astra", "medium", "read-only"),
+            "kiss_coder": ("gpt-6-astra", "medium", "workspace-write"),
+            "kiss_reviewer": ("gpt-6-astra", "medium", "read-only"),
         }
         found: dict[str, tuple[str, str, str]] = {}
         for path in sorted(ROLE_DIRECTORY.glob("*.toml")):
@@ -151,7 +175,7 @@ class SetupContractTests(unittest.TestCase):
             self.assertIn(f"`{field}`", self.configure)
         for required_field in ("name", "description", "developer_instructions"):
             self.assertIn(f"`{required_field}`", self.configure)
-        self.assertNotRegex(self.configure, r"\bgpt-[0-9]")
+        self.assertIn("`model = gpt-6-astra`", self.configure)
         self.assertIn("When multiple roles are selected", self.configure)
         self.assertIn("`model = inherit`", self.configure)
         self.assertIn("`model_reasoning_effort = medium`", self.configure)
@@ -221,8 +245,8 @@ class SetupContractTests(unittest.TestCase):
         self.assertNotIn("complete role catalog", self.lifecycle)
         self.assertNotIn("another filename in the same catalog", self.lifecycle)
         self.assertIn("state a separate decision", self.lifecycle)
-        self.assertIn("legacy master pair or preserved Host settings", self.lifecycle)
-        self.assertIn("each feature switch", self.lifecycle)
+        self.assertIn("each master field or the exact legacy pair", self.lifecycle)
+        self.assertIn("each delegation switch and the context setting", self.lifecycle)
         self.assertIn("the Instructions target", self.lifecycle)
         self.assertIn("every Role", self.lifecycle)
         self.assertIn("re-read every planned target", self.lifecycle)
@@ -231,29 +255,29 @@ class SetupContractTests(unittest.TestCase):
         self.assertIn("directory created by this operation", self.lifecycle)
         self.assertIn("whether marked or unmarked", self.lifecycle)
         self.assertIn("marker controls remove ownership only", self.lifecycle)
-        self.assertIn("both current managed config paths", self.lifecycle)
+        self.assertIn("all three boolean paths", self.lifecycle)
         self.assertIn("exactly one mutually exclusive state", self.lifecycle)
-        self.assertIn("Never add, complete, reset, or require a particular master", self.lifecycle)
-        self.assertIn("Host owns those settings", self.lifecycle)
-        self.assertIn("two current managed feature assignment lines", self.lifecycle)
+        self.assertIn("Fill each missing top-level master field independently", self.lifecycle)
+        self.assertIn("no particular existing value is required", self.lifecycle)
+        self.assertIn("Remove each current default assignment independently", self.lifecycle)
         self.assertIn("create each missing bundled role from its exact current plugin seed", self.lifecycle)
         self.assertIn("Preserve every existing correctly identified role byte-for-byte", self.lifecycle)
         self.assertIn("`user-owned/preserved`", self.lifecycle)
         self.assertIn("never modify, migrate, version-check, or replace an existing role", self.lifecycle)
         self.assertIn("Use the existing `configure agents` wizard", self.lifecycle)
-        self.assertIn("corresponding exact v0.2.5 or v0.1 remove-only snapshot", self.lifecycle)
+        self.assertIn("corresponding exact v0.2.6, v0.2.5, or v0.1 remove-only snapshot", self.lifecycle)
 
-    def test_legacy_master_pair_cleanup_is_exact_and_idempotent(self) -> None:
+    def test_legacy_master_pair_upgrade_is_exact_and_idempotent(self) -> None:
         self.assertIn("recognize this legacy pair only when both top-level assignments occur exactly once", self.lifecycle)
         self.assertIn("parsed values are exactly `gpt-5.6-sol` and `max`", self.lifecycle)
         self.assertIn("each complete assignment line includes the exact marker", self.lifecycle)
-        self.assertIn("Setup removes that exact legacy pair together", self.lifecycle)
-        self.assertIn("This one-time cleanup is independent of managed-block state", self.lifecycle)
-        self.assertIn("a repeated setup leaves both keys absent and makes no model/effort edit", self.lifecycle)
-        self.assertIn("A missing member, an unmarked line, or a changed value is user-owned", self.lifecycle)
-        self.assertIn("removing the desired top-level keys manually restores Host inheritance", self.lifecycle)
+        self.assertIn("Setup updates that exact legacy pair together", self.lifecycle)
+        self.assertIn("independently of managed-block state", self.lifecycle)
+        self.assertIn("Repeated setup preserves the resulting defaults", self.lifecycle)
+        self.assertIn("A missing member, an unmarked line, or a changed value makes the existing master settings user-owned", self.lifecycle)
+        self.assertIn("fill only genuinely missing fields with the current marked defaults", self.lifecycle)
         self.assertIn("Duplicate assignments, ambiguous ownership, or invalid TOML remain a conflict", self.lifecycle)
-        self.assertIn("presence, absence, or value does not affect completion", self.lifecycle)
+        self.assertIn("Existing master values do not affect completion", self.lifecycle)
         self.assertIn("Host resolves those settings", self.lifecycle)
 
     def test_role_assets_are_read_only_by_the_actions_that_consume_them(self) -> None:
@@ -267,7 +291,7 @@ class SetupContractTests(unittest.TestCase):
         )
         self.assertIn("Do not read current seeds for existing roles or any historical snapshot", self.lifecycle)
         self.assertIn("`check`: do not read current seeds or historical role snapshots", self.lifecycle)
-        self.assertIn("`remove`: read the current, v0.2.5, and v0.1 role seeds as exact bytes", self.lifecycle)
+        self.assertIn("`remove`: read the current, v0.2.6, v0.2.5, and v0.1 role seeds as exact bytes", self.lifecycle)
         self.assertIn("Historical snapshots are exact-byte remove comparison inputs only", self.lifecycle)
         self.assertIn("setup, check, and configure must not read them", self.lifecycle)
         self.assertIn("Do not read role seed assets, compare role content to seeds", self.lifecycle)
@@ -294,7 +318,7 @@ class SetupContractTests(unittest.TestCase):
             "kiss_coder": ("gpt-5.6-sol", "high", "workspace-write"),
             "kiss_reviewer": ("gpt-5.6-sol", "xhigh", "read-only"),
         }
-        for version in ("v0.2.5", "v0.1"):
+        for version in ("v0.2.6", "v0.2.5", "v0.1"):
             for role_name in ("kiss_explorer", "kiss_coder", "kiss_reviewer"):
                 relative = f"assets/{version}-agents/{role_name}.toml"
                 self.assertIn(f"]({relative})", self.lifecycle)
@@ -323,7 +347,17 @@ class SetupContractTests(unittest.TestCase):
                     )
                     self.assertEqual(
                         inherited,
-                        (ROLE_DIRECTORY / f"{role_name}.toml").read_text(encoding="utf-8"),
+                        (ROLE_ASSETS / "v0.2.6-agents" / f"{role_name}.toml").read_text(encoding="utf-8"),
+                    )
+                if version == "v0.2.6":
+                    self.assertNotIn("model", role)
+                    self.assertEqual("medium", role["model_reasoning_effort"])
+                    current = tomllib.loads((ROLE_DIRECTORY / f"{role_name}.toml").read_text(encoding="utf-8"))
+                    self.assertEqual("gpt-6-astra", current.pop("model"))
+                    self.assertEqual(role, current)
+                    self.assertEqual(
+                        asset.read_text(encoding="utf-8"),
+                        re.sub(r'^model = "gpt-6-astra"\n', "", (ROLE_DIRECTORY / f"{role_name}.toml").read_text(encoding="utf-8"), count=1, flags=re.MULTILINE),
                     )
 
     def test_v010_managed_project_fixture_matches_current_compatibility_contract(self) -> None:
