@@ -1,30 +1,36 @@
 # KISS My Agent 当前状态 Handoff
 
-这是本仓库唯一的 canonical handoff。不要创建 dated、attempt、final 或其他平行副本；Git history 保存详细过程。
+这是本仓库唯一的 canonical handoff。详细过程由 Git history、Issue 和 PR 保存，不创建 dated、attempt 或 campaign 副本。
 
 ## 当前 Release
 
 - Canonical repository：[`AoiOTA/Kiss-My-Agent`](https://github.com/AoiOTA/Kiss-My-Agent)，公开 branch 为 `main`。
-- 当前 supported release：[`v0.2.5`](https://github.com/AoiOTA/Kiss-My-Agent/releases/tag/v0.2.5)；Plugin manifest 为 `0.2.5`，Git-backed marketplace ref 为 `v0.2.5`。Release 已于 2026-09-03 发布，非 draft、非 prerelease，无 binary assets。
-- Release implementation commit 为 [`8f07260ef3f090ca8d3516add0f3dce906854402`](https://github.com/AoiOTA/Kiss-My-Agent/commit/8f07260ef3f090ca8d3516add0f3dce906854402)；release PR 为 [#16](https://github.com/AoiOTA/Kiss-My-Agent/pull/16)，head 为 `97f9d232134155cefa0de8e0a9e03475486a321b`，squash merge commit 为上述 release commit，二者 tree 均为 `79310dd98fdb881205c44613732ec8b78e5323ec`。Annotated tag object 为 `a4bc05c1f25a5e9df6952b49e66f35904364b835`，解引用到同一 release commit。
-- Pages：[English](https://aoiota.github.io/Kiss-My-Agent/) · [简体中文](https://aoiota.github.io/Kiss-My-Agent/zh-CN/)；当前页面包含 `v0.2.5` badge。
+- 当前 supported release：[`v0.2.6`](https://github.com/AoiOTA/Kiss-My-Agent/releases/tag/v0.2.6)；Plugin manifest 为 `0.2.6`，Git-backed marketplace ref 为 `v0.2.6`。
+- Release 与 `main` commit 为 [`38f29be1a224a0687e5a6fdba3b1c18fff0a2bb8`](https://github.com/AoiOTA/Kiss-My-Agent/commit/38f29be1a224a0687e5a6fdba3b1c18fff0a2bb8)。实现 PR [#19](https://github.com/AoiOTA/Kiss-My-Agent/pull/19) 与 tracking issue [#18](https://github.com/AoiOTA/Kiss-My-Agent/issues/18) 均已关闭。
+- Pages：[English](https://aoiota.github.io/Kiss-My-Agent/) · [简体中文](https://aoiota.github.io/Kiss-My-Agent/zh-CN/)。
 
 ## 当前行为
 
-- `.codex/config.toml` 为 Master 提供 `gpt-5.6-sol` / `max` 初始默认值，并独立补默认 `features.multi_agent = true` 与 `agents.enabled = true`。
-- 开放的 standalone role catalog 初始提供 `kiss_explorer`、`kiss_coder` 与 `kiss_reviewer`；默认 model 均为 `gpt-5.6-sol`，effort 分别为 `high`、`high`、`xhigh`。Master 默认扁平直接调度，可按需使用同角色多个实例。
-- Fresh setup 只创建缺失 starters。角色一旦存在即由用户所有；setup 与 Plugin update 不覆盖、迁移或判定其版本，用户后来删除的 starter 也不会被重建。
-- Setup、check 与 remove 只检查当前 scope 中 KISS 管理的 config、instructions 和三个精确 bundled role targets；不检查无关自定义角色或另一 scope 的 role catalog。Configure 只在用户选定角色后检查该精确目标。
-- Recognized-outdated v0.1 managed block 可刷新为当前 block；两个 Master keys 都缺失时才成对补入默认值。已有 feature assignments 与 role bytes 保持不变。
-- Plugin 暴露 `kiss-my-agent` 与 `kiss-my-agent-setup` 两个 Skills。Setup、check、remove 与已有 role 配置由 conversational Setup Skill 完成，不恢复 v0.1 Python CLI。
+- KISS 不再固定 Master 的 model 或 reasoning effort；两者由 Host、对话选择或更高优先级配置决定。若账号可用，复杂 KISS 任务可从 Astra High 开始，但这不是强制默认。
+- 当前 `kiss_explorer`、`kiss_coder` 与 `kiss_reviewer` seeds 均无 KISS role-level model pin，并将 `model_reasoning_effort` 设为 `medium`。显式 spawn 或 Host 的 `[agents]` 默认仍可能覆盖 Parent。
+- Fresh setup 只创建缺失 starters。角色一旦存在即由用户所有；setup 与 Plugin update 不覆盖、自动迁移或判定其版本，用户后来删除的 starter 也不会被重建。
+- Setup 只在两个旧 Master assignments 均为顶层唯一键、值精确为 `gpt-5.6-sol` / `max`、且各自带精确 managed marker 时成对删除。部分、无标记、修改过或冲突的状态保留，并提示用户手工恢复继承。
+- 显式 remove 可按字节识别当前、v0.2.5 与 v0.1 role seeds；这些历史 snapshots 仅供 remove 比较，setup、check 与 configure 不读取它们来判版本或迁移角色。
+- Setup、check 与 remove 只检查当前 scope 中会读取、创建、修改或删除的 KISS targets，不验证无关自定义角色。Plugin 暴露 `kiss-my-agent` 与 `kiss-my-agent-setup` 两个 Skills。
 
 ## 当前证据
 
-- PR #16、merged `main` 与 `v0.2.5` tag 的原生 CI 均通过：[PR Validate](https://github.com/AoiOTA/Kiss-My-Agent/actions/runs/33793420892) 6 项成功；[PR Pages](https://github.com/AoiOTA/Kiss-My-Agent/actions/runs/33793420761) build 成功、deploy 按 PR 规则跳过；[main Validate](https://github.com/AoiOTA/Kiss-My-Agent/actions/runs/33793745323) 6 项成功；[main Pages](https://github.com/AoiOTA/Kiss-My-Agent/actions/runs/33793745268) build 与 deploy 成功；[tag Validate](https://github.com/AoiOTA/Kiss-My-Agent/actions/runs/33793992806) 6 项成功。
-- 最终 candidate 的 setup contract 在 fresh sessions 中获得有界证据：check `01a06894` 报告 `structurally-valid`、managed block `current` 且零写入；setup `01a06896` 为 no-op；marker run `01a06898` 只创建一个 child `01a06899` 并返回 `PROJECT_MARKER`，结论为 `GO`。
-- Candidate 前两次运行均为 invalid：第一次是 Agent 构造的 `apply_patch` 命令包含无效 `[?]` 并已 rollback，归属 command-construction harness；第二次使用手工准备的 stale `AGENTS.md` 并以复合 shell status 误判结果，归属 harness/evaluator。两者都没有成为产品负面证据，也没有触发新 patch。
-- Public unpinned upgrade 已从 v0.2.4 更新至 v0.2.5，cache 与 marketplace 分别指向 release commit `8f07260` 和 ref `v0.2.5`，工作状态干净。Public fresh check `01a068aa` 从公开 v0.2.5 cache 加载并观察 `absent`、零写入；临时项目与精确添加的 trust 已清理，无关 config bytes 保持不变且 mode 仍为 `600`。
-- Release 页面、tag zip、tag tar.gz、安装指南、Testing 与中英文 Pages 均已匿名访问并返回 HTTP `200`。Tracking [#15](https://github.com/AoiOTA/Kiss-My-Agent/issues/15) 已以 completed 关闭，并记录[最终证据](https://github.com/AoiOTA/Kiss-My-Agent/issues/15#issuecomment-5530810027)。
+- v0.2.6 tag 的 [Validate run](https://github.com/AoiOTA/Kiss-My-Agent/actions/runs/34011252597) 在六个 OS/Python jobs 上全部通过；`main` 的 [Pages build/deploy](https://github.com/AoiOTA/Kiss-My-Agent/actions/runs/34011174208) 通过。
+- Candidate fresh-session 验证通过 setup、check 与再次 setup no-op。精确带标记的旧 Sol/max pair 被清理；已有 v0.2.5 roles保持不变；单角色 configure 与 remove-only compatibility 均通过。
+- Desktop candidate 验证中，对话切换后连续两轮保持 Astra/high；Master 只委派一个 `kiss_explorer`，该 child 使用 Astra/medium。
+- Public marketplace upgrade 后，Plugin 为 installed/enabled v0.2.6，fresh public CLI 成功发现两个 v0.2.6 Skills。Public parent thread `01a074f9-7cd8-7f21-8ccd-e281d2e3d045` 使用 Astra/high；其唯一 `kiss_explorer` child `01a074f9-ae2e-70d3-8d2e-f8f8bc888716` 使用 Astra/medium。
+
+## 已知限制
+
+- Plugin 用户不需要 Python、Node.js 或 Docker；Git-backed marketplace 安装和更新仍需要可用的 Git 与 GitHub 网络访问。
+- Setup 的静态 `check` 只证明被检查文件的状态；加载、discovery 或模型切换仍需可信的新会话验证。
+- 本次观察到一个长时间运行的 Desktop process：CLI 已升级且旧 cache 已不存在后，它创建的新任务仍持有旧 v0.2.5 Skill catalog；fresh public CLI 能正确加载 v0.2.6。若 fresh Desktop 验证出现旧 cache path，应先完全退出并重新打开 Codex。这是 Host lifecycle 证据，不是 KISS 产品失败。
+- 当前证据不外推到未运行的 Host/version matrix、所有角色组合或人工 failure matrix。Source inspection、tests、CI、fresh-session behavior 与 public distribution 是不同证据层级。
 
 ## Release 历史
 
@@ -35,16 +41,14 @@
 | `v0.2.1` | 无 | Legacy-role transition 出现产品写入失败；rollback 恢复 before-state，停止发布。 |
 | `v0.2.2` | 无 | Public transition 在写入前遇到 Plugin resource path 解析问题，项目零修改，停止发布。 |
 | `v0.2.3` | 无 | Public setup 暴露 outdated/current 分类歧义，保留 tag，由下一 patch 修正。 |
-| `v0.2.4` | 有 | 正式 Release；分类修正、公开分发与有界升级证据通过。 |
-| `v0.2.5` | 有 | 当前 supported release；Setup 缩小到精确 KISS targets，candidate、CI、公开升级与 fresh check 通过。 |
+| `v0.2.4` | 有 | 分类修正、公开分发与有界升级证据通过。 |
+| `v0.2.5` | 有 | Setup 缩小到精确 KISS targets，candidate、CI、公开升级与 fresh check 通过。 |
+| `v0.2.6` | 有 | 解除 Master 与 starter roles 的 Sol 锁定；Astra/high Master 与 Astra/medium Explorer 的 candidate 和 public fresh-session 路径通过。 |
 
-所有已推送 tags 都保留且不可移动、删除或重建。没有 GitHub Release 的 tag 不应被描述为正式发布版本。`v0.1.0` 的首次 role 运行曾因额外使用不兼容的 `--ephemeral` 而在创建 child thread 前失败；去掉该非必需参数后只做一次判别重试，因此该 invalid run 不构成产品负面证据。
+所有已推送 tags 都保留且不可移动、删除或重建。没有 GitHub Release 的 tag 不描述为正式发布版本。
 
-## 证据、限制与停止线
+## 停止线
 
-- Source inspection、deterministic tests、CI、Pages、fresh-session discovery、Smoke、Pilot 与 Release verification 是不同证据层级；复用、user report 或 invalid run 不得提升为更强结论。
-- v0.2.5 没有运行其他 roles、global setup、remove、rollback、configure runtime、其他 Host/version 或 failure matrix。Fresh CLI 仍出现既存 icon `..` warning，但实际 Skill 加载与 check 成功；不把该 warning 隐藏或提升为产品失败。
-- Plugin 用户不需要 Python、Node.js 或 Docker；Git-backed marketplace 安装和更新仍需要可用的 Git 与 GitHub 网络访问。Setup 的静态 `check` 只证明被检查文件的状态；加载或 discovery 改变仍需可信的新会话验证。
 - 不移动、删除、重建任何已推送 tag，也不 force-push `main`。Candidate 阶段解决产品行为问题；tag 后只补 public-only evidence，不重复未受影响的 candidate checks。
-- Tagged source 中的产品缺陷会阻止创建 Release，并由下一 patch 修复；harness、command 或 environment failure 修复其 owner 后针对同一 tag 补证据；evaluator/invalid run 不触发 patch。正式 Release 后发现产品缺陷才发布新 patch。
+- Tagged source 中的产品缺陷阻止创建 Release，并由下一 patch 修复；harness、command、environment 或 evaluator failure 修复其 owner 后针对同一 tag 补证据，不自动触发 patch。
 - 后续只根据真实用户缺陷、Host 变化或明确的新目标重新立项；满足有界验收或得到受支持的 no-change 结论后停止。
