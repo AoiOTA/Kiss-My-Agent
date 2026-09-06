@@ -92,7 +92,7 @@ $kiss-my-agent:kiss-my-agent-setup configure agents for this project
 $kiss-my-agent:kiss-my-agent-setup configure global agents
 ```
 
-Plugin updates and setup leave every existing role unchanged. To migrate all three existing KISS roles to the current inheritance and effort settings, use:
+Plugin updates and setup leave every existing role unchanged. To remove KISS role-level model pins and set `medium` effort in all three existing KISS roles, use:
 
 ```text
 $kiss-my-agent:kiss-my-agent-setup configure agents in this project: for kiss_explorer, kiss_coder, and kiss_reviewer, set model to inherit and model_reasoning_effort to medium
@@ -122,7 +122,7 @@ codex plugin list --marketplace kiss-my-agent
 
 On the verified Codex 0.152.1 baseline, the Host automatically refreshes a default unpinned Git marketplace at startup and reinstalls an enabled non-curated Plugin. KISS My Agent contains no updater of its own, and other versions may behave differently. After the commands above complete, expect `kiss-my-agent@kiss-my-agent` to be `installed, enabled` at the current supported release. Start a new session after an update changes the installed Plugin.
 
-Automatic refresh and explicit marketplace upgrade update only the Plugin package. They do not change project or global config, instructions, or role files. A previously managed project may run setup after updating to refresh its managed instruction block, add missing public switches, and remove only the exact legacy marked master pair described in Installation, but every existing role stays directly unchanged. Use the qualified role-wizard prompt above or edit role TOML manually to adopt the current inheritance and effort settings.
+Automatic refresh and explicit marketplace upgrade update only the Plugin package. They do not change project or global config, instructions, or role files. A previously managed project may run setup after updating to refresh its managed instruction block, add missing public switches, and remove only the exact legacy marked master pair described in Installation, but every existing role stays directly unchanged. Use the qualified role-wizard prompt above or edit role TOML manually to remove KISS role-level model pins and set `medium` effort.
 
 See [Installation](INSTALLATION.md#update) for explicit-only marketplace pinning, rollback, and the commands that restore the current unpinned channel.
 

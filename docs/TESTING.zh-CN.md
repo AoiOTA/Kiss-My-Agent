@@ -111,7 +111,7 @@ $plugin-creator update this existing KISS My Agent plugin for local development.
 2. `kiss_coder`：只拥有一个隔离的一次性文件，仅在不存在时创建，验证后只删除该文件。
 3. `kiss_reviewer`：检查给定 diff，报告带准确位置的实质 findings，不编辑文件。
 
-确认 current starter roles 没有 role-level `model` pin，并使用 `medium` effort。子 Agent 的有效模型依次从显式 spawn setting、`[agents]` default、parent 解析，再应用任何 role-level override。对于只改模型继承的 candidate，不重复完整三角色行为矩阵：通过 Host 选择 Master（账号与 Host 提供时选择 Astra / High），确认两轮最小消息都保持该选择，随后只 spawn 一个 Explorer，并确认 child 使用继承模型与 `medium` effort。前后都检查工作树和选定 fixtures。一次成功调用只支持角色发现和观察到的窄行为。
+确认 current starter roles 没有 KISS 角色级 `model` pin，并使用 `medium` effort。子 Agent 的有效模型依次从显式 spawn setting、`[agents].default_subagent_model`、parent 解析，再应用任何 role-level override。对于无 KISS model pin 的 candidate，不重复完整三角色行为矩阵：通过 Host 选择 Master（账号与 Host 提供时选择 Astra / High），确认两轮最小消息都保持该选择，随后只 spawn 一个 Explorer。只有显式 spawn model 与 `agents.default_subagent_model` 都没有设置时，才确认 child 从 parent/Astra 选择解析 model，并应用 role 的 `medium` effort。前后都检查工作树和选定 fixtures。一次成功调用只支持角色发现和观察到的窄行为。
 
 只有大型独立的一次性子系统的直接汇总会污染 Master context 时，才测试 department lead。确认最多一层临时中间管理、workers 不继续委派、assignment 随任务结束而消失，并且每个共享资源保持一个 operator。不要为了测试而制造层级。
 

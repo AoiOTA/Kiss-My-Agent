@@ -843,9 +843,9 @@ def validate_document_interfaces(root: Path) -> None:
     for token in (
         "The tracked project config contains only two public switches",
         "KISS leaves the master model and effort to the Host",
-        "`kiss_explorer` | Read-only investigation | inherit (no role pin) | `medium`",
-        "`kiss_coder` | Bounded implementation and state changes | inherit (no role pin) | `medium`",
-        "`kiss_reviewer` | Independent read-only review | inherit (no role pin) | `medium`",
+        "`kiss_explorer` | Read-only investigation | no KISS role-level model pin | `medium`",
+        "`kiss_coder` | Bounded implementation and state changes | no KISS role-level model pin | `medium`",
+        "`kiss_reviewer` | Independent read-only review | no KISS role-level model pin | `medium`",
         "every role that already exists is user-owned",
         "parent turn's live sandbox and approval overrides",
         "ordinary single-conversation execution",
@@ -866,14 +866,27 @@ def validate_document_interfaces(root: Path) -> None:
         if token not in configuration:
             fail(f"configuration behavior guidance missing: {token}")
 
+    configuration_zh = (root / "docs/CONFIGURATION.zh-CN.md").read_text(
+        encoding="utf-8"
+    )
+    for token in (
+        "`kiss_explorer` | 只读调查 | 无 KISS 角色级 model pin | `medium`",
+        "`kiss_coder` | 有界实现与状态修改 | 无 KISS 角色级 model pin | `medium`",
+        "`kiss_reviewer` | 独立只读审查 | 无 KISS 角色级 model pin | `medium`",
+    ):
+        if token not in configuration_zh:
+            fail(f"Chinese role model-pin guidance missing: {token}")
+
     stable_model_docs = {
         "README.md": (
             "KISS does not pin the Master's model or effort",
+            "no KISS role-level model pin",
             "if your account and Host offer it, you can start with **GPT-6 Astra / High**",
             "This is a recommendation, not a KISS default or requirement",
         ),
         "README.zh-CN.md": (
             "KISS 不固定 Master 的模型或 effort",
+            "无 KISS 角色级 model pin",
             "如果账号与 Host 提供该选项，可以从 **GPT-6 Astra / High** 开始",
             "这是建议，不是 KISS 默认值或强制要求",
         ),

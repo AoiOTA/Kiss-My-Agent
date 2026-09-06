@@ -12,7 +12,7 @@
 
 [![许可证：MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Validate](https://github.com/AoiOTA/Kiss-My-Agent/actions/workflows/validate.yml/badge.svg)](https://github.com/AoiOTA/Kiss-My-Agent/actions/workflows/validate.yml)
-![版本：v0.2.5](https://img.shields.io/badge/release-v0.2.5-blue.svg)
+![版本：v0.2.6](https://img.shields.io/badge/release-v0.2.6-blue.svg)
 ![宿主：Codex 优先](https://img.shields.io/badge/host-Codex--first-blue.svg)
 
 </div>
@@ -122,9 +122,9 @@ Plugin 没有后台服务；真正加载配置和启动 Agents 的是 Codex Host
 | --- | --- | --- |
 | 你 / Owner | 决定目标、架构、验收标准、非目标和停止点 | 人来决策 |
 | Master | 规划、分配工作、解决冲突、判断证据并汇总 | 由 Host/对话选择 |
-| `kiss_explorer` | 调查并报告事实，不编辑文件 | 继承模型 / `medium` |
-| `kiss_coder` | 实现分配的改动并运行相关检查 | 继承模型 / `medium` |
-| `kiss_reviewer` | 独立检查结果，不编辑文件 | 继承模型 / `medium` |
+| `kiss_explorer` | 调查并报告事实，不编辑文件 | 无 KISS 角色级 model pin / `medium` |
+| `kiss_coder` | 实现分配的改动并运行相关检查 | 无 KISS 角色级 model pin / `medium` |
+| `kiss_reviewer` | 独立检查结果，不编辑文件 | 无 KISS 角色级 model pin / `medium` |
 
 KISS 不固定 Master 的模型或 effort。Starter roles 也没有 role-level model pin，只设置 `medium` effort。Master 通常直接分配任务，可以启动同一角色的多个实例，每个共享事项由一个 Agent 负责，大型独立子系统可以临时设一个 lead。
 
@@ -139,7 +139,7 @@ Master 的模型和 effort 由 Host 或当前对话选择。对于复杂 KISS �
 
 对子 Agent，Codex 会先解析显式 spawn 设置，再解析对应的 `[agents]` 默认值，最后解析 parent；role 文件中的显式值是最终 override。当前 starter roles 省略 `model`，因此不会应用最后这一层模型 override。
 
-Plugin update 和 setup 会保留每个已有角色。要把三个已有 KISS roles 迁移到当前继承与 effort 设置，请使用下面准确的限定 prompt：
+Plugin update 和 setup 会保留每个已有角色。要移除三个已有 KISS roles 中的 KISS 角色级 model pin 并设置 `medium` effort，请使用下面准确的限定 prompt：
 
 ```text
 $kiss-my-agent:kiss-my-agent-setup configure agents in this project: for kiss_explorer, kiss_coder, and kiss_reviewer, set model to inherit and model_reasoning_effort to medium

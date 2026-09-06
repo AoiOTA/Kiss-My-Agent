@@ -22,15 +22,15 @@ enabled = true
 每个缺失开关都会独立获得带 marker 的 `true` 默认值；setup 会保留所有 marked 或 unmarked 的已有值，其中包括显式 `false`。为保持兼容，只有两个顶层旧 Master keys 都准确出现一次、值分别为 `gpt-5.6-sol` 与 `max`，且每行都有准确的 `# KISS My Agent managed` marker 时，setup 才成对删除它们。未标记、已修改、缺少 companion 或用户自选 custom pair 都继续归用户所有；duplicate assignment、无效 TOML 或 ownership 歧义属于 conflict，不是迁移候选。Static check 不再用 Master model 或 effort 判断 setup 是否 structurally valid；KISS 也不会为选择 Master 而修改用户的全局配置。
 
 <a id="zero-configuration"></a>
-## 默认角色继承模型并设置思考强度
+## 默认角色没有 KISS model pin，并设置思考强度
 
 首次 setup 会安装三个可编辑 seeds：
 
 | 角色 | 职责 | 模型 | 思考强度 | Seed sandbox 默认值 |
 | --- | --- | --- | --- | --- |
-| `kiss_explorer` | 只读调查 | 继承（无 role pin） | `medium` | `read-only` |
-| `kiss_coder` | 有界实现与状态修改 | 继承（无 role pin） | `medium` | `workspace-write` |
-| `kiss_reviewer` | 独立只读审查 | 继承（无 role pin） | `medium` | `read-only` |
+| `kiss_explorer` | 只读调查 | 无 KISS 角色级 model pin | `medium` | `read-only` |
+| `kiss_coder` | 有界实现与状态修改 | 无 KISS 角色级 model pin | `medium` | `workspace-write` |
+| `kiss_reviewer` | 独立只读审查 | 无 KISS 角色级 model pin | `medium` | `read-only` |
 
 Current seeds 省略 `model`，只显式设置上表中的 effort。它们是可编辑的 fresh-setup 默认值。Fresh setup 只创建缺失 starter；任何已经存在的角色都归用户所有，setup 或 Plugin update 永不覆盖、迁移或判定其版本。Setup 已存在后，缺失 starter 会保持 intentionally absent。Plugin cache seeds 只是 package resources，不会自动成为 Host 可发现角色。
 
@@ -72,7 +72,7 @@ $kiss-my-agent:kiss-my-agent-setup configure agents for this project
 $kiss-my-agent:kiss-my-agent-setup configure global agents
 ```
 
-要把三个已有 KISS roles 迁移到当前模型继承与 `medium` effort 默认值，请使用下面准确的项目限定 prompt：
+要移除三个已有 KISS roles 中的 KISS 角色级 model pin 并设置 `medium` effort，请使用下面准确的项目限定 prompt：
 
 ```text
 $kiss-my-agent:kiss-my-agent-setup configure agents in this project: for kiss_explorer, kiss_coder, and kiss_reviewer, set model to inherit and model_reasoning_effort to medium

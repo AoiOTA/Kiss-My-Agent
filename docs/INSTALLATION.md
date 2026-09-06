@@ -81,7 +81,7 @@ To change an existing role's model, reasoning effort, or sandbox default through
 $kiss-my-agent:kiss-my-agent-setup configure agents for this project
 ```
 
-Plugin updates and setup preserve every existing role. To migrate all three existing KISS roles to the current inheritance and effort settings, use this exact qualified prompt:
+Plugin updates and setup preserve every existing role. To remove KISS role-level model pins and set `medium` effort in all three existing KISS roles, use this exact qualified prompt:
 
 ```text
 $kiss-my-agent:kiss-my-agent-setup configure agents in this project: for kiss_explorer, kiss_coder, and kiss_reviewer, set model to inherit and model_reasoning_effort to medium
@@ -136,7 +136,7 @@ codex plugin list --marketplace kiss-my-agent
 
 KISS My Agent has no updater of its own. On the verified Codex 0.152.1 baseline, the Host can refresh an unpinned Git marketplace at startup and reinstall an enabled non-curated Plugin; other versions may differ. After the commands above complete, verify that `kiss-my-agent@kiss-my-agent` is `installed, enabled` at the current supported release. Start a new session after an update changes the installed Plugin.
 
-Host refresh updates only the Plugin package. It does not modify project or global config, AGENTS instructions, or role files. For a previously managed project, you may run `$kiss-my-agent:kiss-my-agent-setup set up this project` after upgrading to refresh the managed instruction block, add missing public switches, and remove only the exact legacy marked master pair described above; every existing role file remains directly unchanged. Setup never compares existing roles with bundled historical seeds, assigns them a version, or migrates them. To adopt the current role inheritance and `medium` effort settings, use the exact qualified wizard prompt above or edit the role TOML manually.
+Host refresh updates only the Plugin package. It does not modify project or global config, AGENTS instructions, or role files. For a previously managed project, you may run `$kiss-my-agent:kiss-my-agent-setup set up this project` after upgrading to refresh the managed instruction block, add missing public switches, and remove only the exact legacy marked master pair described above; every existing role file remains directly unchanged. Setup never compares existing roles with bundled historical seeds, assigns them a version, or migrates them. To remove existing KISS role-level model pins and set `medium` effort, use the exact qualified wizard prompt above or edit the role TOML manually.
 
 If you require marketplace movement to happen only after an explicit action, replace the unpinned Git marketplace with a tag-pinned source:
 

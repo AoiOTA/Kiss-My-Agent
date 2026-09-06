@@ -12,7 +12,7 @@ Reduce Codex overengineering and overdefense. Build a runnable, verifiable resea
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Validate](https://github.com/AoiOTA/Kiss-My-Agent/actions/workflows/validate.yml/badge.svg)](https://github.com/AoiOTA/Kiss-My-Agent/actions/workflows/validate.yml)
-![Release: v0.2.5](https://img.shields.io/badge/release-v0.2.5-blue.svg)
+![Release: v0.2.6](https://img.shields.io/badge/release-v0.2.6-blue.svg)
 ![Host: Codex-first](https://img.shields.io/badge/host-Codex--first-blue.svg)
 
 </div>
@@ -122,11 +122,11 @@ The **Master** is the main Codex Agent in the conversation you are using now—t
 | --- | --- | --- |
 | You / Owner | Set the goal, architecture, acceptance criteria, non-goals, and stop point | Human decision |
 | Master | Plan, assign work, resolve conflicts, judge evidence, and summarize | Host/conversation selection |
-| `kiss_explorer` | Investigate and report facts without editing | inherited model / `medium` |
-| `kiss_coder` | Implement the assigned change and run its checks | inherited model / `medium` |
-| `kiss_reviewer` | Independently inspect the result without editing | inherited model / `medium` |
+| `kiss_explorer` | Investigate and report facts without editing | no KISS model pin / `medium` |
+| `kiss_coder` | Implement the assigned change and run its checks | no KISS model pin / `medium` |
+| `kiss_reviewer` | Independently inspect the result without editing | no KISS model pin / `medium` |
 
-KISS does not pin the Master's model or effort. Its starter roles also have no role-level model pin and set only `medium` effort. The Master normally assigns directly, may use multiple instances of a role, keeps one Agent responsible for each shared item, and may give one temporary lead to a large independent subsystem.
+KISS does not pin the Master's model or effort. Its starter roles also have no KISS role-level model pin and set only `medium` effort. The Master normally assigns directly, may use multiple instances of a role, keeps one Agent responsible for each shared item, and may give one temporary lead to a large independent subsystem.
 
 The same instructions require the Master to report when delegation is unavailable instead of silently doing the employees' work. You then choose whether to repair the team or explicitly continue this task as a normal single conversation.
 
@@ -139,7 +139,7 @@ Choose the Master's model and effort through the Host or conversation. For a com
 
 For child Agents, Codex resolves an explicit spawn setting first, then the corresponding `[agents]` default, then the parent; an explicit role-file value is the final override. The current starter roles omit `model`, so they do not apply that final model override.
 
-Plugin updates and setup preserve every existing role. To migrate all three existing KISS roles to the current inheritance and effort settings, use this exact qualified prompt:
+Plugin updates and setup preserve every existing role. To remove KISS role-level model pins and set `medium` effort in all three existing KISS roles, use this exact qualified prompt:
 
 ```text
 $kiss-my-agent:kiss-my-agent-setup configure agents in this project: for kiss_explorer, kiss_coder, and kiss_reviewer, set model to inherit and model_reasoning_effort to medium

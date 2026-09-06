@@ -22,15 +22,15 @@ The switches enable the Host's multi-agent capability and custom-Agent discovery
 Each missing switch receives a marked `true` default independently; setup preserves every existing value, marked or unmarked, including explicit `false`. For compatibility, setup removes a legacy master pair only when both top-level keys occur exactly once, equal `gpt-5.6-sol` and `max`, and each line has the exact `# KISS My Agent managed` marker. An unmarked, modified, missing-companion, or user-chosen custom pair remains user-owned; a duplicate assignment, invalid TOML, or ambiguous ownership is a conflict rather than a migration candidate. Static check does not use master model or effort to decide whether setup is structurally valid, and KISS never changes the user's global configuration just to choose the master.
 
 <a id="zero-configuration"></a>
-## Default roles inherit model and set effort
+## Default roles have no KISS model pin and set effort
 
 First setup installs three editable seeds:
 
 | Role | Responsibility | Model | Reasoning effort | Seed sandbox default |
 | --- | --- | --- | --- | --- |
-| `kiss_explorer` | Read-only investigation | inherit (no role pin) | `medium` | `read-only` |
-| `kiss_coder` | Bounded implementation and state changes | inherit (no role pin) | `medium` | `workspace-write` |
-| `kiss_reviewer` | Independent read-only review | inherit (no role pin) | `medium` | `read-only` |
+| `kiss_explorer` | Read-only investigation | no KISS role-level model pin | `medium` | `read-only` |
+| `kiss_coder` | Bounded implementation and state changes | no KISS role-level model pin | `medium` | `workspace-write` |
+| `kiss_reviewer` | Independent read-only review | no KISS role-level model pin | `medium` | `read-only` |
 
 The current seeds omit `model` and explicitly set only the effort shown above. They are editable fresh-setup defaults. A fresh setup creates only missing starters; every role that already exists is user-owned and setup or a Plugin update never overwrites, migrates, or version-classifies it. Once setup exists, a missing starter remains intentionally absent. Plugin cache seeds are package resources and do not automatically become Host-discoverable roles.
 
@@ -65,14 +65,14 @@ Project and global setup are always distinct. For role definitions, the Host app
 <a id="configure-wizard"></a>
 ## Conversational Agent configuration wizard
 
-Keep the inherited defaults unless a real workload needs a different model, effort, or sandbox. To configure existing roles in one explicit scope, run:
+Keep the current role settings unless a real workload needs a different model, effort, or sandbox. To configure existing roles in one explicit scope, run:
 
 ```text
 $kiss-my-agent:kiss-my-agent-setup configure agents for this project
 $kiss-my-agent:kiss-my-agent-setup configure global agents
 ```
 
-To migrate the three existing KISS roles to the current model inheritance and `medium` effort defaults, use this exact qualified project prompt:
+To remove KISS role-level model pins and set `medium` effort in the three existing KISS roles, use this exact qualified project prompt:
 
 ```text
 $kiss-my-agent:kiss-my-agent-setup configure agents in this project: for kiss_explorer, kiss_coder, and kiss_reviewer, set model to inherit and model_reasoning_effort to medium

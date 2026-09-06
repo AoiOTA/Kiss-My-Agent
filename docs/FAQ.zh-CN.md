@@ -92,7 +92,7 @@ $kiss-my-agent:kiss-my-agent-setup configure agents for this project
 $kiss-my-agent:kiss-my-agent-setup configure global agents
 ```
 
-Plugin update 和 setup 会保持每个已有角色不变。要把三个已有 KISS roles 迁移到当前继承与 effort 设置，请使用：
+Plugin update 和 setup 会保持每个已有角色不变。要移除三个已有 KISS roles 中的 KISS 角色级 model pin 并设置 `medium` effort，请使用：
 
 ```text
 $kiss-my-agent:kiss-my-agent-setup configure agents in this project: for kiss_explorer, kiss_coder, and kiss_reviewer, set model to inherit and model_reasoning_effort to medium
@@ -122,7 +122,7 @@ codex plugin list --marketplace kiss-my-agent
 
 在已验证的 Codex 0.152.1 baseline 上，Host 会在启动时自动刷新默认的 unpinned Git marketplace，并重新安装已启用的 non-curated Plugin。KISS My Agent 自身没有 updater，其他版本的行为可能不同。上面命令完成后，应看到 `kiss-my-agent@kiss-my-agent` 为 `installed, enabled`，且版本与当前支持的 release 一致。更新改变已安装 Plugin 后，请启动新会话。
 
-自动 refresh 和显式 marketplace upgrade 都只更新 Plugin 包，不会修改 project/global config、instructions 或角色文件。之前已 managed 的项目更新后可以运行 setup，刷新 managed instruction block、补充缺失的公开开关，并且只删除 Installation 中说明的准确旧 marked Master pair；所有已有角色都直接保持不变。如需采用当前 inheritance 与 effort 设置，请使用上面的准确限定 role-wizard prompt 或手工编辑角色 TOML。
+自动 refresh 和显式 marketplace upgrade 都只更新 Plugin 包，不会修改 project/global config、instructions 或角色文件。之前已 managed 的项目更新后可以运行 setup，刷新 managed instruction block、补充缺失的公开开关，并且只删除 Installation 中说明的准确旧 marked Master pair；所有已有角色都直接保持不变。如需移除已有 KISS 角色级 model pin 并设置 `medium` effort，请使用上面的准确限定 role-wizard prompt 或手工编辑角色 TOML。
 
 显式 marketplace pin、rollback 与恢复 current unpinned channel 的命令见[安装](INSTALLATION.zh-CN.md#update)。
 
