@@ -26,8 +26,7 @@ PROJECT_PAGES = "https://aoiota.github.io/Kiss-My-Agent/"
 PROJECT_PAGES_ZH = f"{PROJECT_PAGES}zh-CN/"
 DEFAULT_ROLE_CONTRACTS = {
     "kiss_explorer": {
-        "model": "gpt-5.6-sol",
-        "model_reasoning_effort": "high",
+        "model_reasoning_effort": "medium",
         "sandbox_mode": "read-only",
         "instruction_fragments": (
             "Investigate only the assigned",
@@ -35,8 +34,7 @@ DEFAULT_ROLE_CONTRACTS = {
         ),
     },
     "kiss_coder": {
-        "model": "gpt-5.6-sol",
-        "model_reasoning_effort": "high",
+        "model_reasoning_effort": "medium",
         "sandbox_mode": "workspace-write",
         "instruction_fragments": (
             "Implement only the assigned",
@@ -45,8 +43,7 @@ DEFAULT_ROLE_CONTRACTS = {
         ),
     },
     "kiss_reviewer": {
-        "model": "gpt-5.6-sol",
-        "model_reasoning_effort": "xhigh",
+        "model_reasoning_effort": "medium",
         "sandbox_mode": "read-only",
         "instruction_fragments": (
             "Independently review only the assigned",
@@ -164,6 +161,9 @@ def require_files(root: Path) -> None:
         "skills/kiss-my-agent-setup/assets/v0.1-agents/kiss_explorer.toml",
         "skills/kiss-my-agent-setup/assets/v0.1-agents/kiss_coder.toml",
         "skills/kiss-my-agent-setup/assets/v0.1-agents/kiss_reviewer.toml",
+        "skills/kiss-my-agent-setup/assets/v0.2.5-agents/kiss_explorer.toml",
+        "skills/kiss-my-agent-setup/assets/v0.2.5-agents/kiss_coder.toml",
+        "skills/kiss-my-agent-setup/assets/v0.2.5-agents/kiss_reviewer.toml",
         "skills/kiss-my-agent-setup/setup-lifecycle.md",
         "skills/kiss-my-agent-setup/configure-agents.md",
         "assets/kiss-my-agent-hero.png",
@@ -206,15 +206,8 @@ def validate_retired_paths(root: Path) -> None:
 def validate_repository_config(root: Path) -> None:
     config_path = root / ".codex/config.toml"
     config = load_toml(config_path)
-    if set(config) != {"model", "model_reasoning_effort", "features", "agents"}:
-        fail(
-            ".codex/config.toml must contain only the master model/effort and "
-            "the features and agents tables"
-        )
-    if config["model"] != "gpt-5.6-sol":
-        fail(".codex/config.toml must set master model = 'gpt-5.6-sol'")
-    if config["model_reasoning_effort"] != "max":
-        fail(".codex/config.toml must set master model_reasoning_effort = 'max'")
+    if set(config) != {"features", "agents"}:
+        fail(".codex/config.toml must contain only the features and agents tables")
     features = config["features"]
     if not isinstance(features, dict) or set(features) != {"multi_agent"}:
         fail(".codex/config.toml features table must contain only multi_agent")
@@ -278,10 +271,8 @@ def validate_roles(root: Path) -> None:
                 f"default role {role_name} must set sandbox_mode = "
                 f"{contract['sandbox_mode']!r}"
             )
-        if data.get("model") != contract["model"]:
-            fail(
-                f"default role {role_name} must set model = {contract['model']!r}"
-            )
+        if "model" in data:
+            fail(f"default role {role_name} must inherit model without a role-level pin")
         if data.get("model_reasoning_effort") != contract["model_reasoning_effort"]:
             fail(
                 f"default role {role_name} must set model_reasoning_effort = "
@@ -457,12 +448,18 @@ def validate_setup_interface(root: Path) -> None:
         "ordinary single-conversation execution",
         "executive-only workflow cannot staff delegated work",
         "Static setup cannot observe a higher-precedence `false`",
-        "initial defaults, not enforcement",
-        "all four managed config paths",
-        "four managed config assignment lines",
+        "The Host resolves the master's model and effort",
+        "recognize this legacy pair only when both top-level assignments occur exactly once",
+        "their parsed values are exactly `gpt-5.6-sol` and `max`",
+        "Setup removes that exact legacy pair together",
+        "A missing member, an unmarked line, or a changed value is user-owned",
+        "two current managed feature assignment lines",
+        "every existing correctly identified role byte-for-byte",
+        "corresponding exact v0.2.5 or v0.1 remove-only snapshot",
+        "Historical snapshots are exact-byte remove comparison inputs only",
+        "setup, check, and configure must not read them",
         "explicit value or `inherit`",
         "Never silently substitute a fallback model or effort",
-        "either the current bundled seed or the corresponding known v0.1 seed",
     ):
         if token not in lifecycle:
             fail(f"setup lifecycle compatibility contract missing: {token}")
@@ -601,10 +598,8 @@ def validate_example_config(root: Path) -> None:
         or not config["default_permissions"].strip()
     ):
         fail("invalid example config default_permissions")
-    if config.get("model") != "gpt-5.6-sol":
-        fail("example config must set the master model default")
-    if config.get("model_reasoning_effort") != "max":
-        fail("example config must set the master reasoning effort default")
+    if "model" in config or "model_reasoning_effort" in config:
+        fail("example config must leave the master model and effort to Host resolution")
     features = config.get("features")
     agents = config.get("agents")
     if not isinstance(features, dict) or features.get("multi_agent") is not True:
@@ -846,12 +841,12 @@ def validate_document_interfaces(root: Path) -> None:
         if config_key not in configuration:
             fail(f"configuration key guidance missing: {config_key}")
     for token in (
-        "model = \"gpt-5.6-sol\"",
-        "model_reasoning_effort = \"max\"",
-        "`kiss_explorer` | Read-only investigation | `gpt-5.6-sol` | `high`",
-        "`kiss_coder` | Bounded implementation and state changes | `gpt-5.6-sol` | `high`",
-        "`kiss_reviewer` | Independent read-only review | `gpt-5.6-sol` | `xhigh`",
-        "initial defaults, not enforcement",
+        "The tracked project config contains only two public switches",
+        "KISS leaves the master model and effort to the Host",
+        "`kiss_explorer` | Read-only investigation | inherit (no role pin) | `medium`",
+        "`kiss_coder` | Bounded implementation and state changes | inherit (no role pin) | `medium`",
+        "`kiss_reviewer` | Independent read-only review | inherit (no role pin) | `medium`",
+        "every role that already exists is user-owned",
         "parent turn's live sandbox and approval overrides",
         "ordinary single-conversation execution",
         "Coordination is flat by default",
@@ -860,9 +855,49 @@ def validate_document_interfaces(root: Path) -> None:
         "Every shared file or resource still has one writer or operator",
         "highest-precedence CLI override",
         "never silently substitutes a fallback model or effort",
+        "Codex first resolves each model or effort field from an explicit spawn value",
+        "agents.default_subagent_model",
+        "then the parent",
+        "final role override",
+        "if the account and Host offer it, you can start with **GPT-6 Astra / High**",
+        "This is a recommendation, not a bundled default or requirement",
+        "$kiss-my-agent:kiss-my-agent-setup configure agents in this project: for kiss_explorer, kiss_coder, and kiss_reviewer, set model to inherit and model_reasoning_effort to medium",
     ):
         if token not in configuration:
             fail(f"configuration behavior guidance missing: {token}")
+
+    stable_model_docs = {
+        "README.md": (
+            "KISS does not pin the Master's model or effort",
+            "if your account and Host offer it, you can start with **GPT-6 Astra / High**",
+            "This is a recommendation, not a KISS default or requirement",
+        ),
+        "README.zh-CN.md": (
+            "KISS 不固定 Master 的模型或 effort",
+            "如果账号与 Host 提供该选项，可以从 **GPT-6 Astra / High** 开始",
+            "这是建议，不是 KISS 默认值或强制要求",
+        ),
+        "docs/FAQ.md": (
+            "KISS does not set the master's model or effort",
+            "Current starter roles omit `model` and set `model_reasoning_effort = \"medium\"`",
+            "not a bundled default or requirement",
+        ),
+        "docs/FAQ.zh-CN.md": (
+            "KISS 不设置 Master model 或 effort",
+            "Current starter roles 省略 `model` 并设置 `model_reasoning_effort = \"medium\"`",
+            "不是 bundled default 或强制要求",
+        ),
+    }
+    migration_prompt = (
+        "$kiss-my-agent:kiss-my-agent-setup configure agents in this project: "
+        "for kiss_explorer, kiss_coder, and kiss_reviewer, set model to inherit "
+        "and model_reasoning_effort to medium"
+    )
+    for relative, tokens in stable_model_docs.items():
+        text = (root / relative).read_text(encoding="utf-8")
+        for token in (*tokens, migration_prompt):
+            if token not in text:
+                fail(f"model inheritance guidance missing from {relative}: {token}")
 
 
 def validate_fixtures(root: Path) -> int:
@@ -876,10 +911,13 @@ def validate_fixtures(root: Path) -> int:
         if marker not in path.read_text(encoding="utf-8"):
             fail(f"effective-instruction fixture marker missing: {marker}")
     v010_fixture = root / "tests/fixtures/v0.1-managed-project"
-    v010_assets = root / "skills/kiss-my-agent-setup/assets"
+    role_assets = root / "skills/kiss-my-agent-setup/assets"
+    lifecycle = (root / "skills/kiss-my-agent-setup/setup-lifecycle.md").read_text(
+        encoding="utf-8"
+    )
     for role_name in DEFAULT_ROLE_NAMES:
         legacy_path = v010_fixture / f".codex/agents/{role_name}.toml"
-        asset_path = v010_assets / f"v0.1-agents/{role_name}.toml"
+        asset_path = role_assets / f"v0.1-agents/{role_name}.toml"
         if asset_path.read_bytes() != legacy_path.read_bytes():
             fail(f"Skill-owned v0.1 remove seed differs from project fixture: {role_name}")
         legacy = load_toml(legacy_path)
@@ -888,6 +926,20 @@ def validate_fixtures(root: Path) -> int:
             fail(f"Skill-owned v0.1 remove seed identity differs from filename: {role_name}")
         if "model_reasoning_effort" in legacy or "model" in legacy:
             fail(f"v0.1 role fixture contains a current model setting: {role_name}")
+
+        v025_relative = f"assets/v0.2.5-agents/{role_name}.toml"
+        v025_path = role_assets / f"v0.2.5-agents/{role_name}.toml"
+        v025 = load_toml(v025_path)
+        if v025.get("name") != role_name:
+            fail(f"Skill-owned v0.2.5 remove seed identity differs from filename: {role_name}")
+        if v025_relative not in lifecycle:
+            fail(f"setup lifecycle must reference v0.2.5 remove snapshot: {role_name}")
+    for relative in (
+        "skills/kiss-my-agent-setup/SKILL.md",
+        "skills/kiss-my-agent-setup/configure-agents.md",
+    ):
+        if "assets/v0.2.5-agents" in (root / relative).read_text(encoding="utf-8"):
+            fail(f"v0.2.5 remove snapshots must not be consumed by {relative}")
     effective_chain = [
         root / "AGENTS.md",
         fixture / "AGENTS.md",

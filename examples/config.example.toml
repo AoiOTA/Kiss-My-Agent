@@ -1,22 +1,14 @@
-# KISS My Agent default model, effort, and enablement example.
+# KISS My Agent enablement example.
 #
-# This file is inert at examples/config.example.toml. Setup adds the master
-# model/effort pair only when both keys are absent and the managed block is
-# absent or well-formed outdated. These categories are mutually exclusive: a
-# current block never receives missing master keys, and any missing key remains
-# inherited when either key already exists. Feature defaults are added independently
-# when absent. Every existing value is preserved, marked or unmarked. These are
-# defaults, not enforcement. This inert example and a static setup check do not
-# resolve the final runtime value across Codex configuration layers or prove
-# Host/account model support.
+# This file is inert at examples/config.example.toml. Setup adds each missing
+# public switch independently and preserves every existing value, marked or
+# unmarked. KISS My Agent does not set the master model or effort; choose them
+# through the Host, conversation, or another Codex configuration layer.
 #
 # Standalone roles are discovered from <scope>/agents/*.toml. Do not register
-# individual role files here. The current bundled roles set gpt-5.6-sol with
-# high/high/xhigh effort for explorer/coder/reviewer. KISS My Agent does not set
-# context or concurrency defaults.
-
-model = "gpt-5.6-sol"
-model_reasoning_effort = "max"
+# individual role files here. Current bundled roles omit model and set medium
+# effort for explorer, coder, and reviewer. KISS My Agent does not set context
+# or concurrency defaults.
 
 [features]
 multi_agent = true

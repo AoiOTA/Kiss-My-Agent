@@ -67,7 +67,7 @@ KISS does not promise to get the first attempt right. It aims to produce trustwo
 <a id="quick-start"></a>
 ## Quick Start
 
-Tested with authenticated, Plugin-capable Codex CLI 0.152.1 and 0.153.0. You need `git`, GitHub network access, and account access to `gpt-5.6-sol`; other Codex versions are not verified. Normal users do not need Python, Node.js, Docker, or another language runtime.
+Tested with authenticated, Plugin-capable Codex CLI 0.152.1 and 0.153.0. You need `git` and GitHub network access; other Codex versions are not verified. Normal users do not need Python, Node.js, Docker, or another language runtime.
 
 Confirm that this Codex build supports Plugins:
 
@@ -105,7 +105,7 @@ $kiss-my-agent:kiss-my-agent-setup check this project
 
 Default setup manages three project locations:
 
-- `.codex/config.toml`: Master defaults and multi-Agent switches
+- `.codex/config.toml`: the two multi-Agent switches
 - `.codex/agents/`: editable employee-role files
 - `AGENTS.md`: the marked KISS instructions block
 
@@ -121,32 +121,29 @@ The **Master** is the main Codex Agent in the conversation you are using now—t
 | Who | Job | Default |
 | --- | --- | --- |
 | You / Owner | Set the goal, architecture, acceptance criteria, non-goals, and stop point | Human decision |
-| Master | Plan, assign work, resolve conflicts, judge evidence, and summarize | `gpt-5.6-sol` / `max` |
-| `kiss_explorer` | Investigate and report facts without editing | `gpt-5.6-sol` / `high` |
-| `kiss_coder` | Implement the assigned change and run its checks | `gpt-5.6-sol` / `high` |
-| `kiss_reviewer` | Independently inspect the result without editing | `gpt-5.6-sol` / `xhigh` |
+| Master | Plan, assign work, resolve conflicts, judge evidence, and summarize | Host/conversation selection |
+| `kiss_explorer` | Investigate and report facts without editing | inherited model / `medium` |
+| `kiss_coder` | Implement the assigned change and run its checks | inherited model / `medium` |
+| `kiss_reviewer` | Independently inspect the result without editing | inherited model / `medium` |
 
-These are editable defaults, not locks. The Master normally assigns directly, may use multiple instances of a role, keeps one Agent responsible for each shared item, and may give one temporary lead to a large independent subsystem.
+KISS does not pin the Master's model or effort. Its starter roles also have no role-level model pin and set only `medium` effort. The Master normally assigns directly, may use multiple instances of a role, keeps one Agent responsible for each shared item, and may give one temporary lead to a large independent subsystem.
 
 The same instructions require the Master to report when delegation is unavailable instead of silently doing the employees' work. You then choose whether to repair the team or explicitly continue this task as a normal single conversation.
 
 The company comparison only explains responsibilities; it is not a fixed workflow or game system.
 
 <a id="configure-agents"></a>
-## Only Read This If You Want Different Defaults
+## Only Read This If You Want Different Model Settings
 
-Change the Master in the selected configuration file:
+Choose the Master's model and effort through the Host or conversation. For a complex KISS task, if your account and Host offer it, you can start with **GPT-6 Astra / High**. This is a recommendation, not a KISS default or requirement.
 
-- project: `<project>/.codex/config.toml`
-- global: `$CODEX_HOME/config.toml`, or `~/.codex/config.toml` when `CODEX_HOME` is unset
+For child Agents, Codex resolves an explicit spawn setting first, then the corresponding `[agents]` default, then the parent; an explicit role-file value is the final override. The current starter roles omit `model`, so they do not apply that final model override.
 
-If the bundled default is unsupported, use values shown by the Host's model selector for one temporary launch:
+Plugin updates and setup preserve every existing role. To migrate all three existing KISS roles to the current inheritance and effort settings, use this exact qualified prompt:
 
-```bash
-codex --model YOUR_SUPPORTED_MODEL --config 'model_reasoning_effort="YOUR_SUPPORTED_EFFORT"'
+```text
+$kiss-my-agent:kiss-my-agent-setup configure agents in this project: for kiss_explorer, kiss_coder, and kiss_reviewer, set model to inherit and model_reasoning_effort to medium
 ```
-
-Codex reports the unsupported setting; KISS does not silently choose a fallback. After the temporary launch, edit the Master config above and use the role wizard below for employees.
 
 Configure existing employee roles through Codex:
 
@@ -154,7 +151,7 @@ Configure existing employee roles through Codex:
 $kiss-my-agent:kiss-my-agent-setup configure agents for this project
 ```
 
-The role wizard changes only an existing role's model, reasoning effort, and permission mode; it does not modify the Master. See [Configuration](docs/CONFIGURATION.md) for global roles, precedence, permissions, and recovery details.
+The role wizard changes only an existing role's model, reasoning effort, and permission mode; it does not modify the Master. See [Configuration](docs/CONFIGURATION.md) for global roles, exact precedence, permissions, and legacy setup migration details.
 
 <a id="updates"></a>
 ## Update Now

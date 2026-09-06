@@ -36,7 +36,7 @@ It is aimed primarily at Codex users building research MVPs, validating algorith
 <a id="install"></a>
 ## How do I install it?
 
-The tested baselines are authenticated, Plugin-capable Codex CLI 0.152.1 and 0.153.0. You also need `git`, GitHub network access, and account support for the bundled default model `gpt-5.6-sol`. Other Codex versions are not verified. Check the client first:
+The tested baselines are authenticated, Plugin-capable Codex CLI 0.152.1 and 0.153.0. You also need `git` and GitHub network access. Other Codex versions are not verified. Check the client first:
 
 ```bash
 codex --version
@@ -79,21 +79,23 @@ The configured project then owns its `.codex/config.toml`, standalone role TOML 
 Use it for one consequential, non-obvious decision—for example, whether to keep planning or add a persistent mechanism, or first run a safe, low-cost, recoverable probe. It also applies to a local fix versus a new system, experiment validity, evidence strength, or material scope expansion. Do not use it as a wrapper around ordinary implementation, tests, builds, Git, lookup, or formatting. `kiss-my-agent-setup` is a separate operational Skill.
 
 <a id="configure"></a>
-## How do I configure the master or initial Agents?
+## How do I choose the master and configure initial Agents?
 
-The bundled defaults use `gpt-5.6-sol`: the master uses `max`, `kiss_explorer` and `kiss_coder` use `high`, and `kiss_reviewer` uses `xhigh`. The Host and account must support these values. The managed-block classifications are mutually exclusive: a current block never receives missing master keys; an absent or recognized-outdated block receives the pair only when both keys are absent; otherwise existing assignments are preserved and each missing key remains absent for inheritance. Later setup or Plugin updates do not reset these choices.
+KISS does not set the master's model or effort. Choose both through the Host or conversation. For a complex KISS task, if the account and Host offer it, you can start with **GPT-6 Astra / High**; this is a recommendation, not a bundled default or requirement. Current starter roles omit `model` and set `model_reasoning_effort = "medium"`.
 
-The master is not a role and cannot be changed by the role wizard. For project setup, edit `<project>/.codex/config.toml`. For global setup, edit `$CODEX_HOME/config.toml`, or `~/.codex/config.toml` when `CODEX_HOME` is unset. If the master cannot start because those values are unsupported, use one temporary CLI override, repair the persistent config, and start another new session:
-
-```bash
-codex --config 'model="HOST_SUPPORTED_MODEL_ID"' --config 'model_reasoning_effort="HOST_SUPPORTED_EFFORT"'
-```
+For child Agents, Codex resolves an explicit spawn setting first, then the corresponding `[agents]` default, then the parent; an explicit role-file setting is the final override. The current seeds have no final model override. The master is not a role and cannot be changed by the role wizard.
 
 Use the conversational wizard only for existing role TOML files:
 
 ```text
 $kiss-my-agent:kiss-my-agent-setup configure agents for this project
 $kiss-my-agent:kiss-my-agent-setup configure global agents
+```
+
+Plugin updates and setup leave every existing role unchanged. To migrate all three existing KISS roles to the current inheritance and effort settings, use:
+
+```text
+$kiss-my-agent:kiss-my-agent-setup configure agents in this project: for kiss_explorer, kiss_coder, and kiss_reviewer, set model to inherit and model_reasoning_effort to medium
 ```
 
 You can also edit `.codex/agents/*.toml` or `$CODEX_HOME/agents/*.toml` directly. The wizard does not modify master config, create, delete, or rename roles, and does not hard-code a changing model catalog.
@@ -120,7 +122,7 @@ codex plugin list --marketplace kiss-my-agent
 
 On the verified Codex 0.152.1 baseline, the Host automatically refreshes a default unpinned Git marketplace at startup and reinstalls an enabled non-curated Plugin. KISS My Agent contains no updater of its own, and other versions may behave differently. After the commands above complete, expect `kiss-my-agent@kiss-my-agent` to be `installed, enabled` at the current supported release. Start a new session after an update changes the installed Plugin.
 
-Automatic refresh and explicit marketplace upgrade update only the Plugin package. They do not change project or global config, instructions, or role files. A v0.1-managed project may run setup after updating to refresh its managed instruction block and add missing public switches, but every existing role stays directly unchanged. Use the role wizard or edit role TOML manually to adopt newer model or effort choices.
+Automatic refresh and explicit marketplace upgrade update only the Plugin package. They do not change project or global config, instructions, or role files. A previously managed project may run setup after updating to refresh its managed instruction block, add missing public switches, and remove only the exact legacy marked master pair described in Installation, but every existing role stays directly unchanged. Use the qualified role-wizard prompt above or edit role TOML manually to adopt the current inheritance and effort settings.
 
 See [Installation](INSTALLATION.md#update) for explicit-only marketplace pinning, rollback, and the commands that restore the current unpinned channel.
 
@@ -137,7 +139,7 @@ No. They are editable standalone starter-role files, not a closed list or mandat
 <a id="existing-files"></a>
 ## What if I already have config, AGENTS, or role files?
 
-Setup manages four settings but does not fill all four independently. The managed-block classifications are mutually exclusive: a current block never receives missing master keys; an absent or recognized-outdated block receives the pair only when both keys are absent; otherwise existing assignments are preserved and each missing key remains absent for inheritance. Each missing public switch is added independently. Existing marked or unmarked assignments, unrelated content, explicit `false` values, and every existing role remain byte-for-byte.
+Setup manages only the two public switches and adds each missing marked `true` independently. It also removes a legacy master pair only when both top-level keys occur exactly once, equal `gpt-5.6-sol` and `max`, and each line has the exact KISS marker. An unmarked, modified, missing-companion, or user-chosen custom pair remains user-owned; to restore inheritance, manually remove the top-level `model` and `model_reasoning_effort` assignments you own and start a new session. Duplicate assignments, invalid TOML, or ambiguous ownership remain conflicts. Existing unrelated content, explicit `false` values, and every existing role remain byte-for-byte.
 
 Setup, check, and remove inspect only the selected KISS config and AGENTS paths plus the exact `kiss_explorer.toml`, `kiss_coder.toml`, and `kiss_reviewer.toml` targets in that scope. An unsafe or invalid managed target, a mismatched bundled identity, an ownership conflict, or an applicable `AGENTS.override.md` stops the operation before writing. Other role files and the other scope are not parsed or reconciled: the Host owns catalog warnings and project-over-global precedence. For role configuration, a named request parses only the named targets; an unnamed request lists paths first and parses only the roles you then select. Invalid unselected roles do not block it.
 
@@ -146,7 +148,7 @@ Use the reported reason and exact path to resolve the conflict without overwriti
 <a id="remove"></a>
 ## What does remove delete?
 
-Only the four KISS-marked config assignments, the delimited managed AGENTS block, and role files that exactly match a current or known v0.1 bundled seed in the explicitly selected scope. Other role files and unmarked config remain. Removing setup does not uninstall the Plugin.
+Only the two current KISS-marked switches and any exact legacy marked master pair, the delimited managed AGENTS block, and role files that exactly match a current, known v0.2.5, or known v0.1 bundled seed in the explicitly selected scope. Other role files and unmarked config remain. Removing setup does not uninstall the Plugin.
 
 <a id="verification"></a>
 ## How do I confirm it works?

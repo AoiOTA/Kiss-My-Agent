@@ -12,7 +12,7 @@ The [latest GitHub Release](https://github.com/AoiOTA/Kiss-My-Agent/releases/lat
 <a id="requirements"></a>
 ## User requirements
 
-The tested baselines are authenticated, Plugin-capable Codex CLI 0.152.1 and 0.153.0. Installation and updates also require a usable `git` executable on `PATH`, GitHub network access, and account support for the bundled default model `gpt-5.6-sol`. Other Codex versions are not verified. Project setup, checks, removal, and Agent configuration use Codex's own file tools. Users do not need Python, Node.js, Docker, or a package manager.
+The tested baselines are authenticated, Plugin-capable Codex CLI 0.152.1 and 0.153.0. Installation and updates also require a usable `git` executable on `PATH` and GitHub network access. Other Codex versions are not verified. Project setup, checks, removal, and Agent configuration use Codex's own file tools. Users do not need Python, Node.js, Docker, or a package manager.
 
 Python 3.11 or newer is a contributor-only requirement for repository tests and the documentation site. It is not a Plugin runtime dependency.
 
@@ -60,29 +60,31 @@ When you need live discovery evidence, run `/skills` in that fresh session and c
 
 Project setup manages only the selected target:
 
-- `.codex/config.toml`: manages four settings—the paired initial master defaults `model = "gpt-5.6-sol"` and `model_reasoning_effort = "max"`, plus the two public enablement switches. The managed-block classifications are mutually exclusive: a current block never receives missing master keys; an absent or recognized-outdated block receives the pair only when both keys are absent; otherwise existing assignments are preserved and each missing key remains absent for inheritance. Each missing feature switch is added independently.
-- `.codex/agents/`: during fresh setup, installs any missing editable starter role with `gpt-5.6-sol` / `high` for `kiss_explorer` and `kiss_coder`, and `gpt-5.6-sol` / `xhigh` for `kiss_reviewer`. Setup inspects only these three exact target paths, not the complete role directory or another scope. Every role that already exists is user-owned and remains byte-for-byte unchanged. After setup, an absent starter is a valid intentionally absent catalog entry and is not recreated.
+- `.codex/config.toml`: manages only the two public enablement switches, adding each missing marked `true` value independently. It does not create, fill, or validate a master model or effort. For compatibility, setup removes an exact legacy KISS-marked `gpt-5.6-sol` / `max` top-level pair only under the strict conditions below.
+- `.codex/agents/`: during fresh setup, installs any missing editable starter role without a role-level `model` pin and with `model_reasoning_effort = "medium"`. Setup inspects only these three exact target paths, not the complete role directory or another scope. Every role that already exists is user-owned and remains byte-for-byte unchanged. After setup, an absent starter is a valid intentionally absent catalog entry and is not recreated.
 - `AGENTS.md`: appends one bounded KISS managed block while preserving existing instructions.
 
-These are initial defaults, not locks. The Host and account must support the selected model and effort. Existing target values are preserved, and later setup or Plugin updates do not reset them. Plugin cache role files are package resources; they do not automatically enter the Host role catalog, so fresh setup is still required. Master settings live in `config.toml`; role settings live in standalone role TOML files. The managed instructions keep the master on strategy, architecture and acceptance decisions, orchestration, conflict resolution, evidence interpretation, and synthesis, with investigation, implementation, and review assigned to roles.
+KISS does not set the master model or effort; choose both through the Host, conversation, or another Codex configuration layer. For a complex KISS task, if the account and Host offer it, you can start with **GPT-6 Astra / High**. This is a recommendation, not a KISS default or requirement. Plugin cache role files are package resources; they do not automatically enter the Host role catalog, so fresh setup is still required. Role settings live in standalone role TOML files. The managed instructions keep the master on strategy, architecture and acceptance decisions, orchestration, conflict resolution, evidence interpretation, and synthesis, with investigation, implementation, and review assigned to roles.
 
 The managed instructions call for flat coordination by default: direct assignment to current roles, including multiple instances of the same role, while every shared file or slow resource keeps one writer/operator. Only a large independent subsystem whose direct aggregation would pollute master context may receive one temporary bounded department lead. Its workers cannot delegate again, and the assignment ends with the task; no deeper or permanent hierarchy is created.
 
 The Skill itself remains Plugin-owned and is never copied into the project. Setup does not install software, establish trust, start Codex, or alter global configuration.
 
 <a id="configure-agents"></a>
-## Configure the Master or existing Agents
+## Choose the Master and configure existing Agents
 
-The bundled model/effort values are editable defaults. For project setup, change the master in `<project>/.codex/config.toml`. For global setup, use `$CODEX_HOME/config.toml`, or `~/.codex/config.toml` when `CODEX_HOME` is unset. The role wizard cannot modify the master. If an unsupported persistent value prevents the master from starting, use this temporary highest-precedence override for one launch, repair the persistent config, and then start another new session:
-
-```bash
-codex --config 'model="HOST_SUPPORTED_MODEL_ID"' --config 'model_reasoning_effort="HOST_SUPPORTED_EFFORT"'
-```
+Choose the master model and effort through the Host or conversation; setup and the role wizard do not modify them. An explicit spawn setting for a child resolves before the corresponding `[agents]` default and the parent, then an explicit role-file setting is the final override. Current starters omit `model` and therefore do not apply that final model override.
 
 To change an existing role's model, reasoning effort, or sandbox default through the conversational wizard, run:
 
 ```text
 $kiss-my-agent:kiss-my-agent-setup configure agents for this project
+```
+
+Plugin updates and setup preserve every existing role. To migrate all three existing KISS roles to the current inheritance and effort settings, use this exact qualified prompt:
+
+```text
+$kiss-my-agent:kiss-my-agent-setup configure agents in this project: for kiss_explorer, kiss_coder, and kiss_reviewer, set model to inherit and model_reasoning_effort to medium
 ```
 
 The wizard edits only existing role TOML files and previews the exact changes before writing. If the request names roles, it resolves and parses only those files. Otherwise it first lists direct role paths without parsing them, waits for your selection, and then parses only the selected files. An invalid unselected role does not block configuration; broader catalog warnings and precedence remain the Host's responsibility. The wizard does not modify master config, create, delete, or rename roles. You can also edit `.codex/agents/*.toml` directly; see [Configuration](CONFIGURATION.md).
@@ -98,16 +100,16 @@ $kiss-my-agent:kiss-my-agent-setup check global setup
 $kiss-my-agent:kiss-my-agent-setup configure global agents
 ```
 
-It manages `config.toml`, `agents/`, and the KISS block in `AGENTS.md` under `$CODEX_HOME`. When `CODEX_HOME` is unset, the global master config is `~/.codex/config.toml`. Global state can affect every project that loads that Codex home, so prefer project scope for project-specific behavior.
+It manages the two switches in `config.toml`, starter roles under `agents/`, and the KISS block in `AGENTS.md` under `$CODEX_HOME`. When `CODEX_HOME` is unset, the global config is `~/.codex/config.toml`. Global state can affect every project that loads that Codex home, so prefer project scope for project-specific behavior.
 
 <a id="collision-policy"></a>
 ## Collision and override policy
 
 | Existing state | Required behavior |
 | --- | --- |
-| Managed block current, regardless of which master keys are present | Preserve existing assignments and leave every missing key absent for inheritance. |
-| Managed block absent or recognized as outdated, and both master keys absent | Add the marked model/effort pair together. |
-| Managed block absent or recognized as outdated, and either master key exists | Preserve existing assignments and leave any missing companion absent for inheritance; never fill the pair one key at a time. |
+| Both legacy top-level master keys occur exactly once, equal `gpt-5.6-sol` / `max`, and each line has the exact KISS marker | Remove the pair together during setup. |
+| A legacy master assignment is unmarked, modified, missing its companion, or is a user-chosen custom pair | Preserve it as user-owned and report that restoring inheritance requires manually removing the owned top-level `model` and `model_reasoning_effort` assignments, then starting a new session. |
+| A master assignment is duplicated, TOML is invalid, or ownership is ambiguous | Stop as a conflict; do not migrate or repair by guesswork. |
 | Either public switch absent | Add only that missing marked `true` assignment. |
 | Existing public switch, marked or unmarked | Preserve its complete assignment, including `false`. |
 | Unrelated config keys or AGENTS content | Preserve them. |
@@ -134,7 +136,7 @@ codex plugin list --marketplace kiss-my-agent
 
 KISS My Agent has no updater of its own. On the verified Codex 0.152.1 baseline, the Host can refresh an unpinned Git marketplace at startup and reinstall an enabled non-curated Plugin; other versions may differ. After the commands above complete, verify that `kiss-my-agent@kiss-my-agent` is `installed, enabled` at the current supported release. Start a new session after an update changes the installed Plugin.
 
-Host refresh updates only the Plugin package. It does not modify project or global config, AGENTS instructions, or role files. For a v0.1-managed project, you may run `$kiss-my-agent:kiss-my-agent-setup set up this project` after upgrading to refresh the managed instruction block and add missing public switches, but every existing role file remains directly unchanged. Setup never compares existing roles with bundled historical seeds, assigns them a version, or migrates them. To adopt a newer model or effort, use the existing-role wizard or edit the role TOML manually.
+Host refresh updates only the Plugin package. It does not modify project or global config, AGENTS instructions, or role files. For a previously managed project, you may run `$kiss-my-agent:kiss-my-agent-setup set up this project` after upgrading to refresh the managed instruction block, add missing public switches, and remove only the exact legacy marked master pair described above; every existing role file remains directly unchanged. Setup never compares existing roles with bundled historical seeds, assigns them a version, or migrates them. To adopt the current role inheritance and `medium` effort settings, use the exact qualified wizard prompt above or edit the role TOML manually.
 
 If you require marketplace movement to happen only after an explicit action, replace the unpinned Git marketplace with a tag-pinned source:
 
@@ -178,7 +180,7 @@ $kiss-my-agent:kiss-my-agent-setup check global setup
 $kiss-my-agent:kiss-my-agent-setup remove global setup
 ```
 
-`check` inspects managed filesystem state only. An existing role is reported as user-owned; a starter missing after setup is reported as intentionally absent, not outdated or incomplete. Explicit `remove` deletes only KISS-marked assignments for the master model/effort and two public switches, the managed AGENTS block, and bundled roles whose bytes exactly match a current or known v0.1 seed in the chosen scope. Other role files remain user-owned. Removing setup does not uninstall the Plugin.
+`check` inspects managed filesystem state only. It does not use master model or effort to decide whether setup is structurally valid. An existing role is reported as user-owned; a starter missing after setup is reported as intentionally absent, not outdated or incomplete. Explicit `remove` deletes the current KISS-marked switches and any exact legacy marked master pair, the managed AGENTS block, and bundled roles whose bytes exactly match a current, known v0.2.5, or known v0.1 seed in the chosen scope. Other role files remain user-owned. Removing setup does not uninstall the Plugin.
 
 <a id="contributor-tools"></a>
 ## Contributor tools

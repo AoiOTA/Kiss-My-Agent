@@ -36,7 +36,7 @@ Codex 倾向产出“看起来完整、稳健、成功”的答案。用户又�
 <a id="install"></a>
 ## 如何安装？
 
-已测试基线是已认证且支持 Plugin 的 Codex CLI 0.152.1 和 0.153.0。还需要 `git`、GitHub 网络访问和账号支持 bundled default model `gpt-5.6-sol`。其他 Codex 版本未验证。请先检查客户端：
+已测试基线是已认证且支持 Plugin 的 Codex CLI 0.152.1 和 0.153.0。还需要 `git` 与 GitHub 网络访问。其他 Codex 版本未验证。请先检查客户端：
 
 ```bash
 codex --version
@@ -79,21 +79,23 @@ codex plugin list --marketplace kiss-my-agent
 用于一个重要且不显然的决策，例如应继续规划或增加持久机制，还是先运行一个安全、低成本、可恢复的小型 probe；也可用于局部修复还是新系统、实验有效性、证据强度或重大 scope 扩张。不要把它套在普通实现、测试、构建、Git、查询或格式化外面。`kiss-my-agent-setup` 是另一个操作型 Skill。
 
 <a id="configure"></a>
-## 如何配置 Master 或初始 Agents？
+## 如何选择 Master 并配置初始 Agents？
 
-Bundled defaults 使用 `gpt-5.6-sol`：Master 为 `max`，`kiss_explorer` 与 `kiss_coder` 为 `high`，`kiss_reviewer` 为 `xhigh`。Host 与账号必须支持这些值。Managed block 分类互斥：current block 绝不补缺失的 Master keys；block 缺失或被识别为 outdated 时，只有两个 keys 都缺失才补入这一对；其他情况都保留已有 assignments，并让每个缺失 key 继续缺失和继承。后续 setup 或 Plugin update 不会重置这些选择。
+KISS 不设置 Master model 或 effort；应通过 Host 或对话选择。对于复杂 KISS 任务，如果账号与 Host 提供该选项，可以从 **GPT-6 Astra / High** 开始；这是建议，不是 bundled default 或强制要求。Current starter roles 省略 `model` 并设置 `model_reasoning_effort = "medium"`。
 
-Master 不是 role，role wizard 不能修改它。Project setup 编辑 `<project>/.codex/config.toml`；global setup 编辑 `$CODEX_HOME/config.toml`，未设置 `CODEX_HOME` 时编辑 `~/.codex/config.toml`。如果这些值不受支持导致 Master 无法启动，请用临时 CLI override 启动一次，修复持久 config 后另开新会话：
-
-```bash
-codex --config 'model="HOST_SUPPORTED_MODEL_ID"' --config 'model_reasoning_effort="HOST_SUPPORTED_EFFORT"'
-```
+对子 Agent，Codex 会先解析显式 spawn 设置，再解析对应的 `[agents]` default，最后解析 parent；role 文件中的显式设置是最终 override。Current seeds 没有最后这一层模型 override。Master 不是 role，role wizard 不能修改它。
 
 对话向导只用于已有 role TOML：
 
 ```text
 $kiss-my-agent:kiss-my-agent-setup configure agents for this project
 $kiss-my-agent:kiss-my-agent-setup configure global agents
+```
+
+Plugin update 和 setup 会保持每个已有角色不变。要把三个已有 KISS roles 迁移到当前继承与 effort 设置，请使用：
+
+```text
+$kiss-my-agent:kiss-my-agent-setup configure agents in this project: for kiss_explorer, kiss_coder, and kiss_reviewer, set model to inherit and model_reasoning_effort to medium
 ```
 
 也可以直接编辑 `.codex/agents/*.toml` 或 `$CODEX_HOME/agents/*.toml`。向导不会修改 Master config，不会创建、删除或重命名角色，也不会硬编码会变化的 model catalog。
@@ -120,7 +122,7 @@ codex plugin list --marketplace kiss-my-agent
 
 在已验证的 Codex 0.152.1 baseline 上，Host 会在启动时自动刷新默认的 unpinned Git marketplace，并重新安装已启用的 non-curated Plugin。KISS My Agent 自身没有 updater，其他版本的行为可能不同。上面命令完成后，应看到 `kiss-my-agent@kiss-my-agent` 为 `installed, enabled`，且版本与当前支持的 release 一致。更新改变已安装 Plugin 后，请启动新会话。
 
-自动 refresh 和显式 marketplace upgrade 都只更新 Plugin 包，不会修改 project/global config、instructions 或角色文件。v0.1-managed 项目更新后可以运行 setup，刷新 managed instruction block 并补充缺失的公开开关，但所有已有角色都直接保持不变。如需采用新版 model 或 effort，请使用 role wizard 或手工编辑角色 TOML。
+自动 refresh 和显式 marketplace upgrade 都只更新 Plugin 包，不会修改 project/global config、instructions 或角色文件。之前已 managed 的项目更新后可以运行 setup，刷新 managed instruction block、补充缺失的公开开关，并且只删除 Installation 中说明的准确旧 marked Master pair；所有已有角色都直接保持不变。如需采用当前 inheritance 与 effort 设置，请使用上面的准确限定 role-wizard prompt 或手工编辑角色 TOML。
 
 显式 marketplace pin、rollback 与恢复 current unpinned channel 的命令见[安装](INSTALLATION.zh-CN.md#update)。
 
@@ -137,7 +139,7 @@ codex plugin list --marketplace kiss-my-agent
 <a id="existing-files"></a>
 ## 已经有 config、AGENTS 或角色文件怎么办？
 
-Setup 管理四项 settings，但不会逐项独立补齐。Managed block 分类互斥：current block 绝不补缺失的 Master keys；block 缺失或被识别为 outdated 时，只有两个 keys 都缺失才补入这一对；其他情况都保留已有 assignments，并让每个缺失 key 继续缺失和继承。两个公开开关各自在缺失时添加。已有带 marker 或不带 marker 的 assignments、无关内容、显式 `false` 与所有已有角色都逐字节保留。
+Setup 只管理两个公开开关，分别为每个缺失项添加带 marker 的 `true`。只有两个旧顶层 Master keys 都准确出现一次、值为 `gpt-5.6-sol` 与 `max`，且每行都有准确 KISS marker 时，setup 才删除该 pair。未标记、已修改、缺少 companion 或用户自选 custom pair 都归用户所有；要恢复继承，请手工删除自己拥有的顶层 `model` 与 `model_reasoning_effort` assignments，再启动新会话。Duplicate assignments、无效 TOML 或 ownership 歧义仍属于 conflicts。已有无关内容、显式 `false` 与所有已有角色都逐字节保留。
 
 Setup、check 与 remove 只检查所选 scope 中 KISS 管理的 config、AGENTS paths，以及准确的 `kiss_explorer.toml`、`kiss_coder.toml` 和 `kiss_reviewer.toml` targets。不安全或无效的 managed target、bundled identity 不匹配、ownership conflict 或适用的 `AGENTS.override.md` 会在写入前停止。其他角色文件和另一 scope 不会被解析或协调：catalog warning 和 project-over-global precedence 由 Host 负责。配置角色时，已经点名的请求只解析点名目标；未点名的请求先列出 paths，随后只解析用户选中的角色。无效的未选角色不会阻塞操作。
 
@@ -146,7 +148,7 @@ Setup、check 与 remove 只检查所选 scope 中 KISS 管理的 config、AGENT
 <a id="remove"></a>
 ## Remove 会删除什么？
 
-只删除明确 scope 中四个 KISS-marked config assignments、delimited managed AGENTS block，以及与 current 或 known v0.1 bundled seed 完全一致的角色文件。其他角色文件与不带 marker 的 config 都会保留。移除 setup 不会卸载 Plugin。
+只删除明确 scope 中两个当前 KISS-marked switches 与任何准确的旧 marked Master pair、delimited managed AGENTS block，以及与 current、known v0.2.5 或 known v0.1 bundled seed 完全一致的角色文件。其他角色文件与不带 marker 的 config 都会保留。移除 setup 不会卸载 Plugin。
 
 <a id="verification"></a>
 ## 怎样确认它有效？
