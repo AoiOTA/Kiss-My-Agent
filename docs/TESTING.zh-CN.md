@@ -96,6 +96,10 @@ $plugin-creator update this existing KISS My Agent plugin for local development.
 
 将失败结果保留为 Host/会话测试失败：发现可见角色并未证明 delegation 可用，当时也没有子 Agent 结果。检查恢复时，应确认原生子 Agent 完成有界任务并返回结果；仅发现可见角色或成功创建子 Agent 都不够。这项观察不能确定根因，也不能证明 `--ephemeral` 普遍不兼容、CLI 0.153.4 全面兼容或 KISS 的有效性。
 
+如果项目迁移或启动路径变化后命名角色消失，应对照当前启动路径、解析后的项目目录与 Host 持久保存的项目信任条目。Role TOML 文件存在，不代表该项目 scope 已加载。在另一项 CLI 0.153.4 的 PawWeaver 观察中，旧符号链接路径受信任，但规范启动目录未列入持久项目信任。临时 CLI trust override 未恢复发现；仅补入用户授权的规范项目路径信任条目后，普通新会话恢复了原生角色 catalog。随后三个原生 KISS 角色均完成有界只读任务，spawn 参数与子会话记录确认了角色身份及 Astra/medium 执行。这是项目信任与发现恢复，不是 KISS 代码缺陷，也不能证明更广泛的任务有效性。
+
+在用户授权范围内，通过 Host 修复实际观察到的当前项目信任不匹配，保留已有条目，再检查新会话中的原生角色执行。Role 文件保持在原定项目 scope；这项观察不构成把角色移到 global scope、重装 Plugin 或修改无关 feature flags 的理由。文件存在、发现可见与原生子任务完成仍是不同层级的证据。
+
 <a id="skill-smoke"></a>
 ## Skill 发现 Smoke
 

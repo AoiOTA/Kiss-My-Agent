@@ -96,6 +96,10 @@ For live delegation testing, use a regular fresh session; with `codex exec`, omi
 
 Preserve the failed outcome as a Host/session test failure: discovery did not establish working delegation, and no child result existed. To check recovery, confirm that a native child completes the bounded task and returns its result; successful discovery or spawning alone is insufficient. This observation does not establish the root cause, general `--ephemeral` incompatibility, full CLI 0.153.4 compatibility, or KISS effectiveness.
 
+If named roles disappear after moving a project or changing its launch path, compare the current launch path and resolved project directory with the Host's persisted project trust entry. Role TOML files can exist while that project scope is not loaded. In a separate PawWeaver observation on CLI 0.153.4, the old symlink path was trusted but the canonical launch directory was absent from persisted project trust. A temporary CLI trust override did not restore discovery; adding only the authorized canonical project trust entry restored the native role catalog in a fresh ordinary session. All three native KISS roles then completed bounded read-only tasks; spawn arguments and child session records identified the roles and Astra/medium execution. This was project trust/discovery recovery, not a KISS code defect or proof of broader task effectiveness.
+
+Repair the observed current-project trust mismatch through the Host under the user's authorization, preserving existing entries, then check fresh native role execution. Keep role files in their intended project scope; this observation does not justify moving them into global scope, reinstalling the Plugin, or changing unrelated feature flags. File existence, discovery, and a completed native child task remain distinct evidence.
+
 <a id="skill-smoke"></a>
 ## Skill discovery Smoke
 
