@@ -19,7 +19,11 @@
 
 - 后续用户再次指出 KMA 未持续主动指导、master 推进计划遗漏共同目标。只读核对确认当时 dogfood、实际 Plugin 源、`134518` 缓存入口及 setup producer 相同，Paw managed block 也与 producer 相同；但运行任务仍拿到 `092529` 旧 catalog description 与旧 managed 指令快照。`fork_turns=none` 不证明宿主重新发现目录；安装成功与两次主动读取都不能解释为持续指导已经解决。
 - 本轮 mutable 候选把入口读取前移到每个 KMA-managed assignment 开始，由每个 agent 先读当前入口一次再判断适用；随后将路由绑定到下一步选择或修改、分工、研究结果或执行状态结论，复用仍有效的指导，机械执行不反复阅读、审查或记录。Managed producer 与本仓库 AGENTS 用简短入口引用承接；engineering 规则明确 master 在委派与交接保留全部未完成授权目标，worker 保留自己完整 assignment。安全、权限、单资源 owner 与真人架构/验收边界不变，无新状态、审批、遥测或 startup marker。
-- 独立 review 发现拟加的 seed 前缀会破坏既有角色 remove 匹配；master 复核当前消费者后直接撤去此前缀及只为它增加的兼容快照和校验，因为现有与新设角色均已由 managed block 承接入口要求。现有角色与原 remove 匹配保持不变，无需为冗余前缀维护历史。精简候选通过独立 review 后，仅同步四个审查过的入口/规则文件到实际 Plugin 源，保留其独立 HANDOFF；标准 cachebuster/add 安装为 `0.2.7+codex.20260909152724`，四个缓存文件与审查源逐字节相同。Paw managed block 已刷新，用户目标段、config 与三个角色逐字保留。最终文档写入后的静态和 whitespace 校验、Plugin validation 通过；未 tag、push 或发布。宿主旧目录问题不能由插件文字修改保证修复，不宣称 catalog 热刷新；新候选的真实下一步决策行为验证仍待进行，静态与安装通过不替代实际指导效果。
+- 独立 review 发现拟加的 seed 前缀会破坏既有角色 remove 匹配；master 复核当前消费者后直接撤去此前缀及只为它增加的兼容快照和校验，因为现有与新设角色均已由 managed block 承接入口要求。现有角色与原 remove 匹配保持不变，无需为冗余前缀维护历史。精简候选通过独立 review 后，仅同步四个审查过的入口/规则文件到实际 Plugin 源，保留其独立 HANDOFF；标准 cachebuster/add 安装为 `0.2.7+codex.20260909152724`，四个缓存文件与审查源逐字节相同。Paw managed block 已刷新，用户目标段、config 与三个角色逐字保留。最终文档写入后的静态和 whitespace 校验、Plugin validation 通过；未 tag、push 或发布。宿主旧目录问题不能由插件文字修改保证修复，不宣称 catalog 热刷新；静态与安装通过不替代实际指导效果；后续真实任务观察如下。
+
+- 安装后的两个 fresh `fork_turns=none` 任务均未额外点名 KMA：`pose_pair_next_step` 与 `pose_visual_run` 遇到旧 `092529` catalog 路径不存在后，自行找到 `152724` 完整读取入口与实验规则。前者核实 w1/w4 的实际完成状态并纠正 runbook/validation；保留 PhysX 八例位置全退步、朝向全改善与 MuJoCo 位置四好四差、朝向全改善，失败空文件不算报告。它选择复用已保存 trace 做 CPU 关联分析作为下一步建议，未新增机制，也未把关联分析写成动态因果证据。
+- 后者确认既有 `run_visual` 可接诊断 runner，选择 artifact 驱动而未增加新 CLI 或生产改动；真实 20 秒固定世界目标 RGB-D 闭环 exit 0、墙钟 27.38 秒。已只读核对 Paw artifact `diagnostic_pose_visual_control/README.md` 与 `closed_loop20/summary.json`：601/601 捕获检测成功、999/1000 控制步有有效测量，仅初始一步等待图像而 hold；TCP RMSE 为 0.0188959 m / 0.0852529 rad，现有跌倒判据未触发，视频第 0/499/999 帧验证可解码。该证据使用仿真里程计与临时参数，只覆盖固定目标短闭环，不证明动态目标、稳定站立、实物相机精度、60 秒视觉里程碑或正式位姿验收。
+- 这两次观察支持本次自然调用与有用取舍：复用实际产物、保留负面结果，并让短探查服务于可运行闭环；不证明持续稳定指导、普遍成熟或宿主 catalog 热刷新。未观察到新的 KMA 行为缺陷，本轮不再修改规则或安装；继续在实际 Paw 决策中观察效果，未发布。
 
 
 ## 未发布候选：v0.2.7 Astra 增量升级（基于 v0.2.6）
