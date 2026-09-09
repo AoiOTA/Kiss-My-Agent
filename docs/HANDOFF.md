@@ -42,6 +42,9 @@
 - 该诊断保留两次PhysX失败：首次退出1的原异常被artifact finally中的launcher.close遮住；顶层打印／flush／重抛后retry1仍非零并显露旧配置缺 `orientation_tracking`。仅在artifact补未消费奖励权重0、保持输入与物理不变后retry2完成7秒，原脚本／日志／状态分别留在 `first_attempt_preserved` 与 `retry1_attempt_preserved`。这是既有保留失败原因、owner最小修复指导在真实路径的应用；未发现需新增规则或平台的产品缺陷，不为两次故障添加通用checklist。
 - 这支持本次自主局部选择有用，不证明持续稳定触发，也不能把选择全部归因于KMA。用户核心目标仍是master与child持续自动应用和纠偏、减少过度设计／防御并加快真实MVP；读取、安装和测试数不计为目标完成，本次保持Skill不变，继续用实际任务结果检验。
 
+- 当前唯一新学习对照复用现成 `adaptive_sampling: false→true`，已于UTC22:59:24.647493实际启动250轮训练，四项固定后测未执行。共同原leg_std/control249起点、fresh Adam／LR1e-5／seed0、softsign／P10T50／stage2／60秒及4096×24×5×4不变，复用已完成uniform softsign250与四后测。uniform实际已有7,463次非跌倒60秒超时，不能归因于24步fragment没有长回合；末family EMA reach5.83／arc2.65、其他.21–.56而reset六类等概率，支持检验既有样本分配。
+- 自适应errors1／counts0／初始概率1/6，不恢复源统计；choice与integers消耗RNG不同，不能声称逐轨迹或实际初始动作相同。EMA仅含位置／跌倒，不含朝向，任务收益须由真实双引擎test8与far60判断，尚无采用结论。此次具体取舍是复用实现、控制与既有checkpoint读出，无新采集schema、平台或预算网格；未观察新KMA产品缺陷，持续自主指导与整体速度收益仍待实际证据。
+
 
 ## 未发布候选：v0.2.7 Astra 增量升级（基于 v0.2.6）
 
