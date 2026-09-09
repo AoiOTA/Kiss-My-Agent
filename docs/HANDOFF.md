@@ -9,8 +9,10 @@
 - Skill 主动覆盖执行中出现的机制、失败处理、阻塞和证据决策；按行为读取一个规则与匹配案例。每个 agent 对自己执行中新出现的决策应用路由，master 阅读不能替代 worker。已经决定的机械工作不重复审查。新增字段本身需有消费者；有限执行或参数更新不能回答学习是否改善任务。
 - Reviewer seed 可审查 assigned change or decision；精确历史比较仅允许这一已知正文差异，remove-only snapshots 未变。PawWeaver 显式同步 managed block 和 reviewer 首句，保留 model、effort、sandbox 与非 managed 目标。
 - 实际 pose batch-8 评估已完成，用时 49.73 秒；不再为后续批量评估重复申请授权或要求 exact-hold 串行门槛。这个观察支持执行路径改善，不证明自动 Skill 触发、学习改善、硬件有效性或正式里程碑完成。
-- 本机实际源 `/home/lyb/plugins/kiss-my-agent` 与 dogfood 是独立副本。本次比较后仅复制九个批准文件，保留安装源的其他 docs 差异；通过 cachebuster helper 与 `codex plugin add kiss-my-agent@personal` 安装 `0.2.7+codex.20260909133617`，缓存位于 `/home/lyb/.codex/plugins/cache/personal/kiss-my-agent/0.2.7+codex.20260909133617`。未手改 marketplace，未 tag、push 或发布。
-- 本轮 `scripts/validate.py`、18 个 `tests.test_setup` 测试、Skill quick validation、Plugin validation 与 whitespace 检查通过；缓存内九个文件与已验证源逐字节相同。此为静态和安装证据；现有对话 catalog 不会据此自动更新，需新线程检验新入口加载及自然决策路由。
+- 本机 personal marketplace 指向的实际 Plugin 源与 dogfood 是独立副本。本次比较后仅复制九个批准文件，保留安装源的其他 docs 差异；通过 cachebuster helper 与 `codex plugin add kiss-my-agent@personal` 安装 `0.2.7+codex.20260909133617`，已核对对应 personal Plugin 版本缓存。未手改 marketplace，未 tag、push 或发布。
+- 源变更的 `scripts/validate.py`、18 个 `tests.test_setup` 测试、Skill quick validation、Plugin validation 与 whitespace 检查通过；缓存内九个文件与已验证源逐字节相同。此为静态和安装证据；现有对话 catalog 不会据此自动更新。
+- 随后的真实 fresh `pose_result_comparison` 子任务没有额外 KMA 提醒，自行读取新安装 Skill、实验规则与 product-contract 案例，并选择 artifact 局部比较，未扩展同策略跨引擎 API。这支持本次自然触发已发生；但它在固定 suite identity 与 case 已检查后仍添加整份 `trajectory` metadata equality gate，RentTest 判断仍失误。Root 主动 review 自行发现并要求修正；实际 owner 已删除该 gate。真实 pre artifact 的内存说明字段差异不再阻断，case 集合不一致仍按预期报错，两项检查整体 exit 0；未伪造 post artifact。
+- 该观察对应的 mutable 源候选仅在既有 product-contract 案例 reject 段补充：所需输入与 identity 已检查时，不将含描述性或无关字段的整个 metadata 容器相等作为额外前提。入口 Step 2 与其他规则保持不变：现有案例已足以判断，没有证据表明强制再读第二规则能改变行为。这个局部修复不证明稳定自发指导效果或问题全面解决，公开前继续在真实 PawWeaver 工作中自测，尚未发布。 本次仅同步该案例到独立实际 Plugin 源，保留其不同 HANDOFF；标准 cachebuster/install 流程已安装 `0.2.7+codex.20260909134518`，缓存案例与源逐字节相同。最终文档写入后再次通过静态与 whitespace 校验，Plugin validation 通过；这些检查不替代后续真实行为验证。本次文档校验发现此前安装记录写入私有绝对路径，已改为源与缓存角色描述；此前源校验发生在安装记录写入前，不覆盖该最终文档。
 
 
 ## 未发布候选：v0.2.7 Astra 增量升级（基于 v0.2.6）

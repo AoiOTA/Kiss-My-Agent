@@ -14,6 +14,8 @@ Retain commit or artifact identity when CI, tag creation, Release publication, o
 Agent-authored receipts, attestations, duplicate manifests, evidence hashes, and approval states that no product consumer reads and that exist only to prove workflow completion.
 When complete legacy bytes are already preserved as runtime migration input and the consumer compares them directly, an additional hard-coded digest read only by its own test is duplicate agent proof. For small content-change checks, retain the bytes directly instead of adding a second hash.
 
+When the inputs and identity required for a comparison are already checked, do not add equality of an entire metadata container containing descriptive or unrelated fields as another prerequisite.
+
 ## Deletion counterfactual
 If deleting an identity field cannot change runtime selection, compatibility, safety, or the stated reproducibility claim, it is agent proof rather than a product contract.
 
