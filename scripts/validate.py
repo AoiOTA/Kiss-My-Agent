@@ -311,8 +311,13 @@ def validate_distribution_interfaces(root: Path) -> None:
     if manifest.get("name") != "kiss-my-agent":
         fail("unexpected plugin manifest name")
     version = require_nonempty_string(manifest.get("version"), "plugin.version")
-    if not re.fullmatch(r"(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)", version):
+    if not re.fullmatch(
+        r"(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)"
+        r"(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?",
+        version,
+    ):
         fail("plugin.version must be a stable semantic version")
+    release_version = version.split("+", 1)[0]
     for key in ("description", "homepage", "repository", "license"):
         require_nonempty_string(manifest.get(key), f"plugin.{key}")
     if manifest["homepage"] != PROJECT_HOMEPAGE or manifest["repository"] != PROJECT_REPOSITORY:
@@ -389,8 +394,8 @@ def validate_distribution_interfaces(root: Path) -> None:
         fail("marketplace plugin source must use the Git URL interface")
     if source.get("url") != manifest["repository"]:
         fail("marketplace plugin URL must match plugin.repository")
-    if source.get("ref") != f"v{version}":
-        fail("marketplace plugin ref must match plugin.version")
+    if source.get("ref") != f"v{release_version}":
+        fail("marketplace plugin ref must match plugin.version without build metadata")
     policy = plugin.get("policy")
     if not isinstance(policy, dict):
         fail("marketplace plugin policy must be an object")

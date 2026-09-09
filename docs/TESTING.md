@@ -92,6 +92,10 @@ Installation, upgrade, setup, removal, and changes to config, instructions, Skil
 
 Record the OS, native shell, Codex version, Plugin version, source identity, scope, trust state, and whether the session is new. An old session cannot prove that changed configuration loaded or failed to load.
 
+For live delegation testing, use a regular fresh session; with `codex exec`, omit `--ephemeral`. In one PawWeaver dogfood comparison using Codex CLI 0.153.4 and KISS My Agent v0.2.7 in the same trusted project, `--ephemeral --json --sandbox read-only` exposed all three KISS roles and both Skills, but native `kiss_explorer` spawning failed twice with `no thread with id`. A regular `codex exec` session without `--ephemeral` subsequently spawned one native `kiss_explorer`, which completed its read-only investigation and returned findings.
+
+Preserve the failed outcome as a Host/session test failure: discovery did not establish working delegation, and no child result existed. To check recovery, confirm that a native child completes the bounded task and returns its result; successful discovery or spawning alone is insufficient. This observation does not establish the root cause, general `--ephemeral` incompatibility, full CLI 0.153.4 compatibility, or KISS effectiveness.
+
 <a id="skill-smoke"></a>
 ## Skill discovery Smoke
 

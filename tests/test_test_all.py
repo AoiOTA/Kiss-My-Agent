@@ -3,6 +3,7 @@ from __future__ import annotations
 import contextlib
 import io
 import importlib.util
+import json
 import os
 from pathlib import Path
 import subprocess
@@ -163,6 +164,51 @@ class TestSuiteEntryPointTests(unittest.TestCase):
         self.assertIn("python -m pip install -r requirements-site.txt", message)
         self.assertNotIn("python3 -m pip", message)
         self.assertNotIn("py -3 -m pip", message)
+
+
+class DistributionVersionTests(unittest.TestCase):
+    def setUp(self) -> None:
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name)
+        self.manifest_path = self.root / ".codex-plugin/plugin.json"
+        self.marketplace_path = self.root / ".agents/plugins/marketplace.json"
+        for path in (self.manifest_path, self.marketplace_path):
+            path.parent.mkdir(parents=True)
+            path.write_bytes((ROOT / path.relative_to(self.root)).read_bytes())
+
+    def write_version(self, version: str, ref: str = "v0.2.7") -> None:
+        manifest = json.loads(self.manifest_path.read_text(encoding="utf-8"))
+        manifest["version"] = version
+        self.manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+        marketplace = json.loads(self.marketplace_path.read_text(encoding="utf-8"))
+        marketplace["plugins"][0]["source"]["ref"] = ref
+        self.marketplace_path.write_text(json.dumps(marketplace), encoding="utf-8")
+
+    def test_stable_release_and_build_metadata_use_base_release_ref(self) -> None:
+        for version in ("0.2.7", "0.2.7+codex.20260909091938", "0.2.7+Build.001.local-test"):
+            with self.subTest(version=version):
+                self.write_version(version)
+                validate.validate_distribution_interfaces(self.root)
+
+    def test_malformed_and_prerelease_versions_are_rejected(self) -> None:
+        for version in (
+            "0.2.7-rc.1", "0.2.7-rc.1+codex.123", "00.2.7", "0.2", "v0.2.7",
+            "0.2.7+", "0.2.7+codex..123", "0.2.7+codex.123+other",
+            "0.2.7+codex_bad", "0.2.7+codex.123\n", "0.2.7+构建", "0.2.7١",
+        ):
+            with self.subTest(version=version):
+                self.write_version(version)
+                with self.assertRaisesRegex(validate.ValidationError, "stable semantic version"):
+                    validate.validate_distribution_interfaces(self.root)
+
+    def test_wrong_base_and_metadata_bearing_refs_are_rejected(self) -> None:
+        for version in ("0.2.7", "0.2.7+codex.20260909091938"):
+            for ref in ("v0.2.6", "v0.2.7+codex.20260909091938"):
+                with self.subTest(version=version, ref=ref):
+                    self.write_version(version, ref)
+                    with self.assertRaisesRegex(validate.ValidationError, "marketplace plugin ref"):
+                        validate.validate_distribution_interfaces(self.root)
 
 
 class ValidationTests(unittest.TestCase):

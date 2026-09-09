@@ -92,6 +92,10 @@ $plugin-creator update this existing KISS My Agent plugin for local development.
 
 记录 OS、原生 shell、Codex 版本、Plugin 版本、source identity、scope、trust state，以及会话是否为新会话。旧会话不能证明新配置已加载或没有加载。
 
+测试真实 delegation 时使用普通新会话；使用 `codex exec` 时省略 `--ephemeral`。在一次 PawWeaver dogfood 对照中，同一可信项目使用 Codex CLI 0.153.4 与 KISS My Agent v0.2.7，`--ephemeral --json --sandbox read-only` 暴露了三个 KISS 角色与两个 Skill，但原生 `kiss_explorer` 创建两次均报 `no thread with id`。随后，不带 `--ephemeral` 的普通 `codex exec` 会话成功创建了一个原生 `kiss_explorer`，该子 Agent 完成只读调查并返回 findings。
+
+将失败结果保留为 Host/会话测试失败：发现可见角色并未证明 delegation 可用，当时也没有子 Agent 结果。检查恢复时，应确认原生子 Agent 完成有界任务并返回结果；仅发现可见角色或成功创建子 Agent 都不够。这项观察不能确定根因，也不能证明 `--ephemeral` 普遍不兼容、CLI 0.153.4 全面兼容或 KISS 的有效性。
+
 <a id="skill-smoke"></a>
 ## Skill 发现 Smoke
 
