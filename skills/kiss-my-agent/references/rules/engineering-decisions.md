@@ -6,6 +6,8 @@ This rule applies the permanent boundaries to mechanism, ownership, failure, and
 
 Estimate work by uncertainty, coupling, consequence, and verification cost, not line count. The master owns orchestration, architecture and acceptance decisions, conflict resolution, evidence interpretation, and final synthesis; it must delegate delegable bulk exploration, implementation, validation, and review. Choose task partitioning, roles, agent count, and serial or parallel work to keep coordination proportionate, not to waive delegation. The master may directly perform the orchestration judgments and result integration needed for those responsibilities; give each delegate the smallest sufficient goal, paths, owner, invariants, evidence, resources, and stop condition.
 
+In delegation and handoff, the master retains every unfinished authorized goal rather than replacing the whole goal set with the latest subtask; each worker retains its complete assigned scope without assuming ownership of unrelated goals.
+
 Trace the active owner, producer, and current consumer before choosing the modification surface. Keep a single-caller need local. Extract or share only at a real interface boundary or when another present consumer makes duplication materially worse. A supported conclusion that no change is needed is complete work.
 
 When instructions, target, version, owner, launch source, or main hypothesis changes, refresh only the facts made stale and repartition the task if necessary. Otherwise reuse stable local context. Verify the dependency source actually loaded when source, generated output, installed artifact, configuration, data, or process identity could diverge.

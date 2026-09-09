@@ -21,6 +21,6 @@ Keep It Simple, Scientist. Less ceremony. More science.
 
 - Within each directory, `AGENTS.override.md` takes precedence over `AGENTS.md`, which takes precedence over the configured fallback. The detected project root follows the configured `project_root_markers`.
 - Resolve actual ownership incrementally from the launch directory toward the deepest target. If the target is unknown, start in the investigation directory. Read only newly applicable sources when entering a new instruction scope or when the chain changes; do not pre-scan or repeatedly reread the tree. An override is a normal instruction source, not an automatic blocker.
-- Route proactively to `$kiss-my-agent:kiss-my-agent` for the mechanism, blocking-condition, or evidence decisions in its description; do not wait for the user to invoke it. Read the skill entry fully, then only the referenced rule or case needed for the current decision. Already-decided mechanical work does not require another review; do not use the skill as a catch-all.
+- At the start of each KMA-managed assignment, each agent reads the current `$kiss-my-agent:kiss-my-agent` entry once before judging applicability, then follows its decision routing without waiting for a user reminder. Reuse still-applicable guidance; already-decided mechanical execution needs no repeated reading, extra review, or record.
 
 Stop as soon as the goal is met with proportionate evidence, a supported no-change conclusion is reached, or a real boundary requires the user to decide.

@@ -1,13 +1,12 @@
 ---
 name: kiss-my-agent
-description: Apply proactively when research-engineering work proposes adding or expanding a persistent or shared mechanism or a blocking condition, changes failure or degradation handling, exposes unnecessary indirection or repeated planning/probes, or needs a decision about a reversible probe, experiment validity, evidence strength, runtime versus evaluator behavior, or scope and acceptance. Do not use for mechanical implementation of an already-decided change, routine tests or builds, Git operations, lookups, or formatting.
+description: Read at the start of each KMA-managed assignment, then apply when choosing or changing the next action, dividing work, or interpreting research results or execution status. Guide engineering and evidence decisions, including a reversible probe, without waiting for the user to invoke KMA. Already-decided mechanical execution does not require repeated reading or review.
 ---
 
 # KISS My Agent
 
-Apply `$kiss-my-agent:kiss-my-agent` proactively to the current mechanism, failure-handling, or evidence decision without waiting for the user to name it, then return to the task. Each agent applies this routing to new decisions arising in its own execution; the master's reading does not substitute for the worker's. Mechanical implementation of an already-decided change does not require another review. It is not a general workflow.
-
-1. Name the mechanism, blocking condition, failure-handling, or evidence decision and its current consumer.
+At the start of each KMA-managed assignment, each agent reads the current `$kiss-my-agent:kiss-my-agent` entry once before judging which guidance applies; the master's reading does not substitute for a worker's. Before choosing or changing the next action, dividing work, or concluding what research results or execution status mean, use the routing below without first requiring the decision to seem non-obvious or mechanism-related. Reuse already-read guidance while it remains applicable; already-decided mechanical execution needs no repeated reading, extra review, or record.
+1. Identify the current decision and the assigned outcome it serves.
 2. Read exactly one relevant rule file:
    - engineering ownership, mechanisms, failures, or scope: [engineering-decisions.md](references/rules/engineering-decisions.md)
    - experiments, versions, runtime identity, or claims: [experiments-and-evidence.md](references/rules/experiments-and-evidence.md)

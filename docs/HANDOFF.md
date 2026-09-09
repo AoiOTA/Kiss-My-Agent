@@ -4,7 +4,7 @@
 
 ## PawWeaver 持续 dogfooding 本地候选 · 2026-09-09
 
-- PawWeaver 开发与 KMA 迭代继续是共同目标；只修真实问题，不新增遥测或流程系统。观察到 whole-run metadata 被整包复制、自设 exact-hold gate 被延伸成后续实验前提、反复 finite probes 偏离实际学习问题。
+- PawWeaver 交付与 KMA 改进始终共同推进：主对话与各子 agent 无需用户提醒，在需要处主动读取并应用 KMA，让指导实际减少过度设计、过度防御与冗余，提高开发效率、缩短科研闭环并推进最小可用成果。只依据真实工作问题改进；静态检查、安装或调用次数不算成功，以实际决策与用户成果判断收益，不新增遥测或流程系统。观察到 whole-run metadata 被整包复制、自设 exact-hold gate 被延伸成后续实验前提、反复 finite probes 偏离实际学习问题。
 - 保留原批量/顺序对比失败：最大 TCP 差约 0.397 mm、晚段 RMSE 差约 0.143 mm，成功/跌倒/饱和等决策一致，精确保持时长差 0.10/0.32 秒。候选区分原诊断结论与下一实验所需证据，用户验收不变。
 - Skill 主动覆盖执行中出现的机制、失败处理、阻塞和证据决策；按行为读取一个规则与匹配案例。每个 agent 对自己执行中新出现的决策应用路由，master 阅读不能替代 worker。已经决定的机械工作不重复审查。新增字段本身需有消费者；有限执行或参数更新不能回答学习是否改善任务。
 - Reviewer seed 可审查 assigned change or decision；精确历史比较仅允许这一已知正文差异，remove-only snapshots 未变。PawWeaver 显式同步 managed block 和 reviewer 首句，保留 model、effort、sandbox 与非 managed 目标。
@@ -16,6 +16,10 @@
 - 第二个真实 fresh、`fork_turns=none` 的 MuJoCo coder 在任务未额外点名 KMA 的情况下，自行读取 `0.2.7+codex.20260909134518` 入口、实验规则与 product-contract 案例，选择扩展现有 runner、复用 `training_inputs` 与编译前参数，没有新建评估框架。该实现通过独立 review，真实 CPU MuJoCo 八例闭环均完成 20 秒且无跌倒。两次有限自然触发及这些局部选择支持实际指导开始发生，不证明广泛成熟或稳定自发效果；首个比较任务仍需 root 发现并纠正 metadata equality gate 的不足保留。
 - PawWeaver 本轮完成 1000 次训练迭代、98.304M transitions、20k 次优化。固定 PhysX 八例位置指标全部改善，但朝向全部退步：local 组从 0.0854 增至 0.1505 rad，moving 组从 0.0939 增至 0.2885 rad。独立 MuJoCo 保持位置效果，也存在朝向问题；不能把位置改善与无跌倒写成全位姿任务成功或硬件有效性证据。
 - 原 OpenBLAS 原生失败保留；针对同一 policy 与 suite 的单线程重试成功，没有增加证明门槛。下一步针对真实负面朝向结果继续学习。此次没有新的 KMA 规则缺陷观察，保持规则、版本与安装不变；公开前继续真实 PawWeaver 自测，当前仍未发布。
+
+- 后续用户再次指出 KMA 未持续主动指导、master 推进计划遗漏共同目标。只读核对确认当时 dogfood、实际 Plugin 源、`134518` 缓存入口及 setup producer 相同，Paw managed block 也与 producer 相同；但运行任务仍拿到 `092529` 旧 catalog description 与旧 managed 指令快照。`fork_turns=none` 不证明宿主重新发现目录；安装成功与两次主动读取都不能解释为持续指导已经解决。
+- 本轮 mutable 候选把入口读取前移到每个 KMA-managed assignment 开始，由每个 agent 先读当前入口一次再判断适用；随后将路由绑定到下一步选择或修改、分工、研究结果或执行状态结论，复用仍有效的指导，机械执行不反复阅读、审查或记录。Managed producer 与本仓库 AGENTS 用简短入口引用承接；engineering 规则明确 master 在委派与交接保留全部未完成授权目标，worker 保留自己完整 assignment。安全、权限、单资源 owner 与真人架构/验收边界不变，无新状态、审批、遥测或 startup marker。
+- 独立 review 发现拟加的 seed 前缀会破坏既有角色 remove 匹配；master 复核当前消费者后直接撤去此前缀及只为它增加的兼容快照和校验，因为现有与新设角色均已由 managed block 承接入口要求。现有角色与原 remove 匹配保持不变，无需为冗余前缀维护历史。精简候选通过独立 review 后，仅同步四个审查过的入口/规则文件到实际 Plugin 源，保留其独立 HANDOFF；标准 cachebuster/add 安装为 `0.2.7+codex.20260909152724`，四个缓存文件与审查源逐字节相同。Paw managed block 已刷新，用户目标段、config 与三个角色逐字保留。最终文档写入后的静态和 whitespace 校验、Plugin validation 通过；未 tag、push 或发布。宿主旧目录问题不能由插件文字修改保证修复，不宣称 catalog 热刷新；新候选的真实下一步决策行为验证仍待进行，静态与安装通过不替代实际指导效果。
 
 
 ## 未发布候选：v0.2.7 Astra 增量升级（基于 v0.2.6）
