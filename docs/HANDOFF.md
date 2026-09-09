@@ -27,7 +27,8 @@
 - Paw 本轮 `coupled250` 复用同起点已完成的 w1 控制组，节约一轮训练；PhysX 位置 RMSE 从 0.035426 增至 0.038529 m、朝向从 0.168073 降至 0.128677 rad，MuJoCo 两者改善。保留跨引擎取舍，不宣称全位姿成功。
 - 真实 `contact_body_names` 在 producer 修复并核验八条 trace；std 的 CPU 概率回放支持仅腿 std 对照。原FastUMI在历史401及Chrome阻断后已由本地下载取得并读出一个episode；其派生命令仅为人为定时和SE(3)对齐的工程参考，非原始TCP示范。新MuJoCo远目标60秒任务在22.94秒倾斜跌倒，保留负面任务结果。当时独立review支持KMA no-change；该受委派回顾不证明稳定主动效果。
 - 随后同一已准备的 `far_return60` 任务只需给README两条命令补既有 `OPENBLAS_NUM_THREADS=1`，agent仍重读入口，暴露assignment边界歧义。本次mutable修复仅在Skill入口description和首段明确：assignment由outcome/scope定义，跟进纠正与继续工作复用有效指导，真正新outcome/scope仍各agent读入口；同一assignment中的新决定照常路由并读新适用指导。不复制到managed文本、角色或新增记录机制。`scripts/validate.py`与Skill quick validation通过；首次description遗漏原reversible-probe触发已恢复，首次quick validation因runtime环境缺PyYAML失败，改用已有依赖的训练环境通过，未安装依赖。root与独立review通过后，仅同步该Skill到实际个人安装源，保留其他文档差异；标准helper/add安装为 `0.2.7+codex.20260909164759`，缓存Skill与审查源逐字节相同，Plugin validation通过（首次误用无PyYAML的runtime解释器失败，改用已有训练环境通过）。最终HANDOFF写入后仓库静态与whitespace校验通过。此修复仅交付重复读取歧义的澄清，不宣称解决核心自主指导；后续真实Paw任务的局部决策观察见下。新线程可拾取更新，不要求重启或阻断当前Paw学习。
-- Fresh `sustained_learning_next` 在无额外KMA提醒的真实有界任务中，旧入口路径失效后自行找到当时安装版本并读取入口和实验规则，在root补充课程事实前已进入指导。它选用既有stage2＋60秒课程、小范围配置改动、共同时间窗评价和条件匹配时复用基线；独立review未发现需要修正KMA的新实质问题。候选仅完成准备，实际训练未开始，学习效果待结果。
+- Fresh `sustained_learning_next` 在无额外KMA提醒的真实有界任务中，旧入口路径失效后自行找到当时安装版本并读取入口和实验规则，在root补充课程事实前已进入指导。它选用既有stage2＋60秒课程、小范围配置改动、共同时间窗评价和条件匹配时复用基线；独立review未发现需要修正KMA的新实质问题。该stage2＋60秒候选现已完成250轮及双引擎后测：far均完整存活60秒，但位置RMSE仍约.621 m，共同时间窗位置未改善、test8位置存在退步。保留有效负面结果，不把存活延长称为跟踪成功。
+- 随后的自然子任务复用保存trace，发现窄位置奖励在当前误差范围的数值衰减问题，并选择现有width参数的单变量候选；review确认可复用原stage2控制结果，无需重训控制。位置宽度.15→.45 m已选、正在实现与CPU验证，实际动态收益待验证；本次未发现需修KMA的新产品缺陷，不把scope澄清、安装或CPU数学判别算作核心目标达成。
 - 这支持本次自主局部选择有用，不证明持续稳定触发，也不能把选择全部归因于KMA。用户核心目标仍是持续自动应用与纠偏、缩短真实研究闭环；读取和安装不计为目标完成，本次保持Skill不变，继续用实际任务结果检验。
 
 
