@@ -937,8 +937,14 @@ def validate_fixtures(root: Path) -> int:
         v026_path = role_assets / f"v0.2.6-agents/{role_name}.toml"
         v026 = load_toml(v026_path)
         current = load_toml(root / f".codex/agents/{role_name}.toml")
-        if current.pop("model", None) != "gpt-6-astra" or current != v026:
-            fail(f"current role must preserve v0.2.6 fields except Astra model: {role_name}")
+        expected = dict(v026)
+        if role_name == "kiss_reviewer":
+            before, after = "assigned final change,", "assigned change or decision,"
+            if expected["developer_instructions"].count(before) != 1:
+                fail("v0.2.6 reviewer snapshot differs from its historical review scope")
+            expected["developer_instructions"] = expected["developer_instructions"].replace(before, after, 1)
+        if current.pop("model", None) != "gpt-6-astra" or current != expected:
+            fail(f"current role differs beyond Astra model and approved reviewer decision scope: {role_name}")
         if v026_relative not in lifecycle:
             fail(f"setup lifecycle must reference v0.2.6 remove snapshot: {role_name}")
 

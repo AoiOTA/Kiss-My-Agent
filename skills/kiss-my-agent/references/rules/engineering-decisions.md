@@ -1,6 +1,6 @@
 # KISS engineering decisions
 
-This rule expands the permanent boundaries for decisions that are genuinely ambiguous. It does not replace project ownership or user acceptance.
+This rule applies the permanent boundaries to mechanism, ownership, failure, and scope decisions. It does not replace project ownership or user acceptance.
 
 ## Size, ownership, and delegation
 
@@ -19,6 +19,8 @@ Before adding or retaining a nontrivial mechanism, answer silently:
 3. Would removing it change the requested outcome or evidence enough to justify its ongoing implementation and cognitive cost?
 
 No answer is an instruction to keep the design local or remove the mechanism, not to write a Rent Test record. Several mechanisms with no external consumer cannot justify one another as a cluster.
+
+Assess the added field, check, or indirection itself: what current consumer needs it, and what information or behavior does that consumer actually require? A useful enclosing mechanism does not justify copying or retaining all of its inputs.
 
 ## Mechanism semantics
 

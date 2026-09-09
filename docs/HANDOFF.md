@@ -2,11 +2,15 @@
 
 这是本仓库唯一的 canonical handoff。详细过程由 Git history、Issue 和 PR 保存，不创建 dated、attempt 或 campaign 副本。
 
-## PawWeaver 持续 dogfooding 候选 · 2026-09-09
+## PawWeaver 持续 dogfooding 本地候选 · 2026-09-09
 
-- 用户明确 PawWeaver 开发与 KMA 迭代是贯穿后续执行和交接的共同目标；根据真实问题改进 KMA，受支持的 no-change 仍有效，不新增遥测或流程系统。
-- 已观察问题：PawWeaver 两例批量评估与顺序评估最大 TCP 差约 0.397 mm、晚段 RMSE 差约 0.143 mm，保持成功/跌倒/饱和等决策一致；仅精确保持时长相差 0.10/0.32 秒，却将自设 exact-hold gate 的失败延伸成后续持续串行评估的前提。原失败记录保留，不改写为通过。
-- `experiments-and-evidence.md` 的本地 mutable 候选补充区分原诊断结论与下一实验所需证据，要求精确轨迹相等仅用于依赖该主张的情形，用户验收标准不变。待实际 pose 批量评估检验是否减少无谓串行、加快科研闭环；文字检查不证明效率提升。安装、版本、tag、发布状态均未变，本候选尚未重装。
+- PawWeaver 开发与 KMA 迭代继续是共同目标；只修真实问题，不新增遥测或流程系统。观察到 whole-run metadata 被整包复制、自设 exact-hold gate 被延伸成后续实验前提、反复 finite probes 偏离实际学习问题。
+- 保留原批量/顺序对比失败：最大 TCP 差约 0.397 mm、晚段 RMSE 差约 0.143 mm，成功/跌倒/饱和等决策一致，精确保持时长差 0.10/0.32 秒。候选区分原诊断结论与下一实验所需证据，用户验收不变。
+- Skill 主动覆盖执行中出现的机制、失败处理、阻塞和证据决策；按行为读取一个规则与匹配案例。每个 agent 对自己执行中新出现的决策应用路由，master 阅读不能替代 worker。已经决定的机械工作不重复审查。新增字段本身需有消费者；有限执行或参数更新不能回答学习是否改善任务。
+- Reviewer seed 可审查 assigned change or decision；精确历史比较仅允许这一已知正文差异，remove-only snapshots 未变。PawWeaver 显式同步 managed block 和 reviewer 首句，保留 model、effort、sandbox 与非 managed 目标。
+- 实际 pose batch-8 评估已完成，用时 49.73 秒；不再为后续批量评估重复申请授权或要求 exact-hold 串行门槛。这个观察支持执行路径改善，不证明自动 Skill 触发、学习改善、硬件有效性或正式里程碑完成。
+- 本机实际源 `/home/lyb/plugins/kiss-my-agent` 与 dogfood 是独立副本。本次比较后仅复制九个批准文件，保留安装源的其他 docs 差异；通过 cachebuster helper 与 `codex plugin add kiss-my-agent@personal` 安装 `0.2.7+codex.20260909133617`，缓存位于 `/home/lyb/.codex/plugins/cache/personal/kiss-my-agent/0.2.7+codex.20260909133617`。未手改 marketplace，未 tag、push 或发布。
+- 本轮 `scripts/validate.py`、18 个 `tests.test_setup` 测试、Skill quick validation、Plugin validation 与 whitespace 检查通过；缓存内九个文件与已验证源逐字节相同。此为静态和安装证据；现有对话 catalog 不会据此自动更新，需新线程检验新入口加载及自然决策路由。
 
 
 ## 未发布候选：v0.2.7 Astra 增量升级（基于 v0.2.6）

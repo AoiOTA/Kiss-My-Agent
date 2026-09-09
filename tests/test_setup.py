@@ -354,9 +354,17 @@ class SetupContractTests(unittest.TestCase):
                     self.assertEqual("medium", role["model_reasoning_effort"])
                     current = tomllib.loads((ROLE_DIRECTORY / f"{role_name}.toml").read_text(encoding="utf-8"))
                     self.assertEqual("gpt-6-astra", current.pop("model"))
-                    self.assertEqual(role, current)
+                    expected = dict(role)
+                    expected_text = asset.read_text(encoding="utf-8")
+                    if role_name == "kiss_reviewer":
+                        before, after = "assigned final change,", "assigned change or decision,"
+                        self.assertEqual(expected["developer_instructions"].count(before), 1)
+                        self.assertEqual(expected_text.count(before), 1)
+                        expected["developer_instructions"] = expected["developer_instructions"].replace(before, after, 1)
+                        expected_text = expected_text.replace(before, after, 1)
+                    self.assertEqual(expected, current)
                     self.assertEqual(
-                        asset.read_text(encoding="utf-8"),
+                        expected_text,
                         re.sub(r'^model = "gpt-6-astra"\n', "", (ROLE_DIRECTORY / f"{role_name}.toml").read_text(encoding="utf-8"), count=1, flags=re.MULTILINE),
                     )
 

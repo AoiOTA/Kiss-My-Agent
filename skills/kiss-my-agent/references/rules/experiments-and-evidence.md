@@ -8,7 +8,7 @@ State the research question, primary variable, controlled variables, core metric
 
 Preserve a diagnostic comparison’s original criterion and failed result; a self-imposed criterion does not automatically become a prerequisite for later experiments. Judge its relevance to the next experiment’s claim while preserving the user’s acceptance criteria; require exact trace equality only when that claim depends on it.
 
-Choose the minimum valid run that can answer the research question, execute the real path, observe actual outputs and failures without masking their causes, and use that result to iterate or stop.
+Choose a probe only when its result can change the next action toward the user's requested outcome. If the uncertainty is whether learning improves task behavior, finite execution or parameter updates do not answer it; run enough of the actual learning-and-evaluation path to test that question. Use the minimum valid run for the question, preserve actual outputs and failure causes, and use the result to iterate or stop.
 
 When a behavior question does not require public distribution, use a mutable disposable candidate before creating an immutable release tag, and create the tag only after those pre-tag questions pass. After tagging, run only the shortest checks that genuinely depend on the public distribution or tag; reserve a patch release in this flow for a product defect first exposed by those public-only checks, while harness or environment failures are repaired in their owning path and the same tag is retested; do not use a tag as a disposable test fixture. This sequencing preserves rather than replaces real public-path validation.
 
