@@ -29,8 +29,10 @@
 - 随后同一已准备的 `far_return60` 任务只需给README两条命令补既有 `OPENBLAS_NUM_THREADS=1`，agent仍重读入口，暴露assignment边界歧义。本次mutable修复仅在Skill入口description和首段明确：assignment由outcome/scope定义，跟进纠正与继续工作复用有效指导，真正新outcome/scope仍各agent读入口；同一assignment中的新决定照常路由并读新适用指导。不复制到managed文本、角色或新增记录机制。`scripts/validate.py`与Skill quick validation通过；首次description遗漏原reversible-probe触发已恢复，首次quick validation因runtime环境缺PyYAML失败，改用已有依赖的训练环境通过，未安装依赖。root与独立review通过后，仅同步该Skill到实际个人安装源，保留其他文档差异；标准helper/add安装为 `0.2.7+codex.20260909164759`，缓存Skill与审查源逐字节相同，Plugin validation通过（首次误用无PyYAML的runtime解释器失败，改用已有训练环境通过）。最终HANDOFF写入后仓库静态与whitespace校验通过。此修复仅交付重复读取歧义的澄清，不宣称解决核心自主指导；后续真实Paw任务的局部决策观察见下。新线程可拾取更新，不要求重启或阻断当前Paw学习。
 - Fresh `sustained_learning_next` 在无额外KMA提醒的真实有界任务中，旧入口路径失效后自行找到当时安装版本并读取入口和实验规则，在root补充课程事实前已进入指导。它选用既有stage2＋60秒课程、小范围配置改动、共同时间窗评价和条件匹配时复用基线；独立review未发现需要修正KMA的新实质问题。该stage2＋60秒候选现已完成250轮及双引擎后测：far均完整存活60秒，但位置RMSE仍约.621 m，共同时间窗位置未改善、test8位置存在退步。保留有效负面结果，不把存活延长称为跟踪成功。
 - 随后的自然子任务复用保存trace，发现窄位置奖励在当前误差范围的数值衰减问题，并选择现有width参数的单变量候选；review确认可复用原stage2控制结果，无需重训控制。宽度250轮及四项后测现已完成，PhysX位置退步、MuJoCo远目标8.24秒跌倒，不采用.45；CPU数值理由没有升级为动态收益。
-- 新自然任务用保存观测的2×2回放区分宽策略PhysX目标响应被clip抹掉、窄策略仍响应。最初提出窄策略腿输出行×.5动态前测，独立review指出证据来源错位；先连接同一窄策略观测做CPU回放后，多数响应反而变小、后腿／hip仍被裁剪，agent主动撤回动态建议。没有改checkpoint或仿真，具体省掉一次缺乏支持的动态trial；这不是仅以读取次数或形式审查计成功。当前局部训练干预proposal仍在准备，无新增生产修改或训练；未观察到需添加KMA规则的问题。
-- 这支持本次自主局部选择有用，不证明持续稳定触发，也不能把选择全部归因于KMA。用户核心目标仍是持续自动应用与纠偏、缩短真实研究闭环；读取和安装不计为目标完成，本次保持Skill不变，继续用实际任务结果检验。
+- 新自然任务用保存观测的2×2回放区分宽策略PhysX目标响应被clip抹掉、窄策略仍响应。最初提出窄策略腿输出行×.5动态前测，独立review指出证据来源错位；先连接同一窄策略观测做CPU回放后，多数响应反而变小、后腿／hip仍被裁剪，agent主动撤回动态建议。没有改checkpoint或仿真，具体省掉一次缺乏支持的动态trial；这不是仅以读取次数或形式审查计成功。该观察未要求新增KMA规则；后续局部训练检验结果见下。
+- 现有PPO loss hook的 `leg_mean_bound_coef=.001`（Paw生产提交 `60671e3`）已完成真实250轮及两引擎test8／far，均退出0。控制复用是在root质询后确定，复用相同起点既有coef0训练和后测，省去重训重评，不能记为agent自发。CPU默认／显式0与旧实现的Actor、Critic、Adam、原loss和RNG精确一致，仅证明兼容；本轮依靠各owner实现、独立review、唯一simulation owner及实际结果完成判断，不外推普遍因果。
+- 候选两引擎far均60秒无跌倒，但位置／朝向RMSE均退步；四个保存状态bank回放显示bound下降，却未恢复持续hip／后腿有效响应。root据真实任务结果不采用，不自动延长或扫描更大系数；下一最小学习方案仅作有界CPU调查，无新仿真授权。Paw证据见 `leg_mean_bound_comparison/README.md`、`paired_far60.json` 与 `response_probe/README.md`。未证明新的KMA产品规则缺陷，不为一次负面结果加规则。
+- 这支持本次自主局部选择有用，不证明持续稳定触发，也不能把选择全部归因于KMA。用户核心目标仍是master与child持续自动应用和纠偏、减少过度设计／防御并加快真实MVP；读取、安装和测试数不计为目标完成，本次保持Skill不变，继续用实际任务结果检验。
 
 
 ## 未发布候选：v0.2.7 Astra 增量升级（基于 v0.2.6）
