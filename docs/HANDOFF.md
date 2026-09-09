@@ -25,7 +25,8 @@
 - 后者确认既有 `run_visual` 可接诊断 runner，选择 artifact 驱动而未增加新 CLI 或生产改动；真实 20 秒固定世界目标 RGB-D 闭环 exit 0、墙钟 27.38 秒。已只读核对 Paw artifact `diagnostic_pose_visual_control/README.md` 与 `closed_loop20/summary.json`：601/601 捕获检测成功、999/1000 控制步有有效测量，仅初始一步等待图像而 hold；TCP RMSE 为 0.0188959 m / 0.0852529 rad，现有跌倒判据未触发，视频第 0/499/999 帧验证可解码。该证据使用仿真里程计与临时参数，只覆盖固定目标短闭环，不证明动态目标、稳定站立、实物相机精度、60 秒视觉里程碑或正式位姿验收。
 - 这两次观察支持本次自然调用与有用取舍：复用实际产物、保留负面结果，并让短探查服务于可运行闭环；不证明持续稳定指导、普遍成熟或宿主 catalog 热刷新。未观察到新的 KMA 行为缺陷，本轮不再修改规则或安装；继续在实际 Paw 决策中观察效果，未发布。
 - Paw 本轮 `coupled250` 复用同起点已完成的 w1 控制组，节约一轮训练；PhysX 位置 RMSE 从 0.035426 增至 0.038529 m、朝向从 0.168073 降至 0.128677 rad，MuJoCo 两者改善。保留跨引擎取舍，不宣称全位姿成功。
-- 真实 `contact_body_names` 在 producer 修复并核验八条 trace；当前 std 的 CPU 概率回放支持下一步仅腿 std 对照。`fastumi_original_sample` 保留下载 401：随后账户访问获准，文件仍被 Chrome 客户端阻断，未取得示范。独立 review 认为现有规则足够，本轮 KMA no-change；单次受委派回顾不证明稳定主动效果。
+- 真实 `contact_body_names` 在 producer 修复并核验八条 trace；std 的 CPU 概率回放支持仅腿 std 对照。原FastUMI在历史401及Chrome阻断后已由本地下载取得并读出一个episode；其派生命令仅为人为定时和SE(3)对齐的工程参考，非原始TCP示范。新MuJoCo远目标60秒任务在22.94秒倾斜跌倒，保留负面任务结果。当时独立review支持KMA no-change；该受委派回顾不证明稳定主动效果。
+- 随后同一已准备的 `far_return60` 任务只需给README两条命令补既有 `OPENBLAS_NUM_THREADS=1`，agent仍重读入口，暴露assignment边界歧义。本次mutable修复仅在Skill入口description和首段明确：assignment由outcome/scope定义，跟进纠正与继续工作复用有效指导，真正新outcome/scope仍各agent读入口；同一assignment中的新决定照常路由并读新适用指导。不复制到managed文本、角色或新增记录机制。`scripts/validate.py`与Skill quick validation通过；首次description遗漏原reversible-probe触发已恢复，首次quick validation因runtime环境缺PyYAML失败，改用已有依赖的训练环境通过，未安装依赖。root与独立review通过后，仅同步该Skill到实际个人安装源，保留其他文档差异；标准helper/add安装为 `0.2.7+codex.20260909164759`，缓存Skill与审查源逐字节相同，Plugin validation通过（首次误用无PyYAML的runtime解释器失败，改用已有训练环境通过）。最终HANDOFF写入后仓库静态与whitespace校验通过。此修复仅交付重复读取歧义的澄清，不宣称解决核心自主指导；下一真实Paw任务的独立决策验证仍在进行。新线程可拾取更新，不要求重启或阻断当前Paw学习。
 
 
 ## 未发布候选：v0.2.7 Astra 增量升级（基于 v0.2.6）

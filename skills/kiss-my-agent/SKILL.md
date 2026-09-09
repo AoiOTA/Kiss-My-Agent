@@ -1,11 +1,11 @@
 ---
 name: kiss-my-agent
-description: Read at the start of each KMA-managed assignment, then apply when choosing or changing the next action, dividing work, or interpreting research results or execution status. Guide engineering and evidence decisions, including a reversible probe, without waiting for the user to invoke KMA. Already-decided mechanical execution does not require repeated reading or review.
+description: Read once per KMA-managed assignment, defined by its outcome and scope rather than each message or turn. Apply when choosing or changing the next action, dividing work, or interpreting research results or execution status, including a reversible probe, without waiting for a user reminder. Reuse applicable guidance for continuations and corrections.
 ---
 
 # KISS My Agent
 
-At the start of each KMA-managed assignment, each agent reads the current `$kiss-my-agent:kiss-my-agent` entry once before judging which guidance applies; the master's reading does not substitute for a worker's. Before choosing or changing the next action, dividing work, or concluding what research results or execution status mean, use the routing below without first requiring the decision to seem non-obvious or mechanism-related. Reuse already-read guidance while it remains applicable; already-decided mechanical execution needs no repeated reading, extra review, or record.
+An assignment is defined by its outcome and scope, not by each message or turn. At the start of a new KMA-managed assignment, each agent reads the current `$kiss-my-agent:kiss-my-agent` entry once before judging which guidance applies; the master's reading does not substitute for a worker's. Follow-up corrections and continuations within the same assignment reuse already-read guidance while it remains applicable; a genuinely new outcome or scope starts a new assignment. Before choosing or changing the next action, dividing work, or concluding what research results or execution status mean, use the routing below without first requiring the decision to seem non-obvious or mechanism-related. New decisions within an ongoing assignment still follow that routing, including reading newly applicable guidance; already-decided mechanical execution needs no repeated reading, extra review, or record.
 1. Identify the current decision and the assigned outcome it serves.
 2. Read exactly one relevant rule file:
    - engineering ownership, mechanisms, failures, or scope: [engineering-decisions.md](references/rules/engineering-decisions.md)
