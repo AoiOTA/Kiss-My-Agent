@@ -33,7 +33,8 @@
 - 现有PPO loss hook的 `leg_mean_bound_coef=.001`（Paw生产提交 `60671e3`）已完成真实250轮及两引擎test8／far，均退出0。控制复用是在root质询后确定，复用相同起点既有coef0训练和后测，省去重训重评，不能记为agent自发。CPU默认／显式0与旧实现的Actor、Critic、Adam、原loss和RNG精确一致，仅证明兼容；本轮依靠各owner实现、独立review、唯一simulation owner及实际结果完成判断，不外推普遍因果。
 - 候选两引擎far均60秒无跌倒，但位置／朝向RMSE均退步；四个保存状态bank回放显示bound下降，却未恢复持续hip／后腿有效响应。root据真实任务结果不采用，不自动延长或扫描更大系数；后续判别与候选状态见下。Paw证据见 `leg_mean_bound_comparison/README.md`、`paired_far60.json` 与 `response_probe/README.md`。未证明新的KMA产品规则缺陷，不为一次负面结果加规则。
 - entropy0×250提议经同状态概率导数反例撤回：固定越界mean时减std会更难进入有效区间，raw／clipped entropy差异不能证明改善。随后复用现有RSL／GoalBank采集64环境32秒暖机＋24步冻结随机rollout，采集90.18秒、CPU拆梯度1.48秒，均退出0，实际覆盖240个late／far行、10环境。两份可丢弃内存clone保留saved Adam，各执行一次生产更新比较.001与0，证实局部output梯度符号可与共享网络＋Adam后的output方向相反，远段饱和PD目标仍未动。奖励对齐读出又区分pose精度项近零与progress非零，并解释原始GAE负、全批标准化后正，没有误诊Critic。依据见Paw `leg_mean_bound_comparison/next_learning_proposal/` 的ANALYSIS、update_probe与reward_readout。
-- 这些具体反例与撤回使root选择现有progress权重1→10的单变量250轮候选准备，复用原coef0 stage2控制，尚未启动新训练、效果未知；没有新增机制或KMA规则。省去无支持的训练不等于整个准备／审查墙钟更短，总闭环加速尚未量化，持续自主master／child指导核心目标仍未完成。
+- progress权重1→10的250轮及四项后测均已实际退出0；共同时间窗内两引擎far位置和朝向均改善，但PhysX／MuJoCo分别26.62／33.62秒跌倒，而progress1控制完整60秒；PhysX test8另有16.44秒跌倒，当前候选不采用。保留原稳定控制与250轮结果，不重跑控制，不用位移或共同窗误差代替完整60秒表现。
+- root据跨引擎同向跟踪收益及未解决的稳定性，选择同配置从candidate249严格resume、保留Adam，追加750轮至本配置累计1000轮；当前准备中、未启动。下一问题是继续学习能否兼顾跟踪与60秒稳定，不是超参扫描或等预算权重因果比较。具体有用取舍是保持原任务、不增加机制、保留负面结果和时窗限制并继续既有学习路径；实际收益待验证，未观察到新KMA规则缺陷。总准备／审查墙钟加速仍未量化，持续自主master／child指导核心目标未完成。
 - 这支持本次自主局部选择有用，不证明持续稳定触发，也不能把选择全部归因于KMA。用户核心目标仍是master与child持续自动应用和纠偏、减少过度设计／防御并加快真实MVP；读取、安装和测试数不计为目标完成，本次保持Skill不变，继续用实际任务结果检验。
 
 
