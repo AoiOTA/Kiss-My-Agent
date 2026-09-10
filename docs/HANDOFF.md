@@ -5,11 +5,11 @@
 ## PawWeaver 持续 dogfooding · 当前交接（2026-09-10）
 
 - **共同目标未完成**：推进PawWeaver研究MVP，同时让master与child无需用户提醒，持续应用KMA减少过度设计、冗余取证和阻塞。以实际决策、科研闭环及用户成果判断收益；读取、安装、测试或agent数量不算成功，不新增遥测、归档或流程系统。
-- **本轮观察到的缺陷**：已有reward/progress信号证据仍被重复证明，参考训练recipe比较开展过晚；入口强制read-route把指导变成阅读步骤，未充分帮助选择下一项有效工作。长期逐轮追加的HANDOFF又使root读取大量历史后仍漏掉已有奖励结论，反复“未发现缺陷”的记录掩盖了核心目标。旧实验失败和修复过程由Git保留，不再在此逐轮复制。
-- **已修正与安装**：源提交 `1de2fc5` 仅改 [Skill入口](../skills/kiss-my-agent/SKILL.md) 和 [实验与证据规则](../skills/kiss-my-agent/references/rules/experiments-and-evidence.md)：从目标和已知证据出发，复用仍成立的机制结论，以到有用结果的总成本选择足量实验，区分因果消融与一致recipe的任务实验，按需查细节而非固定阅读路线。只同步两文件至独立personal插件源；helper/add安装 `0.2.7+codex.20260910003856`，源／安装源／缓存逐字节一致，Skill与Plugin校验通过；其他独立源文件、roles、setup及Paw managed文本未改，未发布。
-- **真实采用证据有限**：fresh `umi_recipe_implementation` 无额外KMA提醒，自行处理旧catalog路径并读取 `03856`，已由该agent实际回报。仅支持这一次主动找到并读取新指导；旧thread宿主快照问题未解决，不证明稳定调用、行为收益或整体效率改善，不能把安装当成功。
+- **本轮观察到的缺陷**：已有reward/progress信号证据仍被重复证明，参考训练recipe比较开展过晚；入口强制read-route把指导变成阅读步骤，未充分帮助选择下一项有效工作；用户又指出独立review被过多例行安排。长期逐轮追加的HANDOFF又使root读取大量历史后仍漏掉已有奖励结论，反复“未发现缺陷”的记录掩盖了核心目标。旧实验失败和修复过程由Git保留，不再在此逐轮复制。
+- **已修正与安装**：`1de2fc5` 修改 [Skill入口](../skills/kiss-my-agent/SKILL.md) 与 [实验规则](../skills/kiss-my-agent/references/rules/experiments-and-evidence.md)，强调复用已知机制、到有效结果的总成本、足量实验及按需查细节。后续 `bd72af3` 仅改入口与 [工程规则](../skills/kiss-my-agent/references/rules/engineering-decisions.md)：独立review应有可改变决策的视角，局部可逆且自验充分的修改由coder自验、root整合即可，不例行重复worker检查。本次按此边界完成，未另派review。两文件经helper/add同步安装为 `0.2.7+codex.20260910005213`，源／安装源／缓存逐字节一致，Skill校验通过；原实验规则及其他独立源文件、roles、setup、Paw managed文本保留，未发布。
+- **真实采用证据有限**：fresh `umi_recipe_implementation` 与 `mujoco_contact_trace` 无额外KMA提醒，自行处理旧catalog路径并读取前一版 `03856`，均已有agent实际回报。仅支持这两次主动找到并读取指导，不能改称 `05213` 的行为证据；旧thread宿主快照问题未解决，不证明稳定调用、行为收益或整体效率改善，不能把安装当成功。
 - **Paw当前结果**：`.2/.5` 新对照各250轮及各四项后测，十条命令均实际退出0；不采用 `.5`。保留MuJoCo位置单项通过7→8，但双引擎test8平均位置／朝向变差、前进更少；只说明本预算未获得整体改善，不证明范围不足或方法不能收敛。主docs最新收口 `8ba1733`，完整结果在Paw `artifacts/runs/diagnostic_pose_learning/leg_range_comparison/README.md`。单operator训练、并行独立review／源audit与实际自适应LR核对有用，但没有改善任务表现的归因证据。
-- **下一项已选、未完成**：已选择UMI参考的连贯训练recipe，正准备1000轮，尚未启动。源audit确认UMI默认单18-action Actor训练无行走checkpoint依赖；MLM的AMP、DeepWBC的外部速度条件不能当作Paw必要条件。保持世界系EE完整pose、单18关节Actor、无外部底盘命令及原验收；临时硬件参数不支持硬件有效性或正式里程碑。继续用这项真实工作验证新指导，不能预写收益。
+- **下一项已选、未完成**：UMI参考recipe的1000轮训练已于2026-09-10 00:49:22 UTC实际启动，运行中（session `60924`、PID `2104217`、Paw Git `ce74a62`、flag=true）；root报告首轮20次updates均finite，尚无训练完成或后测结论。源audit确认UMI默认单18-action Actor训练无行走checkpoint依赖；MLM的AMP、DeepWBC的外部速度条件不能当作Paw必要条件。保持世界系EE完整pose、单18关节Actor、无外部底盘命令及原验收；临时硬件参数不支持硬件有效性或正式里程碑。继续用这项真实工作验证新指导，不能预写收益。
 - **继续工作时复用**：以下Paw路径均相对 `artifacts/runs/diagnostic_pose_learning/`：`leg_mean_bound_comparison/next_learning_proposal/` 的reward读出已区分pose精度项近零与progress非零；`progress_weight_comparison/continuation_failure_analysis/early_training_signal_capture_preparation/readout/README.md` 已揭示早期失败回合中progress收益覆盖原终止惩罚，不能只因新policy身份就重做机制取证。此前整包metadata equality gate曾在真实比较中误阻断，已在既有 [product-contract案例](../skills/kiss-my-agent/references/cases/product-contract-provenance-vs-agent-proof.md) 局部修复并重验；这些有限收益不替代持续有效指导目标。
 
 ## 未发布候选：v0.2.7 Astra 增量升级（基于 v0.2.6）
