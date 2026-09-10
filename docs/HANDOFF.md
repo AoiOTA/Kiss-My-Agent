@@ -5,11 +5,11 @@
 ## PawWeaver 持续 dogfooding · 当前交接（2026-09-10）
 
 - **共同目标未完成**：推进PawWeaver研究MVP，同时让master与child无需用户提醒，持续应用KMA减少过度设计、冗余取证和阻塞。以实际决策、科研闭环及用户成果判断收益；读取、安装、测试或agent数量不算成功，不新增遥测、归档或流程系统。
-- **当前观察到的缺陷**：重复证明已知reward/progress机制、参考recipe比较过晚、入口read-route仪式及过多例行review均已暴露。最新root又把完整全身控制缩窄成单18输出与水平TCP跟踪，将低高位姿与主动身体协同误称以后扩展，用户仍需纠正；首先是root未应用已有目标边界，不能归咎于训练失败或用新增提示宣称已解决。
-- **当前修正与安装**：既有入口／实验规则已强调证据复用、有效结果总成本与足量真实学习；`1290074` 已消除强制委派矛盾，允许master直接做明确局部工作、主动委派有收益的bulk／并行／不同视角工作。最新 `1d18e25` 仅补 [Skill入口](../skills/kiss-my-agent/SKILL.md) 的关键使用场景对照：窄前置实验不能把未覆盖的原要求降成未来可选工作。该SKILL已同步 `/home/lyb/plugins/kiss-my-agent`，经现有helper与plugin add安装 `0.2.7+codex.20260910015249`；dogfood源码、personal源与安装缓存三地SKILL逐字节一致。未额外review或修改roles；未发布。文案修正仍待实际Paw工作验证。
-- **真实采用证据有限**：fresh `umi_recipe_implementation` 与 `mujoco_contact_trace` 无额外KMA提醒，自行处理旧catalog路径并读取前一版 `03856`。仅支持这两次主动找到并读取指导，不能作为最新 `015249` 的行为证据；旧thread宿主快照问题未解决，不证明稳定调用、行为收益或整体效率改善。
-- **Paw当前结果**：UMI参考recipe的1000轮训练与四项后测共五条命令均实际退出0；训练98.304M transitions、20k updates全部finite，累计13865次falls。双引擎test8中local4跟踪精度好（PhysX约6mm），但moving组3/4跌倒；far分别在PhysX 6.68s、MuJoCo 1.64s跌倒。不能采用为任务成功或完整全身控制证据，finite和局部精度不替代任务表现。
-- **下一项已选、未完成**：Paw docs commit `523a2be` 已恢复低／高／侧／远6D位姿与主动身体协同为原目标中的未完成工作。CPU `wbc_workspace` 几何调查进行中，已见base高度0.18m时四足支撑、非足净空0.0329m的反例，以及固定基座机械臂严格范围外但全身几何可达的低／高目标；这些不是动态证据。下一步落实真实workspace、修正实际终止逻辑并开展学习，不能只更新文档。保持世界系完整EE pose、单18关节Actor、无外部底盘命令及原验收；临时硬件参数不支持硬件有效性或正式里程碑。
+- **当前观察到的缺陷**：旧指导未阻止root缩窄完整全身控制；随后又把用户示例数值和候选方法当成规定，纠偏时反向要求恢复整份参考plan。用户仍多次提醒目标，首先是root混淆明确要求与参考手段、未应用已有边界；此前重复取证和过多review也不能用新提示宣称已解决。
+- **当前修正与安装**：最新 `e695db2` 仅修改 [Skill入口](../skills/kiss-my-agent/SKILL.md)：锚定明确目标／约束，例子、参考plan与暂定手段不自动成为要求或参数依据；按已有结果调整手段，纠偏保留有效进展。ONLY SKILL已同步 `/home/lyb/plugins/kiss-my-agent`，经现有helper默认cachebuster及plugin add安装 `0.2.7+codex.20260910024255`，dogfood源码、personal源与安装缓存三地SKILL逐字节一致。Plugin校验首次因root误用已知缺PyYAML的runtime失败；改用现有train环境后退出0，未安装依赖，不能称首次通过。未改roles／setup或发布。
+- **真实采用证据有限**：fresh `umi_recipe_implementation` 与 `mujoco_contact_trace` 无额外KMA提醒，自行处理旧catalog路径并读取前一版 `03856`。仅支持旧版这两次读取，不是 `024255` 自动加载或有效行为的证据；旧thread宿主快照问题未解决。新措辞的效果待下一项实际自主决策验证，不能从安装、checks或当前任务输入推断模块收益。
+- **Paw当前结果**：`be0246d` 已将当前能力目标与reference方法分开，不再把M0–M4全量模块当作固定必做项。256条train／64条test数据已实际生成并通过CPU检查；fresh PhysX baseline的64条均完成60s且无fall，但位置误差0.749939m、朝向误差2.038435rad，无task success。数据可生成、无跌倒与既有UMI局部精度均不等于任务成功或完整全身控制。
+- **下一项已选、未完成**：新2000轮训练于2026-09-10 02:34:52 UTC实际启动，PID `2202283`，当前运行中。已授权12项执行：baseline、train、4 suites各双引擎、static16各双引擎；尚无新训练完成或完整后测结果。继续按真实证据推进广EE工作空间，以及原地全身够不到时移动支撑的能力；保持世界系完整EE pose、单18关节Actor、无外部底盘命令及原验收。CPU几何可达性仍非动态证据，临时硬件参数不支持硬件有效性或正式里程碑。
 - **继续工作时复用**：以下Paw路径均相对 `artifacts/runs/diagnostic_pose_learning/`：`leg_mean_bound_comparison/next_learning_proposal/` 的reward读出已区分pose精度项近零与progress非零；`progress_weight_comparison/continuation_failure_analysis/early_training_signal_capture_preparation/readout/README.md` 已揭示早期失败回合中progress收益覆盖原终止惩罚，不能只因新policy身份就重做机制取证。此前整包metadata equality gate的真实误阻断已在既有 [product-contract案例](../skills/kiss-my-agent/references/cases/product-contract-provenance-vs-agent-proof.md) 局部修复并重验；有限收益不替代持续有效指导目标。详细旧过程留在Git，不再逐轮复制。
 
 ## 未发布候选：v0.2.7 Astra 增量升级（基于 v0.2.6）
