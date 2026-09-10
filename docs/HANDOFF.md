@@ -112,3 +112,8 @@
 - 不移动、删除、重建任何已推送 tag，也不 force-push `main`。Candidate 阶段解决产品行为问题；tag 后只补 public-only evidence，不重复未受影响的 candidate checks。
 - Tagged source 中的产品缺陷阻止创建 Release，并由下一 patch 修复；harness、command、environment 或 evaluator failure 修复其 owner 后针对同一 tag 补证据，不自动触发 patch。
 - 后续只根据真实用户缺陷、Host 变化或明确的新目标重新立项；满足有界验收或得到受支持的 no-change 结论后停止。
+
+## PawWeaver 本轮反馈补记（2026-09-10）
+
+- `leg_range_comparison` 新 .2／.5 对照各完成250轮学习及四项后测，十条命令均实际退出0。root不采用 .5：保留MuJoCo位置单项通过数7→8的局部收益，但双引擎test8平均位置／朝向误差均变差，保存motion显示 .5 在2–30秒前进更少。该有效负面结果只说明本预算未获得整体任务改善，不证明动作范围不足、方法不能收敛或额外训练必定有效；位置单项通过也不等于完整pose验收。结果见 Paw `artifacts/runs/diagnostic_pose_learning/leg_range_comparison/README.md`，主文档收口为 `8ba1733`。
+- 单operator执行实际训练，独立review／资料audit并行；root依据实际自适应升高的LR拒绝未核实的固定低LR诊断，如实保留正反收益并停止无整体收益的尺度扩展。复用源审计确认UMI默认单18-action Actor训练无行走checkpoint依赖；MLM的AMP与DeepWBC的外部速度条件不成为Paw必要条件，源审计不等于上游复现。尚未选下一训练配方、追加预算或参数扫描；未观察到需改KMA的新缺陷，机制／Skill不变。这些有用取舍不证明KMA提升任务表现、完成里程碑或整体效率收益；Paw交付与KMA真实反馈仍是共同目标。
