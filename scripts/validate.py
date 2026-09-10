@@ -466,7 +466,7 @@ def validate_setup_interface(root: Path) -> None:
         "A missing member, an unmarked line, or a changed value makes the existing master settings user-owned",
         "Remove each current default assignment independently",
         "every existing correctly identified role byte-for-byte",
-        "corresponding exact v0.2.6, v0.2.5, or v0.1 remove-only snapshot",
+        "corresponding exact v0.2.7, v0.2.6, v0.2.5, or v0.1 remove-only snapshot",
         "Historical snapshots are exact-byte remove comparison inputs only",
         "setup, check, and configure must not read them",
         "explicit value or `inherit`",
@@ -936,17 +936,27 @@ def validate_fixtures(root: Path) -> int:
         v026_relative = f"assets/v0.2.6-agents/{role_name}.toml"
         v026_path = role_assets / f"v0.2.6-agents/{role_name}.toml"
         v026 = load_toml(v026_path)
-        current = load_toml(root / f".codex/agents/{role_name}.toml")
-        expected = dict(v026)
-        if role_name == "kiss_reviewer":
-            before, after = "assigned final change,", "assigned change or decision,"
-            if expected["developer_instructions"].count(before) != 1:
-                fail("v0.2.6 reviewer snapshot differs from its historical review scope")
-            expected["developer_instructions"] = expected["developer_instructions"].replace(before, after, 1)
-        if current.pop("model", None) != "gpt-6-astra" or current != expected:
-            fail(f"current role differs beyond Astra model and approved reviewer decision scope: {role_name}")
+        # Historical removal inputs do not track current instruction revisions.
+        # validate_roles checks current settings and responsibility boundaries.
+        if v026.get("name") != role_name or "model" in v026:
+            fail(f"v0.2.6 remove snapshot identity or model differs: {role_name}")
+        if role_name == "kiss_reviewer" and "assigned final change," not in v026["developer_instructions"]:
+            fail("v0.2.6 reviewer snapshot differs from its historical review scope")
         if v026_relative not in lifecycle:
             fail(f"setup lifecycle must reference v0.2.6 remove snapshot: {role_name}")
+
+        v027_relative = f"assets/v0.2.7-agents/{role_name}.toml"
+        v027 = load_toml(role_assets / f"v0.2.7-agents/{role_name}.toml")
+        expected = dict(v026)
+        expected["model"] = "gpt-6-astra"
+        if role_name == "kiss_reviewer":
+            expected["developer_instructions"] = expected["developer_instructions"].replace(
+                "assigned final change,", "assigned change or decision,", 1
+            )
+        if v027 != expected:
+            fail(f"original v0.2.7 remove snapshot differs: {role_name}")
+        if v027_relative not in lifecycle:
+            fail(f"setup lifecycle must reference v0.2.7 remove snapshot: {role_name}")
 
         v025_relative = f"assets/v0.2.5-agents/{role_name}.toml"
         v025_path = role_assets / f"v0.2.5-agents/{role_name}.toml"
@@ -960,7 +970,7 @@ def validate_fixtures(root: Path) -> int:
         "skills/kiss-my-agent-setup/configure-agents.md",
     ):
         if any(f"assets/{version}-agents" in (root / relative).read_text(encoding="utf-8")
-               for version in ("v0.2.6", "v0.2.5")):
+               for version in ("v0.2.7", "v0.2.6", "v0.2.5")):
             fail(f"historical remove snapshots must not be consumed by {relative}")
     effective_chain = [
         root / "AGENTS.md",

@@ -265,7 +265,7 @@ class SetupContractTests(unittest.TestCase):
         self.assertIn("`user-owned/preserved`", self.lifecycle)
         self.assertIn("never modify, migrate, version-check, or replace an existing role", self.lifecycle)
         self.assertIn("Use the existing `configure agents` wizard", self.lifecycle)
-        self.assertIn("corresponding exact v0.2.6, v0.2.5, or v0.1 remove-only snapshot", self.lifecycle)
+        self.assertIn("corresponding exact v0.2.7, v0.2.6, v0.2.5, or v0.1 remove-only snapshot", self.lifecycle)
 
     def test_legacy_master_pair_upgrade_is_exact_and_idempotent(self) -> None:
         self.assertIn("recognize this legacy pair only when both top-level assignments occur exactly once", self.lifecycle)
@@ -291,7 +291,7 @@ class SetupContractTests(unittest.TestCase):
         )
         self.assertIn("Do not read current seeds for existing roles or any historical snapshot", self.lifecycle)
         self.assertIn("`check`: do not read current seeds or historical role snapshots", self.lifecycle)
-        self.assertIn("`remove`: read the current, v0.2.6, v0.2.5, and v0.1 role seeds as exact bytes", self.lifecycle)
+        self.assertIn("`remove`: read the current, v0.2.7, v0.2.6, v0.2.5, and v0.1 role seeds as exact bytes", self.lifecycle)
         self.assertIn("Historical snapshots are exact-byte remove comparison inputs only", self.lifecycle)
         self.assertIn("setup, check, and configure must not read them", self.lifecycle)
         self.assertIn("Do not read role seed assets, compare role content to seeds", self.lifecycle)
@@ -318,7 +318,7 @@ class SetupContractTests(unittest.TestCase):
             "kiss_coder": ("gpt-5.6-sol", "high", "workspace-write"),
             "kiss_reviewer": ("gpt-5.6-sol", "xhigh", "read-only"),
         }
-        for version in ("v0.2.6", "v0.2.5", "v0.1"):
+        for version in ("v0.2.7", "v0.2.6", "v0.2.5", "v0.1"):
             for role_name in ("kiss_explorer", "kiss_coder", "kiss_reviewer"):
                 relative = f"assets/{version}-agents/{role_name}.toml"
                 self.assertIn(f"]({relative})", self.lifecycle)
@@ -349,24 +349,20 @@ class SetupContractTests(unittest.TestCase):
                         inherited,
                         (ROLE_ASSETS / "v0.2.6-agents" / f"{role_name}.toml").read_text(encoding="utf-8"),
                     )
+                if version == "v0.2.7":
+                    previous = (ROLE_ASSETS / "v0.2.6-agents" / f"{role_name}.toml").read_text(encoding="utf-8")
+                    if role_name == "kiss_reviewer":
+                        previous = previous.replace("assigned final change,", "assigned change or decision,", 1)
+                    original = re.sub(r'^model = "gpt-6-astra"\n', "", asset.read_text(encoding="utf-8"), count=1, flags=re.MULTILINE)
+                    self.assertEqual(previous, original)
+                    self.assertEqual("gpt-6-astra", role["model"])
                 if version == "v0.2.6":
                     self.assertNotIn("model", role)
                     self.assertEqual("medium", role["model_reasoning_effort"])
-                    current = tomllib.loads((ROLE_DIRECTORY / f"{role_name}.toml").read_text(encoding="utf-8"))
-                    self.assertEqual("gpt-6-astra", current.pop("model"))
-                    expected = dict(role)
-                    expected_text = asset.read_text(encoding="utf-8")
+                    # Historical removal snapshots stay independent of current prose.
+                    # Current settings and role boundaries have their own validation.
                     if role_name == "kiss_reviewer":
-                        before, after = "assigned final change,", "assigned change or decision,"
-                        self.assertEqual(expected["developer_instructions"].count(before), 1)
-                        self.assertEqual(expected_text.count(before), 1)
-                        expected["developer_instructions"] = expected["developer_instructions"].replace(before, after, 1)
-                        expected_text = expected_text.replace(before, after, 1)
-                    self.assertEqual(expected, current)
-                    self.assertEqual(
-                        expected_text,
-                        re.sub(r'^model = "gpt-6-astra"\n', "", (ROLE_DIRECTORY / f"{role_name}.toml").read_text(encoding="utf-8"), count=1, flags=re.MULTILINE),
-                    )
+                        self.assertEqual(role["developer_instructions"].count("assigned final change,"), 1)
 
     def test_v010_managed_project_fixture_matches_current_compatibility_contract(self) -> None:
         config_text = (V010_FIXTURE / ".codex" / "config.toml").read_text(
