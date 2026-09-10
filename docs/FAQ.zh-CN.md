@@ -54,9 +54,9 @@ codex plugin list --marketplace kiss-my-agent
 <a id="after-setup"></a>
 ## Setup 后该怎么用？
 
-直接正常使用 Codex，不需要每次任务前先调用 KISS。项目 `AGENTS.md` instructions 要求 Master 负责调度、决策和汇总，被委派的角色分别负责调查、实现与审查。默认由 Master 直接分配，同一角色可有多个实例，每个共享资源由一个人或 Agent 负责。合格的大型独立子系统可有一个临时 lead，但不建立更深或永久层级。
+直接正常使用 Codex，无需用户提醒才应用 KMA。Master 可以直接完成明确的小任务或局部工作；对实质批量工作、可独立并行或需要不同视角的工作，在收益超过协调成本时应积极委派。按工作量、并行机会、耦合、风险与协调成本选择，角色可选不等于 Master 包办全部。每种可用角色都可有零个、一个或多个实例，不要求固定组合、顺序或每次启动子代理。Master 保留架构、验收和证据判断。委派默认扁平，每个共享资源只有一个 operator；合格的大型独立子系统可有一个临时 lead，但不建立更深或永久层级。
 
-如果 delegation 被禁用、不可用或没有合适角色，instructions 要求 Master 报告 staffing issue，让你选择修复 staffing 或明确把本任务切换为普通单对话。只有后者才授权直接执行。
+如果 delegation 被禁用、不可用或没有合适角色，Master 可在已有授权和自身能力内继续工作，无需为 staffing 另设审批。用户明确要求的独立检查、特定角色或真实能力缺口仍须报告，不能把直接执行冒充为满足这些要求。
 
 <a id="agent-reuse"></a>
 ## 什么时候复用 Agent，什么时候使用 fresh Agent？

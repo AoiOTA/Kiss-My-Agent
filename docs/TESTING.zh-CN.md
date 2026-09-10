@@ -21,7 +21,7 @@ KISS My Agent 有几个彼此不同的证据表面：
 <a id="user-verification"></a>
 ## 用户验证不需要 Python
 
-简单一次性任务直接使用普通单对话，不需要 setup 证据。若要在安装或更新 Plugin 后验证持久 executive workflow，请启动新会话并使用 Plugin-owned interfaces：
+简单一次性任务直接使用普通单对话，不需要 setup 证据。若要在安装或更新 Plugin 后验证持久 KMA instructions，请启动新会话并使用 Plugin-owned interfaces：
 
 ```text
 $kiss-my-agent:kiss-my-agent-setup set up this project
@@ -29,7 +29,7 @@ $kiss-my-agent:kiss-my-agent-setup check this project
 $kiss-my-agent:kiss-my-agent-setup configure agents for this project
 ```
 
-这些操作使用 Codex 文件工具，不需要 Python、Node.js、Docker 或包管理器。Git-backed Plugin 的安装或刷新另行要求可用的 `git` executable 和 GitHub 网络访问。`check` 只证明检查到的文件状态。需要真实 discovery 证据时再使用 `/skills` 和窄范围 role Smoke。如果 delegation 不可用或没有角色能承担测试，应记录 failed precondition，并在切换为普通单对话测试前取得用户明确选择。
+这些操作使用 Codex 文件工具，不需要 Python、Node.js、Docker 或包管理器。Git-backed Plugin 的安装或刷新另行要求可用的 `git` executable 和 GitHub 网络访问。`check` 只证明检查到的文件状态。需要真实 discovery 证据时再使用 `/skills` 和窄范围 role Smoke。如果明确要求的 role Smoke 无法运行，应报告缺少 discovery 证据；直接执行不能证明角色加载。其他已授权且能力范围内的工作可以继续。
 
 <a id="contributor-suite"></a>
 ## 贡献者测试套件
@@ -113,7 +113,7 @@ $plugin-creator update this existing KISS My Agent plugin for local development.
 <a id="role-smoke"></a>
 ## 三角色 Smoke
 
-让 Master 只负责调度、决策和汇总：它分配任务，但不亲自执行一次性调查、实现或审查。默认使用扁平 direct fan-out；当同一角色的多个实例更合适时可以并用。使用 Host 自定义 Agent 界面，或明确要求它把一个有界任务委派给每个已发现角色：
+此项显式 role Smoke 测试三个 seed roles，不代表普通任务必须组成三角色团队。Master 使用 Host 自定义 Agent 界面，或明确要求把一个有界的一次性任务委派给每个已发现角色：
 
 1. `kiss_explorer`：读取 fixture 并报告准确 anchors，不编辑文件。
 2. `kiss_coder`：只拥有一个隔离的一次性文件，仅在不存在时创建，验证后只删除该文件。
@@ -149,13 +149,13 @@ codex plugin list --marketplace kiss-my-agent
 <a id="dogfooding"></a>
 ## 开发过程中的 Dogfooding
 
-开发下一版本时，使用当前 KISS 项目 instructions 和适合的真实角色。让 Master 只负责调度、决策与汇总，默认扁平 direct fan-out，把调查、实现和审查交给对应角色。记录它们在哪里减少了 scope、暴露了失败或改善了证据，也记录可复现的错误停止或不必要机制。
+开发下一版本时使用当前 KISS 项目 instructions。Master 可以直接完成明确的小任务或局部工作；对实质批量工作、可独立并行或需要不同视角的工作，在收益超过协调成本时应积极委派。按工作量、并行机会、耦合、风险与协调成本选择，角色可选不等于 Master 包办全部。每种可用角色都可有零个、一个或多个实例，不要求固定组合、顺序或每次启动子代理。委派默认保持扁平。观察分工是否减少 scope、暴露失败或改善证据，以及是否造成可复现的错误停止或不必要机制。
 
-保持产品 runtime 与 evaluator owner 分离：被测 Plugin 不能定义自己的验收标准，也不能批准自己的 release。人类维护者拥有目标与验收；确定性测试、独立审查和新会话 replay 判断观察结果。Dogfooding 是 engineering evidence，不是自主自证。
+保持产品 runtime 与 evaluator owner 分离：被测 Plugin 不能定义自己的验收标准，也不能批准自己的 release。人类维护者拥有目标与验收；按适用范围使用确定性测试、新会话 replay，以及有决策价值或用户明确要求的独立审查来判断观察结果。Dogfooding 是 engineering evidence，不是自主自证。
 
 Coordinator wait 调用在没有新消息时返回，不能证明子 Agent 超时或失败。有界且不冲突的工作应继续；只有任务已经失效、scope 或资源冲突，或者用户明确要求停止时才中断。
 
-如果 delegation 被禁用、不可用或没有合适角色，应记录 staffing issue。Master 必须询问是修复 staffing，还是明确把本任务切换为普通单对话；不能静默继续充当 worker。
+如果 delegation 被禁用、不可用或没有合适角色，Master 可在已有授权和自身能力内继续工作，无需为 staffing 另设审批。用户明确要求的独立检查、特定角色或真实能力缺口仍须报告，不能把直接执行冒充为满足这些要求。
 
 <a id="readme-pilot"></a>
 ## README 新用户 Pilot

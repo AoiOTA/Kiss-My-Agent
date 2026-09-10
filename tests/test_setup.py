@@ -85,8 +85,8 @@ class SetupContractTests(unittest.TestCase):
         self.assertIn("wait window ending without an update", markdown_blocks[0])
         self.assertIn("not an agent timeout or failure", markdown_blocks[0])
         self.assertIn("The master owns orchestration", markdown_blocks[0])
-        self.assertIn("must delegate delegable bulk exploration", markdown_blocks[0])
-        self.assertIn("Multiple instances of any role", markdown_blocks[0])
+        self.assertIn("The master may directly complete clear small or local work", markdown_blocks[0])
+        self.assertIn("Each role may have zero, one, or multiple instances", markdown_blocks[0])
         self.assertIn("Coordination is flat by default", markdown_blocks[0])
         self.assertIn("independent subsystem needs substantial parallel work", markdown_blocks[0])
         self.assertIn("direct aggregation would pollute the master's context", markdown_blocks[0])
@@ -94,8 +94,8 @@ class SetupContractTests(unittest.TestCase):
         self.assertIn("workers must not delegate again", markdown_blocks[0])
         self.assertIn("at most one intermediate management layer", markdown_blocks[0])
         self.assertIn("no deep nesting", markdown_blocks[0])
-        self.assertIn("must not silently take over delegated work", markdown_blocks[0])
-        self.assertIn("ordinary single-conversation execution", markdown_blocks[0])
+        self.assertIn("Actively delegate substantial bulk work", markdown_blocks[0])
+        self.assertIn("without a staffing approval step", markdown_blocks[0])
         self.assertIn("reversible probe", markdown_blocks[0])
         self.assertIn("safety boundaries", markdown_blocks[0])
         self.assertLess(
@@ -136,15 +136,15 @@ class SetupContractTests(unittest.TestCase):
         ):
             self.assertIn(token, self.lifecycle)
 
-    def test_delegation_repair_preserves_master_orchestration(self) -> None:
+    def test_task_partitioning_preserves_direct_work_and_useful_delegation(self) -> None:
         sources = (
             (REPOSITORY / "AGENTS.md").read_text(encoding="utf-8"),
             fenced_blocks(self.lifecycle, "markdown")[0],
         )
         for text in sources:
-            self.assertIn("must delegate delegable bulk exploration", text)
+            self.assertIn("The master may directly complete clear small or local work", text)
             self.assertIn("task partitioning", text)
-            self.assertNotIn("whether to delegate", text)
+            self.assertIn("Actively delegate substantial bulk work", text)
 
     def test_seed_roles_remain_valid_and_unique(self) -> None:
         expected_settings = {
@@ -227,7 +227,7 @@ class SetupContractTests(unittest.TestCase):
             self.assertIn(f"`{status}`", self.lifecycle)
         self.assertIn("File success is static setup evidence only", self.lifecycle)
         self.assertIn("Never claim project trust", self.lifecycle)
-        self.assertIn("executive-only workflow cannot staff delegated work", self.lifecycle)
+        self.assertIn("not a prohibition on authorized direct work", self.lifecycle)
         self.assertIn("Static setup cannot observe a higher-precedence `false`", self.lifecycle)
 
     def test_setup_ownership_and_concurrency_contract(self) -> None:

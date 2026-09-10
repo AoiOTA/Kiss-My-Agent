@@ -47,11 +47,11 @@ Current seeds 显式设置 `model = "gpt-6-astra"` 和上表中的 effort。它�
 | --- | --- | --- |
 | 启用 | `.codex/config.toml` | 多代理开关与缺失的 Astra/high、实验上下文默认值。 |
 | 发现 | `.codex/agents/*.toml` | Host 发现的 standalone role definitions。 |
-| 委派 | `AGENTS.md` | 要求批量工作委派，动态划分任务，让 master 专注协调与决策。 |
+| 委派 | `AGENTS.md` | 按实际收益选择直接小任务或委派，Master 保留架构、验收与证据判断。 |
 
-三个层次不能互相替代。角色文件不会启用 multi-agent tools，启用开关不会创建角色 catalog，instructions 也不会授予 runtime 权限。Catalog 保持开放，master 只从实际存在的角色中动态选择；KISS My Agent 不要求固定团队人数或 workflow。每种 explorer、coder 或 reviewer 角色都可有多个实例。组织默认扁平，由 master 直接 fan-out 到当前角色。只有独立子系统需要大量并行、且直接汇总会污染 master context 时，master 才可临时把一个现有 Agent 指定为有界的部门主管。主管可在自身 scope 内调度同类或相关角色实例并向 master 汇总，但其 workers 不再继续委派。Assignment 随任务结束而消失，因此最多一层中间管理，不允许深层嵌套、固定部门、新 seed、固定人数或 organization schema。每个共享文件或资源仍只有一个 writer/operator。可委派的批量探索、实现、验证与审查交给子代理，master 专注调度、架构与验收决策、冲突解决、证据解释和最终汇总。
+三个层次不能互相替代。角色文件不会启用 multi-agent tools，启用开关不会创建角色 catalog，instructions 也不会授予 runtime 权限。Catalog 保持开放，master 只从实际存在的角色中动态选择；KISS My Agent 不要求固定团队人数或 workflow。Master 可以直接完成明确的小任务或局部工作；对实质批量工作、可独立并行或需要不同视角的工作，在收益超过协调成本时应积极委派。按工作量、并行机会、耦合、风险与协调成本选择，角色可选不等于 Master 包办全部。每种可用角色都可有零个、一个或多个实例，不要求固定组合、顺序或每次启动子代理。组织默认扁平，由 master 直接 fan-out 到当前角色。只有独立子系统需要大量并行、且直接汇总会污染 master context 时，master 才可临时把一个现有 Agent 指定为有界的部门主管。主管可在自身 scope 内调度同类或相关角色实例并向 master 汇总，但其 workers 不再继续委派。Assignment 随任务结束而消失，因此最多一层中间管理，不允许深层嵌套、固定部门、新 seed、固定人数或 organization schema。每个共享文件或资源仍只有一个 writer/operator。无论采用哪种执行方式，Master 都保留架构与验收决策、冲突解决、证据解释和最终汇总责任。
 
-简单任务不应仅为组建团队而执行 setup 或触发 KISS My Agent Skill；直接用用户选择的模型与 effort 进行普通单对话。复杂科研工程项目可显式 setup executive-only master workflow。若已配置的 workflow 中 delegation 被禁用、不可用或没有合适角色，master 不会静默接手 delegated work，而是报告 staffing issue。随后由用户选择修复或启用合适角色，或者明确把本次任务切换为普通单对话；只有后者的明确选择才授权 master 直接执行。
+不要仅为组建团队执行 setup。KMA 管理下的明确小任务可直接执行，无需切换 workflow。如果 delegation 被禁用、不可用或没有合适角色，Master 可在已有授权和自身能力内继续工作，无需为 staffing 另设审批。用户明确要求的独立检查、特定角色或真实能力缺口仍须报告，不能把直接执行冒充为满足这些要求。
 
 <a id="configuration-layers"></a>
 ## 配置层

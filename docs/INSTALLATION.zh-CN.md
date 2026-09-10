@@ -51,7 +51,7 @@ Host 提示时通过界面信任项目，再启动一个新会话并运行：
 $kiss-my-agent:kiss-my-agent-setup check this project
 ```
 
-Setup 完成后直接正常使用 Codex。项目 instructions 要求 Master 调度持久 workflow，并委派日常执行工作；只有遇到重要工程疑问时才使用 `kiss-my-agent`。如果 delegation 被禁用、不可用或没有合适角色，这些 instructions 要求 Master 报告 staffing issue，让你选择修复或启用 staffing，或者明确把本任务切换为普通单对话，而不是静默接手 delegated work。
+Setup 完成后直接正常使用 Codex。每个 Agent 在 assignment 开始时读取一次 `kiss-my-agent`，在决策时主动复用，无需用户提醒。Master 可以直接完成明确的小任务或局部工作；对实质批量工作、可独立并行或需要不同视角的工作，在收益超过协调成本时应积极委派。按工作量、并行机会、耦合、风险与协调成本选择，角色可选不等于 Master 包办全部。每种可用角色都可有零个、一个或多个实例，不要求固定组合、顺序或每次启动子代理。如果 delegation 被禁用、不可用或没有合适角色，Master 可在已有授权和自身能力内继续工作，无需为 staffing 另设审批。用户明确要求的独立检查、特定角色或真实能力缺口仍须报告，不能把直接执行冒充为满足这些要求。
 
 需要真实 discovery 证据时，在该新会话中运行 `/skills`，确认两个 Plugin-owned Skills，再执行[测试](TESTING.zh-CN.md)中的窄范围 Smokes。
 
@@ -64,7 +64,7 @@ Setup 完成后直接正常使用 Codex。项目 instructions 要求 Master 调�
 - `.codex/agents/`：fresh setup 会创建每个缺失的可编辑 starter role；它们显式设置 `model = "gpt-6-astra"` 与 `model_reasoning_effort = "medium"`。Setup 只检查这三个准确目标路径，不检查完整角色目录或另一 scope。任何已经存在的角色都归用户所有并逐字节保持不变。Setup 后缺失的 starter 是合法且有意缺失的 catalog entry，不会重建。
 - `AGENTS.md`：追加一个有界的 KISS managed block，并保留原有 instructions。
 
-Setup 为缺失的 Master 字段补入 `gpt-6-astra` / `high`；当前 seed roles 显式使用 `gpt-6-astra` / `medium`。已有用户显式选择保持不变。Role wizard 只修改选定角色。静态检查不能证明 Host 有效配置，应在新任务中验证。 Plugin cache 中的角色文件只是 package resources，不会自动进入 Host role catalog，因此仍需 fresh setup。Role settings 位于 standalone role TOML。Managed instructions 让 Master 只负责战略、架构与验收决策、调度、冲突解决、证据判断和汇总，把调查、实现和审查交给相应角色。
+Setup 为缺失的 Master 字段补入 `gpt-6-astra` / `high`；当前 seed roles 显式使用 `gpt-6-astra` / `medium`。已有用户显式选择保持不变。Role wizard 只修改选定角色。静态检查不能证明 Host 有效配置，应在新任务中验证。 Plugin cache 中的角色文件只是 package resources，不会自动进入 Host role catalog，因此仍需 fresh setup。Role settings 位于 standalone role TOML。Managed instructions 保留 Master 的架构、验收、调度、冲突解决、证据判断和汇总责任，同时允许直接完成小任务并积极进行有收益的委派；角色不是必经阶段。
 
 Managed instructions 要求默认扁平协调：直接向当前角色分配任务，同一角色可以有多个实例；每个共享文件或慢资源仍只有一个 writer/operator。只有大型独立子系统的直接汇总会污染 Master context 时，才可临时指定一个有界 department lead。其 workers 不得继续委派，assignment 随任务结束而消失，不建立更深或永久层级。
 
@@ -124,7 +124,7 @@ $kiss-my-agent:kiss-my-agent-setup configure global agents
 
 Setup、check 与 remove 只检查所选 scope 中由 KISS 管理的 config、AGENTS paths 和三个准确 bundled role targets；不验证完整 role catalog，也不协调 project/global roles。Setup 在首次写入前准备全部改动，写入后验证文件；失败时只在安全的情况下回滚仍与本次 after-content 完全一致的自有修改。Agent 原生文件操作不能保证从进程或机器崩溃中恢复，因此 managed target 中的歧义状态都会 fail closed。
 
-Setup 停止时，请按报告中的原因和准确路径解决冲突，不覆盖用户工作，然后重跑同一命令。观察到委派开关为 `false` 时报告 `disabled`；上下文 `false` 单独报告，不禁用 KISS。如果真实新会话无法委派或没有合适角色，项目 instructions 要求 Master 报告 staffing issue 并等待用户选择，而不是把持久 workflow 解释成 Master 可直接执行。
+Setup 停止时，请按报告中的原因和准确路径解决冲突，不覆盖用户工作，然后重跑同一命令。观察到委派开关为 `false` 时报告 `disabled`；上下文 `false` 单独报告，不禁用 KISS。如果 delegation 被禁用、不可用或没有合适角色，Master 可在已有授权和自身能力内继续工作，无需为 staffing 另设审批。用户明确要求的独立检查、特定角色或真实能力缺口仍须报告，不能把直接执行冒充为满足这些要求。
 
 <a id="update"></a>
 ## 立即更新
