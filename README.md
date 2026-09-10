@@ -128,7 +128,7 @@ The **Master** is the main Codex Agent in the conversation you are using now—t
 
 Setup fills missing master fields with `gpt-6-astra` / `high`; current seed roles explicitly use `gpt-6-astra` / `medium`. Existing explicit user choices are preserved. The role wizard changes selected roles only. Static checks do not prove effective Host settings; verify them in a new task. The Master normally assigns directly, may use multiple instances of a role, keeps one Agent responsible for each shared item, and may give one temporary lead to a large independent subsystem.
 
-The same instructions require the Master to report when delegation is unavailable instead of silently doing the employees' work. You then choose whether to repair the team or explicitly continue this task as a normal single conversation.
+If delegation is disabled or unavailable, or no suitable role exists, the Master may continue within its capabilities and existing authorization without a staffing approval step. Report unmet explicit requirements for independent checking or a specific role, and real capability gaps; direct execution must not be presented as satisfying them.
 
 The company comparison only explains responsibilities; it is not a fixed workflow or game system.
 
