@@ -61,6 +61,8 @@ Optional external capability may degrade only when the failure class is specific
 
 ## Five-question review
 
+Compose roles around the work, not a fixed pipeline. Before assigning independent review, identify the independent perspective that could change the decision, such as a hidden behavior, interface, or consequential scientific inference risk; coder completion alone is not a reason. For a local reversible change with sufficient validation, owner verification and master integration suffice. Do not routinely repeat checks already completed by a worker; the master retains architecture, acceptance, and evidence judgment.
+
 An independent review asks only what matters:
 
 1. Does actual behavior meet the user goal rather than merely pass checks?
