@@ -4,7 +4,7 @@ Use this rule when a claim depends on what was actually executed, measured, or e
 
 ## Design before interpretation
 
-State the research question, primary variable, controlled variables, core metric, and invalid conditions before interpreting results. Add samples only when variance or intermittent behavior affects the decision, and do not move criteria after seeing the outcome.
+State the research question, core metric, and invalid conditions before interpreting results. For causal attribution, identify the primary variable and relevant controls. For task performance, a coherent recipe may change coupled settings together when supported by existing evidence and within the assigned architecture and budget; evaluate the recipe without attributing its effect to one setting. Choose training duration to test the question at a justified scale; add samples when variance or intermittent behavior affects the decision, and do not move criteria after seeing the outcome.
 
 Preserve a diagnostic comparison’s original criterion and failed result; a self-imposed criterion does not automatically become a prerequisite for later experiments. Judge its relevance to the next experiment’s claim while preserving the user’s acceptance criteria; require exact trace equality only when that claim depends on it.
 
