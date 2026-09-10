@@ -5,7 +5,7 @@ description: Turn research-engineering goals and existing evidence into the next
 
 # KISS My Agent
 
-Each agent reads the current `$kiss-my-agent:kiss-my-agent` entry once at the start of its assignment; the master's reading does not substitute for a worker's. An assignment follows its outcome and scope, not messages or turns. Apply the guidance below when deciding the next action or interpreting a result, without waiting for a user reminder or first judging the decision non-obvious. Reuse it across continuations and corrections; mechanical execution needs no repeated reading, review, or compliance record.
+Each agent reads the current `$kiss-my-agent:kiss-my-agent` entry when first taking on KMA-managed work; the master's reading does not substitute for a worker's. Reuse loaded guidance across subsequent assignments, continuations, and corrections; read again only when a guidance update is known or relevant detail is missing. Apply the guidance below when choosing or changing the next action, dividing work, or interpreting a result, without waiting for a user reminder or first judging the decision non-obvious. Mechanical execution needs no repeated reading, review, or compliance record.
 
 ## Choose the next useful action
 
