@@ -2,20 +2,22 @@
 
 这是本仓库唯一的 canonical handoff。详细过程由 Git history、Issue 和 PR 保存，不创建 dated、attempt 或 campaign 副本。
 
-## v0.2.8 发布候选（2026-09-11）
+## 当前 Release：v0.2.8（2026-09-11）
 
-- **用户恢复范围**：发布追踪见 [#26](https://github.com/AoiOTA/Kiss-My-Agent/issues/26)。用户已明确授权发布 v0.2.8 并更新本地安装；本轮仅恢复 KMA 发布与安装工作。PawWeaver 继续暂停，原未完成目标保留，不启动新实验，也不追加 KMA 行为规则。
-- **候选内容**：基于已合并的 [PR #25](https://github.com/AoiOTA/Kiss-My-Agent/pull/25)，复用其中的完整交付与委派修正、指导加载复用、实验及真实 consumer 约束、原 v0.2.7 角色移除兼容和 build metadata 校验。候选仅将 manifest、marketplace ref 与双语 README badge 对齐到 `0.2.8` / `v0.2.8`；不改历史 tag、兼容 snapshots 或测试 fixture。
-- **本地检查**：现有隔离 Python 环境运行 `python scripts/test_all.py` 完整通过：45 tests、16 页隔离站点构建、repository validation、Git whitespace 与工作树不变检查。最后仅补本节检查事实和 issue 链接，再做针对文档的 validator 与 diff 检查，不重复全量测试。
-- **证据边界**：复用 PR #25 的局部行为记录与既有确定性检查；它们不证明普遍行为可靠性、量化效率收益或机器人学习成功。v0.2.8 候选的本地完整检查、当前提交的远程 CI、公开归档、安装与新会话发现分别记录，尚未完成的项目不视为通过。
-- **发布状态**：本节是候选说明，不声明 v0.2.8 已创建 tag、Release 或完成本地更新；当前已有正式发布证据仍为下方的 v0.2.7。发布与安装完成后补入实际提交和验证结果。
+- **用户恢复范围**：发布追踪见 [#26](https://github.com/AoiOTA/Kiss-My-Agent/issues/26)。本轮按用户授权完成 KMA v0.2.8 发布与本地安装更新。PawWeaver 继续暂停，原未完成目标保留，不启动新实验，也不追加 KMA 行为规则。
+- **候选与发布内容**：基于已合并的 [PR #25](https://github.com/AoiOTA/Kiss-My-Agent/pull/25)，复用其中的完整交付与委派修正、指导加载复用、实验及真实 consumer 约束、原 v0.2.7 角色移除兼容和 build metadata 校验。候选 `342d559` 仅将 manifest、marketplace ref 与双语 README badge 对齐到 `0.2.8` / `v0.2.8` 并更新交接；历史 tag、兼容 snapshots 和测试 fixture 保留。[PR #27](https://github.com/AoiOTA/Kiss-My-Agent/pull/27) 已合并。
+- **正式发布**：[`v0.2.8`](https://github.com/AoiOTA/Kiss-My-Agent/releases/tag/v0.2.8) 于 `2026-09-11T05:42:40Z` 发布；API latest 指向该版本，非 draft、非 prerelease。发布提交为 [`f51716eae9b1b0d1f7ff9a926645bcd3ede87ff5`](https://github.com/AoiOTA/Kiss-My-Agent/commit/f51716eae9b1b0d1f7ff9a926645bcd3ede87ff5)，不可变 annotated tag 对象为 `59ece882da8fb60f06a172b211a9e9cbeed2009a`。
+- **确定性检查**：候选及合并提交的 `python scripts/test_all.py` 均通过：45 tests、16 页隔离站点构建、repository validation、Git whitespace 与工作树不变检查。PR 的 [Validate](https://github.com/AoiOTA/Kiss-My-Agent/actions/runs/34566608041) 六个 native jobs 和 [Pages build](https://github.com/AoiOTA/Kiss-My-Agent/actions/runs/34566608081) 通过；合并提交的 [Validate](https://github.com/AoiOTA/Kiss-My-Agent/actions/runs/34566686228)、[Pages build/deploy](https://github.com/AoiOTA/Kiss-My-Agent/actions/runs/34566686224) 与 [tag Validate](https://github.com/AoiOTA/Kiss-My-Agent/actions/runs/34566707837) 均通过。
+- **公开分发**：Release 页面与 GitHub 源码 ZIP / TAR 链接（跳转 codeload）均返回 HTTP 200；[English Pages](https://aoiota.github.io/Kiss-My-Agent/) 与[简体中文 Pages](https://aoiota.github.io/Kiss-My-Agent/zh-CN/) 均返回 HTTP 200，HTML 包含 `v0.2.8`。公开 codeload ZIP 与 TAR 均返回 HTTP 200，各自全部 82 个 tracked files 与 tag 逐字节一致。隔离 Codex home 通过公开 Git marketplace 的 `v0.2.8` ref 安装后为 installed/enabled `0.2.8`，安装缓存的 82 个文件也与 tag 一致；CLI 仅报告临时 home 的 PATH alias warning，没有安装失败。
+- **本地更新与新会话**：生产 personal 插件源及缓存已由开发 suffix 更新为精确 `0.2.8`，各自 82 个文件均与 tag 一致。Fresh Codex CLI `0.153.4` 会话的实际 catalog 发现并读取 `0.2.8` 缓存中的两个 Skills，确认指导复用与停止边界。
+- **证据边界与停止**：复用 PR #25 未变的局部行为证据；本轮没有重跑 Desktop 生命周期、setup 或完整 upgrade 矩阵。检查、公开分发和 CLI 发现不证明普遍行为可靠性、量化效率收益或机器人学习成功。KMA 发布与本地更新完成后停止推进，Paw 的暂停边界不变。
 
 ## PawWeaver dogfooding · 发布后暂停（2026-09-11）
 
 - **当前停止边界**：用户已授权完成当前最后一轮奖励诊断后，将 KMA 与 PawWeaver 分别提交、推送远程，然后暂停推进。不再启动新训练或新规则修改；原来的稳定全身控制、完整末端位姿与 KMA 实际行为收益目标仍未完成，暂停后不自动继续。
 - **Paw 当前证据**：full500 与 alpha25 STOP326 均为负结果；normalizer 的闭环对照不支持直接换回旧 N 作为修复。最后的 reward6case 已完成：共同末期宽度下，前进／后退／高位的保持窗实际加权非终止奖励均降低（6.36999→5.65574、6.55069→.54430、2.34501→2.10926，乘控制dt前），不支持这些固定任务上退化行为获得更高配置奖励；仍未确定唯一训练根因。首次原生启动失败139，原样单次重试后两组各3例均完整60秒；本地读出语法错误已修正并复用原轨迹，GPU已释放。短诊断、稳定片段与减少跌倒均不证明学习成功；单一 18 关节 Actor、原性能要求、完整位姿及支撑协调目标和临时硬件证据边界保留。
 - **KMA 已有改动及实际使用**：`40cfc16` 澄清无可用委派时可继续授权工作；`8931a47` 将委派选择放在完整交付与上下文中判断；`a217b97` 保留组件诊断所需的真实下游 consumer 约束。这些已有修正已部署到稳定技能入口，随后真实工作使用小范围 CPU 因子诊断、纠正评估及数据 caller、合并 dev11 以减少重复案例，并在出现明确遗忘时正常停止。它们支持具体局部行为记录，不证明量化效率提升、普遍遵循或机器人学习成功；本次收尾不增加规则。
-- **合并与发布范围**：dogfood 分支以普通 merge 保留本地累积提交及远程 `f3f6204` 的 v0.2.7 发布证据。此次仅提交并推送开发结果，不改版本、不创建 tag 或 Release，不把这批未打标改动描述为已发布 v0.2.7 的验收结果。
+- **当时合并与发布范围**：dogfood 分支以普通 merge 保留本地累积提交及远程 `f3f6204` 的 v0.2.7 发布证据。该阶段仅提交并推送开发结果，不改版本、不创建 tag 或 Release，不把这批未打标改动描述为已发布 v0.2.7 的验收结果。
 
 ## PawWeaver dogfooding · 上一阶段记录（2026-09-10）
 
@@ -27,12 +29,12 @@
 - **本阶段追加实验结果**：支撑配方在记录336轮后停止，所选最新301轮策略完成全部后测和视频；双引擎独立64例均0位置通过，跌倒4/7，远目标出现大腿持续接触，不能称合理支撑改善。固定低噪声候选从旧2000轮策略开始，在274轮后因同奖励宽度下持续退化停止，采用最新已保存251轮策略；独立64例两引擎仍均0位置通过、跌倒16/27。两轮都没有跑完原定1000轮，也未采用为完整WBC成果。减小采样噪声并未解决整体学习问题；大KL与奖励裁零不能单独证明某个失败原因。原性能数值、单18关节Actor和临时硬件证据边界保持。用户允许的速度指令＋EE路线只核实了来源和任务坐标系差异，本阶段未实现。
 - **继续复用**：Paw的 `wbc_random_training/` 已有完整训练、跨引擎结果和动作读出；没有关节顺序／单位错误证据，不为新checkpoint重复该检查。MuJoCo读出5.26mm残差已定位为2ms积分前后状态错位，同轨迹CPU修复保留真实失败；这是必要测量修正。旧softsign、单独越界正则及progress负结果继续有效，详细过程留在原Paw产物和Git。此前metadata equality gate误阻断已在现有product-contract案例修复，不重新建立证明包。
 
-## 当前 Release：v0.2.7 Astra 增量升级（基于 v0.2.6）
+## v0.2.7 历史 Release：Astra 增量升级（基于 v0.2.6）
 
 - 基线：`v0.2.6` / `38f29be1a224a0687e5a6fdba3b1c18fff0a2bb8`。保留原有规则、案例和保护机制，只修委派矛盾与默认配置。
 - 缺失 Master 配置默认 Astra/high，新角色 Astra/medium，实验上下文默认 true；已有显式值与已有角色保留。准确完整的受管 Sol/max pair 更新为 Astra/high。
 - 升级路径：更新插件 → 原 scope setup → 显式 configure 选定角色 → 新建可信客户端任务。静态配置与实际加载分别验收。
-- 正式 supported Release：[`v0.2.7`](https://github.com/AoiOTA/Kiss-My-Agent/releases/tag/v0.2.7)，manifest 为 `0.2.7`、marketplace ref 为 `v0.2.7`；2026-09-06 发布后 API latest 指向该版本，非 draft、非 prerelease。
+- 当时 supported Release：[`v0.2.7`](https://github.com/AoiOTA/Kiss-My-Agent/releases/tag/v0.2.7)，manifest 为 `0.2.7`、marketplace ref 为 `v0.2.7`；2026-09-06 发布后 API latest 指向该版本，非 draft、非 prerelease。
 - 发布提交为 [`12db499b58b6ac4929ad42af8366622bdeec7bd3`](https://github.com/AoiOTA/Kiss-My-Agent/commit/12db499b58b6ac4929ad42af8366622bdeec7bd3)，tree 为 `7865fde48c029947f8c18b917f4e4a794fceefa0`；不可变 annotated tag 对象为 `33f93d10465d5b0ded2d5cee148d348a7e30e5e6`，解引用至该发布提交。实现 PR [#23](https://github.com/AoiOTA/Kiss-My-Agent/pull/23) 已 squash 合并；发布追踪见 [#22](https://github.com/AoiOTA/Kiss-My-Agent/issues/22)。本节之外的 v0.2.6 历史事实不作为 v0.2.7 验证结果。
 - PR 的 [Validate](https://github.com/AoiOTA/Kiss-My-Agent/actions/runs/34021930732) 与 [Pages build](https://github.com/AoiOTA/Kiss-My-Agent/actions/runs/34021930737) 通过；合并提交的 [Validate](https://github.com/AoiOTA/Kiss-My-Agent/actions/runs/34022627262)、[Pages build/deploy](https://github.com/AoiOTA/Kiss-My-Agent/actions/runs/34022627859) 与 [tag Validate](https://github.com/AoiOTA/Kiss-My-Agent/actions/runs/34022770572) 通过。合并提交的完整 deterministic 检查通过；中英文 Pages 已核对新版内容。
 - 本轮静态证据：完整 `scripts/test_all.py` 通过，42 tests、16 页隔离站点构建、whitespace 与 repository-state 检查通过；两个 Skill 的 `quick_validate` 和 Plugin validation 通过。独立审查发现的两处安装文档矛盾已修复并复核关闭；原有角色正文与历史 snapshots 的保留已核验。
@@ -89,6 +91,7 @@
 | `v0.2.5` | 有 | Setup 缩小到精确 KISS targets，candidate、CI、公开升级与 fresh check 通过。 |
 | `v0.2.6` | 有 | 解除 Master 与 starter roles 的 Sol 锁定；Astra/high Master 与 Astra/medium Explorer 的 candidate 和 public fresh-session 路径通过。 |
 | `v0.2.7` | 有 | 保留 v0.2.6 设计，设置缺失 Astra/high 与角色 Astra/medium 默认值，实验上下文默认开启；局部委派修复、生命周期兼容、公开分发及桌面三角色有界验收通过。 |
+| `v0.2.8` | 有 | 发布 PawWeaver dogfood 的有据局部修正；确定性检查、公开归档、新装、本地更新和 fresh CLI 发现通过，未扩大行为收益声明。 |
 
 所有已推送 tags 都保留且不可移动、删除或重建。没有 GitHub Release 的 tag 不描述为正式发布版本。
 
