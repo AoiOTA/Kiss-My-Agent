@@ -1,10 +1,12 @@
 # KISS engineering decisions
 
-This rule expands the permanent boundaries for decisions that are genuinely ambiguous. It does not replace project ownership or user acceptance.
+This rule applies the permanent boundaries to mechanism, ownership, failure, and scope decisions. It does not replace project ownership or user acceptance.
 
 ## Size, ownership, and delegation
 
-Estimate work by uncertainty, coupling, consequence, and verification cost, not line count. The master owns orchestration, architecture and acceptance decisions, conflict resolution, evidence interpretation, and final synthesis; it must delegate delegable bulk exploration, implementation, validation, and review. Choose task partitioning, roles, agent count, and serial or parallel work to keep coordination proportionate, not to waive delegation. The master may directly perform the orchestration judgments and result integration needed for those responsibilities; give each delegate the smallest sufficient goal, paths, owner, invariants, evidence, resources, and stop condition.
+Estimate work by uncertainty, coupling, consequence, and verification cost, not line count. The master owns orchestration, architecture and acceptance decisions, conflict resolution, evidence interpretation, and final synthesis. The master may directly complete clear small or local work. Actively delegate substantial bulk work, independent parallel work, or work needing a different perspective when the benefit outweighs coordination cost; optional roles are not a reason for the master to do everything. Judge that choice over a complete deliverable, not each command in isolation. Delegate independent investigation, implementation, or readout through completion while the master handles shared resources and integration. Match the role to the required read or write authority. Reuse an agent when the same problem, code path, or needed reasoning continues; start fresh when the goal or code domain shifts and its prior context is irrelevant. Pass a minimal bounded handoff, and use its findings unless a conflict or material evidence gap needs checking. Each available role may have zero, one, or multiple instances, with no fixed team or sequence. Give each delegate the smallest sufficient goal, paths, owner, invariants, evidence, resources, and stop condition. If delegation is disabled or unavailable, or no suitable role exists, the master may continue within its capabilities and existing authorization without a staffing approval step. Report any unmet explicit requirement for independent checking or a specific role, or a real capability gap; do not claim that direct execution fulfilled it.
+
+In delegation and handoff, the master retains every unfinished authorized goal rather than replacing the whole goal set with the latest subtask; each worker retains its complete assigned scope without assuming ownership of unrelated goals.
 
 Trace the active owner, producer, and current consumer before choosing the modification surface. Keep a single-caller need local. Extract or share only at a real interface boundary or when another present consumer makes duplication materially worse. A supported conclusion that no change is needed is complete work.
 
@@ -19,6 +21,8 @@ Before adding or retaining a nontrivial mechanism, answer silently:
 3. Would removing it change the requested outcome or evidence enough to justify its ongoing implementation and cognitive cost?
 
 No answer is an instruction to keep the design local or remove the mechanism, not to write a Rent Test record. Several mechanisms with no external consumer cannot justify one another as a cluster.
+
+Assess the added field, check, or indirection itself: what current consumer needs it, and what information or behavior does that consumer actually require? A useful enclosing mechanism does not justify copying or retaining all of its inputs.
 
 ## Mechanism semantics
 
@@ -56,6 +60,8 @@ Internal bugs, impossible states, corrupted required input, and invariant violat
 Optional external capability may degrade only when the failure class is specific and expected, the remaining product behavior is correct without it, and the degraded reason is visible. Observe asynchronous work and subprocess completion at an owner boundary.
 
 ## Five-question review
+
+Compose roles around the work, not a fixed pipeline. Before assigning independent review, identify the independent perspective that could change the decision, such as a hidden behavior, interface, or consequential scientific inference risk; coder completion alone is not a reason. For a local reversible change with sufficient validation, owner verification and master integration suffice. Do not routinely repeat checks already completed by a worker; the master retains architecture, acceptance, and evidence judgment.
 
 An independent review asks only what matters:
 

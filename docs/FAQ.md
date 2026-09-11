@@ -54,9 +54,9 @@ The list should show `kiss-my-agent@kiss-my-agent` as `installed, enabled` at th
 <a id="after-setup"></a>
 ## What do I do after setup?
 
-Use Codex normally. You do not have to invoke KISS before every task. The project `AGENTS.md` instructions direct the master to coordinate, decide, and summarize while delegated roles own investigation, implementation, and review. They call for direct assignment by default, allow multiple instances of one role, and keep one person or Agent responsible for each shared resource. A qualifying large independent subsystem may have one temporary lead, but no deeper or permanent hierarchy.
+Use Codex normally; no user reminder is needed to apply KMA guidance. The master may directly complete clear small or local work, and should actively delegate substantial bulk, independent parallel work, or work needing another perspective when the benefit outweighs coordination cost. Choose by workload, parallel opportunity, coupling, risk, and coordination cost; optional roles do not mean the master should do everything. Each available role may have zero, one, or multiple instances, with no fixed team, sequence, or required subagent launch. The master retains architecture, acceptance, and evidence judgment. Delegation is flat by default, with one operator per shared resource; a qualifying large independent subsystem may have one temporary lead, but no deeper or permanent hierarchy.
 
-If delegation is disabled or unavailable, or no suitable role exists, the instructions require the master to report the staffing issue and ask you to repair staffing or explicitly switch this task to ordinary single-conversation execution. Only that explicit switch authorizes direct work.
+If delegation is disabled or unavailable, or no suitable role exists, the master may continue within its capabilities and existing authorization without a staffing approval step. Report unmet explicit requirements for independent checking or a specific role, and real capability gaps; direct execution must not be presented as satisfying them.
 
 <a id="agent-reuse"></a>
 ## When should I reuse an Agent or start a fresh one?

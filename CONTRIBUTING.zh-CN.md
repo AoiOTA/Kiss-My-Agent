@@ -59,7 +59,7 @@ py -3 --version
 - 没有已批准的当前 consumer 时，不扩张 setup、workflow、release、compatibility、telemetry、scoring 或 evaluation machinery。
 - 保持三个 owner：`config.toml` 中的默认配置、standalone role TOML discovery，以及 AGENTS 中的动态调度。Setup 独立为缺失 Master 字段补入 `gpt-6-astra` / `high`、为两个多代理开关补入 `true`，并为 `features.context_management.experimental_mode` 补入 `true`。保留已有用户值；只有完整的顶层 `gpt-5.6-sol` / `max` pair、每个 key 准确出现一次且每行带准确 KISS marker 时，才成对更新为 Astra/high。Marker 控制 remove ownership，除此例外不授权重置已有值。Config 不得枚举角色文件。
 - 把提供的角色视为可编辑的 fresh-setup seeds，而不是封闭 catalog；角色 `name` 是身份，文件名只是约定。角色一旦存在即归用户所有，setup 或 Plugin update 永不覆盖、迁移或判定其版本。
-- 让 Master 只负责调度、决策与汇总。默认扁平 direct fan-out，允许同一角色多个实例，并为每个共享资源保留一个 writer/operator。合格的大型独立子系统可使用一个临时有界 lead，其 workers 不再委派；绝不增加更深或永久层级。
+- Master 可直接完成明确的小任务或局部工作；对实质批量工作、可独立并行或需要不同视角的工作，在收益超过协调成本时应积极委派。Master 保留架构、验收与证据判断。每种角色可有零个、一个或多个实例，无固定组合或顺序；委派默认扁平，每个共享资源保留一个 writer/operator。合格的大型独立子系统可使用一个临时有界 lead，其 workers 不再委派；绝不增加更深或永久层级。
 - 区分由 Host/对话选择的 Master settings 与 role settings。当前 starter roles 设置 `model = "gpt-6-astra"` 与 `model_reasoning_effort = "medium"`；显式 spawn 设置先于 `[agents]` defaults 与 parent 解析，随后任何 role-level 值成为最终 override。每个已有角色都作为 user-owned 保留；后续 setup 和 update 不得迁移，role wizard 也不得编辑 Master config。
 - 保留用户和其他 Agent 的无关改动。范围外 refactor、生成产物和格式化不得进入 diff。
 - 每份英文开发者文档与简体中文配套文件必须同步：语言切换、显式 anchor IDs、章节顺序和 fenced command blocks。
@@ -162,7 +162,7 @@ codex --version
 
 真实检查分为两个不同层面：
 
-1. **项目 instructions 与 roles。** 从当前 checkout 启动可信的新 Codex 会话，给它一项真实且有界的贡献任务。让 Master 只负责调度、决策与汇总：默认扁平 direct fan-out 到 `kiss_explorer`、`kiss_coder` 与 `kiss_reviewer`，合理时使用同角色多个实例，并为每个共享资源指定一个 owner。只有合格的大型独立子系统才使用临时 lead，绝不形成更深层级。确认无关 dirty-tree 改动仍被保留，subprocess failures 仍然可见。
+1. **项目 instructions 与 roles。** 从当前 checkout 启动可信的新 Codex 会话，给它一项真实且有界的贡献任务。让 Master 按工作量、并行机会、耦合、风险与协调成本选择直接完成小任务或有收益的委派。对有收益的独立批量工作或需要不同视角的工作应积极委派，不要求固定角色组合；委派保持扁平，每个共享资源指定一个 owner。只有合格的大型独立子系统才使用临时 lead，绝不形成更深层级。确认无关 dirty-tree 改动仍被保留，subprocess failures 仍然可见。
 2. **已编辑的 plugin package。** 不要为了让本地 cache 失效而修改 tracked release manifest 或 Git-backed marketplace。使用 Codex 的 Plugin Creator local-update workflow，在独立 local marketplace 中暂存一次性副本，让该 marketplace 指向暂存副本，并且只给暂存 manifest 添加一个 `+codex.<cachebuster>` 后缀。把它从该 local marketplace 安装进隔离 Codex home，然后启动新 thread，让 Host 加载暂存的 Skills。
 
 外部贡献者可复制下面的 Codex prompt 调用该 workflow：
@@ -191,7 +191,7 @@ $plugin-creator update this existing KISS My Agent plugin for local development.
 
 Coordinator wait window 在没有新消息时返回，不代表子 Agent 超时或失败。有界且不冲突的任务应继续；只有 assignment 已失效、越界、争用共享资源，或用户明确要求停止时才中断。
 
-如果 delegation 被禁用、不可用或没有合适角色，应报告 staffing issue，让用户选择修复或启用 staffing，或者明确把本任务切换为普通单对话。只有用户选择后者，Master 才能直接执行；不得静默接手。
+如果 delegation 被禁用、不可用或没有合适角色，Master 可在已有授权和自身能力内继续工作，无需为 staffing 另设审批。用户明确要求的独立检查、特定角色或真实能力缺口仍须报告，不能把直接执行冒充为满足这些要求。
 
 <a id="pull-requests"></a>
 ## Pull Requests

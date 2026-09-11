@@ -1,19 +1,35 @@
 ---
 name: kiss-my-agent
-description: Use only when a research-engineering task has a non-obvious decision about a persistent or shared mechanism, a local fix versus a new system, a reversible probe versus more planning or a new mechanism, experiment validity or evidence strength, runtime versus evaluator ambiguity, or expansion of scope or acceptance. Do not use for an already-decided implementation, ordinary small fix, mechanical edit, routine test or build, Git operation, lookup, or formatting.
+description: Turn research-engineering goals and existing evidence into the next useful experiment or smallest sufficient implementation, reducing unnecessary design and blocking. Apply proactively when choosing or changing an action, considering a reversible probe, dividing work, or interpreting results in a KMA-managed assignment; reuse guidance during continuations.
 ---
 
 # KISS My Agent
 
-Invoke this skill explicitly as `$kiss-my-agent:kiss-my-agent` to resolve one consequential ambiguity, then return to the task. It is not a general workflow.
+Each agent reads the current `$kiss-my-agent:kiss-my-agent` entry when first taking on KMA-managed work; the master's reading does not substitute for a worker's. Reuse loaded guidance across subsequent assignments, continuations, and corrections; read again only when a guidance update is known or relevant detail is missing. Apply the guidance below when choosing or changing the next action, dividing work, or interpreting a result, without waiting for a user reminder or first judging the decision non-obvious. Use the current situation to choose the next action: delegate an independent deliverable, act on still-valid evidence, or repair an observed failure locally. In an explicit KMA dogfood assignment, correct avoidable behavior in the current work as it appears, then distinguish a failure to apply existing guidance from a gap or ambiguity in it. Existing prose does not prove effectiveness: fix the owning guidance when an actionable cause supports it and apply the correction in the next real task; a deviation alone does not require a Skill edit. Judge the resulting work, without adding incident logs or compliance gates. Mechanical execution needs no repeated reading, review, or compliance record.
 
-1. Name the ambiguity and its current consumer or decision.
-2. Read exactly one relevant rule file:
-   - engineering ownership, mechanisms, failures, or scope: [engineering-decisions.md](references/rules/engineering-decisions.md)
-   - experiments, versions, runtime identity, or claims: [experiments-and-evidence.md](references/rules/experiments-and-evidence.md)
-3. If a concrete contrast would decide the issue, additionally read exactly one matching case:
-   - [minimal-fix-vs-new-system.md](references/cases/minimal-fix-vs-new-system.md)
-   - [degraded-safety-vs-hidden-failure.md](references/cases/degraded-safety-vs-hidden-failure.md)
-   - [product-contract-provenance-vs-agent-proof.md](references/cases/product-contract-provenance-vs-agent-proof.md)
-   - [verification-coordination-vs-workflow-platform.md](references/cases/verification-coordination-vs-workflow-platform.md)
-4. Apply the narrowest applicable guidance. Do not read all rules or cases, create a checklist artifact, or add a mechanism merely to demonstrate compliance.
+## Choose the next useful action
+
+Start from the user's required outcome and explicit constraints. Treat examples, reference plans, and provisional methods as candidates unless the user makes them requirements; illustrative numbers alone do not justify parameter values. When choosing an MVP or interpreting a result, check whether the exercised behavior preserves the required capabilities in the user's defining use cases. A narrower prerequisite experiment may help, but its success does not turn unexercised requirements into optional future work. Revise methods using existing results; when corrected, repair the mismatch while retaining valid progress, without turning a reference plan into a mandatory backlog.
+
+Reuse evidence while its relevant implementation, inputs, evaluator, and validity conditions still match; a new policy or parameter identity alone does not invalidate an unchanged mechanism conclusion. A probe earns its cost only if a plausible result would change the next action. When the mechanism is already established, act on it in the real task path instead of repeatedly confirming it or packaging more proof.
+
+Prefer the smallest sufficient reversible implementation or experiment that advances the requested MVP or resolves a consequential uncertainty. Minimize total cost to a useful task result, not the size of each run. Small means sufficient to answer the question: finite execution or parameter updates do not establish learning. If learning is the question, run the actual learning-and-evaluation path at a justified scale. Repeated short screens with no discriminating result call for reconsidering the recipe or experiment, not automatically more screens or more budget.
+
+Distinguish causal attribution from making the task work. An ablation needs the relevant variables controlled. For task performance, use a coherent recipe supported by existing evidence within the assigned architecture and budget. When an adapted method misses the expected behavior, examine the few omitted or changed conditions that could supply it before choosing another local adjustment; use this comparison to select the next experiment, not to build a full reproduction checklist. Assess task behavior without attributing the outcome to one setting. Keep user acceptance fixed and label provisional engineering evidence accordingly.
+
+Keep changes in the active owner and preserve the consumer semantics needed by the question. A component probe may replace the upstream input source while retaining those downstream constraints; labeling a bypass diagnostic does not make it the assigned experiment. Add a shared mechanism, defensive path, or prerequisite only for a current consumer, observed failure, or material safety boundary; agent uncertainty alone does not justify it. After a prerequisite is repaired, return to the assigned outcome. Stop when proportionate evidence supports completion or no change, or when an actual scope, ownership, acceptance, authorization, or resource boundary requires a decision.
+
+## Preserve the boundaries
+
+People own goals, architecture, acceptance, non-goals, and stop conditions. Reversible probes do not relax authorization or safety. Preserve unrelated changes. The master retains unfinished goals and owns orchestration, architecture, acceptance, and evidence interpretation. It may directly complete clear small or local work; actively delegate substantial bulk, independent parallel work, or work needing another perspective when the benefit outweighs coordination cost. Judge that choice over a complete deliverable, not each command in isolation. Delegate independent investigation, implementation, or readout through completion while the master handles shared resources and integration. Match the role to the required read or write authority. Reuse an agent when the same problem, code path, or needed reasoning continues; start fresh when the goal or code domain shifts and its prior context is irrelevant. Pass a minimal bounded handoff, and use its findings unless a conflict or material evidence gap needs checking. Each available role may have zero, one, or multiple instances; no fixed team or sequence is required, and coder completion alone does not require independent review. Unavailable delegation does not block authorized work within the master's capabilities; report unmet explicit role or independence requirements and real capability gaps. Each worker retains its assigned scope. Give each shared resource one operator. Preserve internal, asynchronous, and subprocess failure causes; observe completion and never substitute stale data or hide failure as success. State only the evidence level reached: checks and mechanism demonstrations do not prove the user's outcome. Do not turn this guidance into product state, gates, telemetry, or checklist artifacts.
+
+## Consult detail when it changes the decision
+
+Use the entry directly when sufficient. Read the relevant reference for unresolved detail, and reuse it while applicable; there is no fixed rule/case reading sequence.
+
+- Ownership, delegation, mechanisms, failures, or scope: [engineering-decisions.md](references/rules/engineering-decisions.md).
+- Experiment design, runtime identity, validity, or claims: [experiments-and-evidence.md](references/rules/experiments-and-evidence.md).
+- A local repair is becoming a shared system: [minimal-fix-vs-new-system.md](references/cases/minimal-fix-vs-new-system.md).
+- Optional degradation could conceal internal failure or substitute stale/default data: [degraded-safety-vs-hidden-failure.md](references/cases/degraded-safety-vs-hidden-failure.md).
+- Fields, copied metadata, identity requirements, or proof checks may serve only agent bookkeeping: [product-contract-provenance-vs-agent-proof.md](references/cases/product-contract-provenance-vs-agent-proof.md).
+- Shared verification is growing persistent coordination, approvals, or readiness prerequisites: [verification-coordination-vs-workflow-platform.md](references/cases/verification-coordination-vs-workflow-platform.md).

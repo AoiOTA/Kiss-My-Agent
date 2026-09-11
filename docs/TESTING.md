@@ -21,7 +21,7 @@ Do not combine them into a stronger claim. A source check is not live discovery,
 <a id="user-verification"></a>
 ## User verification needs no Python
 
-For a simple one-off task, use an ordinary single conversation; no setup evidence is required. To verify the persistent executive workflow after Plugin installation or update, start a new session and use the Plugin-owned interfaces:
+For a simple one-off task, use an ordinary single conversation; no setup evidence is required. To verify the persistent KMA instructions after Plugin installation or update, start a new session and use the Plugin-owned interfaces:
 
 ```text
 $kiss-my-agent:kiss-my-agent-setup set up this project
@@ -29,7 +29,7 @@ $kiss-my-agent:kiss-my-agent-setup check this project
 $kiss-my-agent:kiss-my-agent-setup configure agents for this project
 ```
 
-These operations use Codex file tools and require no Python, Node.js, Docker, or package manager. Git-backed Plugin installation or refresh separately requires a usable `git` executable and GitHub network access. `check` proves only the inspected file state. Use `/skills` and a narrow role Smoke when live discovery matters. If delegation is unavailable or no role can staff the test, record the failed precondition and obtain the user's explicit choice before switching to an ordinary single-conversation test.
+These operations use Codex file tools and require no Python, Node.js, Docker, or package manager. Git-backed Plugin installation or refresh separately requires a usable `git` executable and GitHub network access. `check` proves only the inspected file state. Use `/skills` and a narrow role Smoke when live discovery matters. If a requested role Smoke cannot run, report the missing discovery evidence; direct work cannot prove role loading. Continue unrelated authorized work within available capabilities.
 
 <a id="contributor-suite"></a>
 ## Contributor test suite
@@ -92,6 +92,14 @@ Installation, upgrade, setup, removal, and changes to config, instructions, Skil
 
 Record the OS, native shell, Codex version, Plugin version, source identity, scope, trust state, and whether the session is new. An old session cannot prove that changed configuration loaded or failed to load.
 
+For live delegation testing, use a regular fresh session; with `codex exec`, omit `--ephemeral`. In one PawWeaver dogfood comparison using Codex CLI 0.153.4 and KISS My Agent v0.2.7 in the same trusted project, `--ephemeral --json --sandbox read-only` exposed all three KISS roles and both Skills, but native `kiss_explorer` spawning failed twice with `no thread with id`. A regular `codex exec` session without `--ephemeral` subsequently spawned one native `kiss_explorer`, which completed its read-only investigation and returned findings.
+
+Preserve the failed outcome as a Host/session test failure: discovery did not establish working delegation, and no child result existed. To check recovery, confirm that a native child completes the bounded task and returns its result; successful discovery or spawning alone is insufficient. This observation does not establish the root cause, general `--ephemeral` incompatibility, full CLI 0.153.4 compatibility, or KISS effectiveness.
+
+If named roles disappear after moving a project or changing its launch path, compare the current launch path and resolved project directory with the Host's persisted project trust entry. Role TOML files can exist while that project scope is not loaded. In a separate PawWeaver observation on CLI 0.153.4, the old symlink path was trusted but the canonical launch directory was absent from persisted project trust. A temporary CLI trust override did not restore discovery; adding only the authorized canonical project trust entry restored the native role catalog in a fresh ordinary session. All three native KISS roles then completed bounded read-only tasks; spawn arguments and child session records identified the roles and Astra/medium execution. This was project trust/discovery recovery, not a KISS code defect or proof of broader task effectiveness.
+
+Repair the observed current-project trust mismatch through the Host under the user's authorization, preserving existing entries, then check fresh native role execution. Keep role files in their intended project scope; this observation does not justify moving them into global scope, reinstalling the Plugin, or changing unrelated feature flags. File existence, discovery, and a completed native child task remain distinct evidence.
+
 <a id="skill-smoke"></a>
 ## Skill discovery Smoke
 
@@ -105,7 +113,7 @@ Ordinary implementation, tests, builds, Git, lookup, and formatting should not r
 <a id="role-smoke"></a>
 ## Three-role Smoke
 
-Keep the master on coordination, decisions, and synthesis: it assigns but does not perform the disposable investigation, implementation, or review. Default to direct flat fan-out, and use multiple instances of a role when that is the useful shape. Use the Host custom-Agent interface or explicitly ask it to delegate one bounded task to each discovered role:
+This explicit role Smoke tests the three seed roles, not a required team for ordinary work. The master assigns the disposable tasks through the Host custom-Agent interface or a request to delegate one bounded task to each discovered role:
 
 1. `kiss_explorer`: read a fixture and report exact anchors without editing.
 2. `kiss_coder`: own one isolated disposable file, create it only when absent, verify it, and remove only that file.
@@ -141,13 +149,13 @@ Only after the required public checks pass may the maintainer create the GitHub 
 <a id="dogfooding"></a>
 ## Dogfooding during development
 
-Use the current KISS project instructions and suitable real roles while developing the next version. Keep the master on orchestration, decisions, and synthesis; default to flat direct fan-out and assign investigation, implementation, and review to the corresponding roles. Record where they reduce scope, expose failure, or improve evidence, and where they cause a reproducible wrong stop or unnecessary mechanism.
+Use the current KISS project instructions while developing the next version. The master may directly complete clear small or local work, and should actively delegate substantial bulk, independent parallel work, or work needing another perspective when the benefit outweighs coordination cost. Choose by workload, parallel opportunity, coupling, risk, and coordination cost; optional roles do not mean the master should do everything. Each available role may have zero, one, or multiple instances, with no fixed team, sequence, or required subagent launch. Keep delegated work flat by default. Observe whether the division of work reduces scope, exposes failure, or improves evidence, and whether it causes reproducible wrong stops or unnecessary mechanisms.
 
-Keep product runtime and evaluator ownership separate: the Plugin under test does not define its own acceptance criteria or approve its own release. Human maintainers own the goal and acceptance; deterministic tests, an independent review, and fresh-session replay judge the observed result. Dogfooding is engineering evidence, not autonomous self-certification.
+Keep product runtime and evaluator ownership separate: the Plugin under test does not define its own acceptance criteria or approve its own release. Human maintainers own the goal and acceptance; use deterministic tests, independent review where it adds decision value or is explicitly required, and fresh-session replay as applicable to judge the observed result. Dogfooding is engineering evidence, not autonomous self-certification.
 
 A coordinator wait call returning without an update does not prove that a child Agent timed out or failed. Let bounded, non-conflicting work continue; interrupt only for an obsolete task, a scope or resource conflict, or an explicit user stop.
 
-If delegation becomes disabled or unavailable, or no suitable role exists, record the staffing issue. The master must ask whether to repair staffing or explicitly switch this task to ordinary single-conversation execution; it must not silently continue as the worker.
+If delegation is disabled or unavailable, or no suitable role exists, the master may continue within its capabilities and existing authorization without a staffing approval step. Report unmet explicit requirements for independent checking or a specific role, and real capability gaps; direct execution must not be presented as satisfying them.
 
 <a id="readme-pilot"></a>
 ## README newcomer Pilot

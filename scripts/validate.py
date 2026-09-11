@@ -311,8 +311,13 @@ def validate_distribution_interfaces(root: Path) -> None:
     if manifest.get("name") != "kiss-my-agent":
         fail("unexpected plugin manifest name")
     version = require_nonempty_string(manifest.get("version"), "plugin.version")
-    if not re.fullmatch(r"(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)", version):
+    if not re.fullmatch(
+        r"(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)"
+        r"(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?",
+        version,
+    ):
         fail("plugin.version must be a stable semantic version")
+    release_version = version.split("+", 1)[0]
     for key in ("description", "homepage", "repository", "license"):
         require_nonempty_string(manifest.get(key), f"plugin.{key}")
     if manifest["homepage"] != PROJECT_HOMEPAGE or manifest["repository"] != PROJECT_REPOSITORY:
@@ -389,8 +394,8 @@ def validate_distribution_interfaces(root: Path) -> None:
         fail("marketplace plugin source must use the Git URL interface")
     if source.get("url") != manifest["repository"]:
         fail("marketplace plugin URL must match plugin.repository")
-    if source.get("ref") != f"v{version}":
-        fail("marketplace plugin ref must match plugin.version")
+    if source.get("ref") != f"v{release_version}":
+        fail("marketplace plugin ref must match plugin.version without build metadata")
     policy = plugin.get("policy")
     if not isinstance(policy, dict):
         fail("marketplace plugin policy must be an object")
@@ -441,8 +446,8 @@ def validate_setup_interface(root: Path) -> None:
     )
     for token in (
         "The master owns orchestration",
-        "must delegate delegable bulk exploration",
-        "Multiple instances of any role",
+        "The master may directly complete clear small or local work",
+        "Each role may have zero, one, or multiple instances",
         "Coordination is flat by default",
         "independent subsystem needs substantial parallel work",
         "direct aggregation would pollute the master's context",
@@ -450,9 +455,9 @@ def validate_setup_interface(root: Path) -> None:
         "workers must not delegate again",
         "at most one intermediate management layer",
         "no deep nesting",
-        "must not silently take over delegated work",
-        "ordinary single-conversation execution",
-        "executive-only workflow cannot staff delegated work",
+        "Actively delegate substantial bulk work",
+        "without a staffing approval step",
+        "not a prohibition on authorized direct work",
         "Static setup cannot observe a higher-precedence `false`",
         "The Host still resolves the runtime-effective model and effort",
         "recognize this legacy pair only when both top-level assignments occur exactly once",
@@ -461,7 +466,7 @@ def validate_setup_interface(root: Path) -> None:
         "A missing member, an unmarked line, or a changed value makes the existing master settings user-owned",
         "Remove each current default assignment independently",
         "every existing correctly identified role byte-for-byte",
-        "corresponding exact v0.2.6, v0.2.5, or v0.1 remove-only snapshot",
+        "corresponding exact v0.2.7, v0.2.6, v0.2.5, or v0.1 remove-only snapshot",
         "Historical snapshots are exact-byte remove comparison inputs only",
         "setup, check, and configure must not read them",
         "explicit value or `inherit`",
@@ -857,7 +862,7 @@ def validate_document_interfaces(root: Path) -> None:
         "`kiss_reviewer` | Independent read-only review | `gpt-6-astra` | `medium`",
         "every role that already exists is user-owned",
         "parent turn's live sandbox and approval overrides",
-        "ordinary single-conversation execution",
+        "without a staffing approval step",
         "Coordination is flat by default",
         "at most one intermediate management layer",
         "bounded department-lead assignment",
@@ -931,11 +936,27 @@ def validate_fixtures(root: Path) -> int:
         v026_relative = f"assets/v0.2.6-agents/{role_name}.toml"
         v026_path = role_assets / f"v0.2.6-agents/{role_name}.toml"
         v026 = load_toml(v026_path)
-        current = load_toml(root / f".codex/agents/{role_name}.toml")
-        if current.pop("model", None) != "gpt-6-astra" or current != v026:
-            fail(f"current role must preserve v0.2.6 fields except Astra model: {role_name}")
+        # Historical removal inputs do not track current instruction revisions.
+        # validate_roles checks current settings and responsibility boundaries.
+        if v026.get("name") != role_name or "model" in v026:
+            fail(f"v0.2.6 remove snapshot identity or model differs: {role_name}")
+        if role_name == "kiss_reviewer" and "assigned final change," not in v026["developer_instructions"]:
+            fail("v0.2.6 reviewer snapshot differs from its historical review scope")
         if v026_relative not in lifecycle:
             fail(f"setup lifecycle must reference v0.2.6 remove snapshot: {role_name}")
+
+        v027_relative = f"assets/v0.2.7-agents/{role_name}.toml"
+        v027 = load_toml(role_assets / f"v0.2.7-agents/{role_name}.toml")
+        expected = dict(v026)
+        expected["model"] = "gpt-6-astra"
+        if role_name == "kiss_reviewer":
+            expected["developer_instructions"] = expected["developer_instructions"].replace(
+                "assigned final change,", "assigned change or decision,", 1
+            )
+        if v027 != expected:
+            fail(f"original v0.2.7 remove snapshot differs: {role_name}")
+        if v027_relative not in lifecycle:
+            fail(f"setup lifecycle must reference v0.2.7 remove snapshot: {role_name}")
 
         v025_relative = f"assets/v0.2.5-agents/{role_name}.toml"
         v025_path = role_assets / f"v0.2.5-agents/{role_name}.toml"
@@ -949,7 +970,7 @@ def validate_fixtures(root: Path) -> int:
         "skills/kiss-my-agent-setup/configure-agents.md",
     ):
         if any(f"assets/{version}-agents" in (root / relative).read_text(encoding="utf-8")
-               for version in ("v0.2.6", "v0.2.5")):
+               for version in ("v0.2.7", "v0.2.6", "v0.2.5")):
             fail(f"historical remove snapshots must not be consumed by {relative}")
     effective_chain = [
         root / "AGENTS.md",
