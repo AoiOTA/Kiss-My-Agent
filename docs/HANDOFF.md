@@ -2,6 +2,14 @@
 
 这是本仓库唯一的 canonical handoff。详细过程由 Git history、Issue 和 PR 保存，不创建 dated、attempt 或 campaign 副本。
 
+## v0.2.8 发布候选（2026-09-11）
+
+- **用户恢复范围**：发布追踪见 [#26](https://github.com/AoiOTA/Kiss-My-Agent/issues/26)。用户已明确授权发布 v0.2.8 并更新本地安装；本轮仅恢复 KMA 发布与安装工作。PawWeaver 继续暂停，原未完成目标保留，不启动新实验，也不追加 KMA 行为规则。
+- **候选内容**：基于已合并的 [PR #25](https://github.com/AoiOTA/Kiss-My-Agent/pull/25)，复用其中的完整交付与委派修正、指导加载复用、实验及真实 consumer 约束、原 v0.2.7 角色移除兼容和 build metadata 校验。候选仅将 manifest、marketplace ref 与双语 README badge 对齐到 `0.2.8` / `v0.2.8`；不改历史 tag、兼容 snapshots 或测试 fixture。
+- **本地检查**：现有隔离 Python 环境运行 `python scripts/test_all.py` 完整通过：45 tests、16 页隔离站点构建、repository validation、Git whitespace 与工作树不变检查。最后仅补本节检查事实和 issue 链接，再做针对文档的 validator 与 diff 检查，不重复全量测试。
+- **证据边界**：复用 PR #25 的局部行为记录与既有确定性检查；它们不证明普遍行为可靠性、量化效率收益或机器人学习成功。v0.2.8 候选的本地完整检查、当前提交的远程 CI、公开归档、安装与新会话发现分别记录，尚未完成的项目不视为通过。
+- **发布状态**：本节是候选说明，不声明 v0.2.8 已创建 tag、Release 或完成本地更新；当前已有正式发布证据仍为下方的 v0.2.7。发布与安装完成后补入实际提交和验证结果。
+
 ## PawWeaver dogfooding · 发布后暂停（2026-09-11）
 
 - **当前停止边界**：用户已授权完成当前最后一轮奖励诊断后，将 KMA 与 PawWeaver 分别提交、推送远程，然后暂停推进。不再启动新训练或新规则修改；原来的稳定全身控制、完整末端位姿与 KMA 实际行为收益目标仍未完成，暂停后不自动继续。
