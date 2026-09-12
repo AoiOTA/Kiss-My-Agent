@@ -228,3 +228,26 @@ delivery across an execution boundary. Some documentation was reread, and
 the temporary Git packaging is not evidence of reduced work. No controlled
 comparison establishes an efficiency gain or that the guidance caused these
 actions; no additional KMA mechanism was added from this continuation.
+
+
+### Completing a failed AS2 experiment, 2026-09-13
+
+The existing native AS2 owner resumed when the real iteration-4000 checkpoint
+became available. The prescribed fixed16 MuJoCo evaluation failed in all 16
+cases. The export verifier then stopped after its original-policy worker
+failed numerically. The owner retained that failure and executed the missing
+exported-policy worker independently, completing the assigned consumption
+attempt instead of dropping it at the first verifier exit. Both workers failed
+at 0.740 seconds with identical saved arrays; the report explicitly marks
+package consumption failed, despite actor and prefix identity.
+
+The separate GPU owner completed the already planned paired Lab evaluation.
+The AS2 owner combined improved tracking with seven inverted cases and reduced
+support, rather than promoting the smaller tracking error to stable control.
+The candidate stopped at its authorized 4000 updates. The final report is
+PawCerto `docs/as2-umi-learning-result.md`; its artifact paths retain the original
+verifier exit and both failed workers. This record uses the owners' delivered
+results and the final report, not an independent replay. It supports bounded
+outcome retention and honest failure interpretation in this task; it does not
+prove a causal guidance effect, an efficiency improvement, or general
+reliability. No new rule, retry mechanism or validation gate was added.
