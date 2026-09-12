@@ -117,3 +117,51 @@ future prompting or coordination errors, establish lower time/token cost, or
 validate physical control. Existing long robot runs and their physical failures
 remain separate evidence. Installation-only documentation corrections after
 that run are not described as having been loaded in it.
+
+
+### Delegation continuation failures, 2026-09-12
+
+In a later PawCerto continuation, the coordinating owner reports two failures
+while a sole GPU operator and independent runtime, solver, evaluation, and
+adaptation owners were already assigned. The solver owner had completed a
+three-scenario six-axis probe. A follow-up to integrate the selected result
+returned the Host error `agent thread limit reached`; the master then made
+about 90 lines of runtime force and train/evaluation changes. Other owners
+subsequently completed, but the master did not revisit that temporary capacity
+failure and return the implementation to the relevant solver owner. After the
+user challenged the continued direct work, a follow-up succeeded and returned
+the complete implementation, testing, and post-run validation assignment to
+that owner. Successful reassignment is the evidence reached here; it does not
+establish completion of that owner's new deliverable.
+
+Separately, the master sent `send_message` to a completed evaluation owner and
+treated the message as starting new work. The GPU operator waited for supposed
+record preparation although no new owner turn had started. The master later
+used `followup_task` to restart the owner, and the coordinating owner reports
+completed evaluations of the initial and update-1600 checkpoints. The current
+Host tools distinguish message delivery from triggering an idle agent's turn;
+this was incorrect tool use, not a missing KMA scheduler.
+
+The inspected entry already requires complete deliverables, relevant-context
+reuse, owner retention, and continued useful independent work. Its engineering
+rule also calls for repartitioning when ownership changes and observing
+asynchronous completion. Continuing authorized direct work after the observed
+Host error was permitted; that temporary failure did not establish permanent
+unavailability or remove the need to apply the existing delegation judgment
+when other owners completed. No contradictory instruction was found that
+required the master to keep the implementation. The narrow-follow-up issue
+above had already been corrected before these observations. No additional
+ownership rule, retry mechanism, dispatch wrapper, or mandatory staffing step
+was added for these execution failures.
+
+This record uses the coordinating owner's report, not an independent replay.
+The recovered handoff and reported evaluations support corrected execution
+after a user reminder. They do not show that guidance prevented recurrence,
+that a capacity retry will generally succeed, that all ongoing implementation
+or physical validation finished, or that KMA improved time or token cost.
+
+The inspection also found stale English/Chinese Extending text excluding
+routine implementation and validation from the Skill. That sentence now
+matches the entry's continued application without repeated reading or extra
+review. This is a source-level contradiction repair; no evidence links that
+sentence to the capacity or message-dispatch mistakes above.
