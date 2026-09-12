@@ -173,7 +173,7 @@ $plugin-creator update this existing KISS My Agent plugin for local development.
 
 参见 OpenAI 官方的 [Plugin Creator 与 local marketplace 指南](https://developers.openai.com/plugins/build/plugins#package-with-plugin-creator)和[marketplace add/upgrade 命令](https://developers.openai.com/plugins/build/plugins#add-a-marketplace-from-the-cli)。不要为此 workflow 新增仓库 staging script。
 
-在新 thread 中确认 `/skills` 显示 canonical Plugin Skills `kiss-my-agent:kiss-my-agent` 与 `kiss-my-agent:kiss-my-agent-setup`。只对匹配的非显然决策调用 `$kiss-my-agent:kiss-my-agent`。只在一次性 project scope 中使用 `$kiss-my-agent:kiss-my-agent-setup` 检查 setup、check、Agent 配置和 remove；开发测试不得使用真实 global scope。保留首次 failed precondition，不要通过重试隐藏它。
+在新 thread 中确认 `/skills` 显示 canonical Plugin Skills `kiss-my-agent:kiss-my-agent` 与 `kiss-my-agent:kiss-my-agent-setup`。开始 KMA 工作时读取一次 `$kiss-my-agent:kiss-my-agent`，在整个任务中应用已加载的指导，并在后续工作中复用。只在一次性 project scope 中使用 `$kiss-my-agent:kiss-my-agent-setup` 检查 setup、check、Agent 配置和 remove；开发测试不得使用真实 global scope。保留首次 failed precondition，不要通过重试隐藏它。
 
 分别报告每种证据层级：
 
