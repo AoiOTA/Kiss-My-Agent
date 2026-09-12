@@ -81,3 +81,39 @@ In the first completed fresh CLI task, the request was a real RoboDuet export re
 The second completed fresh CLI task, without `--ephemeral`, requested a real task/runtime/resume review and likewise did not name KMA. The main agent and two native `kiss_reviewer` agents each read the installed Skill in their first tool call, once with no repeated read. The runtime-loading artifact confirms `gpt-6-astra` with `medium` effort for both child roles. Reward and physics review proceeded in parallel while the main agent checked recovery. The coordinating owner reports that a CPU sandbox temporary-directory failure was exposed and resolved locally with an in-memory check, without adding a gate. The completed review found no new confirmed implementation defect in its examined default paths. It explicitly separated CPU protocol recovery and finite updates from physical trajectory continuity and successful learning. Artifacts are `/tmp/kma-active-guidance-forward-native-20260912/runtime-loading.json`, `review.txt`, and `events.jsonl`.
 
 These two tasks support proactive main-agent loading, native child loading in the second task, reuse of loaded guidance, bounded parallel review, and continuation after observed host or local execution failures. They do not establish that every role or task will trigger correctly, that earlier ready-work/context-fit failures cannot recur, or that overall research efficiency improved; no comparative efficiency statistics were collected. The candidate author used task requests, tool behavior, runtime metadata, completed results, and the coordinating owner's repair report, not private model reasoning. No further guidance rule or validation framework was added from this followthrough.
+
+
+### Complete-deliverable follow-up, 2026-09-12
+
+A later PawCerto continuation showed a narrower failure: the master restricted
+an existing task owner to newly named files, so a repair in that owner's own
+previously implemented task code returned for coordination. The Skill now
+keeps the necessary implementation, validation and routine-repair paths with
+the complete deliverable; a follow-up narrows that scope only for an actual
+ownership or authorization boundary. The English/Chinese contribution and
+installation instructions also remove stale decision-only activation and
+per-assignment rereading language. No new runtime mechanism or mandatory team
+was introduced.
+
+The source change in `f3f7f7c` was installed from the existing personal source as
+`0.2.8+codex.20260912141317`, preserving the development base version. A fresh,
+regular CLI session received a real DeepWBC fixed-policy evaluation/export
+implementation task with the occupied GPU and CPU-only assignment stated; the
+request did not name KMA, prescribe a Skill read, or request delegation. The
+main agent read the updated installed Skill and used native `kiss_explorer`
+and `kiss_coder` roles for independent source semantics and export work while
+implementing evaluation. The session completed with exit 0, executable
+entrypoints, standalone Torch-only export comparisons, and CPU validation
+reported as 46 passed / 4 USD-binding-dependent skips. It preserved the
+pre-reset terminal transition and corrected the installed launcher's shutdown
+behavior within the assigned scope. No simulator was started by that task.
+
+The retained task and result are under PawCerto's ignored
+`outputs/deepwbc-evaluation-development/`; the normal session ID is
+`01a095f7-c8cc-7b41-b368-c8bf14de799b`. These observations support fresh main-agent
+loading, bounded native parallel implementation and a completed real CPU
+deliverable. They do not prove that the wording caused the outcome, eliminate
+future prompting or coordination errors, establish lower time/token cost, or
+validate physical control. Existing long robot runs and their physical failures
+remain separate evidence. Installation-only documentation corrections after
+that run are not described as having been loaded in it.
