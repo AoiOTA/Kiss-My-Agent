@@ -73,26 +73,28 @@ Setup 场景只能在一次性项目和明确隔离的 Codex home 中运行。�
 <a id="local-plugin"></a>
 ## 测试修改后的 Plugin，而不是旧缓存
 
-开发时使用隔离的本地 marketplace，让它预先指向被编辑 Plugin 的临时副本。使用当前 Plugin Creator helper 对该副本加入一个 Codex cachebuster，从该本地 marketplace 重新安装，然后启动新会话。
+普通开发使用已有的本地 Plugin source，保留无关改动，使用当前 Plugin Creator helper 对其开发版 manifest 加入一个 Codex cachebuster，再从该本地 marketplace 重新安装。将开发版用于已授权的真实任务。只有 setup 或 install 测试的副作用或受控对照需要时才隔离；隔离不是 dogfooding 的前提。
+
+指导文本改变时，当前 Agent 可以明确读取一次更新后的入口并继续任务。这属于明确采用更新，不是自动重载，也不是新会话发现的证据。只有需要验证启动、加载或发现本身时才使用新会话。
 
 使用下面可直接复制的 Codex prompt：
 
 ```text
-$plugin-creator update this existing KISS My Agent plugin for local development. Stage a disposable candidate copy outside the checkout in a separate local marketplace, point that marketplace only at the candidate copy, add exactly one +codex.<cachebuster> suffix to the copy's manifest version, reinstall it from that marketplace into an isolated Codex home, and tell me to start a new thread. Do not modify tracked release files or the Git-backed marketplace.
+$plugin-creator update this existing KISS My Agent plugin for local development. Confirm the existing local marketplace source, preserve unrelated changes, apply the candidate changes there, add exactly one +codex.<cachebuster> suffix to its development manifest with the helper, and reinstall from that marketplace. Continue the authorized real task by explicitly reading updated guidance where needed. Do not modify the canonical release manifest or the Git-backed marketplace; use a new session when verifying startup, loading, or discovery.
 ```
 
 参见 OpenAI 官方的 [Plugin Creator 与 local marketplace 指南](https://developers.openai.com/plugins/build/plugins#package-with-plugin-creator)和[marketplace add/upgrade 命令](https://developers.openai.com/plugins/build/plugins#add-a-marketplace-from-the-cli)。
 
-不得给 canonical release manifest 添加 cachebuster、手工编辑已配置 marketplace，也不得把 Git-backed release cache 当作工作树改动的证据。记录实际加载的 Plugin 版本和候选版本独有行为。
+不得给 canonical release manifest 添加 cachebuster、手工编辑已配置 marketplace，也不得把 Git-backed release cache 当作工作树改动的证据。说明实际使用的 Plugin source 和版本、观察到的任务行为，以及指导是明确重读还是在新会话中加载。
 
 <a id="fresh-session"></a>
 ## 可信新会话
 
-安装、升级、setup、remove 以及 config、instructions、Skills 或 roles 的改变都会影响启动与发现。应在目标项目中新开已认证会话，并在 Host 提示时通过界面建立 trust。
+安装、升级、setup、remove 以及 config、instructions、Skills 或 roles 的改变可能影响启动与发现。验证这些加载行为时，应在目标项目中新开已认证会话，并在 Host 提示时通过界面建立 trust。
 
 记录 OS、原生 shell、Codex 版本、Plugin 版本、source identity、scope、trust state，以及会话是否为新会话。旧会话不能证明新配置已加载或没有加载。
 
-测试真实 delegation 时使用普通新会话；使用 `codex exec` 时省略 `--ephemeral`。在一次 PawWeaver dogfood 对照中，同一可信项目使用 Codex CLI 0.153.4 与 KISS My Agent v0.2.7，`--ephemeral --json --sandbox read-only` 暴露了三个 KISS 角色与两个 Skill，但原生 `kiss_explorer` 创建两次均报 `no thread with id`。随后，不带 `--ephemeral` 的普通 `codex exec` 会话成功创建了一个原生 `kiss_explorer`，该子 Agent 完成只读调查并返回 findings。
+测试新会话中的原生 delegation 时使用普通会话；使用 `codex exec` 时省略 `--ephemeral`。在一次 PawWeaver dogfood 对照中，同一可信项目使用 Codex CLI 0.153.4 与 KISS My Agent v0.2.7，`--ephemeral --json --sandbox read-only` 暴露了三个 KISS 角色与两个 Skill，但原生 `kiss_explorer` 创建两次均报 `no thread with id`。随后，不带 `--ephemeral` 的普通 `codex exec` 会话成功创建了一个原生 `kiss_explorer`，该子 Agent 完成只读调查并返回 findings。
 
 将失败结果保留为 Host/会话测试失败：发现可见角色并未证明 delegation 可用，当时也没有子 Agent 结果。检查恢复时，应确认原生子 Agent 完成有界任务并返回结果；仅发现可见角色或成功创建子 Agent 都不够。这项观察不能确定根因，也不能证明 `--ephemeral` 普遍不兼容、CLI 0.153.4 全面兼容或 KISS 的有效性。
 
@@ -105,10 +107,10 @@ $plugin-creator update this existing KISS My Agent plugin for local development.
 
 在新会话中运行 `/skills`，确认 canonical Plugin Skills `kiss-my-agent:kiss-my-agent` 与 `kiss-my-agent:kiss-my-agent-setup`；在已测试的 Codex 0.152.1 baseline 上，picker labels 可能显示为 `kiss-my-agent (kiss-my-agent)` 与 `kiss-my-agent-setup (kiss-my-agent)`。然后：
 
-- 只有真实存在非显然机制、scope、runtime/evaluator 或证据决策时才使用 `$kiss-my-agent:kiss-my-agent`；
+- 每个 Agent 首次接手 KMA 管理的工作时读取 `$kiss-my-agent:kiss-my-agent`，之后跨 assignment 与 continuation 复用，并在选择或改变行动、分工或解释结果时主动应用，不先判断决策是否非显然；
 - 只有显式 setup/check/configure/remove 工作才使用 `$kiss-my-agent:kiss-my-agent-setup`。
 
-普通实现、测试、构建、Git、查询和格式化不应路由到 `kiss-my-agent`。发现只证明该会话可见，不能保证未来遵循 instructions。
+已经决定的机械执行，包括实现、测试、构建、Git、查询和格式化，无需重复读取 Skill、额外审查或合规记录。仅在指导更新或缺少相关细节时重读。发现只证明该会话可见，不能保证未来遵循 instructions。
 
 <a id="role-smoke"></a>
 ## 三角色 Smoke

@@ -76,7 +76,7 @@ The configured project then owns its `.codex/config.toml`, standalone role TOML 
 <a id="when-skill"></a>
 ## When should I invoke `$kiss-my-agent:kiss-my-agent`?
 
-Use it for one consequential, non-obvious decision—for example, whether to keep planning or add a persistent mechanism, or first run a safe, low-cost, recoverable probe. It also applies to a local fix versus a new system, experiment validity, evidence strength, or material scope expansion. Do not use it as a wrapper around ordinary implementation, tests, builds, Git, lookup, or formatting. `kiss-my-agent-setup` is a separate operational Skill.
+Each agent reads it when first taking on KMA-managed work, then reuses the guidance and applies it proactively when choosing or changing an action, dividing work, or interpreting results. Do not first require a decision to be consequential or non-obvious. Already-decided mechanical execution, including implementation, tests, builds, Git, lookup, and formatting, needs no repeated Skill reading, extra review, or compliance record. Reread only when the guidance changes or relevant detail is missing. `kiss-my-agent-setup` remains a separate operational Skill for explicit setup/check/configure/remove work.
 
 <a id="configure"></a>
 ## How do I choose the master and configure initial Agents?
