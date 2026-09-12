@@ -210,6 +210,21 @@ session is `01a0967c-a73a-7e70-b119-f7a5f51b83c9`; its native child is
 child loading, useful parallel investigation, and the stated evidence
 distinctions in this task. They do not isolate the wording's causal effect,
 measure a time/token improvement, or establish reliable proactive guidance
-through every later implementation and recovery decision. A subsequent real
-AS2 source-delivery continuation is being used to observe continued reuse;
-it is not counted as completed here.
+through every later implementation and recovery decision. The same regular task then continued with a real AS2 source-delivery
+assignment. Its ordinary work prompt did not name KMA. It reused the loaded
+entry, kept the four-file boundary, and repaired a concrete documentation gap:
+the later paired evaluation command needed a target-packing step from the
+formal model0 records. Selected CPU tests, shared-geometry inspection and an
+actual exported-policy consumer passed; missing dependencies and earlier
+checker failures were retained separately. It did not launch a simulator or
+install dependencies.
+
+The subprocess could not create the primary Git index lock in its sandbox.
+It returned validated bytes, a temporary commit and the explicit unfinished
+primary-commit action. The coordinator compared the four files and completed
+that action as PawCerto commit `5353434` without repeating the validation.
+This is bounded evidence of continued guidance reuse and a completed source
+delivery across an execution boundary. Some documentation was reread, and
+the temporary Git packaging is not evidence of reduced work. No controlled
+comparison establishes an efficiency gain or that the guidance caused these
+actions; no additional KMA mechanism was added from this continuation.
