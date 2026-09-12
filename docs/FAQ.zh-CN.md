@@ -76,7 +76,7 @@ codex plugin list --marketplace kiss-my-agent
 <a id="when-skill"></a>
 ## 何时调用 `$kiss-my-agent:kiss-my-agent`？
 
-用于一个重要且不显然的决策，例如应继续规划或增加持久机制，还是先运行一个安全、低成本、可恢复的小型 probe；也可用于局部修复还是新系统、实验有效性、证据强度或重大 scope 扩张。不要把它套在普通实现、测试、构建、Git、查询或格式化外面。`kiss-my-agent-setup` 是另一个操作型 Skill。
+每个 Agent 首次接手 KMA 管理的工作时读取，之后复用指导，在选择或改变行动、分工和解释结果时主动应用，不先要求决策“重要”或“不显然”。已经决定的机械执行，包括实现、测试、构建、Git、查询和格式化，无需重复读取 Skill、额外审查或合规记录。只有指导更新或缺少相关细节时才重读。`kiss-my-agent-setup` 仍是另一个操作型 Skill，仅用于明确要求的 setup/check/configure/remove 工作。
 
 <a id="configure"></a>
 ## 如何选择 Master 并配置初始 Agents？

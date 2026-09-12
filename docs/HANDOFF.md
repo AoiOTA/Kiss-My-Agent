@@ -2,7 +2,15 @@
 
 这是本仓库唯一的 canonical handoff。详细过程由 Git history、Issue 和 PR 保存，不创建 dated、attempt 或 campaign 副本。
 
-## 当前 Release：v0.2.8（2026-09-11）
+## v0.2.9 发布候选（2026-09-12）
+
+本候选整理 PawCerto 实际开发中已采用的八处指导与双语文档修正：对齐主动使用入口，明确完整委派包含执行、观察与常规恢复，并在最终依赖未完成时推进其他已就绪工作。未增加角色、工作流或运行时机制。
+
+已有任务证据复用，不作为本轮重新执行：一次真实导出审查由主会话及原生 reviewer 主动读取指导并发现三项实际缺陷；一次真实报告任务在最终种子结果未到达时完成可用章节，收到结果后完成交付。期间也发生过用户纠正重复进度检查和遗漏就绪工作，故这些局部案例不证明持续调度可靠性或总体提速。最后指导审查未发现新的可操作冲突。本次仅补候选确定性检查、精确提交原生 CI、公开分发和新会话发现。
+
+正式版本使用 `0.2.9`，无开发 cachebuster。发布仍须遵循 [TESTING](TESTING.md#upgrade-smoke)：候选 CI 通过后合并并创建不可变 tag，公开归档、隔离安装或升级、新会话发现通过后才创建 GitHub Release。PawCerto 的行为验收与发布独立，不受 KMA 发布结果替代。
+
+## 历史 Release：v0.2.8（2026-09-11）
 
 - **用户恢复范围**：发布追踪见 [#26](https://github.com/AoiOTA/Kiss-My-Agent/issues/26)。本轮按用户授权完成 KMA v0.2.8 发布与本地安装更新。PawWeaver 继续暂停，原未完成目标保留，不启动新实验，也不追加 KMA 行为规则。
 - **候选与发布内容**：基于已合并的 [PR #25](https://github.com/AoiOTA/Kiss-My-Agent/pull/25)，复用其中的完整交付与委派修正、指导加载复用、实验及真实 consumer 约束、原 v0.2.7 角色移除兼容和 build metadata 校验。候选 `342d559` 仅将 manifest、marketplace ref 与双语 README badge 对齐到 `0.2.8` / `v0.2.8` 并更新交接；历史 tag、兼容 snapshots 和测试 fixture 保留。[PR #27](https://github.com/AoiOTA/Kiss-My-Agent/pull/27) 已合并。

@@ -73,26 +73,28 @@ A process or machine crash during model-driven file edits is outside transaction
 <a id="local-plugin"></a>
 ## Test a changed Plugin, not a stale cache
 
-For development, use an isolated local marketplace that already points to a temporary copy of the edited Plugin. Apply one Codex cachebuster to that copy with the current Plugin Creator helper, reinstall it from that local marketplace, and start a new session.
+For ordinary development, use the existing local Plugin source, preserve unrelated changes, apply one Codex cachebuster to its development manifest with the current Plugin Creator helper, and reinstall from that local marketplace. Use the development version in the authorized real task. Isolate setup or install tests when their side effects or a controlled comparison require it; isolation is not a prerequisite for dogfooding.
+
+When guidance text changes, current agents can explicitly read the updated entry once and continue the task. This is explicit adoption, not automatic reloading or evidence of fresh-session discovery. Use a new session when startup, loading, or discovery itself needs verification.
 
 Use this copyable Codex prompt:
 
 ```text
-$plugin-creator update this existing KISS My Agent plugin for local development. Stage a disposable candidate copy outside the checkout in a separate local marketplace, point that marketplace only at the candidate copy, add exactly one +codex.<cachebuster> suffix to the copy's manifest version, reinstall it from that marketplace into an isolated Codex home, and tell me to start a new thread. Do not modify tracked release files or the Git-backed marketplace.
+$plugin-creator update this existing KISS My Agent plugin for local development. Confirm the existing local marketplace source, preserve unrelated changes, apply the candidate changes there, add exactly one +codex.<cachebuster> suffix to its development manifest with the helper, and reinstall from that marketplace. Continue the authorized real task by explicitly reading updated guidance where needed. Do not modify the canonical release manifest or the Git-backed marketplace; use a new session when verifying startup, loading, or discovery.
 ```
 
 See the official OpenAI [Plugin Creator and local marketplace guidance](https://developers.openai.com/plugins/build/plugins#package-with-plugin-creator) and [marketplace add/upgrade commands](https://developers.openai.com/plugins/build/plugins#add-a-marketplace-from-the-cli).
 
-Do not add a cachebuster to the canonical release manifest, hand-edit a configured marketplace, or treat a Git-backed release cache as evidence for working-tree changes. Record the loaded Plugin version and a behavior unique to the candidate.
+Do not add a cachebuster to the canonical release manifest, hand-edit a configured marketplace, or treat a Git-backed release cache as evidence for working-tree changes. State the Plugin source and version actually used, the observed task behavior, and whether guidance was explicitly reread or loaded in a new session.
 
 <a id="fresh-session"></a>
 ## Trusted fresh session
 
-Installation, upgrade, setup, removal, and changes to config, instructions, Skills, or roles affect startup and discovery. Open a new authenticated session at the intended project and establish trust through the Host interface when prompted.
+Installation, upgrade, setup, removal, and changes to config, instructions, Skills, or roles can affect startup and discovery. When verifying that loading behavior, open a new authenticated session at the intended project and establish trust through the Host interface when prompted.
 
 Record the OS, native shell, Codex version, Plugin version, source identity, scope, trust state, and whether the session is new. An old session cannot prove that changed configuration loaded or failed to load.
 
-For live delegation testing, use a regular fresh session; with `codex exec`, omit `--ephemeral`. In one PawWeaver dogfood comparison using Codex CLI 0.153.4 and KISS My Agent v0.2.7 in the same trusted project, `--ephemeral --json --sandbox read-only` exposed all three KISS roles and both Skills, but native `kiss_explorer` spawning failed twice with `no thread with id`. A regular `codex exec` session without `--ephemeral` subsequently spawned one native `kiss_explorer`, which completed its read-only investigation and returned findings.
+When testing fresh-session native delegation, use a regular session; with `codex exec`, omit `--ephemeral`. In one PawWeaver dogfood comparison using Codex CLI 0.153.4 and KISS My Agent v0.2.7 in the same trusted project, `--ephemeral --json --sandbox read-only` exposed all three KISS roles and both Skills, but native `kiss_explorer` spawning failed twice with `no thread with id`. A regular `codex exec` session without `--ephemeral` subsequently spawned one native `kiss_explorer`, which completed its read-only investigation and returned findings.
 
 Preserve the failed outcome as a Host/session test failure: discovery did not establish working delegation, and no child result existed. To check recovery, confirm that a native child completes the bounded task and returns its result; successful discovery or spawning alone is insufficient. This observation does not establish the root cause, general `--ephemeral` incompatibility, full CLI 0.153.4 compatibility, or KISS effectiveness.
 
@@ -105,10 +107,10 @@ Repair the observed current-project trust mismatch through the Host under the us
 
 In the fresh session, run `/skills` and confirm the canonical Plugin Skills `kiss-my-agent:kiss-my-agent` and `kiss-my-agent:kiss-my-agent-setup` (the picker labels may appear as `kiss-my-agent (kiss-my-agent)` and `kiss-my-agent-setup (kiss-my-agent)` on the tested Codex 0.152.1 baseline). Then use:
 
-- `$kiss-my-agent:kiss-my-agent` only for a real non-obvious mechanism, scope, runtime/evaluator, or evidence decision;
+- Each agent reads `$kiss-my-agent:kiss-my-agent` when first taking on KMA-managed work, then reuses it across assignments and continuations and applies it proactively when choosing or changing an action, dividing work, or interpreting results, without first judging the decision non-obvious;
 - `$kiss-my-agent:kiss-my-agent-setup` only for explicit setup/check/configure/remove work.
 
-Ordinary implementation, tests, builds, Git, lookup, and formatting should not route through `kiss-my-agent`. Discovery proves visibility for that session, not future instruction following.
+Already-decided mechanical execution, including implementation, tests, builds, Git, lookup, and formatting, needs no repeated Skill reading, extra review, or compliance record. Reread only when the guidance changes or relevant detail is missing. Discovery proves visibility for that session, not future instruction following.
 
 <a id="role-smoke"></a>
 ## Three-role Smoke
