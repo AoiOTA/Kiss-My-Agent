@@ -2,13 +2,15 @@
 
 这是本仓库唯一的 canonical handoff。详细过程由 Git history、Issue 和 PR 保存，不创建 dated、attempt 或 campaign 副本。
 
-## v0.2.9 发布候选（2026-09-12）
+## 当前 Release：v0.2.9（2026-09-12）
 
 本候选整理 PawCerto 实际开发中已采用的八处指导与双语文档修正：对齐主动使用入口，明确完整委派包含执行、观察与常规恢复，并在最终依赖未完成时推进其他已就绪工作。未增加角色、工作流或运行时机制。
 
 已有任务证据复用，不作为本轮重新执行：一次真实导出审查由主会话及原生 reviewer 主动读取指导并发现三项实际缺陷；一次真实报告任务在最终种子结果未到达时完成可用章节，收到结果后完成交付。期间也发生过用户纠正重复进度检查和遗漏就绪工作，故这些局部案例不证明持续调度可靠性或总体提速。最后指导审查未发现新的可操作冲突。本次仅补候选确定性检查、精确提交原生 CI、公开分发和新会话发现。
 
-正式版本使用 `0.2.9`，无开发 cachebuster。发布仍须遵循 [TESTING](TESTING.md#upgrade-smoke)：候选 CI 通过后合并并创建不可变 tag，公开归档、隔离安装或升级、新会话发现通过后才创建 GitHub Release。PawCerto 的行为验收与发布独立，不受 KMA 发布结果替代。
+正式 [`v0.2.9`](https://github.com/AoiOTA/Kiss-My-Agent/releases/tag/v0.2.9) 已于 `2026-09-12T06:17:59Z` 发布，非 draft、非 prerelease，无开发 cachebuster。[PR #29](https://github.com/AoiOTA/Kiss-My-Agent/pull/29) 候选 `4850229d308bfefb20513f89a04c7c8941c2a4b1` 通过本地完整 45 测试、16 页构建，以及 Linux/macOS/Windows × Python 3.11/3.12 六项原生 CI 和 Pages build；合并提交与不可变 tag 指向 `c2aa4ae1d18482c25b3a6e46c008aaa36a8fb243`，与已测候选的树相同。系统 Python 首次因缺少 Markdown 依赖停止；隔离环境安装既定 requirements 后通过，不是产品失败。
+
+按 [TESTING](TESTING.md#upgrade-smoke) 在 tag 后验证：公开 ZIP 完整解码通过，含 82 个文件，manifest 与更新指导正确；双语 Pages HTTP 200 且显示 v0.2.9。隔离 Codex home 从公开 Git marketplace 安装 v0.2.8 后升级为 installed/enabled v0.2.9；Linux/bash、Codex CLI 0.153.4 的新 regular authenticated 会话在隔离 trusted project 的实际 catalog 中发现并读取两个 v0.2.9 Plugin Skills，exit 0。临时 home 的 PATH alias warning 未阻止安装或发现。原项目的活动安装未替换；此次结果不声称生产会话热加载。公共检查通过后才创建 GitHub Release。PawCerto 的行为验收与发布独立，不受 KMA 发布结果替代。
 
 ## 历史 Release：v0.2.8（2026-09-11）
 
