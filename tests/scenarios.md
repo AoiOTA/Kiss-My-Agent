@@ -330,3 +330,44 @@ Evidence is in PawCerto's Learning Force Control physics, Lab and evaluation
 reports and their original artifact paths. This is observed bounded ownership,
 recovery and evidence interpretation; it does not establish a causal KMA effect,
 a token/time saving, general autonomous reliability or learned force control.
+
+
+### ReLIC source runtime and stage-boundary interpretation, 2026-09-13
+
+A native explorer bounded current official Lab compatibility while the external
+source owner retained the actual ReLIC consumer and one device operator retained
+RoboDuet training. A local constructor bridge inherited the original Spot knee
+initialization and compute implementation; supported Python actuator selection
+avoided modifying installed Lab or rebuilding PhysX. External licensed source,
+assets and weights stayed outside PawCerto's package. Actual execution exposed
+namespace and singleton-contact compatibility errors beyond static inspection.
+
+The first failed simulation lost its diagnostic traceback and has unknown policy
+consumption. The source owner repaired exception reporting, then the next actual
+failure exposed a contact termination that removed the single-environment batch
+axis. Its narrow external-source fix retained the old threshold equations and
+explicitly disclosed the current scalar-normal versus historical vector-force
+signal difference. A missing trajectory was not interpreted as zero physics.
+The final 500-step completion window retained eight ground-contact terminations.
+
+The coordinator required physical tracking from the saved states after target
+buffer equality had passed; the source owner computed it without another
+simulation. The coordinator also removed an arbitrary 500-step upper limit from
+the public entrypoint: an experiment budget had leaked into the product API.
+That correction is a concrete remaining guidance-application gap, not evidence
+that all agents already avoid unnecessary gates. The actual authorized physical
+window was not extended. Outside-checkout wheel consumption then exercised the
+actual original constructor and replayed all 500 saved actor inputs on CPU.
+
+Separately, RoboDuet checkpoint 10001 completed zero of nine full fixed cases.
+Its stage-boundary arm had received no optimizer updates; the released-arm
+playback did not isolate the Stage 1 training effect. Saved common-prefix data
+and physical failures were reported together, while the original 50000-update
+experiment continued. Neither process completion nor a smaller linear-velocity
+error was presented as learned coordination.
+
+Evidence is in PawCerto's ReLIC external-runtime, release-reproduction and
+RoboDuet model10001 reports. This record uses owner findings and coordinator
+CPU consumption, not an independent physics replay or a controlled measurement
+of KMA efficiency or reliability. Existing guidance covered these decisions;
+no additional role, automatic retry mechanism or behavior rule was introduced.
