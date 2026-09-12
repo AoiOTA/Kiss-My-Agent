@@ -289,3 +289,44 @@ KMA's causal effect, efficiency or general reliability. It supports the bounded
 division of work, recovery without duplicate training, and evidence-limited
 interpretation observed here. No new behavior rule or product mechanism was
 needed for these outcomes.
+
+### Learning Force Control source behavior and bounded closure, 2026-09-13
+
+The source/learner owner and physics owner divided the B1/Z1 integration while
+one device operator retained the ongoing RoboDuet experiment. An actual
+original-Gym actor probe resolved the ambiguous `gripperStator` lookup: it
+returned -1 and therefore selected the final `gripperMover` body. The default
+Lab port explicitly preserved that executable measurement while applying
+forces to `link06`; it did not add an extra body or assume the apparent source
+name described an existing body. The physics owner also detected a real
+inertia-restore error after an otherwise successful process exit and repaired
+the COM/inertia restoration order using actual public-API readback.
+
+Training completed 20 updates and one independent resumed update. A post-save
+probe repeated the inference-tensor context error previously encountered in
+UniFP. This recurrence is negative evidence for first-pass reliability and for
+assuming prior guidance or a related task's experience automatically transfers.
+The assigned owner retained the failed process and completed the remaining
+probe with zero optimizer updates, preserving the already saved model 21.
+No additional KMA rule was introduced for that PyTorch implementation error.
+
+The coordinator's first fixed-task evaluation failed before consuming a JIT
+action: it had inferred the wrong names for velocity-limit configuration fields,
+leaving all source curriculum weights zero. Earlier CPU tests and independent
+read-only review had not found this mismatch. The coordinator repaired its own
+field mapping and ran the actual source curriculum initializer and sampler on
+CPU before completing the missing physical evaluation. The original failure
+remained intact. This supports local causal recovery, not a claim that static
+review or synthetic tests were sufficient.
+
+The final 500 by 16 evaluation actually consumed the exported pair and retained
+four orientation terminations, poor EE tracking and large known-force error.
+An independent CPU consumer used all 8,000 saved real histories. The source
+owner then received a fixed file allowlist for public source delivery, while
+a separate native explorer bounded the next ReLIC external-model consumer
+without importing its non-commercial implementation into the default package.
+
+Evidence is in PawCerto's Learning Force Control physics, Lab and evaluation
+reports and their original artifact paths. This is observed bounded ownership,
+recovery and evidence interpretation; it does not establish a causal KMA effect,
+a token/time saving, general autonomous reliability or learned force control.
