@@ -251,3 +251,41 @@ results and the final report, not an independent replay. It supports bounded
 outcome retention and honest failure interpretation in this task; it does not
 prove a causal guidance effect, an efficiency improvement, or general
 reliability. No new rule, retry mechanism or validation gate was added.
+
+### UniFP continuation and source fidelity, 2026-09-13
+
+After closing the AS2 candidate, a native implementation owner completed the
+official Lab UniFP runtime while the coordinator implemented export/evaluation.
+One resource owner operated all simulators, preserving the existing RoboDuet
+training. UniFP completed 20 updates plus one independent-process continuation.
+The subsequent force-boundary probe failed after model 21 had already been
+saved. The owner preserved that process's exit 1, repaired the inference-context
+error, and completed the missing probe in a new process with zero optimizer
+updates. The three probe steps were labeled with artificial stage/episode
+state and were not counted as trained force-control behavior.
+
+Concrete source uncertainty led to a zero-rollout original-Gym asset probe:
+the property named base COM actually targeted `FL_hip`. The port retained that
+producer, and a static inertia comparison supplied only its measured property
+evidence. A later runtime property warning exposed a training configuration
+gap; the owner fixed it and explicitly distinguished the repaired evaluation
+runtime from model 21's training physics. The single 500-step exported-policy
+evaluation retained its roll termination instead of equating completed steps
+with no-fall control. Independent CPU consumption then covered all saved real
+inputs. A separate reviewer identified two concrete summary-accounting errors;
+the coordinator fixed those errors with focused regression checks.
+
+In parallel, the Learning Force Control CPU owner found that the pinned source
+had a 19-output policy despite the earlier paper-level 17-control description.
+It kept the executable ABI and identified the local checkpoint as random
+initialization after anonymous author-weight retrieval did not succeed.
+The native source-delivery owner then received the frozen code and reports.
+
+Evidence resides in PawCerto's UniFP runtime/evaluation and Learning Force
+Control implementation reports, with the original failures retained in their
+artifact directories. This record uses those delivered results and coordinator
+CPU checks; it is not an independent simulator replay or a controlled test of
+KMA's causal effect, efficiency or general reliability. It supports the bounded
+division of work, recovery without duplicate training, and evidence-limited
+interpretation observed here. No new behavior rule or product mechanism was
+needed for these outcomes.
