@@ -165,3 +165,51 @@ routine implementation and validation from the Skill. That sentence now
 matches the entry's continued application without repeated reading or extra
 review. This is a source-level contradiction repair; no evidence links that
 sentence to the capacity or message-dispatch mistakes above.
+
+
+### Next-action guidance and a natural task, 2026-09-13
+
+The user reported that both master and worker behavior still needed reminders
+to avoid unnecessary mechanisms and checking. A read-only audit found no drift
+between the installed Skill, the source candidate, the three role definitions,
+and PawCerto's generated project instructions. Existing rules already covered
+the reported failures. Candidate `e050f64` therefore moved action selection,
+evidence reuse, and experiment validity to the front of the entry, broadened
+the description beyond startup or stalled work, and removed duplicated prose.
+It did not add a scheduler, hook, per-action reread, or approval mechanism.
+The static validator's literal `reversible probe` description requirement was
+removed after it rejected the otherwise valid description; structural and
+reference validation remain. Static validation, Skill validation, 18 existing
+unit tests, and an independent text review passed.
+
+The existing personal development source was updated and installed as
+`0.2.8+codex.20260912163757`. A fresh regular CLI task asked for a read-only
+assessment of the current AS2 UMI and DeepWBC source and run records, their next
+useful work, and the completion level supported by evidence. The user prompt
+did not name KMA, request delegation, or prescribe the conclusions. The master
+read the new installed entry at its first tool call, investigated AS2, and
+delegated the independent DeepWBC investigation to a native `kiss_explorer`.
+That child also read the new installed entry at its first tool call. Its
+initial task text was not available for independent inspection, so this record
+does not establish that the child received no Skill reminder from the master.
+
+The completed task reused the successful AS2 shared-geometry control result,
+distinguished the corrected DeepWBC contact run from the earlier invalid run,
+and did not classify either short execution path as learned control. It did
+not start a simulator, install dependencies, or mutate the project. An initial
+review questioned the DeepWBC evidence because CLI JSON output omitted native
+delegation and returned findings. The complete session supplied both, and the
+reviewer withdrew that finding; no duplicate source check or new KMA rule was
+added. Some document ranges were reread, but the review found no demonstrated
+material cost or unsupported extra gate from those reads.
+
+Artifacts are under `/tmp/kma-next-action-20260913/`, including the natural
+prompt, CLI events, final result, and installed-source identity. The regular
+session is `01a0967c-a73a-7e70-b119-f7a5f51b83c9`; its native child is
+`01a0967d-0cfa-7491-ae91-f6a574cf651d`. These observations support fresh main and
+child loading, useful parallel investigation, and the stated evidence
+distinctions in this task. They do not isolate the wording's causal effect,
+measure a time/token improvement, or establish reliable proactive guidance
+through every later implementation and recovery decision. A subsequent real
+AS2 source-delivery continuation is being used to observe continued reuse;
+it is not counted as completed here.
