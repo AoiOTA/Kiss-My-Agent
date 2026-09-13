@@ -155,6 +155,8 @@ Use the current KISS project instructions while developing the next version. The
 
 Keep product runtime and evaluator ownership separate: the Plugin under test does not define its own acceptance criteria or approve its own release. Human maintainers own the goal and acceptance; use deterministic tests, independent review where it adds decision value or is explicitly required, and fresh-session replay as applicable to judge the observed result. Dogfooding is engineering evidence, not autonomous self-certification.
 
+To test proactive application, give a fresh trusted session an ordinary bounded task with real independent deliverables and any naturally slow dependency. The task prompt supplies goals, inputs, resources, and stop conditions, without prescribing KMA use, delegation, or waiting behavior. Keep expected decisions with the evaluator. Inspect completed work and actual tool actions across continuation: necessary event waits differ from repeated owner-status or artifact reads. A successful task supports that observation; claiming that changed guidance improved behavior requires a comparable baseline.
+
 A coordinator wait call returning without an update does not prove that a child Agent timed out or failed. Let bounded, non-conflicting work continue; interrupt only for an obsolete task, a scope or resource conflict, or an explicit user stop.
 
 If delegation is disabled or unavailable, or no suitable role exists, the master may continue within its capabilities and existing authorization without a staffing approval step. Report unmet explicit requirements for independent checking or a specific role, and real capability gaps; direct execution must not be presented as satisfying them.

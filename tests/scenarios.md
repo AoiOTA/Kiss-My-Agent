@@ -371,3 +371,10 @@ RoboDuet model10001 reports. This record uses owner findings and coordinator
 CPU consumption, not an independent physics replay or a controlled measurement
 of KMA efficiency or reliability. Existing guidance covered these decisions;
 no additional role, automatic retry mechanism or behavior rule was introduced.
+
+
+### Loaded-guidance application failure, 2026-09-13
+
+The coordinating owner reports that, after the installed Skill had been loaded, the master repeatedly read a delegated simulation's service status and metrics at roughly 55-second intervals and later absorbed another substantial source investigation. The user again had to correct the work selection. Existing proactive-use and delegation text therefore did not prevent this recurrence; prior loading and bounded parallel-task evidence remains valid but does not establish sustained application.
+
+This candidate makes selection of ready deliverables explicit at the master and worker entry points, and keeps progress tracking and completion observation inside the delegated deliverable. Communication cadence does not require a fresh status read. Necessary bounded event waits remain valid. These are guidance changes addressing an observed interpretation gap, not a demonstrated root cause or a proven behavioral repair. Judge subsequent ordinary task continuations under the Dogfooding guidance in [TESTING.md](../docs/TESTING.md#dogfooding); static validation cannot settle that question.

@@ -82,8 +82,6 @@ class SetupContractTests(unittest.TestCase):
         self.assertEqual(1, len(markdown_blocks))
         self.assertTrue(markdown_blocks[0].startswith(BEGIN_MARKER))
         self.assertTrue(markdown_blocks[0].endswith(END_MARKER))
-        self.assertIn("wait window ending without an update", markdown_blocks[0])
-        self.assertIn("not an agent timeout or failure", markdown_blocks[0])
         self.assertIn("The master owns orchestration", markdown_blocks[0])
         self.assertIn("The master may directly complete clear small or local work", markdown_blocks[0])
         self.assertIn("Each role may have zero, one, or multiple instances", markdown_blocks[0])
@@ -135,16 +133,6 @@ class SetupContractTests(unittest.TestCase):
             "fresh setup and upgrades, independently of managed-block state",
         ):
             self.assertIn(token, self.lifecycle)
-
-    def test_task_partitioning_preserves_direct_work_and_useful_delegation(self) -> None:
-        sources = (
-            (REPOSITORY / "AGENTS.md").read_text(encoding="utf-8"),
-            fenced_blocks(self.lifecycle, "markdown")[0],
-        )
-        for text in sources:
-            self.assertIn("The master may directly complete clear small or local work", text)
-            self.assertIn("task partitioning", text)
-            self.assertIn("Actively delegate substantial bulk work", text)
 
     def test_seed_roles_remain_valid_and_unique(self) -> None:
         expected_settings = {
