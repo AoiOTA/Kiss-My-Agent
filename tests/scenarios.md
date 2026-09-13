@@ -378,3 +378,27 @@ no additional role, automatic retry mechanism or behavior rule was introduced.
 The coordinating owner reports that, after the installed Skill had been loaded, the master repeatedly read a delegated simulation's service status and metrics at roughly 55-second intervals and later absorbed another substantial source investigation. The user again had to correct the work selection. Existing proactive-use and delegation text therefore did not prevent this recurrence; prior loading and bounded parallel-task evidence remains valid but does not establish sustained application.
 
 This candidate makes selection of ready deliverables explicit at the master and worker entry points, and keeps progress tracking and completion observation inside the delegated deliverable. Communication cadence does not require a fresh status read. Necessary bounded event waits remain valid. These are guidance changes addressing an observed interpretation gap, not a demonstrated root cause or a proven behavioral repair. Judge subsequent ordinary task continuations under the Dogfooding guidance in [TESTING.md](../docs/TESTING.md#dogfooding); static validation cannot settle that question.
+
+### Fresh ordinary CPU task after the guidance update, 2026-09-13
+
+A fresh trusted PawCerto CLI task received an ordinary AS2 mass, geometry and
+payload-COM analysis request. Its prompt did not name KMA, delegation, polling
+or assessment. The first command read the newly installed Skill; the task then
+delivered a reproducible static analysis of 3400 saved states. An initial joint
+range assertion failed on a 3.8e-6 rad source-format rounding difference. The
+task retained that failure, repaired the tolerance and completed the output.
+
+The event record contains 19 completed commands, four file-change events and no
+delegation. It also contains a negative observation: two commands read the same
+trace first row and MJCF header, and one broad search/read reached 40000 output
+characters. This is not evidence of consistently economical reading. A native
+independent reviewer found no new instruction contradiction requiring another
+rule; the existing evidence-reuse guidance still applies.
+
+This task had no natural slow dependency or multiple wait windows. It supports
+unprompted Skill loading and bounded execution/recovery, but does not test
+proactive delegation or sustained owner-led completion observation. No old/new
+comparison was run, so successful delivery cannot be attributed causally to the
+guidance change. Evidence is in PawCerto's local
+`outputs/kma-action-selection-20260913/{prompt.txt,events.jsonl,final.md}`;
+the useful research deliverable is `outputs/as2-pretraining-profile-20260913/`.
