@@ -61,7 +61,7 @@ codex plugin list --marketplace kiss-my-agent
 <a id="agent-reuse"></a>
 ## 什么时候复用 Agent，什么时候使用 fresh Agent？
 
-同一任务、同一 owner、同一 scope 的连续工作复用原 Agent。新任务或新角色、独立 review，或者已加载的 Plugin、instructions 或 configuration 发生变化时，使用 fresh Agent。并行 Agent 上限表示可用容量，不是目标团队规模。KISS 默认开启实验上下文管理，不设置 context window 或 compaction 阈值。
+既有具体上下文有用且 model／effort 仍匹配时可复用 Agent。上下文不再相关、需要独立审查或 Master 设置与旧子 Agent 不同时，在正在进行的操作完成并安全交接后新建。配置变化不会自动更新旧子 Agent。并行 Agent 限额是可用容量，不是团队人数目标。KISS 默认开启实验上下文管理，不设置 context-window 或压缩阈值。
 
 <a id="plugin-vs-skills"></a>
 ## 这是 Plugin 还是只有一个 Skill？
@@ -81,9 +81,9 @@ codex plugin list --marketplace kiss-my-agent
 <a id="configure"></a>
 ## 如何选择 Master 并配置初始 Agents？
 
-Setup 为缺失的 Master 字段补入 `gpt-6-astra` / `high`；当前 seed roles 显式使用 `gpt-6-astra` / `medium`。已有用户显式选择保持不变。Role wizard 只修改选定角色。静态检查不能证明 Host 有效配置，应在新任务中验证。
+Master 使用当前 Host／会话选择的模型与推理强度。新 seeds 省略两项覆盖并跟随 Master，默认委派也省略 model 和 effort 参数。Setup 保留已有模型选择与角色；显式 follow-master 配置移除选定角色和所选 scope 的 `[agents]` 覆盖，旧 KMA Master 固定值需要单独明确选中。有效设置须在新任务中验证。
 
-对子 Agent，Codex 会先解析显式 spawn 设置，再解析对应的 `[agents]` default，最后解析 parent；role 文件中的显式设置是最终 override。Current seeds 显式以 Astra / medium 覆盖 model 和 effort。Master 不是 role，role wizard 不能修改它。
+对子 Agent，Codex 先解析显式 spawn 设置，再解析对应的 `[agents]` 默认值，最后解析 parent；role 文件中的显式值是最终 override。新 seeds 省略这两个字段，Master 仍是 parent Agent，不建立独立 Master role 文件。
 
 对话向导只用于已有 role TOML：
 
@@ -92,13 +92,13 @@ $kiss-my-agent:kiss-my-agent-setup configure agents for this project
 $kiss-my-agent:kiss-my-agent-setup configure global agents
 ```
 
-Plugin update 和 setup 会保持每个已有角色不变。要显式把三个已有 KISS roles 设置为 `gpt-6-astra` / `medium`，请使用：
+Plugin update 和 setup 保持每个已有角色不变。要让三个已有 KISS roles 跟随 Master，请使用：
 
 ```text
-$kiss-my-agent:kiss-my-agent-setup configure agents in this project: for kiss_explorer, kiss_coder, and kiss_reviewer, set model to gpt-6-astra and model_reasoning_effort to medium
+$kiss-my-agent:kiss-my-agent-setup configure agents in this project: make kiss_explorer, kiss_coder, and kiss_reviewer follow master
 ```
 
-也可以直接编辑 `.codex/agents/*.toml` 或 `$CODEX_HOME/agents/*.toml`。向导不会修改 Master config，不会创建、删除或重命名角色，也不会硬编码会变化的 model catalog。
+也可以直接编辑 `.codex/agents/*.toml` 或 `$CODEX_HOME/agents/*.toml`。普通 configure 只修改角色；follow-master 额外预览所选 scope 的 config 移除，不创建、删除或重命名角色，也不维护固定 model catalog。
 
 <a id="legacy-setup-cli"></a>
 ## v0.1 setup CLI 去哪里了？
@@ -122,7 +122,7 @@ codex plugin list --marketplace kiss-my-agent
 
 在已验证的 Codex 0.152.1 baseline 上，Host 会在启动时自动刷新默认的 unpinned Git marketplace，并重新安装已启用的 non-curated Plugin。KISS My Agent 自身没有 updater，其他版本的行为可能不同。上面命令完成后，应看到 `kiss-my-agent@kiss-my-agent` 为 `installed, enabled`，且版本与当前支持的 release 一致。更新改变已安装 Plugin 后，请启动新会话。
 
-自动 refresh 和显式 marketplace upgrade 都只更新 Plugin 包，不会修改 project/global config、instructions 或角色文件。之前已 managed 的项目更新后可以运行 setup，刷新 managed instruction block、补齐缺失的模型、思考强度与功能默认值，并且只把 Installation 中说明的准确旧 marked Master pair 更新为 Astra/high；所有已有角色都直接保持不变。如需显式把已有角色设置为 `gpt-6-astra` / `medium`，请使用上面的准确限定 role-wizard prompt 或手工编辑角色 TOML。
+Host refresh 与 marketplace upgrade 只更新 Plugin 包，不改变 project/global config、instructions 或角色文件。Setup 可刷新 managed instruction block、补齐缺失功能开关，永不添加或迁移 model／effort 字段或已有角色。需要迁移时使用上面的 follow-master prompt 明确选择，或手工编辑 TOML。
 
 显式 marketplace pin、rollback 与恢复 current unpinned channel 的命令见[安装](INSTALLATION.zh-CN.md#update)。
 
@@ -139,7 +139,7 @@ codex plugin list --marketplace kiss-my-agent
 <a id="existing-files"></a>
 ## 已经有 config、AGENTS 或角色文件怎么办？
 
-Setup 独立为每个缺失的 Master 字段补入 `gpt-6-astra` / `high`，为每个缺失功能字段补入带 marker 的 `true`，包括 `features.context_management.experimental_mode`。已有显式值（包括 `false`）保留。只有完整的顶层 `gpt-5.6-sol` / `max` pair、每个 key 准确出现一次且每行带准确的 `# KISS My Agent managed` marker 时，才成对更新为 Astra/high。已修改、未标记或不完整 pair 的已有字段继续归用户所有，只补真正缺失的字段。重复 assignment、无效 TOML 与 ownership 歧义属于 conflict。Setup 只修改选定的 project 或 global scope。
+Setup 只为缺失的功能开关补入带 marker 的 `true`，包括 `features.context_management.experimental_mode`。所有已有 model、effort 与角色设置都保留，包括旧 marked Master 固定值；缺失模型字段表示继承，属于合法状态。重复 assignment、无效 TOML 与 ownership 歧义属于 conflict。Setup 只修改选定的 project 或 global scope。
 
 Setup、check 与 remove 只检查所选 scope 中 KISS 管理的 config、AGENTS paths，以及准确的 `kiss_explorer.toml`、`kiss_coder.toml` 和 `kiss_reviewer.toml` targets。不安全或无效的 managed target、bundled identity 不匹配、ownership conflict 或适用的 `AGENTS.override.md` 会在写入前停止。其他角色文件和另一 scope 不会被解析或协调：catalog warning 和 project-over-global precedence 由 Host 负责。配置角色时，已经点名的请求只解析点名目标；未点名的请求先列出 paths，随后只解析用户选中的角色。无效的未选角色不会阻塞操作。
 
@@ -148,7 +148,7 @@ Setup、check 与 remove 只检查所选 scope 中 KISS 管理的 config、AGENT
 <a id="remove"></a>
 ## Remove 会删除什么？
 
-只删除明确 scope 中带准确 marker 的当前默认配置 与任何准确的旧 marked Master pair、delimited managed AGENTS block，以及与 current、known v0.2.6、known v0.2.5 或 known v0.1 bundled seed 完全一致的角色文件。其他角色文件与不带 marker 的 config 都会保留。移除 setup 不会卸载 Plugin。 Remove 保留上下文子表及其他用户字段；只删除精确默认值和准确 marker 同时匹配的配置。
+只删除明确 scope 中带准确 marker 的当前默认配置 与任何准确的旧 marked Master pair、delimited managed AGENTS block，以及与 current、exact v0.2.9/v0.2.9-active-guidance/v0.2.7/v0.2.6/v0.2.5/v0.1 bundled seed 完全一致的角色文件。其他角色文件与不带 marker 的 config 都会保留。移除 setup 不会卸载 Plugin。 Remove 保留上下文子表及其他用户字段；只删除精确默认值和准确 marker 同时匹配的配置。
 
 <a id="verification"></a>
 ## 怎样确认它有效？

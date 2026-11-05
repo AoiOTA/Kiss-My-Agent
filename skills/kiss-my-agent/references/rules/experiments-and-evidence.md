@@ -14,6 +14,22 @@ When a behavior question does not require public distribution, use a mutable dis
 
 Classify outcomes by failed precondition, not desirability. Valid negative means the planned inputs, execution, observations, and evaluator were intact but the product outcome was adverse or neutral. Invalid means a required precondition or measurement path failed, so the product hypothesis was not tested. Preserve both records without converting one into the other.
 
+## Match the experiment to the decision
+
+Use the user's metric priorities rather than treating fewer calls, actions, or elapsed seconds as the default objective. Report the complete task outcome before interpreting component hypotheses when completion is the user's primary goal. Success with more cost establishes that success and its tradeoff; a cheaper failure does not establish improved complete-task efficiency. Keep task success, action success, process exit, mechanism contribution, and paper novelty separate. Causal caution should lead to a bounded claim and a useful next decision, not erase a supported positive result.
+
+Functional smoke tests whether an entry works; mechanism validation tests availability or behavioral effect; task comparison measures complete outcomes and costs; paper evaluation tests the stated general claim with appropriate coverage and uncertainty. Choose the smallest experiment sufficient for the current question, rather than the fewest runs. Check decisive prerequisites early using a short real execution: whether the evaluator accepts the native completion action, the changed scene actually contradicts the tested use, and the mechanism can reach the deciding consumer. These are question-dependent checks, not mandatory launch gates. Once a blocking local issue is resolved, return to the complete authorized task.
+
+Before another mechanism run, identify a legal decision opportunity and the observable difference that could distinguish the explanations. If the mechanism was not triggered, choose the next action from the cause:
+
+- Unreachable input or action: repair the actual consumer or adapter path.
+- No relevant decision opportunity: select a scenario containing that opportunity within the authorized scope.
+- Available but autonomously unused: retain the non-use result and examine competing explanations or the original task outcome; do not force selection to manufacture evidence.
+
+One untriggered success remains task evidence but does not establish mechanism benefit. More repetitions need a new discriminating basis or an explicit variability question. Include setup, prior screens, model input, repeated analysis, failures, and unfinished outcomes in the relevant cost denominator; a sequence of cheap probes may cost more than one sufficient task run.
+
+After a material repair, decide whether it merely restores expected engineering function or tests a hypothesis distinct from existing alternatives. Prefer the next action that distinguishes those explanations when the user's question requires attribution. Valid negative evidence supports narrowing or stopping. When an adapter or evaluator defect breaks required comparison conditions, stop affected work and preserve the invalid result, cause, and cost. Repair and freeze a separate valid comparison rather than finishing the invalid run for the sake of a frozen version. Do not silently pool invalid runs with valid ones or discard their incurred cost.
+
 ## Discriminating the active evidence
 
 Stale-artifact discrimination starts at the first place source and execution can diverge: inspect the loaded module or executable identity, affected output identity, configuration binding, and a behavior or symbol changed by the candidate. Timestamps and file existence are hints, not proof. Rebuild only the affected closure and repeat the shortest probe that distinguishes old from current behavior.

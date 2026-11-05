@@ -182,7 +182,11 @@ class DistributionVersionTests(unittest.TestCase):
         manifest["version"] = version
         self.manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
         marketplace = json.loads(self.marketplace_path.read_text(encoding="utf-8"))
-        marketplace["plugins"][0]["source"]["ref"] = ref
+        # Stable fixtures must not inherit the source checkout's dev registry.
+        marketplace["name"] = "kiss-my-agent"
+        marketplace["plugins"][0]["source"] = {
+            "source": "url", "url": validate.PROJECT_REPOSITORY, "ref": ref,
+        }
         self.marketplace_path.write_text(json.dumps(marketplace), encoding="utf-8")
 
     def test_stable_release_and_build_metadata_use_base_release_ref(self) -> None:
@@ -191,16 +195,28 @@ class DistributionVersionTests(unittest.TestCase):
                 self.write_version(version)
                 validate.validate_distribution_interfaces(self.root)
 
-    def test_malformed_and_prerelease_versions_are_rejected(self) -> None:
+    def test_malformed_semantic_versions_are_rejected(self) -> None:
         for version in (
-            "0.2.7-rc.1", "0.2.7-rc.1+codex.123", "00.2.7", "0.2", "v0.2.7",
+            "0.2.7-rc.01", "0.2.7-01+codex.123", "00.2.7", "0.2", "v0.2.7",
             "0.2.7+", "0.2.7+codex..123", "0.2.7+codex.123+other",
             "0.2.7+codex_bad", "0.2.7+codex.123\n", "0.2.7+构建", "0.2.7١",
         ):
             with self.subTest(version=version):
                 self.write_version(version)
-                with self.assertRaisesRegex(validate.ValidationError, "stable semantic version"):
+                with self.assertRaisesRegex(validate.ValidationError, "semantic version"):
                     validate.validate_distribution_interfaces(self.root)
+
+    def test_valid_prereleases_use_their_own_distribution_source(self) -> None:
+        for version in ("0.2.7-rc.1", "0.2.7-rc.1+codex.123"):
+            with self.subTest(version=version):
+                self.write_version(version, "v0.2.7-rc.1")
+                validate.validate_distribution_interfaces(self.root)
+        self.write_version("0.2.10-dev.1")
+        marketplace = json.loads(self.marketplace_path.read_text(encoding="utf-8"))
+        marketplace["name"] = "kiss-my-agent-dev"
+        marketplace["plugins"][0]["source"] = {"source": "local", "path": "."}
+        self.marketplace_path.write_text(json.dumps(marketplace), encoding="utf-8")
+        validate.validate_distribution_interfaces(self.root)
 
     def test_wrong_base_and_metadata_bearing_refs_are_rejected(self) -> None:
         for version in ("0.2.7", "0.2.7+codex.20260909091938"):

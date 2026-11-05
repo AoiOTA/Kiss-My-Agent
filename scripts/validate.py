@@ -26,7 +26,6 @@ PROJECT_PAGES = "https://aoiota.github.io/Kiss-My-Agent/"
 PROJECT_PAGES_ZH = f"{PROJECT_PAGES}zh-CN/"
 DEFAULT_ROLE_CONTRACTS = {
     "kiss_explorer": {
-        "model_reasoning_effort": "medium",
         "sandbox_mode": "read-only",
         "instruction_fragments": (
             "Investigate only the assigned",
@@ -34,7 +33,6 @@ DEFAULT_ROLE_CONTRACTS = {
         ),
     },
     "kiss_coder": {
-        "model_reasoning_effort": "medium",
         "sandbox_mode": "workspace-write",
         "instruction_fragments": (
             "Implement only the assigned",
@@ -43,7 +41,6 @@ DEFAULT_ROLE_CONTRACTS = {
         ),
     },
     "kiss_reviewer": {
-        "model_reasoning_effort": "medium",
         "sandbox_mode": "read-only",
         "instruction_fragments": (
             "Independently review only the assigned",
@@ -154,6 +151,7 @@ def require_files(root: Path) -> None:
         "skills/kiss-my-agent/references/rules/engineering-decisions.md",
         "skills/kiss-my-agent/references/rules/experiments-and-evidence.md",
         "skills/kiss-my-agent/references/cases/minimal-fix-vs-new-system.md",
+        "skills/kiss-my-agent/references/cases/research-action-selection.md",
         "skills/kiss-my-agent/references/cases/degraded-safety-vs-hidden-failure.md",
         "skills/kiss-my-agent/references/cases/product-contract-provenance-vs-agent-proof.md",
         "skills/kiss-my-agent/references/cases/verification-coordination-vs-workflow-platform.md",
@@ -190,6 +188,11 @@ def require_files(root: Path) -> None:
         "scripts/validate.ps1",
     }
     required.update(path for pair in DOC_PAIRS for path in pair)
+    required.update(
+        f"skills/kiss-my-agent-setup/assets/{version}-agents/{role}.toml"
+        for version in ("v0.2.9", "v0.2.9-active-guidance")
+        for role in DEFAULT_ROLE_NAMES
+    )
     missing = sorted(relative for relative in required if not (root / relative).is_file())
     if missing:
         fail("missing required files: " + ", ".join(missing))
@@ -206,10 +209,8 @@ def validate_retired_paths(root: Path) -> None:
 def validate_repository_config(root: Path) -> None:
     config_path = root / ".codex/config.toml"
     config = load_toml(config_path)
-    if set(config) != {"model", "model_reasoning_effort", "features", "agents"}:
-        fail(".codex/config.toml must contain only master defaults and the features and agents tables")
-    if config["model"] != "gpt-6-astra" or config["model_reasoning_effort"] != "high":
-        fail(".codex/config.toml must default the master to Astra/high")
+    if set(config) != {"features", "agents"}:
+        fail(".codex/config.toml must contain only features and agents; Master settings belong to the Host")
     features = config["features"]
     if not isinstance(features, dict) or set(features) != {"multi_agent", "context_management"}:
         fail(".codex/config.toml features table must contain only multi_agent and context_management")
@@ -277,13 +278,8 @@ def validate_roles(root: Path) -> None:
                 f"default role {role_name} must set sandbox_mode = "
                 f"{contract['sandbox_mode']!r}"
             )
-        if data.get("model") != "gpt-6-astra":
-            fail(f"default role {role_name} must set model = gpt-6-astra")
-        if data.get("model_reasoning_effort") != contract["model_reasoning_effort"]:
-            fail(
-                f"default role {role_name} must set model_reasoning_effort = "
-                f"{contract['model_reasoning_effort']!r}"
-            )
+        if "model" in data or "model_reasoning_effort" in data:
+            fail(f"default role {role_name} must inherit model and reasoning effort")
         instructions = data["developer_instructions"]
         missing_fragments = [
             fragment
@@ -311,13 +307,18 @@ def validate_distribution_interfaces(root: Path) -> None:
     if manifest.get("name") != "kiss-my-agent":
         fail("unexpected plugin manifest name")
     version = require_nonempty_string(manifest.get("version"), "plugin.version")
-    if not re.fullmatch(
-        r"(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)"
-        r"(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?",
-        version,
+    semver = re.fullmatch(
+        r"(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)"
+        r"(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?"
+        r"(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?", version,
+    )
+    if not semver or any(
+        part.isdigit() and len(part) > 1 and part.startswith("0")
+        for part in (semver.group(4) or "").split(".")
     ):
-        fail("plugin.version must be a stable semantic version")
+        fail("plugin.version must be a semantic version with valid prerelease identifiers")
     release_version = version.split("+", 1)[0]
+    development_candidate = (semver.group(4) or "").startswith("dev.")
     for key in ("description", "homepage", "repository", "license"):
         require_nonempty_string(manifest.get(key), f"plugin.{key}")
     if manifest["homepage"] != PROJECT_HOMEPAGE or manifest["repository"] != PROJECT_REPOSITORY:
@@ -371,8 +372,9 @@ def validate_distribution_interfaces(root: Path) -> None:
 
     marketplace_path = root / ".agents/plugins/marketplace.json"
     marketplace = json.loads(marketplace_path.read_text(encoding="utf-8"))
-    if not isinstance(marketplace, dict) or marketplace.get("name") != "kiss-my-agent":
-        fail("unexpected marketplace identity")
+    expected_marketplace = "kiss-my-agent-dev" if development_candidate else "kiss-my-agent"
+    if not isinstance(marketplace, dict) or marketplace.get("name") != expected_marketplace:
+        fail(f"unexpected marketplace identity: expected {expected_marketplace}")
     marketplace_interface = marketplace.get("interface")
     if not isinstance(marketplace_interface, dict):
         fail("marketplace.interface must be an object")
@@ -390,12 +392,16 @@ def validate_distribution_interfaces(root: Path) -> None:
     source = plugin.get("source")
     if not isinstance(source, dict):
         fail("marketplace plugin source must be an object")
-    if source.get("source") != "url":
-        fail("marketplace plugin source must use the Git URL interface")
-    if source.get("url") != manifest["repository"]:
-        fail("marketplace plugin URL must match plugin.repository")
-    if source.get("ref") != f"v{release_version}":
-        fail("marketplace plugin ref must match plugin.version without build metadata")
+    if development_candidate:
+        if source != {"source": "local", "path": "."}:
+            fail("development candidates must use only local '.' marketplace source")
+    else:
+        if source.get("source") != "url":
+            fail("release marketplace plugin source must use the Git URL interface")
+        if source.get("url") != manifest["repository"]:
+            fail("marketplace plugin URL must match plugin.repository")
+        if source.get("ref") != f"v{release_version}":
+            fail("marketplace plugin ref must match plugin.version without build metadata")
     policy = plugin.get("policy")
     if not isinstance(policy, dict):
         fail("marketplace plugin policy must be an object")
@@ -460,13 +466,9 @@ def validate_setup_interface(root: Path) -> None:
         "not a prohibition on authorized direct work",
         "Static setup cannot observe a higher-precedence `false`",
         "The Host still resolves the runtime-effective model and effort",
-        "recognize this legacy pair only when both top-level assignments occur exactly once",
-        "their parsed values are exactly `gpt-5.6-sol` and `max`",
-        "Setup updates that exact legacy pair together",
-        "A missing member, an unmarked line, or a changed value makes the existing master settings user-owned",
-        "Remove each current default assignment independently",
+        "Remove each current boolean default assignment independently",
         "every existing correctly identified role byte-for-byte",
-        "corresponding exact v0.2.7, v0.2.6, v0.2.5, or v0.1 remove-only snapshot",
+        "corresponding exact v0.2.9, v0.2.9-active-guidance, v0.2.7, v0.2.6, v0.2.5, or v0.1 remove-only snapshot",
         "Historical snapshots are exact-byte remove comparison inputs only",
         "setup, check, and configure must not read them",
         "explicit value or `inherit`",
@@ -609,8 +611,8 @@ def validate_example_config(root: Path) -> None:
         or not config["default_permissions"].strip()
     ):
         fail("invalid example config default_permissions")
-    if config.get("model") != "gpt-6-astra" or config.get("model_reasoning_effort") != "high":
-        fail("example config must default the master to Astra/high")
+    if "model" in config or "model_reasoning_effort" in config:
+        fail("example config must leave Master model and effort to the Host")
     features = config.get("features")
     agents = config.get("agents")
     if not isinstance(features, dict) or features.get("multi_agent") is not True:
@@ -649,6 +651,7 @@ def validate_skill(root: Path) -> None:
         "references/rules/engineering-decisions.md",
         "references/rules/experiments-and-evidence.md",
         "references/cases/minimal-fix-vs-new-system.md",
+        "references/cases/research-action-selection.md",
         "references/cases/degraded-safety-vs-hidden-failure.md",
         "references/cases/product-contract-provenance-vs-agent-proof.md",
         "references/cases/verification-coordination-vs-workflow-platform.md",
@@ -663,6 +666,7 @@ def validate_skill(root: Path) -> None:
     case_dir = skill_path.parent / "references/cases"
     expected_rules = {"engineering-decisions.md", "experiments-and-evidence.md"}
     expected_cases = {
+        "research-action-selection.md",
         "minimal-fix-vs-new-system.md",
         "degraded-safety-vs-hidden-failure.md",
         "product-contract-provenance-vs-agent-proof.md",
@@ -682,6 +686,8 @@ def validate_skill(root: Path) -> None:
         "## Legitimate exception",
     )
     for case_path in sorted(case_dir.glob("*.md")):
+        if case_path.name == "research-action-selection.md":
+            continue  # Concrete action-selection cases use a compact comparison table.
         headings = tuple(
             line
             for line in case_path.read_text(encoding="utf-8").splitlines()
@@ -853,10 +859,9 @@ def validate_document_interfaces(root: Path) -> None:
             fail(f"configuration key guidance missing: {config_key}")
     for token in (
         "features.context_management.experimental_mode",
-        "gpt-6-astra",
-        "`kiss_explorer` | Read-only investigation | `gpt-6-astra` | `medium`",
-        "`kiss_coder` | Bounded implementation and state changes | `gpt-6-astra` | `medium`",
-        "`kiss_reviewer` | Independent read-only review | `gpt-6-astra` | `medium`",
+        "`kiss_explorer` | Read-only investigation | Inherit Master | Inherit Master",
+        "`kiss_coder` | Bounded implementation and state changes | Inherit Master | Inherit Master",
+        "`kiss_reviewer` | Independent read-only review | Inherit Master | Inherit Master",
         "every role that already exists is user-owned",
         "parent turn's live sandbox and approval overrides",
         "without a staffing approval step",
@@ -870,37 +875,24 @@ def validate_document_interfaces(root: Path) -> None:
         "agents.default_subagent_model",
         "then the parent",
         "final role override",
-        "high",
-        "$kiss-my-agent:kiss-my-agent-setup configure agents in this project: for kiss_explorer, kiss_coder, and kiss_reviewer, set model to gpt-6-astra and model_reasoning_effort to medium",
+        "$kiss-my-agent:kiss-my-agent-setup configure agents in this project: make kiss_explorer, kiss_coder, and kiss_reviewer follow master",
     ):
         if token not in configuration:
             fail(f"configuration behavior guidance missing: {token}")
 
-    configuration_zh = (root / "docs/CONFIGURATION.zh-CN.md").read_text(
-        encoding="utf-8"
-    )
-    for token in (
-        "`kiss_explorer` | 只读调查 | `gpt-6-astra` | `medium`",
-        "`kiss_coder` | 有界实现与状态修改 | `gpt-6-astra` | `medium`",
-        "`kiss_reviewer` | 独立只读审查 | `gpt-6-astra` | `medium`",
-    ):
-        if token not in configuration_zh:
-            fail(f"Chinese role model-pin guidance missing: {token}")
-
-    stable_model_docs = {
-        relative: ("gpt-6-astra", "medium", "features.context_management.experimental_mode")
-        for relative in ("README.md", "README.zh-CN.md", "docs/FAQ.md", "docs/FAQ.zh-CN.md")
-    }
+    configuration_zh = (root / "docs/CONFIGURATION.zh-CN.md").read_text(encoding="utf-8")
+    for role in DEFAULT_ROLE_NAMES:
+        if f"`{role}`" not in configuration_zh:
+            fail(f"Chinese role guidance missing: {role}")
     migration_prompt = (
         "$kiss-my-agent:kiss-my-agent-setup configure agents in this project: "
-        "for kiss_explorer, kiss_coder, and kiss_reviewer, set model to gpt-6-astra "
-        "and model_reasoning_effort to medium"
+        "make kiss_explorer, kiss_coder, and kiss_reviewer follow master"
     )
-    for relative, tokens in stable_model_docs.items():
+    for relative in ("README.md", "README.zh-CN.md", "docs/FAQ.md", "docs/FAQ.zh-CN.md"):
         text = (root / relative).read_text(encoding="utf-8")
-        for token in (*tokens, migration_prompt):
+        for token in ("features.context_management.experimental_mode", migration_prompt):
             if token not in text:
-                fail(f"model default and upgrade guidance missing from {relative}: {token}")
+                fail(f"inheritance and migration guidance missing from {relative}: {token}")
 
 
 def validate_fixtures(root: Path) -> int:

@@ -17,6 +17,8 @@ Reduce Codex overengineering and overdefense. Build a runnable, verifiable resea
 
 </div>
 
+This checkout is the local **0.2.10-dev.1** candidate, not a public release. The release badge is historical. Use the [local candidate instructions](docs/INSTALLATION.md#local-development-candidate) to test these changes without replacing a stable installation.
+
 <a id="why-this-exists"></a>
 ## What KISS My Agent Is
 
@@ -105,7 +107,7 @@ $kiss-my-agent:kiss-my-agent-setup check this project
 
 Default setup manages three project locations:
 
-- `.codex/config.toml`: fills missing Astra/high, multi-agent and experimental-context defaults; preserves user values and updates only the exact legacy pair described in [Configuration](docs/CONFIGURATION.md).
+- `.codex/config.toml`: fills only missing multi-agent and experimental-context defaults; preserves all model and effort settings.
 - `.codex/agents/`: editable employee-role files
 - `AGENTS.md`: the marked KISS instructions block
 
@@ -121,30 +123,26 @@ The **Master** is the main Codex Agent in the conversation you are using now—t
 | Who | Job | Default |
 | --- | --- | --- |
 | You / Owner | Set the goal, architecture, acceptance criteria, non-goals, and stop point | Human decision |
-| Master | Plan, assign work, resolve conflicts, judge evidence, and summarize | `gpt-6-astra` / `high` default |
-| `kiss_explorer` | Investigate and report facts without editing | `gpt-6-astra` / `medium` |
-| `kiss_coder` | Implement the assigned change and run its checks | `gpt-6-astra` / `medium` |
-| `kiss_reviewer` | Independently inspect the result without editing | `gpt-6-astra` / `medium` |
+| Master | Plan, assign work, resolve conflicts, judge evidence, and summarize | Host/session choice |
+| `kiss_explorer` | Investigate and report facts without editing | Follow Master |
+| `kiss_coder` | Implement the assigned change and run its checks | Follow Master |
+| `kiss_reviewer` | Independently inspect the result without editing | Follow Master |
 
-Setup fills missing master fields with `gpt-6-astra` / `high`; current seed roles explicitly use `gpt-6-astra` / `medium`. Existing explicit user choices are preserved. The role wizard changes selected roles only. Static checks do not prove effective Host settings; verify them in a new task. The Master normally assigns directly, may use multiple instances of a role, keeps one Agent responsible for each shared item, and may give one temporary lead to a large independent subsystem.
+Master uses the current Host/session model and reasoning effort. New seeds omit both overrides and follow the Master; default delegation omits model and effort arguments. Setup preserves existing model choices and roles. Use explicit follow-master configuration to remove selected role and selected-scope `[agents]` overrides; legacy KMA Master pins require a separate explicit selection. Verify effective settings in a new task. The Master normally assigns directly, may use multiple instances of a role, keeps one Agent responsible for each shared item, and may give one temporary lead to a large independent subsystem.
 
 If delegation is disabled or unavailable, or no suitable role exists, the Master may continue within its capabilities and existing authorization without a staffing approval step. Report unmet explicit requirements for independent checking or a specific role, and real capability gaps; direct execution must not be presented as satisfying them.
 
 The company comparison only explains responsibilities; it is not a fixed workflow or game system.
 
-Setup defaults missing `features.context_management.experimental_mode` to `true`, preserving explicit false. On Ubuntu 24.04 with the ChatGPT Pro client, no API key is needed. After updating the Plugin, run setup in the original scope, explicitly configure selected existing roles, then start a new trusted Astra task to verify loading.
+Setup defaults missing `features.context_management.experimental_mode` to `true`, preserving explicit false. On Ubuntu 24.04 with the ChatGPT Pro client, no API key is needed. After updating the Plugin, run setup in the original scope, explicitly configure selected existing roles, then start a new trusted task to verify loading.
 
 <a id="configure-agents"></a>
 ## Only Read This If You Want Different Model Settings
 
-Setup fills missing master fields with `gpt-6-astra` / `high`; current seed roles explicitly use `gpt-6-astra` / `medium`. Existing explicit user choices are preserved. The role wizard changes selected roles only. Static checks do not prove effective Host settings; verify them in a new task.
-
-For child Agents, Codex resolves an explicit spawn setting first, then the corresponding `[agents]` default, then the parent; an explicit role-file value is the final override. The current starter roles explicitly set Astra / medium as that final override.
-
-Plugin updates and setup preserve every existing role. To explicitly set `gpt-6-astra` and `medium` effort in all three existing KISS roles, use this exact qualified prompt:
+Choose Master model and effort in the Host. Plugin updates and setup preserve existing settings; to make the three existing roles follow the Master, use this qualified project prompt:
 
 ```text
-$kiss-my-agent:kiss-my-agent-setup configure agents in this project: for kiss_explorer, kiss_coder, and kiss_reviewer, set model to gpt-6-astra and model_reasoning_effort to medium
+$kiss-my-agent:kiss-my-agent-setup configure agents in this project: make kiss_explorer, kiss_coder, and kiss_reviewer follow master
 ```
 
 Configure existing employee roles through Codex:
@@ -153,7 +151,7 @@ Configure existing employee roles through Codex:
 $kiss-my-agent:kiss-my-agent-setup configure agents for this project
 ```
 
-The role wizard changes only an existing role's model, reasoning effort, and permission mode; it does not modify the Master. See [Configuration](docs/CONFIGURATION.md) for global roles, exact precedence, permissions, and legacy setup migration details.
+Ordinary role configuration changes selected roles only. Follow-master mode can explicitly remove selected-scope `[agents]` defaults and separately selected exact marked legacy KMA Master pins; user values remain preserved. See [Configuration](docs/CONFIGURATION.md) for scope, precedence and permissions.
 
 <a id="updates"></a>
 ## Update Now

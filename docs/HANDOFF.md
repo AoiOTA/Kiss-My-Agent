@@ -2,7 +2,23 @@
 
 这是本仓库唯一的 canonical handoff。详细过程由 Git history、Issue 和 PR 保存，不创建 dated、attempt 或 campaign 副本。
 
-## 当前 Release：v0.2.9（2026-09-12）
+## 当前本地开发候选：0.2.10-dev.1（2026-10-03）
+
+本轮从 `codex/active-guidance` 的 `6ad6840` 开始实现 Re:Nav 复盘方案。六组行动规则覆盖用户结果优先级、原生合法能力、真实消费者、实验规模、未触发后的选择与完整交付；入口合并重复内容，项目阈值和授权留在项目。Master 与三个默认角色不再设置固定模型或推理强度，setup 保留已有设置，显式 follow-master 配置处理所选角色及经授权的所选 scope 默认覆盖。
+
+候选保持插件名 `kiss-my-agent`，开发 marketplace 使用 `kiss-my-agent-dev`，通过 local `.` 来源安装。候选只在隔离 Codex home 验证；稳定安装、全局配置和 Re:Nav 保持不变。没有 commit、push、tag、公开 Release 或导航实验。
+
+实际 CLI `0.159.2` 的同一 Master 会话依次使用 `gpt-6.1-sol/high`、`gpt-6.1-sol/low`、`gpt-6-astra/low`。每组新建一个原生 explorer、coder、reviewer，九个子会话均完成，实际 turn context 的 model/effort 与当轮 Master 一致，spawn 没有覆盖。首次 low resume 因测试入口遗漏启动目录而暴露 `unknown agent_type`，没有子结果；保留失败，修正启动目录后重验成功。此处证明有限 CLI 继承行为，不证明已有 child 会自动同步、所有客户端兼容或长期提效。
+
+完整确定性检查通过：53 项测试、静态验证、16 页隔离文档构建、Git whitespace 与工作树不变检查。独立审查指出公开 v0.2.9 与 active-guidance 角色字节不同；现已分别保存，并对本地不可变 tag 及原安装包完成逐字节验证。首次完整检查因旧分发测试 fixture 继承了开发 registry 而失败；修正 fixture 后通过，未放宽稳定版 tag/来源验证。
+
+隔离迁移实际删除了所选 explorer/coder 的 model/effort、已授权的所选 scope 子角色默认值与准确 marked Master high 字段。完整非选中内容逐字节保持，包括用户 Master model、未选 reviewer、角色正文和 sandbox、AGENTS、注释及两项 false。首次 workspace-write 会话因 `.codex` 只读保护拒绝首个写入，未产生改动；使用本轮允许权限的隔离会话完成验证。这不是生产全局迁移，也不证明完整并发或故障注入矩阵。
+
+隔离任务实际修复了合法回访/碰撞后动作过滤与检查图未抵达下一决策的问题，局部执行确认合法动作及顺序/重复、新图与普通反馈路径。任务报告承认成功和成本代价、针对缺少相关决策的未触发选择新场景，并将冻结缺陷结算为无效条件、建议停止而不补跑。页面交付为无外部依赖的独立 HTML；静态资源闭合通过，浏览器工具因 file 协议策略拒绝直开，视觉呈现未验证。没有导航、真实机制运行或性能基线；这些局部结果不证明长期提效。
+
+本地包及安装结果见交付报告。保持本地候选，不发布、不推送，不把局部行为或 CLI 成功升级为普遍效果。
+
+## 历史 Release：v0.2.9（2026-09-12）
 
 本候选整理 PawCerto 实际开发中已采用的八处指导与双语文档修正：对齐主动使用入口，明确完整委派包含执行、观察与常规恢复，并在最终依赖未完成时推进其他已就绪工作。未增加角色、工作流或运行时机制。
 

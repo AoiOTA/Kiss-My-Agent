@@ -1,6 +1,3 @@
-model = "gpt-6-astra"
-model_reasoning_effort = "high"
-
 [features]
 multi_agent = true
 
