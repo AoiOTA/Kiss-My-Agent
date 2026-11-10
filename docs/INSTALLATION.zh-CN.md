@@ -9,19 +9,6 @@
 
 [GitHub 最新 Release](https://github.com/AoiOTA/Kiss-My-Agent/releases/latest) 是当前支持的 release。当前安装产物以它为准，发布证据与历史见 [HANDOFF](HANDOFF.md)。
 
-<a id="local-development-candidate"></a>
-## 本地开发候选
-
-此工作树包含 `0.2.10-dev.1`，插件名为 `kiss-my-agent`，独立本地 marketplace 为 `kiss-my-agent-dev`。进入解压后的候选根目录，再安装：
-
-```bash
-codex plugin marketplace add .
-codex plugin add kiss-my-agent@kiss-my-agent-dev
-codex plugin list --marketplace kiss-my-agent-dev --json
-```
-
-保留解压后的来源目录，确认 installed 条目报告 `0.2.10-dev.1`。新建会话前停用旧的已启用 KMA 条目，避免同名 Skill 选到旧包；旧安装可保留用于回退。安装插件本身不修改项目角色。新项目使用 setup，已有角色使用下文显式 follow-master prompt。本候选有 CLI `0.159.2` 的有限本地证据，尚不证明公开分发、所有客户端兼容或长期提效。
-
 <a id="requirements"></a>
 ## 用户环境要求
 

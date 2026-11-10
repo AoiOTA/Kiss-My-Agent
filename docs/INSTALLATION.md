@@ -9,19 +9,6 @@
 
 The [latest GitHub Release](https://github.com/AoiOTA/Kiss-My-Agent/releases/latest) is the current supported release. Use it for current installation artifacts and [HANDOFF](HANDOFF.md) for release evidence and history.
 
-<a id="local-development-candidate"></a>
-## Local development candidate
-
-This checkout contains `0.2.10-dev.1`, plugin `kiss-my-agent`, with the separate local marketplace `kiss-my-agent-dev`. From the extracted candidate root, install it with:
-
-```bash
-codex plugin marketplace add .
-codex plugin add kiss-my-agent@kiss-my-agent-dev
-codex plugin list --marketplace kiss-my-agent-dev --json
-```
-
-Keep the extracted source directory available. Check that the installed entry reports `0.2.10-dev.1`. Disable any older enabled KMA entry before starting a new session so duplicate skill names do not select an old package; the old installation can remain for rollback. Installation alone does not modify project roles. Use setup for a new project or the explicit follow-master prompt below for selected existing roles. This candidate has bounded local CLI `0.159.2` evidence, not public distribution, every-client compatibility, or measured long-term efficiency.
-
 <a id="requirements"></a>
 ## User requirements
 

@@ -1,5 +1,5 @@
 {
-  "name": "kiss-my-agent-dev",
+  "name": "kiss-my-agent",
   "interface": {
     "displayName": "KISS My Agent"
   },
@@ -7,8 +7,9 @@
     {
       "name": "kiss-my-agent",
       "source": {
-        "source": "local",
-        "path": "."
+        "source": "url",
+        "url": "https://github.com/AoiOTA/Kiss-My-Agent.git",
+        "ref": "v0.2.10"
       },
       "policy": {
         "installation": "AVAILABLE",

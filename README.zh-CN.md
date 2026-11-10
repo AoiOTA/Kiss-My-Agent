@@ -12,12 +12,11 @@
 
 [![许可证：MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Validate](https://github.com/AoiOTA/Kiss-My-Agent/actions/workflows/validate.yml/badge.svg)](https://github.com/AoiOTA/Kiss-My-Agent/actions/workflows/validate.yml)
-![版本：v0.2.9](https://img.shields.io/badge/release-v0.2.9-blue.svg)
+![版本：v0.2.10](https://img.shields.io/badge/release-v0.2.10-blue.svg)
 ![宿主：Codex 优先](https://img.shields.io/badge/host-Codex--first-blue.svg)
 
 </div>
 
-此工作树是本地 **0.2.10-dev.1** 候选，尚未公开发布；版本徽章为历史 release。请按[本地候选安装说明](docs/INSTALLATION.zh-CN.md#local-development-candidate)验证这些改动，保留稳定安装。
 
 <a id="why-this-exists"></a>
 ## KISS My Agent 是什么
