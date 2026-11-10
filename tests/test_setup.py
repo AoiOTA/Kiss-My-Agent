@@ -1,9 +1,15 @@
 from __future__ import annotations
 
 import re
+import json
+import shutil
+import subprocess
+import tempfile
 import tomllib
 import unittest
 from pathlib import Path
+
+from scripts import validate
 
 
 REPOSITORY = Path(__file__).resolve().parents[1]
@@ -82,8 +88,6 @@ class SetupContractTests(unittest.TestCase):
         self.assertEqual(1, len(markdown_blocks))
         self.assertTrue(markdown_blocks[0].startswith(BEGIN_MARKER))
         self.assertTrue(markdown_blocks[0].endswith(END_MARKER))
-        self.assertIn("wait window ending without an update", markdown_blocks[0])
-        self.assertIn("not an agent timeout or failure", markdown_blocks[0])
         self.assertIn("The master owns orchestration", markdown_blocks[0])
         self.assertIn("The master may directly complete clear small or local work", markdown_blocks[0])
         self.assertIn("Each role may have zero, one, or multiple instances", markdown_blocks[0])
@@ -109,12 +113,12 @@ class SetupContractTests(unittest.TestCase):
         toml_blocks = fenced_blocks(self.lifecycle, "toml")
         self.assertEqual(1, len(toml_blocks))
         config = tomllib.loads(toml_blocks[0])
-        self.assertEqual("gpt-6-astra", config["model"])
-        self.assertEqual("high", config["model_reasoning_effort"])
+        self.assertNotIn("model", config)
+        self.assertNotIn("model_reasoning_effort", config)
         self.assertIs(config["features"]["multi_agent"], True)
         self.assertIs(config["agents"]["enabled"], True)
         self.assertIs(config["features"]["context_management"]["experimental_mode"], True)
-        self.assertEqual(5, toml_blocks[0].count(CONFIG_MARKER))
+        self.assertEqual(3, toml_blocks[0].count(CONFIG_MARKER))
 
         with PROJECT_CONFIG.open("rb") as stream:
             repository_config = tomllib.load(stream)
@@ -130,27 +134,15 @@ class SetupContractTests(unittest.TestCase):
             "configured `true`, user-disabled `false`, or missing",
             "missing is incomplete when a setup trace exists",
             "Preserve the context table and all unrelated keys and comments",
-            "current Astra or high field with its own marker remains independently removable",
             "Preserve changed or unmarked values and partial legacy settings",
-            "fresh setup and upgrades, independently of managed-block state",
         ):
             self.assertIn(token, self.lifecycle)
 
-    def test_task_partitioning_preserves_direct_work_and_useful_delegation(self) -> None:
-        sources = (
-            (REPOSITORY / "AGENTS.md").read_text(encoding="utf-8"),
-            fenced_blocks(self.lifecycle, "markdown")[0],
-        )
-        for text in sources:
-            self.assertIn("The master may directly complete clear small or local work", text)
-            self.assertIn("task partitioning", text)
-            self.assertIn("Actively delegate substantial bulk work", text)
-
     def test_seed_roles_remain_valid_and_unique(self) -> None:
         expected_settings = {
-            "kiss_explorer": ("gpt-6-astra", "medium", "read-only"),
-            "kiss_coder": ("gpt-6-astra", "medium", "workspace-write"),
-            "kiss_reviewer": ("gpt-6-astra", "medium", "read-only"),
+            "kiss_explorer": ("", "", "read-only"),
+            "kiss_coder": ("", "", "workspace-write"),
+            "kiss_reviewer": ("", "", "read-only"),
         }
         found: dict[str, tuple[str, str, str]] = {}
         for path in sorted(ROLE_DIRECTORY.glob("*.toml")):
@@ -175,10 +167,7 @@ class SetupContractTests(unittest.TestCase):
             self.assertIn(f"`{field}`", self.configure)
         for required_field in ("name", "description", "developer_instructions"):
             self.assertIn(f"`{required_field}`", self.configure)
-        self.assertIn("`model = gpt-6-astra`", self.configure)
         self.assertIn("When multiple roles are selected", self.configure)
-        self.assertIn("`model = inherit`", self.configure)
-        self.assertIn("`model_reasoning_effort = medium`", self.configure)
         self.assertIn("`default_permissions`", self.configure)
         self.assertIn("`sandbox_workspace_write`", self.configure)
 
@@ -187,7 +176,7 @@ class SetupContractTests(unittest.TestCase):
         self.assertIn("separate explicit confirmation", self.configure)
         self.assertIn("danger-full-access", self.configure)
         self.assertIn("Immediately before mutating each selected file", self.configure)
-        self.assertIn("still equal its preview base", self.configure)
+        self.assertIn("still equal their preview base", self.configure)
         self.assertIn("If a pending target differs", self.configure)
         self.assertIn("stop forward work", self.configure)
         self.assertIn("already-written files", self.configure)
@@ -245,7 +234,7 @@ class SetupContractTests(unittest.TestCase):
         self.assertNotIn("complete role catalog", self.lifecycle)
         self.assertNotIn("another filename in the same catalog", self.lifecycle)
         self.assertIn("state a separate decision", self.lifecycle)
-        self.assertIn("each master field or the exact legacy pair", self.lifecycle)
+        self.assertIn("each preserved or inherited master field", self.lifecycle)
         self.assertIn("each delegation switch and the context setting", self.lifecycle)
         self.assertIn("the Instructions target", self.lifecycle)
         self.assertIn("every Role", self.lifecycle)
@@ -257,28 +246,21 @@ class SetupContractTests(unittest.TestCase):
         self.assertIn("marker controls remove ownership only", self.lifecycle)
         self.assertIn("all three boolean paths", self.lifecycle)
         self.assertIn("exactly one mutually exclusive state", self.lifecycle)
-        self.assertIn("Fill each missing top-level master field independently", self.lifecycle)
-        self.assertIn("no particular existing value is required", self.lifecycle)
-        self.assertIn("Remove each current default assignment independently", self.lifecycle)
+        self.assertIn("Remove each current boolean default assignment independently", self.lifecycle)
         self.assertIn("create each missing bundled role from its exact current plugin seed", self.lifecycle)
         self.assertIn("Preserve every existing correctly identified role byte-for-byte", self.lifecycle)
         self.assertIn("`user-owned/preserved`", self.lifecycle)
         self.assertIn("never modify, migrate, version-check, or replace an existing role", self.lifecycle)
         self.assertIn("Use the existing `configure agents` wizard", self.lifecycle)
-        self.assertIn("corresponding exact v0.2.7, v0.2.6, v0.2.5, or v0.1 remove-only snapshot", self.lifecycle)
+        self.assertIn("corresponding exact v0.2.9, v0.2.9-active-guidance, v0.2.7, v0.2.6, v0.2.5, or v0.1 remove-only snapshot", self.lifecycle)
 
-    def test_legacy_master_pair_upgrade_is_exact_and_idempotent(self) -> None:
-        self.assertIn("recognize this legacy pair only when both top-level assignments occur exactly once", self.lifecycle)
-        self.assertIn("parsed values are exactly `gpt-5.6-sol` and `max`", self.lifecycle)
-        self.assertIn("each complete assignment line includes the exact marker", self.lifecycle)
-        self.assertIn("Setup updates that exact legacy pair together", self.lifecycle)
-        self.assertIn("independently of managed-block state", self.lifecycle)
-        self.assertIn("Repeated setup preserves the resulting defaults", self.lifecycle)
-        self.assertIn("A missing member, an unmarked line, or a changed value makes the existing master settings user-owned", self.lifecycle)
-        self.assertIn("fill only genuinely missing fields with the current marked defaults", self.lifecycle)
-        self.assertIn("Duplicate assignments, ambiguous ownership, or invalid TOML remain a conflict", self.lifecycle)
-        self.assertIn("Existing master values do not affect completion", self.lifecycle)
-        self.assertIn("Host resolves those settings", self.lifecycle)
+    def test_setup_does_not_supply_or_migrate_model_choices(self) -> None:
+        # This is a declared workflow contract, not proof of Agent file edits.
+        self.assertIn("Setup does not add, replace, or migrate", self.lifecycle)
+        self.assertIn("missing model and effort fields do not make setup incomplete", self.lifecycle)
+        self.assertIn("ordinary setup", self.lifecycle.lower())
+        self.assertIn("Top-level Master settings are a separate optional selection", self.configure)
+        self.assertIn("pending files must still equal their preview base", self.configure)
 
     def test_role_assets_are_read_only_by_the_actions_that_consume_them(self) -> None:
         self.assertLess(
@@ -291,7 +273,7 @@ class SetupContractTests(unittest.TestCase):
         )
         self.assertIn("Do not read current seeds for existing roles or any historical snapshot", self.lifecycle)
         self.assertIn("`check`: do not read current seeds or historical role snapshots", self.lifecycle)
-        self.assertIn("`remove`: read the current, v0.2.7, v0.2.6, v0.2.5, and v0.1 role seeds as exact bytes", self.lifecycle)
+        self.assertIn("`remove`: read the current, v0.2.9, v0.2.9-active-guidance, v0.2.7, v0.2.6, v0.2.5, and v0.1 role seeds as exact bytes", self.lifecycle)
         self.assertIn("Historical snapshots are exact-byte remove comparison inputs only", self.lifecycle)
         self.assertIn("setup, check, and configure must not read them", self.lifecycle)
         self.assertIn("Do not read role seed assets, compare role content to seeds", self.lifecycle)
@@ -318,7 +300,7 @@ class SetupContractTests(unittest.TestCase):
             "kiss_coder": ("gpt-5.6-sol", "high", "workspace-write"),
             "kiss_reviewer": ("gpt-5.6-sol", "xhigh", "read-only"),
         }
-        for version in ("v0.2.7", "v0.2.6", "v0.2.5", "v0.1"):
+        for version in ("v0.2.9", "v0.2.9-active-guidance", "v0.2.7", "v0.2.6", "v0.2.5", "v0.1"):
             for role_name in ("kiss_explorer", "kiss_coder", "kiss_reviewer"):
                 relative = f"assets/{version}-agents/{role_name}.toml"
                 self.assertIn(f"]({relative})", self.lifecycle)
@@ -394,6 +376,124 @@ class SetupContractTests(unittest.TestCase):
 
         self.assertIn("replace only its interior and markers with the current block", self.lifecycle)
         self.assertIn("Preserve every existing correctly identified role byte-for-byte", self.lifecycle)
+
+
+class InheritanceStructureTests(unittest.TestCase):
+    """Validate actual emitted defaults; native Agent edits need engineering runs."""
+
+    def setUp(self) -> None:
+        self.temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temporary.cleanup)
+        self.root = Path(self.temporary.name)
+        shutil.copytree(REPOSITORY / ".codex", self.root / ".codex")
+        shutil.copytree(REPOSITORY / ".codex-plugin", self.root / ".codex-plugin")
+        shutil.copytree(REPOSITORY / ".agents", self.root / ".agents")
+
+    def test_default_config_and_roles_do_not_override_parent(self) -> None:
+        validate.validate_repository_config(self.root)
+        validate.validate_roles(self.root)
+        for path in (self.root / ".codex/agents").glob("*.toml"):
+            data = tomllib.loads(path.read_text())
+            self.assertNotIn("model", data)
+            self.assertNotIn("model_reasoning_effort", data)
+        config = tomllib.loads((self.root / ".codex/config.toml").read_text())
+        self.assertNotIn("default_subagent_model", config["agents"])
+        self.assertNotIn("default_subagent_reasoning_effort", config["agents"])
+
+    def test_validator_rejects_either_role_override(self) -> None:
+        role_path = self.root / ".codex/agents/kiss_coder.toml"
+        original = role_path.read_text()
+        for field, value in (("model", "future-model"), ("model_reasoning_effort", "high")):
+            with self.subTest(field=field):
+                role_path.write_text(f'{field} = "{value}"\n' + original)
+                with self.assertRaises(validate.ValidationError):
+                    validate.validate_roles(self.root)
+        role_path.write_text(original)
+
+    def test_validator_rejects_master_or_agents_default_pins(self) -> None:
+        config_path = self.root / ".codex/config.toml"
+        original = config_path.read_text()
+        for content in (
+            'model = "future-model"\n' + original,
+            'model_reasoning_effort = "high"\n' + original,
+            original + '\ndefault_subagent_model = "future-model"\n',
+            original + '\ndefault_subagent_reasoning_effort = "high"\n',
+        ):
+            config_path.write_text(content)
+            with self.assertRaises(validate.ValidationError):
+                validate.validate_repository_config(self.root)
+
+    def check_distribution(self, version: str, source: dict) -> None:
+        manifest_path = self.root / ".codex-plugin/plugin.json"
+        manifest = json.loads(manifest_path.read_text())
+        manifest["version"] = version
+        manifest_path.write_text(json.dumps(manifest))
+        marketplace_path = self.root / ".agents/plugins/marketplace.json"
+        marketplace = json.loads(marketplace_path.read_text())
+        marketplace["name"] = "kiss-my-agent-dev" if "-dev." in version else "kiss-my-agent"
+        marketplace["plugins"][0]["source"] = source
+        marketplace_path.write_text(json.dumps(marketplace))
+        validate.validate_distribution_interfaces(self.root)
+
+    def test_development_distribution_uses_local_source(self) -> None:
+        self.check_distribution("0.2.10-dev.1", {"source": "local", "path": "."})
+        for source in (
+            {"source": "local", "path": ".."},
+            {"source": "local", "path": ".", "ref": "v0.2.10"},
+            {"source": "url", "url": validate.PROJECT_REPOSITORY, "ref": "v0.2.10-dev.1"},
+        ):
+            with self.subTest(source=source), self.assertRaises(validate.ValidationError):
+                self.check_distribution("0.2.10-dev.1", source)
+
+    def test_release_distribution_requires_matching_git_ref(self) -> None:
+        self.check_distribution("0.2.10+build.1", {
+            "source": "url", "url": validate.PROJECT_REPOSITORY, "ref": "v0.2.10",
+        })
+        with self.assertRaises(validate.ValidationError):
+            self.check_distribution("0.2.10", {"source": "local", "path": "."})
+
+    def test_semver_rejects_leading_zero_prerelease_identifiers(self) -> None:
+        for version in ("0.2.10-dev.01", "0.2.10-01", "00.2.10", "0.2.10-"):
+            with self.subTest(version=version), self.assertRaises(validate.ValidationError):
+                self.check_distribution(version, {"source": "local", "path": "."})
+
+    def test_historical_snapshots_match_available_immutable_sources(self) -> None:
+        # Contributor check only; zip distributions need no Git or source history.
+        # Full bytes are the actual remove comparison inputs, not digest gates.
+        if not (REPOSITORY / ".git").exists() or shutil.which("git") is None:
+            self.skipTest("source Git history unavailable in this distribution")
+        sources = {
+            "v0.2.9": "v0.2.9",
+            "v0.2.9-active-guidance": "6ad684085fa6589963aa6fe4b1b9af12a10ae73d",
+        }
+        for version, ref in sources.items():
+            result = subprocess.run(
+                ["git", "rev-parse", "--verify", f"{ref}^{{commit}}"],
+                cwd=REPOSITORY, capture_output=True, check=False,
+            )
+            if result.returncode:
+                self.skipTest(f"historical source {ref} unavailable in this checkout")
+        for version, ref in sources.items():
+            for name in ("kiss_explorer", "kiss_coder", "kiss_reviewer"):
+                source = subprocess.check_output(
+                    ["git", "show", f"{ref}:.codex/agents/{name}.toml"],
+                    cwd=REPOSITORY,
+                )
+                self.assertEqual(
+                    source,
+                    (ROLE_ASSETS / f"{version}-agents" / f"{name}.toml").read_bytes(),
+                    (version, name),
+                )
+
+    def test_v029_remove_snapshots_keep_old_pins_and_permission_intent(self) -> None:
+        for name, sandbox in (("kiss_coder", "workspace-write"),
+                              ("kiss_explorer", "read-only"),
+                              ("kiss_reviewer", "read-only")):
+            data = tomllib.loads((ROLE_ASSETS / "v0.2.9-agents" / f"{name}.toml").read_text())
+            self.assertEqual(name, data["name"])
+            self.assertEqual("gpt-6-astra", data["model"])
+            self.assertEqual("medium", data["model_reasoning_effort"])
+            self.assertEqual(sandbox, data["sandbox_mode"])
 
 
 if __name__ == "__main__":

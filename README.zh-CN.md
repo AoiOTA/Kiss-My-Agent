@@ -12,10 +12,11 @@
 
 [![许可证：MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Validate](https://github.com/AoiOTA/Kiss-My-Agent/actions/workflows/validate.yml/badge.svg)](https://github.com/AoiOTA/Kiss-My-Agent/actions/workflows/validate.yml)
-![版本：v0.2.9](https://img.shields.io/badge/release-v0.2.9-blue.svg)
+![版本：v0.2.10](https://img.shields.io/badge/release-v0.2.10-blue.svg)
 ![宿主：Codex 优先](https://img.shields.io/badge/host-Codex--first-blue.svg)
 
 </div>
+
 
 <a id="why-this-exists"></a>
 ## KISS My Agent 是什么
@@ -105,7 +106,7 @@ $kiss-my-agent:kiss-my-agent-setup check this project
 
 默认 setup 管理项目中的三个位置：
 
-- `.codex/config.toml`：补齐缺失的 Astra/high、多代理及实验上下文默认值；保留用户值，只更新[配置](docs/CONFIGURATION.zh-CN.md)中说明的准确历史 pair。
+- `.codex/config.toml`：只补齐缺失的多代理及实验上下文默认值；保留全部模型与 effort 设置。
 - `.codex/agents/`：可编辑的员工角色文件
 - `AGENTS.md`：带标记的 KISS instructions 区块
 
@@ -121,30 +122,26 @@ Plugin 没有后台服务；真正加载配置和启动 Agents 的是 Codex Host
 | 成员 | 职责 | 默认配置 |
 | --- | --- | --- |
 | 你 / Owner | 决定目标、架构、验收标准、非目标和停止点 | 人来决策 |
-| Master | 规划、分配工作、解决冲突、判断证据并汇总 | 默认 `gpt-6-astra` / `high` |
-| `kiss_explorer` | 调查并报告事实，不编辑文件 | `gpt-6-astra` / `medium` |
-| `kiss_coder` | 实现分配的改动并运行相关检查 | `gpt-6-astra` / `medium` |
-| `kiss_reviewer` | 独立检查结果，不编辑文件 | `gpt-6-astra` / `medium` |
+| Master | 规划、分配工作、解决冲突、判断证据并汇总 | Host／会话选择 |
+| `kiss_explorer` | 调查并报告事实，不编辑文件 | 跟随 Master |
+| `kiss_coder` | 实现分配的改动并运行相关检查 | 跟随 Master |
+| `kiss_reviewer` | 独立检查结果，不编辑文件 | 跟随 Master |
 
-Setup 为缺失的 Master 字段补入 `gpt-6-astra` / `high`；当前 seed roles 显式使用 `gpt-6-astra` / `medium`。已有用户显式选择保持不变。Role wizard 只修改选定角色。静态检查不能证明 Host 有效配置，应在新任务中验证。 Master 通常直接分配任务，可以启动同一角色的多个实例，每个共享事项由一个 Agent 负责，大型独立子系统可以临时设一个 lead。
+Master 使用当前 Host／会话选择的模型与推理强度。新 seeds 省略两项覆盖并跟随 Master，默认委派也省略 model 和 effort 参数。Setup 保留已有模型选择与角色；显式 follow-master 配置移除选定角色和所选 scope 的 `[agents]` 覆盖，旧 KMA Master 固定值需要单独明确选中。有效设置须在新任务中验证。 Master 通常直接分配任务，可以启动同一角色的多个实例，每个共享事项由一个 Agent 负责，大型独立子系统可以临时设一个 lead。
 
 如果 delegation 被禁用、不可用或没有合适角色，Master 可在已有授权和自身能力内继续工作，无需为人员配置另设审批。用户明确要求的独立检查、特定角色或真实能力缺口仍须报告，不能把直接执行冒充为满足这些要求。
 
 公司类比只用于解释职责，不是固定流程或游戏系统。
 
-Setup 默认补入 `features.context_management.experimental_mode = true`，保留用户显式 false。Ubuntu 24.04 的 ChatGPT Pro 客户端无需 API key；更新插件后，在原 scope 运行 setup，显式 configure 选定的已有角色，再新建可信 Astra 任务验证加载。
+Setup 默认补入 `features.context_management.experimental_mode = true`，保留用户显式 false。Ubuntu 24.04 的 ChatGPT Pro 客户端无需 API key；更新插件后，在原 scope 运行 setup，显式 configure 选定的已有角色，再新建可信任务验证加载。
 
 <a id="configure-agents"></a>
 ## 只有想修改模型设置时才看这里
 
-Setup 为缺失的 Master 字段补入 `gpt-6-astra` / `high`；当前 seed roles 显式使用 `gpt-6-astra` / `medium`。已有用户显式选择保持不变。Role wizard 只修改选定角色。静态检查不能证明 Host 有效配置，应在新任务中验证。
-
-对子 Agent，Codex 会先解析显式 spawn 设置，再解析对应的 `[agents]` 默认值，最后解析 parent；role 文件中的显式值是最终 override。当前 starter roles 显式设置 Astra / medium，作为最后一层 override。
-
-Plugin update 和 setup 会保留每个已有角色。要显式把三个已有 KISS roles 设置为 `gpt-6-astra` / `medium`，请使用下面准确的限定 prompt：
+在 Host 中选择 Master 模型与推理强度。Plugin update 和 setup 保留已有设置；要让三个已有角色跟随 Master，请使用下面限定的项目 prompt：
 
 ```text
-$kiss-my-agent:kiss-my-agent-setup configure agents in this project: for kiss_explorer, kiss_coder, and kiss_reviewer, set model to gpt-6-astra and model_reasoning_effort to medium
+$kiss-my-agent:kiss-my-agent-setup configure agents in this project: make kiss_explorer, kiss_coder, and kiss_reviewer follow master
 ```
 
 通过 Codex 配置已有员工角色：
@@ -153,7 +150,7 @@ $kiss-my-agent:kiss-my-agent-setup configure agents in this project: for kiss_ex
 $kiss-my-agent:kiss-my-agent-setup configure agents for this project
 ```
 
-Role wizard 只修改已有角色的 model、reasoning effort 和 permission mode，不修改 Master。全局角色、准确优先级、权限与旧 setup 迁移细节见[配置](docs/CONFIGURATION.zh-CN.md)。
+Role wizard 普通模式只修改选定角色。Follow-master 模式可明确移除所选 scope 的 `[agents]` 默认覆盖；只有额外选中时才移除精确带 marker 的旧 KMA Master 固定值，用户值保留。详见[配置](docs/CONFIGURATION.zh-CN.md)。
 
 <a id="updates"></a>
 ## 立即更新

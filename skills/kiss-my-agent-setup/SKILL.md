@@ -14,7 +14,7 @@ Run lifecycle mutations serially, with one planned target and one simple direct 
 1. Identify the exact action and scope before changing anything. Project scope may be inferred only from an explicit phrase such as "this project" and must resolve to the Host's current unique project or active workspace root, not an arbitrary child working directory. Show the absolute target before writing; ask when multiple roots exist or the target is not unique. Global scope must always be explicit.
 2. Read exactly one matching reference:
    - For project/global `setup`, `check`, or `remove`, read [setup-lifecycle.md](setup-lifecycle.md).
-   - For the optional wizard that configures existing agents, read [configure-agents.md](configure-agents.md).
+   - For the optional wizard that configures existing agents or makes selected roles follow the Master, read [configure-agents.md](configure-agents.md).
 3. Inspect every affected file before writing. Preserve unrelated settings, instructions, roles, and user changes. Stop on ambiguous ownership or a state the selected reference does not safely cover.
 4. Do not install or uninstall the plugin itself, establish project trust, restart Codex, or claim that the current session hot-loaded changed files.
 5. After a successful mutation, re-read the affected files, report the exact scope and paths changed, and tell the user to start a new Codex session before testing discovery or behavior.

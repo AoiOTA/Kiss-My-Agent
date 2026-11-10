@@ -24,7 +24,7 @@
 <a id="preserve-routing"></a>
 ## 保持精确路由
 
-Plugin-owned `kiss-my-agent` Skill 必须保持 non-catch-all。常规实现、机械编辑、测试、构建、Git 操作、查询和格式化都不进入 Skill。一个歧义路由到一个 Rule，并且只在有用时读取一个 Case。`kiss-my-agent-setup` 保持独立，并且只处理显式 setup/check/configure/remove 操作。
+Plugin-owned `kiss-my-agent` Skill 必须保持 non-catch-all。在 KMA 管理的工作中，持续将已加载的指导用于实现和验证；常规执行不需要再次读取 Skill 或增加评审。一个歧义路由到一个 Rule，并且只在有用时读取一个 Case。`kiss-my-agent-setup` 保持独立，并且只处理显式 setup/check/configure/remove 操作。
 
 <a id="add-rule"></a>
 ## 新增 Rule
@@ -48,7 +48,7 @@ Case 保持以下精确章节顺序：
 <a id="update-runtime-docs"></a>
 ## 更新 Runtime 与文档
 
-修改公开开关、standalone role discovery 或 setup scope 时，保持 `.codex/config.toml`、`.codex/agents/`、plugin metadata、Agent 原生 setup references、Configuration、Installation、Testing、两份 README 与带注释示例一致。`.codex/config.toml` 为缺失项提供 Astra/high 与功能默认值，包括实验上下文；config 绝不枚举角色文件。可编辑的 fresh-setup explorer、coder 与 reviewer seeds 都设置 `model = "gpt-6-astra"` 并设置 `model_reasoning_effort = "medium"`。Plugin cache seeds 不会自动进入 Host catalog。它们不是封闭 catalog：fresh setup 创建缺失 starters，任何已经存在的角色都归用户所有，因此 setup 与 Plugin updates 永不覆盖、迁移或判定其版本。Model 或 effort 改动应通过 existing-role wizard 或手工 TOML edits 完成。没有当前 consumer 时，不新增模型 fallback、权限 fallback、preset matrices 或 compatibility wrappers。
+修改公开开关、standalone role discovery 或 setup scope 时，保持 `.codex/config.toml`、`.codex/agents/`、plugin metadata、Agent 原生 setup references、Configuration、Installation、Testing、两份 README 与带注释示例一致。`.codex/config.toml` 只提供功能默认值，包括实验上下文，不固定 Master 模型或 effort；config 绝不枚举角色文件。Fresh-setup seeds 省略 model 与 effort 覆盖，默认委派也省略这两项，使新子 Agent 跟随当前 Master。Plugin cache seeds 不会自动进入 Host catalog。它们不是封闭 catalog：fresh setup 创建缺失 starters，任何已经存在的角色都归用户所有，因此 setup 与 Plugin updates 永不覆盖、迁移或判定其版本。Model 或 effort 改动应通过 existing-role wizard 或手工 TOML edits 完成。没有当前 consumer 时，不新增模型 fallback、权限 fallback、preset matrices 或 compatibility wrappers。
 
 修改英文开发者文档时，同步更新简体中文配套文件，保持相同显式 anchor IDs、章节顺序和 fenced command blocks。面向 Codex 的 AGENTS、Skill、Rules、Cases、角色 TOML、`LICENSE` 和 `CODE_OF_CONDUCT.md` 保持英文。
 

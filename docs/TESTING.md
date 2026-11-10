@@ -53,17 +53,17 @@ Run setup scenarios only in disposable projects and an explicitly isolated Codex
 Required scenarios cover:
 
 - pristine project setup, repeated setup, check, and remove;
-- missing master fields filled independently with Astra/high, preserved explicit fields, and missing experimental context filled with true; `check` validates presence and types;
+- absent model/effort fields remain inherited, all existing explicit or marked legacy fields are preserved, and missing experimental context is filled with true; `check` accepts missing model fields;
 - each missing feature switch added independently, while marked and unmarked values for both switch paths, unrelated config, comments, newline style, AGENTS content, and existing roles are preserved;
-- exact paired migration of legacy top-level `gpt-5.6-sol` / `max` lines only when both occur once with the exact KISS marker, followed by a no-op repeated setup;
-- preservation of existing fields plus independent filling of missing fields for four near misses: a missing companion, an unmarked pair, a modified value, and a user-chosen custom pair; duplicate or invalid assignments remain conflicts;
+- explicit follow-master configuration removes both selected role overrides and selected-scope `[agents]` model/effort defaults, while separately selected exact owned legacy Master pins may be removed;
+- preservation of user Master values, partial legacy pairs, unselected roles, permission settings and unrelated config; duplicate or invalid assignments remain conflicts;
 - intentional `false` values and deliberately deleted seed roles;
 - malformed managed config or exact bundled-role TOML, unsafe managed path types, `AGENTS.override.md`, and an exact bundled filename/identity mismatch; an invalid unselected custom role remains outside KISS ownership and does not block setup, check, remove, or a configuration request that selected another role;
 - different observable definitions for the same bundled role filename in project and global scopes: project setup/check inspects only the project target and leaves the global role unchanged, while a fresh project session demonstrates the Host's project-over-global precedence without KISS rejecting or reconciling the duplicate;
-- remove deleting only exact current defaults with their KISS markers, any exact legacy marked master pair, and current/v0.2.6/v0.2.5/v0.1 exact role seeds, while preserving unmarked config and modified roles;
+- remove deleting only exact current defaults with their KISS markers, any exact legacy marked master pair, and current/v0.2.9/v0.2.9-active-guidance/v0.2.7/v0.2.6/v0.2.5/v0.1 exact role seeds, while preserving unmarked config and modified roles;
 - configuring one selected role while all other fields and files remain unchanged;
 - restoring inheritance by removing only the selected optional key;
-- fresh setup creates missing roles with `model = "gpt-6-astra"` and `model_reasoning_effort = "medium"`, preserving every existing role;
+- fresh setup creates missing roles without model or effort overrides and preserves every existing role;
 - refusal to write `danger-full-access` without its separate confirmation;
 - recognition of a project created by v0.1.0 markers as `outdated`, followed by a setup refresh that may update the managed block and config but leaves all role files directly unchanged;
 - a missing starter under a current or outdated managed block reported as intentionally absent rather than recreated, outdated, or incomplete.
@@ -121,7 +121,7 @@ This explicit role Smoke tests the three seed roles, not a required team for ord
 2. `kiss_coder`: own one isolated disposable file, create it only when absent, verify it, and remove only that file.
 3. `kiss_reviewer`: inspect a supplied diff and report material findings with exact locations without editing.
 
-In a new trusted client task, confirm the effective master uses Astra/high, all three current roles use Astra/medium, and experimental context management is loaded. Use observable Host configuration or diagnostics, not Agent self-description alone; report unavailable evidence explicitly. Run the bounded three-role Smoke above once, checking the working tree and selected fixtures before and after. Static config, actual loading and observed behavior support different claims; this is not a long-context or model-performance benchmark.
+In a new trusted client task, confirm all three roles inherit the Master's effective model and effort through observable Host diagnostics or child session records. Change only effort, then change model and a supported effort; newly spawned roles must use the new settings. Existing children are not live-updated: finish active operations and replace mismatched children for subsequent work. Report unavailable evidence explicitly. Run the bounded three-role Smoke above, checking the working tree and selected fixtures before and after. Static config, actual loading and observed behavior support different claims; this is not a model-performance benchmark.
 
 Test a department lead only for a large independent disposable subsystem whose direct aggregation would pollute master context. Confirm there is at most one temporary intermediate layer, workers do not delegate, the assignment ends with the task, and every shared resource retains one operator. Do not manufacture hierarchy merely to exercise it.
 
@@ -155,6 +155,8 @@ Use the current KISS project instructions while developing the next version. The
 
 Keep product runtime and evaluator ownership separate: the Plugin under test does not define its own acceptance criteria or approve its own release. Human maintainers own the goal and acceptance; use deterministic tests, independent review where it adds decision value or is explicitly required, and fresh-session replay as applicable to judge the observed result. Dogfooding is engineering evidence, not autonomous self-certification.
 
+To test proactive application, give a fresh trusted session an ordinary bounded task with real independent deliverables and any naturally slow dependency. The task prompt supplies goals, inputs, resources, and stop conditions, without prescribing KMA use, delegation, or waiting behavior. Keep expected decisions with the evaluator. Inspect completed work and actual tool actions across continuation: necessary event waits differ from repeated owner-status or artifact reads. A successful task supports that observation; claiming that changed guidance improved behavior requires a comparable baseline.
+
 A coordinator wait call returning without an update does not prove that a child Agent timed out or failed. Let bounded, non-conflicting work continue; interrupt only for an obsolete task, a scope or resource conflict, or an explicit user stop.
 
 If delegation is disabled or unavailable, or no suitable role exists, the master may continue within its capabilities and existing authorization without a staffing approval step. Report unmet explicit requirements for independent checking or a specific role, and real capability gaps; direct execution must not be presented as satisfying them.
@@ -170,7 +172,7 @@ Give only the final rendered landing page to a new user who has never encountere
 - in plain language, the loop `goal/assumption → smallest runnable validation → real result → iterate or stop`, and the difference between a low-cost reversible trial and bypassing authentication or permissions or crossing an irreversible high-risk boundary;
 - whether it fits their work;
 - the company model: the Owner retains the goal, architecture, acceptance criteria, and stop point; the Master / CEO owns orchestration, decisions, and synthesis; `kiss_explorer`, `kiss_coder`, and `kiss_reviewer` own read-only investigation, bounded implementation, and independent read-only review, respectively;
-- that KISS supplies missing Astra/high Master defaults, starter roles use Astra/medium, and the Master normally delegates directly in a flat structure rather than through a fixed workflow or deep organization;
+- that Master uses the Host/session choice, new roles follow its model and effort, old explicit role settings require selected migration, and delegation remains flat rather than a fixed workflow;
 - the install, first-use, Agent configuration, and update paths.
 
 When practical, have them complete setup in a disposable project without installing Python. Record only anonymous pass/fail observations and blocking confusion. Revise and replay the same checklist instead of moving the criteria.

@@ -173,7 +173,7 @@ $plugin-creator update this existing KISS My Agent plugin for local development.
 
 See the official OpenAI [Plugin Creator and local marketplace guidance](https://developers.openai.com/plugins/build/plugins#package-with-plugin-creator) and [marketplace add/upgrade commands](https://developers.openai.com/plugins/build/plugins#add-a-marketplace-from-the-cli). Do not add a repository staging script for this workflow.
 
-In the new thread, confirm `/skills` shows the canonical Plugin Skills `kiss-my-agent:kiss-my-agent` and `kiss-my-agent:kiss-my-agent-setup`. Exercise `$kiss-my-agent:kiss-my-agent` only on a matching non-obvious decision. Exercise `$kiss-my-agent:kiss-my-agent-setup` for setup, check, Agent configuration, and removal only in a disposable project scope; do not use a real global scope for a development test. Preserve any first failed precondition instead of hiding it with retries.
+In the new thread, confirm `/skills` shows the canonical Plugin Skills `kiss-my-agent:kiss-my-agent` and `kiss-my-agent:kiss-my-agent-setup`. Read `$kiss-my-agent:kiss-my-agent` once when starting KMA work and apply the loaded guidance throughout the task, reusing it across follow-ups. Exercise `$kiss-my-agent:kiss-my-agent-setup` for setup, check, Agent configuration, and removal only in a disposable project scope; do not use a real global scope for a development test. Preserve any first failed precondition instead of hiding it with retries.
 
 Report each evidence level separately:
 

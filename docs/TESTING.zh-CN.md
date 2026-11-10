@@ -53,17 +53,17 @@ Setup 场景只能在一次性项目和明确隔离的 Codex home 中运行。�
 必测场景包括：
 
 - 空项目 setup、重复 setup、check 与 remove；
-- 缺失 Master 字段分别补入 Astra/high，已有显式字段保留，缺失实验上下文补 true；`check` 验证字段存在与类型；
+- 缺失 model／effort 继续继承，已有显式或 marked legacy 字段全部保留，缺失实验上下文补 true；`check` 接受缺失模型字段；
 - 两个 feature switches 各自在缺失时添加，同时保留两个 switch paths 的 marked/unmarked values、无关 config、comments、换行风格、AGENTS 内容和已有角色；
-- 只有两个旧顶层 `gpt-5.6-sol` / `max` lines 都准确出现一次并带准确 KISS marker 时才成对迁移，随后重复 setup 必须 no-op；
-- 四类 near miss 都保留已有字段，仅补真正缺失字段：缺少 companion、pair 未标记、值已修改，以及用户自选 custom pair；duplicate 或 invalid assignments 仍属于 conflicts；
+- 显式 follow-master 配置移除选定角色的两项覆盖及所选 scope 的 `[agents]` model／effort 默认值；单独选中的精确旧 KMA Master 固定值可移除；
+- 保留用户 Master 值、不完整旧 pair、未选角色、权限设置与无关 config；重复或无效 assignment 仍属于 conflict；
 - 有意设置的 `false` 与有意删除的 seed roles；
 - 损坏的 managed config 或准确 bundled-role TOML、不安全的 managed path type、`AGENTS.override.md`，以及准确 bundled filename/identity mismatch；无效的未选 custom role 不属于 KISS ownership，不会阻塞 setup、check、remove，也不会阻塞已经选择其他角色的配置请求；
 - project 与 global scope 中同一个 bundled role filename 使用不同的可观察定义：project setup/check 只检查 project target 并保持 global role 不变；fresh project session 证明 Host 使用 project-over-global precedence，KISS 不拒绝也不协调这个 duplicate；
-- remove 只删除带准确 marker 且值匹配的当前默认配置、任何准确的旧 marked Master pair，以及 current/v0.2.6/v0.2.5/v0.1 exact role seeds，并保留 unmarked config 与已修改角色；
+- remove 只删除带准确 marker 且值匹配的当前默认配置、任何准确的旧 marked Master pair，以及 current/v0.2.9/v0.2.9-active-guidance/v0.2.7/v0.2.6/v0.2.5/v0.1 exact role seeds，并保留 unmarked config 与已修改角色；
 - 只配置一个选中角色，其他字段和文件保持不变；
 - 恢复继承时只删除选中的可选 key；
-- fresh setup 创建缺失 roles 时设置 `model = "gpt-6-astra"` 与 `model_reasoning_effort = "medium"`，同时保留所有已有角色；
+- fresh setup 创建缺失 roles 时不设置 model 或 effort 覆盖，同时保留所有已有角色；
 - 未单独确认时拒绝写入 `danger-full-access`；
 - 把 v0.1.0 markers 创建的项目识别为 `outdated`，随后通过 setup 刷新可能更新的 managed block 与 config，同时所有角色文件直接保持不变；
 - current 或 outdated managed block 下缺失的 starter 报告为 intentionally absent，而不是重建、outdated 或 incomplete。
@@ -121,7 +121,7 @@ $plugin-creator update this existing KISS My Agent plugin for local development.
 2. `kiss_coder`：只拥有一个隔离的一次性文件，仅在不存在时创建，验证后只删除该文件。
 3. `kiss_reviewer`：检查给定 diff，报告带准确位置的实质 findings，不编辑文件。
 
-在新的可信客户端任务中确认 Master 实际采用 Astra/high、三个当前角色采用 Astra/medium，实验上下文管理已加载。依据可观察的 Host 配置或诊断，不只依赖 Agent 自述；无法取得的证据明确报告。运行一次上面的有界三角色 Smoke，前后检查工作树与选定 fixtures。静态配置、实际加载和观察到的行为支持不同结论；不增加长上下文或模型性能基准。
+在新的可信任务中，通过可观察 Host 诊断或子会话记录确认三个角色均继承 Master 的有效模型与 effort。先只改变 effort，再改变模型和其支持的 effort，确认新子 Agent 使用新设置。已有子 Agent 不会自动更新：完成其正在进行的操作，后续工作安全交接给设置匹配的新子 Agent。无法取得的证据明确报告。执行上面的有界三角色 Smoke，检查前后工作树和 fixtures。静态配置、实际加载与行为支持不同结论，不增加模型性能基准。
 
 只有大型独立的一次性子系统的直接汇总会污染 Master context 时，才测试 department lead。确认最多一层临时中间管理、workers 不继续委派、assignment 随任务结束而消失，并且每个共享资源保持一个 operator。不要为了测试而制造层级。
 
@@ -155,6 +155,8 @@ codex plugin list --marketplace kiss-my-agent
 
 保持产品 runtime 与 evaluator owner 分离：被测 Plugin 不能定义自己的验收标准，也不能批准自己的 release。人类维护者拥有目标与验收；按适用范围使用确定性测试、新会话 replay，以及有决策价值或用户明确要求的独立审查来判断观察结果。Dogfooding 是 engineering evidence，不是自主自证。
 
+验证主动应用时，给新的可信会话一个普通有界任务，包含真实可独立交付的工作及自然存在的慢依赖。任务提示只给目标、输入、资源和停止条件，不指定使用 KMA、委派或等待方式；预期决策留给评估者。检查跨 continuation 的实际工具动作与完成产物，区分必要的事件等待与重复读取 owner 状态或产物。成功任务只支持该次观察；声称指导改动改善了行为需要可比的基线。
+
 Coordinator wait 调用在没有新消息时返回，不能证明子 Agent 超时或失败。有界且不冲突的工作应继续；只有任务已经失效、scope 或资源冲突，或者用户明确要求停止时才中断。
 
 如果 delegation 被禁用、不可用或没有合适角色，Master 可在已有授权和自身能力内继续工作，无需为 staffing 另设审批。用户明确要求的独立检查、特定角色或真实能力缺口仍须报告，不能把直接执行冒充为满足这些要求。
@@ -170,7 +172,7 @@ Coordinator wait 调用在没有新消息时返回，不能证明子 Agent 超�
 - 用白话复述 `目标/假设 → 最小可运行验证 → 真实结果 → 迭代或停止`，并区分低成本、可恢复的试错与绕过认证或权限、跨越不可逆高风险边界；
 - 它是否适合自己的工作；
 - company model：Owner 保留目标、架构、验收标准和停止点；Master / CEO 负责调度、决策与汇总；`kiss_explorer`、`kiss_coder`、`kiss_reviewer` 分别负责只读调查、有界实现和独立只读审查；
-- KISS 为缺失 Master 配置提供 Astra/high 默认值，starter roles 使用 Astra/medium，而且 Master 通常使用扁平直接委派，而不是固定 workflow 或深层组织；
+- Master 使用 Host／会话选择，新角色跟随其模型与 effort，旧显式角色设置需要选定迁移，委派保持扁平而非固定 workflow；
 - 安装、第一次使用、Agent 配置和更新入口。
 
 条件允许时，让对方在一次性项目中完成 setup，且不安装 Python。只记录匿名的通过/失败观察和阻塞性困惑。修订后复用同一清单，不得移动标准。

@@ -10,9 +10,6 @@
 默认配置如下：
 
 ```toml
-model = "gpt-6-astra" # KISS My Agent managed
-model_reasoning_effort = "high" # KISS My Agent managed
-
 [features]
 multi_agent = true # KISS My Agent managed
 
@@ -23,29 +20,29 @@ experimental_mode = true # KISS My Agent managed
 enabled = true # KISS My Agent managed
 ```
 
-这些默认值在所选可信配置层生效且没有更高优先级覆盖时，选择 Astra/high、启用多代理、自定义 Agent 发现及实验上下文管理；不改变权限、并发、trust、provider、认证或 telemetry。
+这些默认值在所选可信配置层生效且没有更高优先级覆盖时，启用多代理、自定义 Agent 发现及实验上下文管理；不改变权限、并发、trust、provider、认证或 telemetry。Master 模型与 effort 由 Host／会话选择。
 
-Setup 独立为每个缺失的 Master 字段补入 `gpt-6-astra` / `high`，为每个缺失功能字段补入带 marker 的 `true`，包括 `features.context_management.experimental_mode`。已有显式值（包括 `false`）保留。只有完整的顶层 `gpt-5.6-sol` / `max` pair、每个 key 准确出现一次且每行带准确的 `# KISS My Agent managed` marker 时，才成对更新为 Astra/high。已修改、未标记或不完整 pair 的已有字段继续归用户所有，只补真正缺失的字段。重复 assignment、无效 TOML 与 ownership 歧义属于 conflict。Setup 只修改选定的 project 或 global scope。
+Setup 只为缺失的功能开关补入带 marker 的 `true`，包括 `features.context_management.experimental_mode`。所有已有 model、effort 与角色设置都保留，包括旧 marked Master 固定值；缺失模型字段表示继承，属于合法状态。重复 assignment、无效 TOML 与 ownership 歧义属于 conflict。Setup 只修改选定的 project 或 global scope。
 
 <a id="zero-configuration"></a>
-## 默认角色使用 Astra / medium
+## 默认角色跟随 Master
 
 首次 setup 会安装三个可编辑 seeds：
 
 | 角色 | 职责 | 模型 | 思考强度 | Seed sandbox 默认值 |
 | --- | --- | --- | --- | --- |
-| `kiss_explorer` | 只读调查 | `gpt-6-astra` | `medium` | `read-only` |
-| `kiss_coder` | 有界实现与状态修改 | `gpt-6-astra` | `medium` | `workspace-write` |
-| `kiss_reviewer` | 独立只读审查 | `gpt-6-astra` | `medium` | `read-only` |
+| `kiss_explorer` | 只读调查 | 继承 Master | 继承 Master | `read-only` |
+| `kiss_coder` | 有界实现与状态修改 | 继承 Master | 继承 Master | `workspace-write` |
+| `kiss_reviewer` | 独立只读审查 | 继承 Master | 继承 Master | `read-only` |
 
-Current seeds 显式设置 `model = "gpt-6-astra"` 和上表中的 effort。它们是可编辑的 fresh-setup 默认值。Fresh setup 只创建缺失 starter；任何已经存在的角色都归用户所有，setup 或 Plugin update 永不覆盖、迁移或判定其版本。Setup 已存在后，缺失 starter 会保持 intentionally absent。Plugin cache seeds 只是 package resources，不会自动成为 Host 可发现角色。
+新 seeds 不设置 model 或 effort，使用 Master 的当前有效选择。它们是可编辑的 fresh-setup 默认值。Fresh setup 只创建缺失 starter；任何已经存在的角色都归用户所有，setup 或 Plugin update 永不覆盖、迁移或判定其版本。Setup 已存在后，缺失 starter 会保持 intentionally absent。Plugin cache seeds 只是 package resources，不会自动成为 Host 可发现角色。
 
 <a id="three-owners"></a>
 ## 三个 Owner
 
 | Owner | 表面 | 职责 |
 | --- | --- | --- |
-| 启用 | `.codex/config.toml` | 多代理开关与缺失的 Astra/high、实验上下文默认值。 |
+| 启用 | `.codex/config.toml` | 多代理开关与实验上下文默认值。 |
 | 发现 | `.codex/agents/*.toml` | Host 发现的 standalone role definitions。 |
 | 委派 | `AGENTS.md` | 按实际收益选择直接小任务或委派，Master 保留架构、验收与证据判断。 |
 
@@ -78,10 +75,10 @@ $kiss-my-agent:kiss-my-agent-setup configure agents for this project
 $kiss-my-agent:kiss-my-agent-setup configure global agents
 ```
 
-要显式把三个已有 KISS roles 设置为 `gpt-6-astra` / `medium`，请使用下面准确的项目限定 prompt：
+Plugin update 和 setup 保留每个已有角色。要让三个已有角色跟随 Master，请使用下面限定的项目 prompt：
 
 ```text
-$kiss-my-agent:kiss-my-agent-setup configure agents in this project: for kiss_explorer, kiss_coder, and kiss_reviewer, set model to gpt-6-astra and model_reasoning_effort to medium
+$kiss-my-agent:kiss-my-agent-setup configure agents in this project: make kiss_explorer, kiss_coder, and kiss_reviewer follow master
 ```
 
 请求已经点名一个或多个角色时，向导只解析这些 targets；没有点名时，先只列出 direct role paths 而不解析内容，等待用户选择一个或多个角色后，再只解析选中的文件。向导为 `model`、`model_reasoning_effort` 与 `sandbox_mode` 提供 `keep`、`inherit` 或显式值，写入前展示准确 diff；设置 `danger-full-access` 时必须单独确认。无效的未选角色不会阻塞操作，其 catalog warnings 由 Host 负责。
@@ -91,6 +88,8 @@ Project scope 解析到 `<unique Host project or active workspace root>/.codex/a
 向导不会创建、删除、重命名或恢复角色。模型可用性取决于 Host 与账户，因此向导不附带硬编码 model catalog。请使用当前 Host 展示的准确 ID，或者保留继承。
 
 若已有角色使用 `default_permissions` 或 `sandbox_workspace_write` table，向导不会再写入冲突的 `sandbox_mode`。这类相关多字段修改应在核对当前 Host schema 后手工完成。
+
+Master 设置切换不会自动更新已经存在的子 Agent。让其正在进行的操作完成并接收结果；后续工作若与旧子 Agent 设置不符，安全交接后新建。模型与 effort 都跟随当前 Master，不自动降低 effort，也不添加模型 fallback。未来模型由 Host 提供，无需更新 KMA 名单。所选 scope 的 `[agents]` 覆盖可能影响该 scope 的其他子 Agent，向导必须展示其移除差异；其他 scope 或更高优先级配置仍可能阻止继承。
 
 <a id="manual-role-editing"></a>
 ## 手工编辑角色
@@ -118,7 +117,7 @@ Codex 会先为每个 model 或 effort 字段依次解析显式 spawn 值、`age
 
 其他省略的 session 设置继承 parent。子代理继承 parent 当前的 sandbox policy；Codex 在 spawn 时还会重新应用 parent turn 的实时 sandbox 与 approval overrides，即使 role 文件写了不同默认值。管理员要求还可进一步限制权限；角色文件不是权限授权。应在新会话中验证实际行为。
 
-Setup 为缺失的 Master 字段补入 `gpt-6-astra` / `high`；当前 seed roles 显式使用 `gpt-6-astra` / `medium`。已有用户显式选择保持不变。Role wizard 只修改选定角色。静态检查不能证明 Host 有效配置，应在新任务中验证。 如果配置的模型阻止启动，可用 Host 支持的模型 override 启动一次恢复会话：
+Master 使用当前 Host／会话选择的模型与推理强度。新 seeds 省略两项覆盖并跟随 Master，默认委派也省略 model 和 effort 参数。Setup 保留已有模型选择与角色；显式 follow-master 配置移除选定角色和所选 scope 的 `[agents]` 覆盖，旧 KMA Master 固定值需要单独明确选中。有效设置须在新任务中验证。 如果配置的模型阻止启动，可用 Host 支持的模型 override 启动一次恢复会话：
 
 ```bash
 codex --config 'model="HOST_SUPPORTED_MODEL_ID"' --config 'model_reasoning_effort="HOST_SUPPORTED_EFFORT"'
@@ -153,7 +152,7 @@ $kiss-my-agent:kiss-my-agent-setup remove global setup
 - 所选 managed path 的类型不安全、所选 config 或准确 bundled target 的 TOML 无效、准确 bundled target 缺少 identity fields 或 `name` 与文件名不同、managed ownership 不明确，或存在适用的 `AGENTS.override.md` 时，在写入前停止。
 - 其他文件中的 duplicate identities 与 project/global duplicate role names 不会阻塞 KISS setup 或 check。Catalog warnings 和 project-over-global precedence 由 Host 负责；KISS 不会协调这些冲突。
 - 每个已有角色都归用户所有并逐字节保留。Setup 永不拿它与历史 seeds 比较、判定版本或迁移它。后续 setup 不会恢复用户有意删除的 starter。
-- 显式 remove 会删除带准确 marker 且值精确匹配的当前默认配置 与任何准确的旧 marked Master pair、managed AGENTS block，以及字节完全匹配 current、known v0.2.6、known v0.2.5 或 known v0.1 seed 的 bundled roles；其他角色文件仍归用户所有。 Remove 保留上下文子表及其他用户字段；只删除精确默认值和准确 marker 同时匹配的配置。
+- 显式 remove 会删除带准确 marker 且值精确匹配的当前默认配置 与任何准确的旧 marked Master pair、managed AGENTS block，以及字节完全匹配 current、exact v0.2.9/v0.2.9-active-guidance/v0.2.7/v0.2.6/v0.2.5/v0.1 seed 的 bundled roles；其他角色文件仍归用户所有。 Remove 保留上下文子表及其他用户字段；只删除精确默认值和准确 marker 同时匹配的配置。
 
 <a id="disable"></a>
 ## 单次启动禁用
@@ -173,4 +172,3 @@ codex --config features.multi_agent=false --config agents.enabled=false
 - [Basic configuration and precedence](https://learn.chatgpt.com/docs/config-file/config-basic)
 - [Configuration Reference](https://learn.chatgpt.com/docs/config-file/config-reference)
 - [Advanced Configuration](https://learn.chatgpt.com/docs/config-file/config-advanced)
-- [GPT-6 Astra](https://openai.com/index/gpt-6-astra/)

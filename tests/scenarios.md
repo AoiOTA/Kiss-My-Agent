@@ -26,10 +26,10 @@ These scenarios require a fresh session loaded from the candidate Plugin and dis
 17. **Fail-closed managed preflight.** Separately present malformed managed config or exact bundled-role TOML, a symlinked managed path, `AGENTS.override.md`, and an exact bundled filename/identity mismatch. Expect no write in every case. An invalid unselected custom role is outside setup/check/remove ownership and does not block them.
 18. **Host-owned cross-scope precedence.** Put different observable definitions for the same bundled role filename in project and global scopes. Expect project setup/check to inspect only the project target and leave the global role untouched; in a fresh project session, expect the Host to load the project role rather than the global role. KISS does not reject or reconcile the duplicate across scopes.
 19. **Modified role removal.** Change one installed seed and run remove. Expect the changed role to remain while unchanged seeds and marked content are removed.
-20. **v0.1 compatibility without role migration.** Copy `tests/fixtures/v0.1-managed-project` to a disposable project and record the complete bytes of all three roles. Expect check to report its well-formed managed block as `outdated` while reporting each role as `present user-owned`. Run setup: expect the current managed block and both feature switches, with missing master defaults filled to Astra/high and missing experimental context filled to true and all three role files byte-for-byte unchanged. Re-run setup and expect no diff. Use `configure agents` separately if role model/effort values are wanted. Remove must still recognize and delete unchanged bundled v0.1 seeds.
-21. **v0.2.5 master upgrade and role compatibility.** Start with the exact marked v0.2.5 Sol/max pair and unchanged v0.2.5 role seeds. Expect setup to replace the pair together with marked Astra/high, preserve all three roles byte-for-byte, and become a no-op on repeat. Separately try a missing member, an unmarked member, and a changed value: existing fields remain untouched while truly missing fields receive current defaults. Duplicate or ambiguous assignments are a conflict with no write. Remove must recognize unchanged v0.2.5 role snapshots but preserve a role after any user edit.
-22. **Configure one or more roles.** Select existing roles and change model, effort, or sandbox. Expect a preview for every selected file, support one shared `model = inherit` plus `model_reasoning_effort = medium` choice, and no change to any unselected role or required field.
-23. **Restore inheritance.** Select `inherit` for one optional role field. Expect only that key to be removed and the resolved-value limitation to be reported.
+20. **v0.1 compatibility without role migration.** Copy `tests/fixtures/v0.1-managed-project` to a disposable project and record all three role bytes. Expect check to report the old managed block as `outdated` and each role as `present user-owned`. Setup updates the managed block, feature switches, and missing experimental context without filling model/effort values or changing existing roles. Repeat setup without a diff. Use explicit selected-role configuration to restore inheritance. Remove still recognizes unchanged v0.1 seeds.
+21. **Legacy master pins stay explicit.** Start with exact marked older master model/effort values and unchanged older role seeds. Expect ordinary setup to preserve all existing pins and role bytes rather than substitute a newer model. Explicit follow-Master migration removes only selected, ownership-confirmed KMA master defaults and selected role overrides, after preview. Unmarked user master values remain. Ambiguous assignments produce no writes; historical unchanged seeds remain removable.
+22. **Configure one or more roles.** Select existing roles and change model, effort, or sandbox. Expect previews for every selected file and no change to unselected roles or required fields. Follow-Master removes both optional model/effort overrides; explicit differentiated values remain supported and are reported as inheritance exceptions.
+23. **Restore selected inheritance.** Select one or both optional model/effort fields. Expect only selected keys to be removed, scope-local `[agents]` defaults to be inspected and relevant removals previewed, and actual runtime matching to remain unverified until observed. Preserve instructions, permissions, unrelated settings, and user-owned master values.
 24. **Full-access confirmation.** Select `danger-full-access` but decline its separate confirmation. Expect no write.
 25. **Related permission keys.** Present `default_permissions` or `sandbox_workspace_write` in a role and request a conflicting sandbox edit. Expect the wizard to stop and direct the user to a manual related-key edit.
 26. **No external runtime.** Make Python and Node commands unavailable while retaining normal Codex file tools. Expect setup, check, configure, and remove to complete without invoking either runtime.
@@ -38,12 +38,12 @@ These scenarios require a fresh session loaded from the candidate Plugin and dis
 
 27. **README-only newcomer.** Give the final rendered landing page to a new user who has never encountered this project or any earlier README draft and did not participate in the change. Without coaching, evaluate the result within five minutes against the canonical [README newcomer Pilot checklist](../docs/TESTING.md#readme-pilot). Do not copy the criteria here or change that checklist after seeing the result.
 
-## Astra defaults and preservation scenarios
+## Host inheritance and preservation scenarios
 
 28. **Context default versus delegation opt-out.** On fresh and previously managed scopes, expect a missing `features.context_management.experimental_mode` to become marked `true`. Preserve explicit `false` and report it separately without classifying the whole plugin as disabled. Reject a non-boolean value or non-table parent with no writes. Remove only the exactly marked default assignment, leaving other context settings intact.
-29. **Master field ownership.** Test each missing master field independently beside an explicit other field. Fill only the absent field with Astra/high defaults; preserve explicit marked or unmarked nondefault values. Removal of current defaults is per exact marked field, while removal of the historical Sol/max pair still requires both exact marked members. Repeat setup without a diff.
-30. **v0.2.6 role preservation.** Install the remove-only v0.2.6 snapshots in a disposable previously managed scope. Setup leaves all existing role bytes unchanged and does not restore a deleted role. Explicit configure to Astra/medium changes only selected runtime fields. Remove recognizes unchanged v0.2.6 role bytes and preserves edited roles.
-31. **Bounded client loading and collaboration.** In a new trusted candidate session on the user's Ubuntu Pro client, inspect Host-observable master Astra/high, each role Astra/medium, and experimental-context loading. Run one bounded delegated investigation, implementation, and independent review, then let the master synthesize evidence. Mark unobservable settings as unverified; role self-report and static config are not loading proof. Do not turn this into an Astra feature matrix, performance benchmark, or safety-event test.
+29. **Master selection stays Host-owned.** Test absent, partially present, marked, and unmarked model/effort fields. Setup must not create or migrate pins. Explicit migration removes only selected ownership-confirmed KMA defaults and retains user values. Historical removal remains compatible; repeated operations produce no diff.
+30. **Historical role preservation.** Install remove-only older role snapshots in a disposable previously managed scope. Setup leaves existing role bytes unchanged and does not restore a deleted role. Explicit follow-Master configuration removes only selected model/effort keys. Remove recognizes unchanged snapshots and preserves edited roles.
+31. **Bounded runtime inheritance.** In an isolated trusted candidate session, observe the master and all three native roles through Host diagnostics or actual session records. Expect new roles to match both master settings. Change only effort, then a supported model/effort combination, and observe new children again. Subsequent work uses a fresh matching child when an older one no longer matches; in-flight operations finish safely. Mark unobservable settings unverified; role self-report and static config are not loading proof.
 
 ## Context-driven continuation scenarios
 
@@ -54,6 +54,17 @@ These are observed agent behaviors, not claims established by text validation or
 34. **Local uncertainty after valid evidence.** A reversible task has an established mechanism and a routine local implementation choice. Expect the owner to finish the change and proportionate validation, without adding a preflight system or repeating unchanged probes. A real ownership, interface, resource, or acceptance boundary still returns to the master.
 35. **Context fit when delegating.** Continue a problem whose prior reasoning matters, then assign an unrelated code domain. Expect reuse for the former and a fresh capable agent with a minimal bounded handoff for the latter; neither always-reuse nor always-spawn is the rule. Judge the completed work and unnecessary rediscovery, not agent count.
 
+## Research and delivery action scenarios
+
+Give the evaluating agent the task and raw artifacts, not these expectations. Use isolated permitted resources. Observed decisions and outputs support only the tested behavior; no old/new benefit claim follows without a comparable baseline.
+
+36. **Adapter repair.** A native task allows revisits and retry after collision, but its adapter omits these choices and its tests expect omission. Expect restoration at the real entry and corrected test expectations, preserving task scope rather than adding policy bans.
+37. **Lost consumer image.** An inspection executes and saves a new image, but the deciding agent receives the parent stage's image. Expect repair of that actual handoff before adding retrieval fields; verify consumer receipt separately from subsequent selection.
+38. **Untriggered success.** Completed tasks contain no use of the conditional mechanism. Expect task success to be retained and the next action selected from mechanism reachability, relevant opportunity, or autonomous non-use. Do not force use or repeat unchanged tasks without a variability question.
+39. **Success with cost.** The user prioritizes task completion; one arm succeeds with greater cost and another fails cheaply. Expect success and its tradeoff to be reported in that order, with component attribution separate and failed costs retained.
+40. **Invalid frozen run.** A running frozen comparison exposes an adapter or evaluator defect that breaks required conditions. Expect affected work to stop, invalid evidence and cost to remain, and a repaired separate comparison. A valid negative comparison instead supports narrowing or stopping.
+41. **Usable page delivery.** A requested page exists and passed a preview, but the delivered link depends on an exited temporary server. Expect the user-accessible final step and appropriate access lifetime to be completed within scope, rather than file existence being treated as delivery.
+
 ### PawWeaver followthrough, 2026-09-10
 
 The local candidate `0.2.7+codex.20260910132339` was installed and enabled from the stable local plugin source; changed candidate files matched the installed cache. The suffix identifies a local install refresh, not a new release. Plugin/repository validation and 18 setup tests passed, including original v0.2.7 removal compatibility.
@@ -63,3 +74,342 @@ Subsequent real E3 delivery exercised the continuation scenarios. The documentat
 When the user asked about UMI reproduction, the existing UMI investigator retained its relevant reasoning while other method comparisons used fresh bounded contexts. The next-action recommendation changed with the verified recipe differences, preserving useful prior results and separating hypotheses from demonstrated causes. No further guidance change was supported by these completed tasks. This is bounded application evidence, not a controlled efficiency comparison, proof of fresh native-role loading, or evidence that PawWeaver learned the required whole-body capability. Master task partitioning and explicit shared-resource release remained necessary.
 
 A later fixed-reference PD hold probe exposed a remaining application failure: the worker proposed writing controller target/queue state to bypass normalized-command clipping, treating the diagnostic label as sufficient isolation despite the assigned command constraints. The master corrected it before execution. The component-probe guidance now distinguishes replacing an upstream input source from bypassing consumer semantics needed by the question. The corrected probe used the actual command path, retained clipping, and reported that removing one source-point clipping deficit did not produce a successful hold; no gain change was adopted. This demonstrates corrected execution, not that the new wording independently prevented recurrence.
+
+
+### PawCerto active-guidance candidate, 2026-09-12
+
+Observed application failures motivate this local candidate: independent public-entry, researcher-guide, and result-package work was overlooked during installation until the user reminded the master; agents whose old assignments concerned data splitting or dependency installation were reused for new training or physics domains despite the existing context-fit rule. A worker also stopped after an input readback failure because the master's arbitrary launch limit prevented completing the same authorized physics experiment. Correcting these after reminders is recovery evidence, not proactive effectiveness.
+
+The candidate moves task selection ahead of agent selection, makes context relevance concrete, separates slow prerequisites from ready independent outcomes, and preserves completion after an observed local repair. The entry describes the research implementation/experiment/run/interpret loop; native seeds name the exact Skill and retain their authority boundaries. Existing configuration, user budgets, resource ownership, and setup preservation rules remain in force. Static checks establish packaging and instruction structure only.
+
+For an independent forward test, give a fresh agent the candidate and a real bounded continuation with raw current artifacts, authorized deliverables, shared-resource occupancy, and concise prior-agent assignments. Do not supply the above failures or expected decisions. Observe the actual actions and completed artifacts: whether it advances ready work during a slow prerequisite, chooses context appropriate to the new domain, and completes an authorized experiment after repairing a visible prerequisite error without hiding that error or crossing resource limits. Reusing loaded guidance without repeated reads should be visible in the same continuation. Respect any actual user stop boundary. Report planning-only output as planning evidence; deployment, agent count, wording checks, or a correct answer to a leading prompt cannot establish behavioral improvement. The followthrough below establishes only the specific loading and task behaviors observed, not all of these outcomes.
+
+
+The coordinating owner reports that source candidate `da0bb7e` was synchronized into the existing personal development source, retaining its `0.2.8` base, and installed as `0.2.8+codex.20260912072434`. PawCerto's managed block and three role instructions/descriptions were updated while preserving model, effort, and sandbox values. An initial block extraction used the repository AGENTS file, which has no managed markers, and failed before project mutation; extraction from `setup-lifecycle.md` then succeeded. This is installation followthrough, not an immutable release or proof of hot loading.
+
+In the first completed fresh CLI task, the request was a real RoboDuet export review without naming KMA. The main agent read the new Skill once at its first tool call. Under `--ephemeral`, delegated spawning returned `no thread with id`; the agent disclosed the limitation and continued directly. Its CPU review identified a real checkpoint-boundary defect: exported `stage=2` could describe an arm whose weights had not received a Stage 2 update. The coordinating owner subsequently reports repairing runner/export identity with actual `arm_update_count` and boundary tests. This is one concrete defect found and addressed during the work, not evidence that the Skill caused the finding. Review and host-failure artifacts are `/tmp/kma-active-guidance-forward-20260912/review.txt` and `stderr.log` in the same directory.
+
+The second completed fresh CLI task, without `--ephemeral`, requested a real task/runtime/resume review and likewise did not name KMA. The main agent and two native `kiss_reviewer` agents each read the installed Skill in their first tool call, once with no repeated read. The runtime-loading artifact confirms `gpt-6-astra` with `medium` effort for both child roles. Reward and physics review proceeded in parallel while the main agent checked recovery. The coordinating owner reports that a CPU sandbox temporary-directory failure was exposed and resolved locally with an in-memory check, without adding a gate. The completed review found no new confirmed implementation defect in its examined default paths. It explicitly separated CPU protocol recovery and finite updates from physical trajectory continuity and successful learning. Artifacts are `/tmp/kma-active-guidance-forward-native-20260912/runtime-loading.json`, `review.txt`, and `events.jsonl`.
+
+These two tasks support proactive main-agent loading, native child loading in the second task, reuse of loaded guidance, bounded parallel review, and continuation after observed host or local execution failures. They do not establish that every role or task will trigger correctly, that earlier ready-work/context-fit failures cannot recur, or that overall research efficiency improved; no comparative efficiency statistics were collected. The candidate author used task requests, tool behavior, runtime metadata, completed results, and the coordinating owner's repair report, not private model reasoning. No further guidance rule or validation framework was added from this followthrough.
+
+
+### Complete-deliverable follow-up, 2026-09-12
+
+A later PawCerto continuation showed a narrower failure: the master restricted
+an existing task owner to newly named files, so a repair in that owner's own
+previously implemented task code returned for coordination. The Skill now
+keeps the necessary implementation, validation and routine-repair paths with
+the complete deliverable; a follow-up narrows that scope only for an actual
+ownership or authorization boundary. The English/Chinese contribution and
+installation instructions also remove stale decision-only activation and
+per-assignment rereading language. No new runtime mechanism or mandatory team
+was introduced.
+
+The source change in `f3f7f7c` was installed from the existing personal source as
+`0.2.8+codex.20260912141317`, preserving the development base version. A fresh,
+regular CLI session received a real DeepWBC fixed-policy evaluation/export
+implementation task with the occupied GPU and CPU-only assignment stated; the
+request did not name KMA, prescribe a Skill read, or request delegation. The
+main agent read the updated installed Skill and used native `kiss_explorer`
+and `kiss_coder` roles for independent source semantics and export work while
+implementing evaluation. The session completed with exit 0, executable
+entrypoints, standalone Torch-only export comparisons, and CPU validation
+reported as 46 passed / 4 USD-binding-dependent skips. It preserved the
+pre-reset terminal transition and corrected the installed launcher's shutdown
+behavior within the assigned scope. No simulator was started by that task.
+
+The retained task and result are under PawCerto's ignored
+`outputs/deepwbc-evaluation-development/`; the normal session ID is
+`01a095f7-c8cc-7b41-b368-c8bf14de799b`. These observations support fresh main-agent
+loading, bounded native parallel implementation and a completed real CPU
+deliverable. They do not prove that the wording caused the outcome, eliminate
+future prompting or coordination errors, establish lower time/token cost, or
+validate physical control. Existing long robot runs and their physical failures
+remain separate evidence. Installation-only documentation corrections after
+that run are not described as having been loaded in it.
+
+
+### Delegation continuation failures, 2026-09-12
+
+In a later PawCerto continuation, the coordinating owner reports two failures
+while a sole GPU operator and independent runtime, solver, evaluation, and
+adaptation owners were already assigned. The solver owner had completed a
+three-scenario six-axis probe. A follow-up to integrate the selected result
+returned the Host error `agent thread limit reached`; the master then made
+about 90 lines of runtime force and train/evaluation changes. Other owners
+subsequently completed, but the master did not revisit that temporary capacity
+failure and return the implementation to the relevant solver owner. After the
+user challenged the continued direct work, a follow-up succeeded and returned
+the complete implementation, testing, and post-run validation assignment to
+that owner. Successful reassignment is the evidence reached here; it does not
+establish completion of that owner's new deliverable.
+
+Separately, the master sent `send_message` to a completed evaluation owner and
+treated the message as starting new work. The GPU operator waited for supposed
+record preparation although no new owner turn had started. The master later
+used `followup_task` to restart the owner, and the coordinating owner reports
+completed evaluations of the initial and update-1600 checkpoints. The current
+Host tools distinguish message delivery from triggering an idle agent's turn;
+this was incorrect tool use, not a missing KMA scheduler.
+
+The inspected entry already requires complete deliverables, relevant-context
+reuse, owner retention, and continued useful independent work. Its engineering
+rule also calls for repartitioning when ownership changes and observing
+asynchronous completion. Continuing authorized direct work after the observed
+Host error was permitted; that temporary failure did not establish permanent
+unavailability or remove the need to apply the existing delegation judgment
+when other owners completed. No contradictory instruction was found that
+required the master to keep the implementation. The narrow-follow-up issue
+above had already been corrected before these observations. No additional
+ownership rule, retry mechanism, dispatch wrapper, or mandatory staffing step
+was added for these execution failures.
+
+This record uses the coordinating owner's report, not an independent replay.
+The recovered handoff and reported evaluations support corrected execution
+after a user reminder. They do not show that guidance prevented recurrence,
+that a capacity retry will generally succeed, that all ongoing implementation
+or physical validation finished, or that KMA improved time or token cost.
+
+The inspection also found stale English/Chinese Extending text excluding
+routine implementation and validation from the Skill. That sentence now
+matches the entry's continued application without repeated reading or extra
+review. This is a source-level contradiction repair; no evidence links that
+sentence to the capacity or message-dispatch mistakes above.
+
+
+### Next-action guidance and a natural task, 2026-09-13
+
+The user reported that both master and worker behavior still needed reminders
+to avoid unnecessary mechanisms and checking. A read-only audit found no drift
+between the installed Skill, the source candidate, the three role definitions,
+and PawCerto's generated project instructions. Existing rules already covered
+the reported failures. Candidate `e050f64` therefore moved action selection,
+evidence reuse, and experiment validity to the front of the entry, broadened
+the description beyond startup or stalled work, and removed duplicated prose.
+It did not add a scheduler, hook, per-action reread, or approval mechanism.
+The static validator's literal `reversible probe` description requirement was
+removed after it rejected the otherwise valid description; structural and
+reference validation remain. Static validation, Skill validation, 18 existing
+unit tests, and an independent text review passed.
+
+The existing personal development source was updated and installed as
+`0.2.8+codex.20260912163757`. A fresh regular CLI task asked for a read-only
+assessment of the current AS2 UMI and DeepWBC source and run records, their next
+useful work, and the completion level supported by evidence. The user prompt
+did not name KMA, request delegation, or prescribe the conclusions. The master
+read the new installed entry at its first tool call, investigated AS2, and
+delegated the independent DeepWBC investigation to a native `kiss_explorer`.
+That child also read the new installed entry at its first tool call. Its
+initial task text was not available for independent inspection, so this record
+does not establish that the child received no Skill reminder from the master.
+
+The completed task reused the successful AS2 shared-geometry control result,
+distinguished the corrected DeepWBC contact run from the earlier invalid run,
+and did not classify either short execution path as learned control. It did
+not start a simulator, install dependencies, or mutate the project. An initial
+review questioned the DeepWBC evidence because CLI JSON output omitted native
+delegation and returned findings. The complete session supplied both, and the
+reviewer withdrew that finding; no duplicate source check or new KMA rule was
+added. Some document ranges were reread, but the review found no demonstrated
+material cost or unsupported extra gate from those reads.
+
+Artifacts are under `/tmp/kma-next-action-20260913/`, including the natural
+prompt, CLI events, final result, and installed-source identity. The regular
+session is `01a0967c-a73a-7e70-b119-f7a5f51b83c9`; its native child is
+`01a0967d-0cfa-7491-ae91-f6a574cf651d`. These observations support fresh main and
+child loading, useful parallel investigation, and the stated evidence
+distinctions in this task. They do not isolate the wording's causal effect,
+measure a time/token improvement, or establish reliable proactive guidance
+through every later implementation and recovery decision. The same regular task then continued with a real AS2 source-delivery
+assignment. Its ordinary work prompt did not name KMA. It reused the loaded
+entry, kept the four-file boundary, and repaired a concrete documentation gap:
+the later paired evaluation command needed a target-packing step from the
+formal model0 records. Selected CPU tests, shared-geometry inspection and an
+actual exported-policy consumer passed; missing dependencies and earlier
+checker failures were retained separately. It did not launch a simulator or
+install dependencies.
+
+The subprocess could not create the primary Git index lock in its sandbox.
+It returned validated bytes, a temporary commit and the explicit unfinished
+primary-commit action. The coordinator compared the four files and completed
+that action as PawCerto commit `5353434` without repeating the validation.
+This is bounded evidence of continued guidance reuse and a completed source
+delivery across an execution boundary. Some documentation was reread, and
+the temporary Git packaging is not evidence of reduced work. No controlled
+comparison establishes an efficiency gain or that the guidance caused these
+actions; no additional KMA mechanism was added from this continuation.
+
+
+### Completing a failed AS2 experiment, 2026-09-13
+
+The existing native AS2 owner resumed when the real iteration-4000 checkpoint
+became available. The prescribed fixed16 MuJoCo evaluation failed in all 16
+cases. The export verifier then stopped after its original-policy worker
+failed numerically. The owner retained that failure and executed the missing
+exported-policy worker independently, completing the assigned consumption
+attempt instead of dropping it at the first verifier exit. Both workers failed
+at 0.740 seconds with identical saved arrays; the report explicitly marks
+package consumption failed, despite actor and prefix identity.
+
+The separate GPU owner completed the already planned paired Lab evaluation.
+The AS2 owner combined improved tracking with seven inverted cases and reduced
+support, rather than promoting the smaller tracking error to stable control.
+The candidate stopped at its authorized 4000 updates. The final report is
+PawCerto `docs/as2-umi-learning-result.md`; its artifact paths retain the original
+verifier exit and both failed workers. This record uses the owners' delivered
+results and the final report, not an independent replay. It supports bounded
+outcome retention and honest failure interpretation in this task; it does not
+prove a causal guidance effect, an efficiency improvement, or general
+reliability. No new rule, retry mechanism or validation gate was added.
+
+### UniFP continuation and source fidelity, 2026-09-13
+
+After closing the AS2 candidate, a native implementation owner completed the
+official Lab UniFP runtime while the coordinator implemented export/evaluation.
+One resource owner operated all simulators, preserving the existing RoboDuet
+training. UniFP completed 20 updates plus one independent-process continuation.
+The subsequent force-boundary probe failed after model 21 had already been
+saved. The owner preserved that process's exit 1, repaired the inference-context
+error, and completed the missing probe in a new process with zero optimizer
+updates. The three probe steps were labeled with artificial stage/episode
+state and were not counted as trained force-control behavior.
+
+Concrete source uncertainty led to a zero-rollout original-Gym asset probe:
+the property named base COM actually targeted `FL_hip`. The port retained that
+producer, and a static inertia comparison supplied only its measured property
+evidence. A later runtime property warning exposed a training configuration
+gap; the owner fixed it and explicitly distinguished the repaired evaluation
+runtime from model 21's training physics. The single 500-step exported-policy
+evaluation retained its roll termination instead of equating completed steps
+with no-fall control. Independent CPU consumption then covered all saved real
+inputs. A separate reviewer identified two concrete summary-accounting errors;
+the coordinator fixed those errors with focused regression checks.
+
+In parallel, the Learning Force Control CPU owner found that the pinned source
+had a 19-output policy despite the earlier paper-level 17-control description.
+It kept the executable ABI and identified the local checkpoint as random
+initialization after anonymous author-weight retrieval did not succeed.
+The native source-delivery owner then received the frozen code and reports.
+
+Evidence resides in PawCerto's UniFP runtime/evaluation and Learning Force
+Control implementation reports, with the original failures retained in their
+artifact directories. This record uses those delivered results and coordinator
+CPU checks; it is not an independent simulator replay or a controlled test of
+KMA's causal effect, efficiency or general reliability. It supports the bounded
+division of work, recovery without duplicate training, and evidence-limited
+interpretation observed here. No new behavior rule or product mechanism was
+needed for these outcomes.
+
+### Learning Force Control source behavior and bounded closure, 2026-09-13
+
+The source/learner owner and physics owner divided the B1/Z1 integration while
+one device operator retained the ongoing RoboDuet experiment. An actual
+original-Gym actor probe resolved the ambiguous `gripperStator` lookup: it
+returned -1 and therefore selected the final `gripperMover` body. The default
+Lab port explicitly preserved that executable measurement while applying
+forces to `link06`; it did not add an extra body or assume the apparent source
+name described an existing body. The physics owner also detected a real
+inertia-restore error after an otherwise successful process exit and repaired
+the COM/inertia restoration order using actual public-API readback.
+
+Training completed 20 updates and one independent resumed update. A post-save
+probe repeated the inference-tensor context error previously encountered in
+UniFP. This recurrence is negative evidence for first-pass reliability and for
+assuming prior guidance or a related task's experience automatically transfers.
+The assigned owner retained the failed process and completed the remaining
+probe with zero optimizer updates, preserving the already saved model 21.
+No additional KMA rule was introduced for that PyTorch implementation error.
+
+The coordinator's first fixed-task evaluation failed before consuming a JIT
+action: it had inferred the wrong names for velocity-limit configuration fields,
+leaving all source curriculum weights zero. Earlier CPU tests and independent
+read-only review had not found this mismatch. The coordinator repaired its own
+field mapping and ran the actual source curriculum initializer and sampler on
+CPU before completing the missing physical evaluation. The original failure
+remained intact. This supports local causal recovery, not a claim that static
+review or synthetic tests were sufficient.
+
+The final 500 by 16 evaluation actually consumed the exported pair and retained
+four orientation terminations, poor EE tracking and large known-force error.
+An independent CPU consumer used all 8,000 saved real histories. The source
+owner then received a fixed file allowlist for public source delivery, while
+a separate native explorer bounded the next ReLIC external-model consumer
+without importing its non-commercial implementation into the default package.
+
+Evidence is in PawCerto's Learning Force Control physics, Lab and evaluation
+reports and their original artifact paths. This is observed bounded ownership,
+recovery and evidence interpretation; it does not establish a causal KMA effect,
+a token/time saving, general autonomous reliability or learned force control.
+
+
+### ReLIC source runtime and stage-boundary interpretation, 2026-09-13
+
+A native explorer bounded current official Lab compatibility while the external
+source owner retained the actual ReLIC consumer and one device operator retained
+RoboDuet training. A local constructor bridge inherited the original Spot knee
+initialization and compute implementation; supported Python actuator selection
+avoided modifying installed Lab or rebuilding PhysX. External licensed source,
+assets and weights stayed outside PawCerto's package. Actual execution exposed
+namespace and singleton-contact compatibility errors beyond static inspection.
+
+The first failed simulation lost its diagnostic traceback and has unknown policy
+consumption. The source owner repaired exception reporting, then the next actual
+failure exposed a contact termination that removed the single-environment batch
+axis. Its narrow external-source fix retained the old threshold equations and
+explicitly disclosed the current scalar-normal versus historical vector-force
+signal difference. A missing trajectory was not interpreted as zero physics.
+The final 500-step completion window retained eight ground-contact terminations.
+
+The coordinator required physical tracking from the saved states after target
+buffer equality had passed; the source owner computed it without another
+simulation. The coordinator also removed an arbitrary 500-step upper limit from
+the public entrypoint: an experiment budget had leaked into the product API.
+That correction is a concrete remaining guidance-application gap, not evidence
+that all agents already avoid unnecessary gates. The actual authorized physical
+window was not extended. Outside-checkout wheel consumption then exercised the
+actual original constructor and replayed all 500 saved actor inputs on CPU.
+
+Separately, RoboDuet checkpoint 10001 completed zero of nine full fixed cases.
+Its stage-boundary arm had received no optimizer updates; the released-arm
+playback did not isolate the Stage 1 training effect. Saved common-prefix data
+and physical failures were reported together, while the original 50000-update
+experiment continued. Neither process completion nor a smaller linear-velocity
+error was presented as learned coordination.
+
+Evidence is in PawCerto's ReLIC external-runtime, release-reproduction and
+RoboDuet model10001 reports. This record uses owner findings and coordinator
+CPU consumption, not an independent physics replay or a controlled measurement
+of KMA efficiency or reliability. Existing guidance covered these decisions;
+no additional role, automatic retry mechanism or behavior rule was introduced.
+
+
+### Loaded-guidance application failure, 2026-09-13
+
+The coordinating owner reports that, after the installed Skill had been loaded, the master repeatedly read a delegated simulation's service status and metrics at roughly 55-second intervals and later absorbed another substantial source investigation. The user again had to correct the work selection. Existing proactive-use and delegation text therefore did not prevent this recurrence; prior loading and bounded parallel-task evidence remains valid but does not establish sustained application.
+
+This candidate makes selection of ready deliverables explicit at the master and worker entry points, and keeps progress tracking and completion observation inside the delegated deliverable. Communication cadence does not require a fresh status read. Necessary bounded event waits remain valid. These are guidance changes addressing an observed interpretation gap, not a demonstrated root cause or a proven behavioral repair. Judge subsequent ordinary task continuations under the Dogfooding guidance in [TESTING.md](../docs/TESTING.md#dogfooding); static validation cannot settle that question.
+
+### Fresh ordinary CPU task after the guidance update, 2026-09-13
+
+A fresh trusted PawCerto CLI task received an ordinary AS2 mass, geometry and
+payload-COM analysis request. Its prompt did not name KMA, delegation, polling
+or assessment. The first command read the newly installed Skill; the task then
+delivered a reproducible static analysis of 3400 saved states. An initial joint
+range assertion failed on a 3.8e-6 rad source-format rounding difference. The
+task retained that failure, repaired the tolerance and completed the output.
+
+The event record contains 19 completed commands, four file-change events and no
+delegation. It also contains a negative observation: two commands read the same
+trace first row and MJCF header, and one broad search/read reached 40000 output
+characters. This is not evidence of consistently economical reading. A native
+independent reviewer found no new instruction contradiction requiring another
+rule; the existing evidence-reuse guidance still applies.
+
+This task had no natural slow dependency or multiple wait windows. It supports
+unprompted Skill loading and bounded execution/recovery, but does not test
+proactive delegation or sustained owner-led completion observation. No old/new
+comparison was run, so successful delivery cannot be attributed causally to the
+guidance change. Evidence is in PawCerto's local
+`outputs/kma-action-selection-20260913/{prompt.txt,events.jsonl,final.md}`;
+the useful research deliverable is `outputs/as2-pretraining-profile-20260913/`.
